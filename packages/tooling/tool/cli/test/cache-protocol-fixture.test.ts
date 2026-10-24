@@ -4,7 +4,7 @@ import {
   CacheFixtureScenario,
   makeCacheProtocolFixture,
 } from "@beep/repo-cli/commands/Cache";
-import { NodeCrypto } from "@effect/platform-node";
+import { NodeCrypto, NodeHttpIncomingMessage } from "@effect/platform-node";
 import { expect, it, vi } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue, notDeepStrictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
@@ -20,6 +20,7 @@ import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import type { HttpServerError } from "effect/http/HttpServerError";
 
 const FixtureEventsJson = CacheFixtureEvent.pipe(S.Array, S.fromJsonString);
 
@@ -47,6 +48,25 @@ const put = (url: string, body = bytes, capability = writer, signature = tag) =>
 it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20 seconds", excludeTestServices: true })(
   "native protocol fixture server",
   (it) => {
+    it.effect("assigns distinct live loopback sockets to concurrent fixtures", () =>
+      Effect.gen(function* () {
+        const fixtures = yield* Effect.forEach(A.range(1, 16), () => makeCacheProtocolFixture(credentials), {
+          concurrency: 16,
+        });
+        const urls = A.map(fixtures, (fixture) => fixture.url);
+        expect(A.dedupe(urls)).toHaveLength(fixtures.length);
+        for (const url of urls) expect(new URL(url).port).not.toBe("0");
+        const responses = yield* Effect.forEach(
+          urls,
+          (url) => get(`${url}/v8/artifacts/status?teamId=${credentials.namespace}`),
+          {
+            concurrency: 16,
+          }
+        );
+        expect(A.map(responses, (response) => response.status)).toEqual(A.replicate(200, 16));
+      })
+    );
+
     it.effect("returns supervisor copies without mutating stored bytes or adding wire events", () =>
       Effect.gen(function* () {
         const fixture = yield* makeCacheProtocolFixture(credentials);
@@ -136,8 +156,10 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
       Effect.gen(function* () {
         const fixture = yield* makeCacheProtocolFixture(credentials);
         const read = vi
-          .spyOn(Request.prototype, "arrayBuffer")
-          .mockRejectedValueOnce(new Error("request body read failed"));
+          .spyOn(NodeHttpIncomingMessage.NodeHttpIncomingMessage.prototype, "arrayBuffer", "get")
+          .mockImplementationOnce(function (this: NodeHttpIncomingMessage.NodeHttpIncomingMessage<HttpServerError>) {
+            return Effect.fail(this.onError(new Error("request body read failed")));
+          });
         yield* Effect.gen(function* () {
           const response = yield* put(endpoint(fixture.url));
           expect(response.status).toBe(400);

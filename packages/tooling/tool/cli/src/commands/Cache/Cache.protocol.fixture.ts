@@ -4,17 +4,20 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $RepoCliId } from "@beep/identity/packages";
 import { Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { O } from "@beep/utils";
-import { BunHttpServer } from "@effect/platform-bun";
+import * as NodeHttpServer from "@effect/platform-node/NodeHttpServer";
 import * as A from "effect/Array";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Headers from "effect/http/Headers";
 import * as HttpServer from "effect/http/HttpServer";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
+import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
@@ -221,7 +224,9 @@ export const makeCacheProtocolFixture = Effect.fn("Cache.makeProtocolFixture")(f
     if (role === "unknown") return yield* reply(401, "rejected");
     return yield* routeRequest(request, role, current, reply);
   });
-  const server = yield* BunHttpServer.make({ hostname: "127.0.0.1", port: 0, maxRequestBodySize: bodyLimit });
+  // Build in this fixture's scope so concurrent fixtures retain distinct OS-assigned sockets.
+  const services = yield* Layer.build(NodeHttpServer.layerTest);
+  const server = Context.get(services, HttpServer.HttpServer);
   yield* server.serve(app);
   return {
     url: HttpServer.formatAddress(server.address),
