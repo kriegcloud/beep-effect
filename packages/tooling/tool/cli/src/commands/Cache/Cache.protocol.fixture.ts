@@ -93,6 +93,29 @@ const readFaultTag = (stored: StoredArtifact, fault: CacheFixtureScenario["fault
   return tag;
 };
 
+const fixtureHost = "127.0.0.1";
+const fixtureBodyCap = Layer.succeed(HttpIncomingMessage.MaxBodySize, ByteSize.bytes(bodyLimit));
+const fixtureServerLayer = () => NodeHttpServer.layer(Http.createServer, { port: 0, host: fixtureHost });
+const fixtureUrl = (server: HttpServer.HttpServer) => HttpServer.formatAddress(server.address);
+
+const makeFixtureServer = Effect.fn("CacheFixture.makeServer")(function* () {
+  // Build in the caller's scope so concurrent fixtures retain distinct OS-assigned sockets.
+  const services = yield* Layer.build(fixtureServerLayer());
+  return Context.get(services, HttpServer.HttpServer);
+});
+
+const readFixtureBody = Effect.fn("CacheFixture.readBody")(function* (request: HttpServerRequest.HttpServerRequest) {
+  const contentLength = Headers.get(request.headers, "content-length").pipe(O.flatMap(Num.parse));
+  if (O.exists(contentLength, Num.isGreaterThan(bodyLimit))) return Result.fail(413);
+  const body = yield* request.arrayBuffer.pipe(Effect.result);
+  if (Result.isFailure(body)) {
+    const cause = body.failure.reason.cause;
+    return Result.fail(P.isError(cause) && cause.message === "maxBytes exceeded" ? 413 : 400);
+  }
+  const bytes = new Uint8Array(body.success);
+  return bytes.byteLength > bodyLimit ? Result.fail(413) : Result.succeed(bytes);
+});
+
 /**
  * Start a bounded local fixture whose lifetime is owned by the caller's scope.
  *
@@ -167,16 +190,9 @@ export const makeCacheProtocolFixture = Effect.fn("Cache.makeProtocolFixture")(f
       return yield* reply(415, "put", O.some(key));
     const tag = Headers.get(request.headers, "x-artifact-tag");
     if (O.isNone(tag) || !S.is(Tag)(tag.value)) return yield* reply(400, "put", O.some(key));
-    const contentLength = Headers.get(request.headers, "content-length").pipe(O.flatMap(Num.parse));
-    if (O.exists(contentLength, Num.isGreaterThan(bodyLimit))) return yield* reply(413, "put", O.some(key));
-    const body = yield* request.arrayBuffer.pipe(Effect.result);
-    if (Result.isFailure(body)) {
-      const cause = body.failure.reason.cause;
-      const status = P.isError(cause) && cause.message === "maxBytes exceeded" ? 413 : 400;
-      return yield* reply(status, "put", O.some(key));
-    }
-    const bytes = new Uint8Array(body.success);
-    if (bytes.byteLength > bodyLimit) return yield* reply(413, "put", O.some(key));
+    const body = yield* readFixtureBody(request);
+    if (Result.isFailure(body)) return yield* reply(body.failure, "put", O.some(key));
+    const bytes = body.success;
     const stored = StoredArtifact.make({ body: bytes, digest: yield* hashBytes(bytes), tag: tag.value });
     const status = yield* Ref.modify(artifacts, (all) => {
       const prior = HashMap.get(all, key);
@@ -235,12 +251,10 @@ export const makeCacheProtocolFixture = Effect.fn("Cache.makeProtocolFixture")(f
     if (role === "unknown") return yield* reply(401, "rejected");
     return yield* routeRequest(request, role, current, reply);
   });
-  // Build in this fixture's scope so concurrent fixtures retain distinct OS-assigned sockets.
-  const services = yield* Layer.build(NodeHttpServer.layer(Http.createServer, { port: 0, host: "127.0.0.1" }));
-  const server = Context.get(services, HttpServer.HttpServer);
-  yield* server.serve(app.pipe(Effect.provideService(HttpIncomingMessage.MaxBodySize, ByteSize.bytes(bodyLimit))));
+  const server = yield* makeFixtureServer();
+  yield* server.serve(app.pipe(Effect.provide(fixtureBodyCap)));
   return {
-    url: HttpServer.formatAddress(server.address),
+    url: fixtureUrl(server),
     events: Ref.get(events),
     // Supervisor-only observation; HTTP readers cannot access this capability.
     artifactBytes: (key: CacheFixtureArtifactKey) =>
