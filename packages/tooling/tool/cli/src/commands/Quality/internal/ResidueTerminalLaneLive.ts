@@ -184,8 +184,8 @@ const proveTerminalLane = Effect.fnUntraced(function* (
  * invoking CLI's ancestry has its cwd inside it, no open session-ledger row
  * names it, and its branch has a merged pull request whose head equals HEAD
  * or descends from it. Every git, `/proc`, ledger or `gh` failure answers
- * `None`. `pullRequests` defaults to `gh pr list --head <branch> --state
- * merged`; tests substitute a fixture source.
+ * `None`. `pullRequests` defaults to
+ * `gh pr list --head <branch> --state merged`; tests substitute a fixture source.
  *
  * **Example** (Build the probe effect)
  *

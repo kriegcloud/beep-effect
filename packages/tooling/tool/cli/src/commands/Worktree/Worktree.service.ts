@@ -156,10 +156,11 @@ const decodeMergedPullRequestRows = S.decodeUnknownEffect(MergedPullRequestRows)
  *
  * **Details**
  *
- * Runs `gh pr list --head <branch> --state merged --json number,headRefOid
- * --limit 100` in `cwd`. Any `gh` spawn failure, non-zero exit, truncated
- * capture or undecodable payload answers `None`, so an unavailable or
- * unauthenticated `gh` can only make a caller more conservative.
+ * Runs this command in `cwd`:
+ * `gh pr list --head <branch> --state merged --json number,headRefOid --limit 100`.
+ * Any `gh` spawn failure, non-zero exit, truncated capture or undecodable
+ * payload answers `None`, so an unavailable or unauthenticated `gh` can only
+ * make a caller more conservative.
  *
  * **Example** (Build the listing effect)
  *
