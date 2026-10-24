@@ -84,15 +84,44 @@ const templateCatalogReferencePattern = /["']?((?:@[\w.-]+\/)?[\w.-]+)["']?\s*:\
 // catalog fields validate as the snapshot's `CatalogUsageRootManifest`.
 const parseRootManifest = manifestParser(["catalog", "overrides"]);
 const decodeRootCatalogs = S.decodeUnknownEffect(CatalogUsageRootManifest);
-const readRootCatalogs = Effect.fn("CatalogUsage.readRootCatalogs")(function* (text: string) {
-  const root = yield* parseRootManifest(text);
+/**
+ * Read the root `package.json` text's `catalog`, named `catalogs` and
+ * `overrides`.
+ *
+ * **Details**
+ *
+ * The manifest reads through `LenientManifest`; Bun's named `catalogs` map is
+ * not a field the kit models, so it is taken from `rest`. Strict JSON only:
+ * JSONC text fails.
+ *
+ * **Example** (Read the default catalog)
+ *
+ * ```ts
+ * import { readRootCatalogs } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ *
+ * const root = Effect.runSync(readRootCatalogs('{"catalog":{"effect":"4.0.0"}}'))
+ * console.log(root.catalog) // { effect: "4.0.0" }
+ * ```
+ *
+ * @param text - The root manifest document as read from disk.
+ * @returns The root catalog fields as the snapshot's root manifest.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const readRootCatalogs = Effect.fn("CatalogUsage.readRootCatalogs")(function* (
+  text: string
+): Effect.fn.Return<CatalogUsageRootManifest, CatalogUsageError> {
+  const root = yield* parseRootManifest(text).pipe(
+    CatalogUsageError.mapError("Failed to parse the root package.json.", "package.json")
+  );
   return yield* decodeRootCatalogs(
     O.getSomesStruct({
       catalog: O.fromUndefinedOr(root.catalog),
       catalogs: O.flatMap(O.fromUndefinedOr(root.rest), R.get("catalogs")),
       overrides: O.fromUndefinedOr(root.overrides),
     })
-  );
+  ).pipe(CatalogUsageError.mapError("Failed to parse the root package.json.", "package.json"));
 });
 const parseManifestDependencies = manifestParser([
   "dependencies",
@@ -265,9 +294,37 @@ const readText = Effect.fn("CatalogUsage.readText")(function* (
     .pipe(CatalogUsageError.mapError(`Failed to read ${file}.`, file));
 });
 
-const readManifest = Effect.fn("CatalogUsage.readManifest")(function* (repoRoot: string, file: string) {
-  const manifest = yield* readText(repoRoot, file).pipe(
-    Effect.flatMap(parseManifestDependencies),
+/**
+ * Read one workspace `package.json` text into its four dependency buckets.
+ *
+ * **Details**
+ *
+ * A present bucket must be a string record; an absent one reads as empty.
+ * Strict JSON only: JSONC text fails.
+ *
+ * **Example** (Read a manifest with one dependency)
+ *
+ * ```ts
+ * import { readCatalogUsageManifest } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ *
+ * const manifest = Effect.runSync(
+ *   readCatalogUsageManifest('{"dependencies":{"effect":"catalog:"}}', "packages/demo/package.json")
+ * )
+ * console.log(manifest.dependencies, manifest.devDependencies) // { effect: "catalog:" } {}
+ * ```
+ *
+ * @param text - The workspace manifest document as read from disk.
+ * @param file - Repo-relative manifest path the record carries.
+ * @returns The manifest's dependency buckets.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const readCatalogUsageManifest = Effect.fn("CatalogUsage.readCatalogUsageManifest")(function* (
+  text: string,
+  file: string
+): Effect.fn.Return<CatalogUsageManifest, CatalogUsageError> {
+  const manifest = yield* parseManifestDependencies(text).pipe(
     CatalogUsageError.mapError(`Failed to parse package manifest ${file}.`, file)
   );
   return CatalogUsageManifest.make({
@@ -277,6 +334,10 @@ const readManifest = Effect.fn("CatalogUsage.readManifest")(function* (repoRoot:
     peerDependencies: manifest.peerDependencies ?? R.empty(),
     optionalDependencies: manifest.optionalDependencies ?? R.empty(),
   });
+});
+
+const readManifest = Effect.fn("CatalogUsage.readManifest")(function* (repoRoot: string, file: string) {
+  return yield* readCatalogUsageManifest(yield* readText(repoRoot, file), file);
 });
 
 const readLockfilePackages = Effect.fn("CatalogUsage.readLockfilePackages")(function* (repoRoot: string) {
@@ -307,8 +368,8 @@ const readCatalogUsageSnapshot = Effect.fn("CatalogUsage.readCatalogUsageSnapsho
   repoRoot: string
 ): Effect.fn.Return<CatalogUsageSnapshot, CatalogUsageError, SourceEnvironment> {
   const root = yield* readText(repoRoot, "package.json").pipe(
-    Effect.flatMap(readRootCatalogs),
-    CatalogUsageError.mapError("Failed to parse the root package.json.", "package.json")
+    CatalogUsageError.mapError("Failed to parse the root package.json.", "package.json"),
+    Effect.flatMap(readRootCatalogs)
   );
   const workspaceFiles = yield* collectWorkspacePackageJsonFiles(repoRoot).pipe(
     CatalogUsageError.mapError("Failed to list workspace package manifests.")

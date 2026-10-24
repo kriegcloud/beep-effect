@@ -486,16 +486,45 @@ export const selectPackageVerifyTargetForTesting = Effect.fn("PackageVerify.sele
   });
 });
 
-const readPackageWorkspace = Effect.fn("PackageVerify.readPackageWorkspace")(function* (
+/**
+ * Read one workspace `package.json` text into its package-verify record.
+ *
+ * **Details**
+ *
+ * The manifest must declare a `name`, and a present `name` or `scripts` must
+ * keep its JSON shape. Strict JSON only: JSONC text fails.
+ *
+ * **Example** (Read a workspace's scripts)
+ *
+ * ```ts
+ * import { readPackageVerifyWorkspace } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ *
+ * const workspace = Effect.runSync(
+ *   readPackageVerifyWorkspace(
+ *     '{"name":"@beep/demo","scripts":{"check":"tsc"}}',
+ *     "packages/demo/package.json",
+ *     "@beep/demo",
+ *     "packages/demo"
+ *   )
+ * )
+ * console.log(workspace.scripts) // { check: "tsc" }
+ * ```
+ *
+ * @param content - Workspace `package.json` text.
+ * @param packageJsonPath - Path named in a failure.
+ * @param name - Workspace package name the record carries.
+ * @param dir - Workspace directory the record carries.
+ * @returns The workspace's name, directory and scripts.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const readPackageVerifyWorkspace = Effect.fn("PackageVerify.readPackageVerifyWorkspace")(function* (
+  content: string,
+  packageJsonPath: string,
   name: string,
   dir: string
-): Effect.fn.Return<PackageVerifyWorkspace, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const packageJsonPath = path.join(dir, "package.json");
-  const content = yield* fs
-    .readFileString(packageJsonPath)
-    .pipe(QualityScriptCommandError.mapError(`Failed to read ${packageJsonPath}.`));
+): Effect.fn.Return<PackageVerifyWorkspace, QualityScriptCommandError> {
   const packageJson = yield* parsePackageVerifyPackageJson(content).pipe(
     QualityScriptCommandError.mapError(`Failed to decode ${packageJsonPath}.`)
   );
@@ -512,6 +541,19 @@ const readPackageWorkspace = Effect.fn("PackageVerify.readPackageWorkspace")(fun
     dir,
     scripts: packageJson.scripts ?? R.empty<string>(),
   });
+});
+
+const readPackageWorkspace = Effect.fn("PackageVerify.readPackageWorkspace")(function* (
+  name: string,
+  dir: string
+): Effect.fn.Return<PackageVerifyWorkspace, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const packageJsonPath = path.join(dir, "package.json");
+  const content = yield* fs
+    .readFileString(packageJsonPath)
+    .pipe(QualityScriptCommandError.mapError(`Failed to read ${packageJsonPath}.`));
+  return yield* readPackageVerifyWorkspace(content, packageJsonPath, name, dir);
 });
 
 /**

@@ -71,6 +71,37 @@ export const exactVersionFromSpecifier = (value: unknown): string =>
 const parseRootPackageJson = manifestParser(["catalog", "devDependencies"]);
 
 /**
+ * Read the root `package.json` text the version resolvers consume.
+ *
+ * **Details**
+ *
+ * A present `catalog` or `devDependencies` must be a string record. Strict
+ * JSON only: JSONC text fails.
+ *
+ * **Example** (Read the root catalog)
+ *
+ * ```ts
+ * import { readRootPackageJsonText } from "@beep/repo-cli/test/VersionSync"
+ * import * as Effect from "effect/Effect"
+ *
+ * const manifest = Effect.runSync(readRootPackageJsonText('{"catalog":{"effect":"4.0.0"}}'))
+ * console.log(manifest.catalog) // { effect: "4.0.0" }
+ * ```
+ *
+ * @param text - The root manifest document as read from disk.
+ * @returns The root manifest through `LenientManifest`.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const readRootPackageJsonText = Effect.fn("RootCatalog.readRootPackageJsonText")(function* (
+  text: string
+): Effect.fn.Return<LenientManifest, VersionSyncError> {
+  return yield* parseRootPackageJson(text).pipe(
+    VersionSyncError.mapError("Failed to parse package.json", "package.json")
+  );
+});
+
+/**
  * Read and decode the root `package.json` catalog and devDependencies.
  *
  * **Example** (Read the root manifest)
@@ -98,9 +129,7 @@ export const readRootPackageJson = Effect.fn("readRootPackageJson")(function* (
     .readFileString(pkgJsonPath)
     .pipe(VersionSyncError.mapError("Failed to read package.json", "package.json"));
 
-  return yield* parseRootPackageJson(pkgJsonContent).pipe(
-    VersionSyncError.mapError("Failed to parse package.json", "package.json")
-  );
+  return yield* readRootPackageJsonText(pkgJsonContent);
 });
 
 /**

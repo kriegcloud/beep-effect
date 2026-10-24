@@ -251,6 +251,36 @@ const collectTestSources = Effect.fn("PackageTestTypecheck.collectTestSources")(
   );
 });
 
+/**
+ * Read a package's `package.json` text for the test-typecheck lint.
+ *
+ * **Details**
+ *
+ * Text that is not a JSON object (JSONC included), or whose `name` or
+ * `scripts` is malformed, is no package for this lint and reads as `None`.
+ *
+ * **Example** (Read a manifest and reject JSONC)
+ *
+ * ```ts
+ * import { readTestTypecheckManifest } from "@beep/repo-cli/commands/Lint"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.isSome(Effect.runSync(readTestTypecheckManifest('{"name":"@beep/demo"}')))) // true
+ * console.log(O.isNone(Effect.runSync(readTestTypecheckManifest('{"name":"@beep/demo", // x\n}')))) // true
+ * ```
+ *
+ * @param content - Package `package.json` text.
+ * @returns The manifest, or `None` when it does not read.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const readTestTypecheckManifest = Effect.fn("PackageTestTypecheck.readTestTypecheckManifest")(function* (
+  content: string
+): Effect.fn.Return<O.Option<LenientManifest>> {
+  return yield* parsePackageManifest(content).pipe(Effect.option);
+});
+
 const readPackageManifest = Effect.fn("PackageTestTypecheck.readPackageManifest")(function* (
   packageDir: string
 ): Effect.fn.Return<O.Option<LenientManifest>, never, FileSystem.FileSystem | Path.Path> {
@@ -262,7 +292,7 @@ const readPackageManifest = Effect.fn("PackageTestTypecheck.readPackageManifest"
     text,
     O.match({
       onNone: () => Effect.succeed(O.none<LenientManifest>()),
-      onSome: (content) => parsePackageManifest(content).pipe(Effect.option),
+      onSome: readTestTypecheckManifest,
     })
   );
 });
@@ -318,12 +348,19 @@ const packageBlindSpot = Effect.fn("PackageTestTypecheck.packageBlindSpot")(func
 
   const manifest = yield* readPackageManifest(packageDir);
 
-  const packageName = O.flatMapNullishOr(manifest, (document) => document.name);
-  if (O.isNone(manifest) || O.isNone(packageName) || Str.isEmpty(packageName.value)) {
+  const packageName = pipe(
+    manifest,
+    O.flatMapNullishOr((document) => document.name),
+    O.filter(Str.isNonEmpty)
+  );
+  if (O.isNone(packageName)) {
     return O.none();
   }
 
-  const scripts = manifest.value.scripts ?? R.empty<string, string>();
+  const scripts = O.getOrElse(
+    O.flatMapNullishOr(manifest, (document) => document.scripts),
+    R.empty<string, string>
+  );
 
   if (A.isReadonlyArrayEmpty(yield* uncoveredByCheckScript(packageDir, scripts, testSources))) {
     return O.none();

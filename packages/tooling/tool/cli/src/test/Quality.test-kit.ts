@@ -19,6 +19,7 @@ export {
   changesetStatusVerdict,
   LAB_EXEMPT_COMPANION_PATHS,
   partitionChangedFilesForStatus,
+  readChangesetStatusWorkspacePackage,
   runChangesetStatus,
   uncoveredWorkspacePackageNames,
 } from "@beep/repo-cli/commands/Quality/ChangesetStatus";
@@ -93,7 +94,9 @@ export {
   fencedLineState,
   jsdocCommentsFromSource,
   listSourceFiles,
+  readWorkspacePackageText,
   tagsFromComment,
+  workspacePatternsFrom,
 } from "../commands/Quality/internal/QualityArtifactSupport.ts";
 export { testTsgoPrograms } from "../commands/Quality/internal/TestTsgoPrograms.ts";
 export * from "../commands/Quality/internal/TurboConfigProof.ts";

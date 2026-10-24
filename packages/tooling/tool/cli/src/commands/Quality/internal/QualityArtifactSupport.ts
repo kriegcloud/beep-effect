@@ -265,18 +265,41 @@ const resolveEntryWithinRoot = Effect.fn("QualityArtifactSupport.resolveEntryWit
 });
 
 /**
- * Read one workspace package manifest into its discovery record.
+ * Read one workspace `package.json` text into its discovery record.
  *
- * @category filesystem
+ * **Details**
+ *
+ * The manifest must declare a `name`, and a present `name`, `scripts`,
+ * `workspaces` or dependency bucket must keep its JSON shape. Strict JSON
+ * only: JSONC text fails.
+ *
+ * **Example** (Read a workspace manifest)
+ *
+ * ```ts
+ * import { readWorkspacePackageText } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ *
+ * const info = Effect.runSync(
+ *   readWorkspacePackageText('{"name":"@beep/demo"}', "/repo/packages/demo/package.json", "/repo/packages/demo", "packages/demo")
+ * )
+ * console.log(info.name, info.path) // @beep/demo packages/demo
+ * ```
+ *
+ * @param content - Workspace `package.json` text.
+ * @param filePath - Path named in a failure.
+ * @param absolutePath - Absolute workspace directory the record carries.
+ * @param relativePath - Repo-relative workspace directory the record carries.
+ * @returns The workspace's discovery record.
+ * @category parsing
  * @since 0.0.0
  */
-const readWorkspacePackage = Effect.fn("QualityArtifactSupport.readWorkspacePackage")(function* (
+export const readWorkspacePackageText = Effect.fn("QualityArtifactSupport.readWorkspacePackageText")(function* (
+  content: string,
+  filePath: string,
   absolutePath: string,
-  relativePath: string,
-  path: Path.Path
-): Effect.fn.Return<WorkspacePackageInfo, QualityArtifactGeneratorError, FileSystem.FileSystem> {
-  const filePath = path.join(absolutePath, "package.json");
-  const packageJson = yield* parsePackageJson(yield* readText(filePath)).pipe(
+  relativePath: string
+): Effect.fn.Return<WorkspacePackageInfo, QualityArtifactGeneratorError> {
+  const packageJson = yield* parsePackageJson(content).pipe(
     QualityArtifactGeneratorError.mapError(`Failed to decode package manifest ${filePath}.`, { filePath })
   );
   if (P.isUndefined(packageJson.name)) {
@@ -290,14 +313,37 @@ const readWorkspacePackage = Effect.fn("QualityArtifactSupport.readWorkspacePack
 });
 
 /**
+ * Read one workspace package manifest into its discovery record.
+ *
+ * @category filesystem
+ * @since 0.0.0
+ */
+const readWorkspacePackage = Effect.fn("QualityArtifactSupport.readWorkspacePackage")(function* (
+  absolutePath: string,
+  relativePath: string,
+  path: Path.Path
+): Effect.fn.Return<WorkspacePackageInfo, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const filePath = path.join(absolutePath, "package.json");
+  return yield* readWorkspacePackageText(yield* readText(filePath), filePath, absolutePath, relativePath);
+});
+
+/**
  * Extract workspace glob patterns from a package manifest workspace field.
+ *
+ * **Example** (Read the object workspace form)
+ *
+ * ```ts
+ * import { workspacePatternsFrom } from "@beep/repo-cli/test/Quality"
+ *
+ * console.log(workspacePatternsFrom({ packages: ["packages/*"] })) // ["packages/*"]
+ * ```
  *
  * @param workspaces - Raw `package.json` workspaces value.
  * @returns Workspace glob patterns from array or object forms.
  * @category workspaces
  * @since 0.0.0
  */
-const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string> => {
+export const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string> => {
   if (A.isArray(workspaces)) {
     return A.filter(workspaces, P.isString);
   }

@@ -11,11 +11,11 @@
  * @since 0.0.0
  */
 
+import { StringListField } from "@beep/package-json/ManifestFields";
 import { A, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import { flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { manifestParser } from "../../../internal/ManifestRead.ts";
@@ -141,13 +141,13 @@ export const findEffectSchemaInventoryModule = (module: string): O.Option<Effect
 const EffectCatalog = S.Struct({ effect: S.optionalKey(S.String) });
 
 const WorkspacesWithCatalog = S.Struct({ catalog: S.optionalKey(EffectCatalog) });
-const isWorkspacePatternList = S.is(S.Array(S.String));
+const isWorkspacePatternList = S.is(StringListField);
 
 // The repo-specific halves of the root manifest the pin needs: the Bun
 // `workspaces.catalog` fallback and `config.effectSource`. The manifest itself
 // reads through `LenientManifest`; these decode the two nested values it types
 // only as open JSON.
-const decodeRootWorkspaces = S.decodeUnknownEffect(S.Union([S.Array(S.String), WorkspacesWithCatalog]));
+const decodeRootWorkspaces = S.decodeUnknownEffect(S.Union([StringListField, WorkspacesWithCatalog]));
 const decodeRootConfig = S.decodeUnknownEffect(
   S.Struct({
     effectSource: S.OptionFromOptionalKey(
@@ -160,17 +160,12 @@ const decodeRootConfig = S.decodeUnknownEffect(
 );
 const parseRootManifest = manifestParser(["catalog", "workspaces", "config"]);
 
-const decodeOptional = <A, E>(
-  value: unknown,
-  decode: (input: unknown) => Effect.Effect<A, E>
-): Effect.Effect<O.Option<A>, E> => (P.isUndefined(value) ? Effect.succeedNone : Effect.asSome(decode(value)));
-
 const readRootManifest = Effect.fn("EffectSchemaInventoryModules.readRootManifest")(function* (
   packageJsonText: string
 ) {
   const manifest = yield* parseRootManifest(packageJsonText);
-  const workspaces = yield* decodeOptional(manifest.workspaces, decodeRootWorkspaces);
-  const config = yield* decodeOptional(manifest.config, decodeRootConfig);
+  const workspaces = yield* Effect.transposeOption(O.map(O.fromUndefinedOr(manifest.workspaces), decodeRootWorkspaces));
+  const config = yield* Effect.transposeOption(O.map(O.fromUndefinedOr(manifest.config), decodeRootConfig));
   const specifier = pipe(
     O.fromUndefinedOr(manifest.catalog),
     O.flatMap(R.get("effect")),

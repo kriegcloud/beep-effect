@@ -224,19 +224,85 @@ const collectGitOutput = Effect.fn("ChangesetGraph.collectGitOutput")(function* 
   return result.output;
 });
 
-const readPackageJson = Effect.fn("ChangesetGraph.readPackageJson")(function* (
-  filePath: string,
-  parse: ReturnType<typeof manifestParser>
-): Effect.fn.Return<LenientManifest, ChangesetGraphError, FileSystem.FileSystem> {
+const readPackageJsonText = Effect.fn("ChangesetGraph.readPackageJsonText")(function* (
+  filePath: string
+): Effect.fn.Return<string, ChangesetGraphError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
-  const content = yield* fs
+  return yield* fs
     .readFileString(filePath)
     .pipe(ChangesetGraphError.mapError(`Failed to read package manifest ${filePath}.`, filePath));
+});
 
-  return yield* parse(content).pipe(
+/**
+ * Read the workspace glob patterns from the text of the root `package.json`.
+ *
+ * **Details**
+ *
+ * The manifest reads through `LenientManifest`; a present `workspaces` must be
+ * a string array or an object whose optional `packages` is one. Strict JSON
+ * only: JSONC text fails.
+ *
+ * **Example** (Read array and object workspace forms)
+ *
+ * ```ts
+ * import { readChangesetGraphRootPatterns } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ *
+ * const patterns = Effect.runSync(
+ *   readChangesetGraphRootPatterns('{"workspaces":{"packages":["packages/*"]}}', "package.json")
+ * )
+ * console.log(patterns) // ["packages/*"]
+ * ```
+ *
+ * @param content - Root `package.json` text.
+ * @param filePath - Path named in a failure.
+ * @returns The declared workspace patterns, empty when `workspaces` is absent.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const readChangesetGraphRootPatterns = Effect.fn("ChangesetGraph.readChangesetGraphRootPatterns")(function* (
+  content: string,
+  filePath: string
+): Effect.fn.Return<ReadonlyArray<string>, ChangesetGraphError> {
+  const manifest = yield* parseRootPackageJson(content).pipe(
     ChangesetGraphError.mapError(`Failed to parse package manifest ${filePath}.`, filePath)
   );
+  return yield* workspacePatternsFrom(manifest, filePath);
 });
+
+/**
+ * Read the `name` and `private` flag of one workspace `package.json` text.
+ *
+ * **Details**
+ *
+ * A present `name` or `private` must keep its JSON shape; other malformed
+ * fields stay `LenientManifest` issues. Strict JSON only: JSONC text fails.
+ *
+ * **Example** (Read a private workspace manifest)
+ *
+ * ```ts
+ * import { readChangesetGraphWorkspaceManifest } from "@beep/repo-cli/test/Quality"
+ * import * as Effect from "effect/Effect"
+ *
+ * const manifest = Effect.runSync(
+ *   readChangesetGraphWorkspaceManifest('{"name":"@beep/demo","private":true}', "packages/demo/package.json")
+ * )
+ * console.log(manifest.name, manifest.isPrivate) // @beep/demo true
+ * ```
+ *
+ * @param content - Workspace `package.json` text.
+ * @param filePath - Path named in a failure.
+ * @returns The workspace manifest through `LenientManifest`.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const readChangesetGraphWorkspaceManifest = Effect.fn("ChangesetGraph.readChangesetGraphWorkspaceManifest")(
+  function* (content: string, filePath: string): Effect.fn.Return<LenientManifest, ChangesetGraphError> {
+    return yield* parseWorkspacePackageJson(content).pipe(
+      ChangesetGraphError.mapError(`Failed to parse package manifest ${filePath}.`, filePath)
+    );
+  }
+);
 
 const readRetiredChangesetPackageNames = Effect.fn("ChangesetGraph.readRetiredChangesetPackageNames")(function* (
   repoRoot: string
@@ -307,9 +373,8 @@ export const collectWorkspacePackageJsonFiles = Effect.fn("ChangesetGraph.collec
 > {
   const path = yield* Path.Path;
   const rootPackageJsonPath = path.join(repoRoot, "package.json");
-  const rootPackageJson = yield* readPackageJson(rootPackageJsonPath, parseRootPackageJson);
   const workspacePathspecs = A.map(
-    yield* workspacePatternsFrom(rootPackageJson, rootPackageJsonPath),
+    yield* readChangesetGraphRootPatterns(yield* readPackageJsonText(rootPackageJsonPath), rootPackageJsonPath),
     packageJsonPathspecForWorkspacePattern
   );
   const output = yield* collectGitOutput(repoRoot, [
@@ -338,7 +403,8 @@ const collectWorkspacePackages = Effect.fn("ChangesetGraph.collectWorkspacePacka
   const documents = yield* Effect.forEach(
     packageJsonFiles,
     Effect.fn(function* (file) {
-      const document = yield* readPackageJson(path.join(repoRoot, file), parseWorkspacePackageJson);
+      const filePath = path.join(repoRoot, file);
+      const document = yield* readChangesetGraphWorkspaceManifest(yield* readPackageJsonText(filePath), filePath);
       if (P.isUndefined(document.name)) {
         return yield* ChangesetGraphError.make({
           message: `Workspace package manifest ${file} does not declare a package name.`,

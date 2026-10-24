@@ -417,16 +417,66 @@ const readJsoncFile = Effect.fn("readJsonCFile")(function* <A, I>(
   );
 });
 
-// The package's own manifest through the presence-lenient `PackageManifest`
-// tier: every present field must satisfy its codec, and docgen needs `name`
-// and `homepage` on top of that.
-const readPackageJson = Effect.fn("Configuration.readPackageJson")(function* (
+/**
+ * The `name` and `homepage` docgen reads from its package's `package.json`.
+ *
+ * **Example** (Construct a package identity)
+ *
+ * ```ts
+ * import { DocgenPackageIdentity } from "@beep/repo-docgen/Configuration"
+ *
+ * const identity = DocgenPackageIdentity.make({ name: "@beep/demo", homepage: "https://example.com" })
+ * console.log(identity.name) // @beep/demo
+ * ```
+ *
+ * @internal
+ * @category models
+ * @since 0.0.0
+ */
+export class DocgenPackageIdentity extends S.Opaque<DocgenPackageIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
+    name: S.String,
+    homepage: S.String,
+  }).pipe(
+    $I.annoteSchema("DocgenPackageIdentity", {
+      description: "The package name and homepage docgen reads from the documented package's package.json.",
+    })
+  )
+) {}
+
+/**
+ * Reads a package's `name` and `homepage` through the presence-lenient
+ * `PackageManifest` tier.
+ *
+ * **Details**
+ *
+ * Every present field must satisfy its `PackageManifest` codec, and docgen
+ * needs `name` and `homepage` on top of that. Strict JSON only: JSONC text
+ * fails. `DocgenError` carries only a message, so the kit error's text is
+ * kept in it.
+ *
+ * **Example** (Read this package's identity)
+ *
+ * ```ts
+ * import { BunServices } from "@effect/platform-bun"
+ * import * as Effect from "effect/Effect"
+ * import { readPackageJson } from "../../src/Configuration.ts"
+ *
+ * const identity = await Effect.runPromise(
+ *   readPackageJson("package.json").pipe(Effect.provide(BunServices.layer))
+ * )
+ * console.log(identity.name)
+ * ```
+ *
+ * @param filePath - Path of the `package.json` to read.
+ * @returns The package's name and homepage.
+ * @internal
+ * @category configuration
+ * @since 0.0.0
+ */
+export const readPackageJson = Effect.fn("Configuration.readPackageJson")(function* (
   filePath: string
-): Effect.fn.Return<
-  { readonly name: string; readonly homepage: string },
-  Domain.DocgenError,
-  FileSystem.FileSystem | Path.Path
-> {
+): Effect.fn.Return<DocgenPackageIdentity, Domain.DocgenError, FileSystem.FileSystem | Path.Path> {
   const fail = (step: string, detail: string) =>
     Domain.DocgenError.make({
       message: `[Configuration.readPackageJson] Failed to ${step} '${filePath}'\n${detail}`,
@@ -443,7 +493,7 @@ const readPackageJson = Effect.fn("Configuration.readPackageJson")(function* (
   if (P.isUndefined(manifest.name) || P.isUndefined(manifest.homepage)) {
     return yield* fail("decode", "package.json must declare both `name` and `homepage`.");
   }
-  return { name: manifest.name, homepage: manifest.homepage };
+  return DocgenPackageIdentity.make({ name: manifest.name, homepage: manifest.homepage });
 });
 
 const readDocgenConfig = Effect.fn("Configuration.readDocgenConfig")(function* (
