@@ -415,6 +415,21 @@ it.layer(Services, { timeout: "180 seconds", excludeTestServices: true })("cache
     })
   );
 
+  it.effect("refuses to compare targets scored against different corpora", () =>
+    Effect.gen(function* () {
+      const server = yield* makeConformanceServer(goodMode);
+      const corpus = yield* buildCacheConformanceCorpus(yield* repoRoot);
+      const wire = yield* runCacheConformance(corpus, targetFor({ url: server.url }), bearers);
+      const regenerated = CacheConformanceRun.make({
+        ...wire,
+        topology: "beep-incumbent",
+        corpus: { ...wire.corpus, specSha256: Sha256Hex.make(Str.repeat(64)("b")) },
+      });
+      const outcome = yield* compareCacheConformanceRuns(yield* repoRoot, [wire, regenerated]).pipe(Effect.result);
+      assertTrue(Result.isFailure(outcome));
+    })
+  );
+
   it.effect("lets executed external evidence and pinned licenses settle gates", () =>
     Effect.gen(function* () {
       const server = yield* makeConformanceServer(goodMode);

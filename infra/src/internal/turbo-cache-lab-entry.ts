@@ -4,9 +4,10 @@
  * Reuses the production {@link CiTurboCache} component unchanged under a
  * lab-only component name, so every physical name (functions, log groups,
  * authorizer, API) carries the `beep-tcl-<epoch>` prefix and the stack owns
- * no production resource. The lab's bucket, KMS key and SecureStrings are
- * created by `infra/turbo-cache-lab/lab-aws.sh bootstrap` and named in this
- * stack's config, as production names its existing parameters.
+ * no production resource. `infra/turbo-cache-lab/lab-aws.sh bootstrap`
+ * creates the lab KMS key and SecureStrings and names them in this stack's
+ * config, as production names its existing parameters; the stack itself
+ * creates both lab buckets (incumbent and `-evo-`) from that config.
  *
  * @packageDocumentation
  * @since 0.0.0

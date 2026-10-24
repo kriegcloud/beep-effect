@@ -661,6 +661,17 @@ export const compareCacheConformanceRuns = Effect.fn("CacheConformance.compareRu
   const envelopeNote = envelope.concurrency.censored
     ? `The envelope is a floor, not demand: observed peak concurrency (${envelope.concurrency.readPeak} read / ${envelope.concurrency.writePeak} write) equals the reserved caps, so demand is censored (${cacheConformanceLoadEnvelopePath}).`
     : "";
+  // Merging checks corpus identity only within one target; compare across
+  // targets only when every run was scored against the same corpus.
+  const corpus = A.headNonEmpty(runs).corpus;
+  const foreign = A.findFirst(
+    runs,
+    (run) => run.corpus.specSha256 !== corpus.specSha256 || run.corpus.sourcePlanSha256 !== corpus.sourcePlanSha256
+  );
+  if (O.isSome(foreign))
+    return yield* CacheCommandError.new(
+      `${labelOf(foreign.value)} was scored against a different corpus; regenerate it before comparing targets.`
+    );
   const groups = A.groupBy(runs, labelOf);
   const merged = yield* Effect.forEach(R.values(groups), mergeCacheConformanceRuns);
   const externalFor = (run: CacheConformanceRun): ExternalEvidence => {

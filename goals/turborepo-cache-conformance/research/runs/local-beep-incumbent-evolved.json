@@ -171,11 +171,11 @@
         },
         "published-stable-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "published-canary-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "beep-security-policy": {
           "verdict": "not-applicable"
@@ -269,11 +269,11 @@
         },
         "published-stable-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "published-canary-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "beep-security-policy": {
           "verdict": "not-applicable"
@@ -531,11 +531,11 @@
         },
         "published-stable-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "published-canary-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "beep-security-policy": {
           "verdict": "not-applicable"
@@ -629,11 +629,11 @@
         },
         "published-stable-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "published-canary-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "beep-security-policy": {
           "verdict": "not-applicable"
@@ -828,11 +828,11 @@
         },
         "published-stable-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "published-canary-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "beep-security-policy": {
           "verdict": "not-applicable"
@@ -902,11 +902,11 @@
         },
         "published-stable-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "published-canary-client": {
           "verdict": "not-executed",
-          "reason": "Client acceptance is scored only by native runs (cache protocol-run)."
+          "reason": "Client acceptance is scored only by native runs (cache conformance-native)."
         },
         "beep-security-policy": {
           "verdict": "not-applicable"

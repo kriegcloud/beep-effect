@@ -225,7 +225,7 @@ const strictVerdict = (outcome: CacheConformanceWireOutcome, operations: Readonl
 const unscoredByWire = Match.type<CacheConformanceDimension>().pipe(
   Match.when(
     (dimension) => dimension === "published-stable-client" || dimension === "published-canary-client",
-    () => "Client acceptance is scored only by native runs (cache protocol-run)."
+    () => "Client acceptance is scored only by native runs (cache conformance-native)."
   ),
   Match.when("observability", () => "Needs backend log capture; the wire runner records only direct receipts."),
   Match.when("performance-envelope", () => "Needs measured load on a deployed replica."),
