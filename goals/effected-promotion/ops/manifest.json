@@ -46,6 +46,14 @@
   ],
   "opsScripts": [
     {
+      "path": "ops/cli-kit-bench.ts",
+      "purpose": "Wave 4-C bench gate: @beep/cli-kit grapheme-segmenter and grapheme operation counts at doubling sizes, compared against a baseline."
+    },
+    {
+      "path": "ops/cli-kit-sanitize-differential.ts",
+      "purpose": "Wave 4-C differential: Fmt.stripControls bytes against the two private terminal sanitizers it replaced, over a control-sequence corpus."
+    },
+    {
       "path": "ops/config-file-codec-differential.ts",
       "purpose": "Wave 3-3 differential: @beep/config-file JSONC, YAML and TOML codecs against the npm parser oracles over every tracked config file."
     },
