@@ -3354,20 +3354,22 @@ exit 74
           Effect.provideService(
             Exiftool,
             Exiftool.of({
-              readTags: Effect.fn("Exiftool.readTags")(() =>
-                Effect.succeed(
-                  ReadTagsResult.make({
-                    filePath: file.sourcePath,
-                    metadata: ExifMetadata.make({
-                      dateTimeOriginal: O.some("2020:01:02 03:04:05"),
-                      raw,
-                    }),
-                  })
-                )
-              ),
+              readTags: Effect.fn("Exiftool.readTags")(function* () {
+                return ReadTagsResult.make({
+                  filePath: file.sourcePath,
+                  metadata: ExifMetadata.make({
+                    dateTimeOriginal: O.some("2020:01:02 03:04:05"),
+                    raw,
+                  }),
+                });
+              }),
               version: Effect.succeed("test"),
-              writeTags: Effect.fn("Exiftool.writeTags")(() => Effect.die("unused")),
-              writeXmpPacket: Effect.fn("Exiftool.writeXmpPacket")(() => Effect.die("unused")),
+              writeTags: Effect.fn("Exiftool.writeTags")(function* () {
+                return yield* Effect.die("unused");
+              }),
+              writeXmpPacket: Effect.fn("Exiftool.writeXmpPacket")(function* () {
+                return yield* Effect.die("unused");
+              }),
             })
           )
         );
