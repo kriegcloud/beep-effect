@@ -9,6 +9,7 @@ import { expect, it, vi } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue, notDeepStrictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Fiber from "effect/Fiber";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Headers from "effect/http/Headers";
 import * as HttpClient from "effect/http/HttpClient";
@@ -82,6 +83,52 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
           }
         );
         expect(A.map(responses, (response) => response.status)).toEqual(A.replicate(200, 16));
+      })
+    );
+
+    it.effect("cancels the bind handoff when fixture acquisition is interrupted", () =>
+      Effect.gen(function* () {
+        const clear = vi.spyOn(globalThis, "clearImmediate");
+        yield* Effect.gen(function* () {
+          const fiber = yield* makeCacheProtocolFixture(credentials).pipe(Effect.forkChild({ startImmediately: true }));
+          yield* Fiber.interrupt(fiber);
+          expect(clear).toHaveBeenCalledTimes(1);
+        }).pipe(Effect.ensuring(Effect.sync(() => clear.mockRestore())));
+      })
+    );
+
+    it.effect("enforces body bounds even if the transport accepts larger uploads", () =>
+      Effect.gen(function* () {
+        const original = Bun.serve;
+        const serve = vi
+          .spyOn(Bun, "serve")
+          .mockImplementation((options) => original({ ...options, maxRequestBodySize: 4 * 1024 * 1024 }));
+        yield* Effect.gen(function* () {
+          const fixture = yield* makeCacheProtocolFixture(credentials);
+          const oversized = new Uint8Array(2 * 1024 * 1024 + 1);
+          expect((yield* put(endpoint(fixture.url), oversized)).status).toBe(413);
+          const chunked = yield* HttpClientRequest.put(endpoint(fixture.url)).pipe(
+            HttpClientRequest.setHeaders({ authorization: `Bearer ${writer}`, "x-artifact-tag": tag }),
+            HttpClientRequest.bodyStream(Stream.make(oversized), "application/octet-stream"),
+            HttpClient.execute
+          );
+          expect(chunked.status).toBe(413);
+          (yield* fixture.artifactBytes(artifactHash).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
+          expect(A.map(yield* fixture.events, (event) => event.status)).toEqual([413, 413]);
+        }).pipe(Effect.ensuring(Effect.sync(() => serve.mockRestore())));
+      })
+    );
+
+    it.effect("rejects unreadable request bodies without storing an artifact", () =>
+      Effect.gen(function* () {
+        const fixture = yield* makeCacheProtocolFixture(credentials);
+        const read = vi.spyOn(Request.prototype, "arrayBuffer").mockRejectedValueOnce(new Error("interrupted body"));
+        yield* Effect.gen(function* () {
+          expect((yield* put(endpoint(fixture.url))).status).toBe(400);
+          expect(read).toHaveBeenCalledTimes(1);
+          (yield* fixture.artifactBytes(artifactHash).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
+          expect(A.map(yield* fixture.events, (event) => event.status)).toEqual([400]);
+        }).pipe(Effect.ensuring(Effect.sync(() => read.mockRestore())));
       })
     );
 
