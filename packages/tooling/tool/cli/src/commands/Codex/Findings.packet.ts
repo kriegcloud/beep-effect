@@ -14,8 +14,10 @@
  * @since 0.0.0
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import { escapeMarkdownText } from "@beep/md/Md.escape";
 import { A, O } from "@beep/utils";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import { CodexFindingSeverity } from "./Findings.capture.schemas.ts";
@@ -31,9 +33,44 @@ import {
 } from "./Findings.triage.schemas.ts";
 import { PacketDocument } from "./Findings.write.ts";
 import { renderSecurityPacketGuidance } from "./Security.packet.ts";
+import type * as S from "effect/Schema";
 import type { CodexCaptureSource } from "./Findings.capture.schemas.ts";
 import type { CodexFindingRecord, CodexPacketPlan } from "./Findings.schemas.ts";
 import type { CodexCaptureMethod } from "./Findings.triage.schemas.ts";
+
+const $I = $RepoCliId.create("commands/Codex/Findings.packet");
+
+/**
+ * Encoder the packet renderer uses for the generated `ops/triage.json` ledger.
+ *
+ * **Details**
+ *
+ * Defaults to `encodeCodexTriageLedger`, so production code never provides
+ * it. The ledger is built from an already-validated plan and always encodes;
+ * providing a failing encoder is how a test reaches the renderer's
+ * `payload-invalid` mapping.
+ *
+ * **Example** (Force the ledger encode to fail)
+ *
+ * ```ts
+ * import { CodexTriageLedgerEncoder } from "@beep/repo-cli/commands/Codex/Findings.packet"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const encode = yield* CodexTriageLedgerEncoder
+ *   return typeof encode
+ * }).pipe(Effect.provideService(CodexTriageLedgerEncoder, S.encodeUnknownEffect(S.Never)))
+ *
+ * console.log(Effect.runSync(program)) // "function"
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export const CodexTriageLedgerEncoder = Context.Reference<
+  (ledger: CodexTriageLedger) => Effect.Effect<typeof CodexTriageLedger.Encoded, S.SchemaError>
+>($I`CodexTriageLedgerEncoder`, { defaultValue: () => encodeCodexTriageLedger });
 
 /**
  * Marker written wherever a phase must supply judgment the capture cannot.
@@ -319,7 +356,8 @@ const triageDocument = Effect.fnUntraced(function* (plan: CodexPacketPlan) {
     ),
   });
 
-  const encoded = yield* encodeCodexTriageLedger(ledger).pipe(
+  const encodeLedger = yield* CodexTriageLedgerEncoder;
+  const encoded = yield* encodeLedger(ledger).pipe(
     Effect.mapError((cause) =>
       CodexFindingsIngestError.make({
         reason: "payload-invalid",

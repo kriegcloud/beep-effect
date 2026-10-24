@@ -3149,6 +3149,7 @@
     {"name":"VersionSync.compareBunRuntimeVersion","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"VersionSync.handle.check.failOnDrift","owner":"@beep/repo-cli","family":"tooling","conforms":false},
     {"name":"VersionSync.handle.write.applyUpdates","owner":"@beep/repo-cli","family":"tooling","conforms":false},
+    {"name":"VersionSync.readRootLockfile","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"WorkstationState.resolveDir","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Worktree.addWorktree","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Worktree.copyLocalFiles","owner":"@beep/repo-cli","family":"tooling","conforms":true},

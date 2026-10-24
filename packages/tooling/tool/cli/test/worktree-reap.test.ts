@@ -13,6 +13,7 @@ import {
 import { runRepoCommandCapture } from "@beep/repo-cli/test/RepoRun";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
+import { expect } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -22,7 +23,6 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { expect } from "vitest";
 
 const removalLayer = WorktreeRemovalServiceLive.pipe(Layer.provide(NodeServices.layer));
 const testLayer = Layer.merge(NodeServices.layer, removalLayer);

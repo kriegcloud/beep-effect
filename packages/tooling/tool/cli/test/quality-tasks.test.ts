@@ -190,6 +190,7 @@ import * as P from "effect/Predicate";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
+import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
@@ -2119,15 +2120,15 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               const wrapper = yield* Effect.forkChild(
                 runQualityTaskGithubCheckLaneWaves("pre-push", waves, "fail-fast")
               );
-              let lines = A.empty<string>();
-              for (let attempt = 0; attempt < 200 && A.length(lines) < 2; attempt++) {
-                yield* Effect.sleep("10 millis");
-                lines = pipe(
-                  yield* fs.readFileString(artifactPath).pipe(Effect.orElseSucceed(() => Str.empty)),
-                  Str.split("\n"),
-                  A.filter(Str.isNonEmpty)
-                );
-              }
+              const lines = yield* fs.readFileString(artifactPath).pipe(
+                Effect.orElseSucceed(() => Str.empty),
+                Effect.map(flow(Str.split("\n"), A.filter(Str.isNonEmpty))),
+                Effect.repeat({
+                  schedule: Schedule.spaced("10 millis"),
+                  until: (read) => A.length(read) >= 2,
+                  times: 200,
+                })
+              );
               yield* Fiber.interrupt(wrapper);
               expect(lines).toHaveLength(2);
               const reports = yield* Effect.forEach(lines, (line) => decodeQualityTaskLaneRunReportJson(line));
@@ -2169,15 +2170,15 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
                   1
                 )
               );
-              let lines = A.empty<string>();
-              for (let attempt = 0; attempt < 200 && A.length(lines) < 2; attempt++) {
-                yield* Effect.sleep("10 millis");
-                lines = pipe(
-                  yield* fs.readFileString(artifactPath).pipe(Effect.orElseSucceed(() => Str.empty)),
-                  Str.split("\n"),
-                  A.filter(Str.isNonEmpty)
-                );
-              }
+              const lines = yield* fs.readFileString(artifactPath).pipe(
+                Effect.orElseSucceed(() => Str.empty),
+                Effect.map(flow(Str.split("\n"), A.filter(Str.isNonEmpty))),
+                Effect.repeat({
+                  schedule: Schedule.spaced("10 millis"),
+                  until: (read) => A.length(read) >= 2,
+                  times: 200,
+                })
+              );
               yield* Fiber.interrupt(wrapper);
               expect(lines).toHaveLength(2);
               const reports = yield* Effect.forEach(lines, (line) => decodeQualityTaskLaneRunReportJson(line));

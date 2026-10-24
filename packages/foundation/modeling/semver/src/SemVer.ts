@@ -113,6 +113,17 @@ const nonNegativeInteger = S.Finite.check(
   })
 );
 
+// The SemVer 2.0.0 grammar as a pattern, without lookahead, so `Arbitrary`
+// derives a generator for the version-string schemas instead of discarding
+// random strings against their predicate. The predicate stays the authority
+// (it also bounds components to safe integers).
+const versionCore = String.raw`(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)`;
+const prereleasePart = String.raw`(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)`;
+const prereleaseSuffix = String.raw`(-${prereleasePart}(\.${prereleasePart})*)?`;
+const buildSuffix = String.raw`(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?`;
+const pinnableVersionPattern = new RegExp(`^${versionCore}${prereleaseSuffix}$`, "u");
+const exactVersionPattern = new RegExp(`^${versionCore}${prereleaseSuffix}${buildSuffix}$`, "u");
+
 // String prerelease identifiers must contain at least one non-digit:
 // all-numeric identifiers are numbers (the grammar parses them as such), so
 // requiring a non-digit keeps decode/encode round-trips canonical. Written
@@ -294,6 +305,14 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
         ),
       ])
     ),
+    S.check(
+      S.isPattern(
+        exactVersionPattern,
+        $I.annote("ExactVersionStringPatternCheck", {
+          description: "The SemVer 2.0.0 version grammar, so generators produce well-formed versions.",
+        })
+      )
+    ),
     $I.annoteSchema("ExactVersionString", {
       description: "An exact SemVer 2.0.0 version string without surrounding whitespace.",
     })
@@ -336,6 +355,14 @@ export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($
           })
         ),
       ])
+    ),
+    S.check(
+      S.isPattern(
+        pinnableVersionPattern,
+        $I.annote("PinnableVersionStringPatternCheck", {
+          description: "The SemVer 2.0.0 version grammar without build metadata, so generators produce pins.",
+        })
+      )
     ),
     $I.annoteSchema("PinnableVersionString", {
       description: "An exact SemVer version string without build metadata or surrounding whitespace.",
