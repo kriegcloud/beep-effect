@@ -84,6 +84,7 @@ const encodeView = S.encodeEffect(
     })
   )
 );
+
 const encodeList = S.encodeEffect(S.fromJsonString(S.Array(S.Unknown)));
 
 describe("Yeet pull request lifecycle boundaries", () => {

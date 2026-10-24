@@ -256,11 +256,12 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
     );
 
     it.effect("bounds bind retries and leaves other failures unretried", () =>
-      Effect.gen(function* () {
-        const assertBindFailure = Effect.fn("CacheFixture.assertBindFailure")(function* (
-          code: string,
-          attempts: number
-        ) {
+      Effect.forEach(
+        [
+          ["EADDRINUSE", 9],
+          ["EACCES", 1],
+        ] as const,
+        Effect.fnUntraced(function* ([code, attempts]) {
           const serve = vi.spyOn(Bun, "serve").mockImplementation(() => {
             throw Object.assign(new Error("bind failed"), { code });
           });
@@ -268,10 +269,9 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
             (yield* makeCacheProtocolFixture(credentials).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
             expect(serve).toHaveBeenCalledTimes(attempts);
           }).pipe(Effect.ensuring(Effect.sync(() => serve.mockRestore())));
-        });
-        yield* assertBindFailure("EADDRINUSE", 9);
-        yield* assertBindFailure("EACCES", 1);
-      })
+        }),
+        { discard: true }
+      )
     );
 
     it.effect("rejects absent selectors, unknown routes and unsupported artifact methods", () =>
