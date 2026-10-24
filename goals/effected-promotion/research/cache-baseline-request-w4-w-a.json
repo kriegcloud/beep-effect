@@ -1,5 +1,5 @@
 {
-  "previous": "78cb9a5af5d0f07094302c179234a972f87d0922f243ac7b95fdf434e3c4a334",
+  "previous": "ed06ede435b1c1e182d7fe6983a51139ab467020917e4088012a8e7c6ffaa2cb",
   "review": {
     "reviewer": "Claude Opus 5.5 (effected-promotion wave 4-W-a, effected-w4wa lane)",
     "reason": "Record the new wave-4-W-a workspace @beep/repo-workspaces scaffolded by create-package with the generated task set; its #test, #build and #check graphs reach foundation and test-kit packages plus the two declared operational-adapter drivers @beep/commands and @beep/git, as measured in the review; no qualification is granted.",

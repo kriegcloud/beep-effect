@@ -85,12 +85,7 @@ The platform is read through `@beep/utils/HostProcess` `HostProcessPlatform`, ne
 
 ```ts
 import { ConfigFile, JsonCodec, MergeStrategy } from "@beep/config-file";
-import type { ConfigResolver } from "@beep/config-file/ConfigResolver";
-import type { AppDirs } from "@beep/xdg/AppDirs";
-import type { Xdg } from "@beep/xdg/Xdg";
 import { XdgConfig } from "@beep/xdg/XdgConfig";
-import type * as FileSystem from "effect/FileSystem";
-import type * as Path from "effect/Path";
 import * as S from "effect/Schema";
 
 class AppShape extends S.Class<AppShape>("AppShape")({
@@ -100,8 +95,7 @@ class AppShape extends S.Class<AppShape>("AppShape")({
 
 class AppConfig extends ConfigFile.Service<AppConfig, AppShape>()("myapp/Config") {}
 
-// The two resolvers need different services, so name the union once.
-const resolvers: ReadonlyArray<ConfigResolver<Xdg | AppDirs | FileSystem.FileSystem | Path.Path>> = [
+const resolvers = [
   XdgConfig.resolver({ filename: "config.json" }),
   XdgConfig.nativeResolver({ namespace: "myapp", filename: "config.json" }),
 ];

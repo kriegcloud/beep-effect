@@ -4355,6 +4355,7 @@
           "@beep/runpod",
           "@beep/runtime-env",
           "@beep/schema",
+          "@beep/semver",
           "@beep/skill-contract",
           "@beep/spdx",
           "@beep/t3-code",
@@ -4406,6 +4407,7 @@
           "@beep/runpod",
           "@beep/runtime-env",
           "@beep/schema",
+          "@beep/semver",
           "@beep/skill-contract",
           "@beep/spdx",
           "@beep/t3-code",
@@ -4426,6 +4428,7 @@
           "@beep/identity",
           "@beep/repo-configs",
           "@beep/schema",
+          "@beep/semver",
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
@@ -4434,6 +4437,7 @@
           "@beep/identity",
           "@beep/repo-configs",
           "@beep/schema",
+          "@beep/semver",
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"

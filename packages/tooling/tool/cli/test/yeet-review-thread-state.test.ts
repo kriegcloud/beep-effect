@@ -7,6 +7,7 @@ import {
   yeetReviewThreadStateOutstanding,
 } from "@beep/repo-cli/test/Yeet";
 import { describe, expect, it } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as O from "effect/Option";
 
 const AUTHOR = "kriegcloud";
@@ -124,7 +125,7 @@ describe("review thread state derivation", () => {
     const state = deriveYeetReviewThreadState(input({ newestComment: comment("reviewer", "user") }));
 
     expect(state.state).toBe("resolved-follow-up");
-    expect(state.state === "resolved-follow-up" ? O.isNone(state.followUpAt) : false).toBe(true);
+    assertTrue(state.state === "resolved-follow-up" && O.isNone(state.followUpAt));
   });
 
   it("compares the bot resolver suffix against the author's plain login", () => {
