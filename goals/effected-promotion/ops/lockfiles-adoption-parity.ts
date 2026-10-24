@@ -93,7 +93,7 @@ const repoRoot = NodeURL.fileURLToPath(new URL("../../..", import.meta.url));
 // --- frozen legacy readers (repo-cli before 3-A1) -------------------------------
 
 const LegacyLockfile = S.Struct({
-  packages: S.Record(S.String, S.Array(S.Unknown)).pipe(S.withDecodingDefault(Effect.succeed({}))),
+  packages: S.Record(S.String, S.Array(S.Unknown)).pipe(S.withDecodingDefaultKey(Effect.succeed({}))),
 });
 const decodeLegacyLockfile = decodeJsoncTextAs(LegacyLockfile);
 
