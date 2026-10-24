@@ -6,7 +6,7 @@ import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { assert, describe, it, vi } from "@effect/vitest";
-import { assertFalse } from "@effect/vitest/utils";
+import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -156,7 +156,10 @@ describe("DetachedProcess", () => {
 		it.effect("reports a real exited child as false", () =>
 			Effect.gen(function* () {
 				const { pid } = spawnSync(process.execPath, ["-e", ""]);
-				assertFalse(yield* DetachedProcess.reap(pid));
+				// A failed spawn must never reach a pid-0 group signal.
+				assertTrue(Number.isSafeInteger(pid) && pid > 0);
+				// SIGCONT is harmless if the OS has already reused the pid.
+				assertFalse(yield* DetachedProcess.reap(pid, "SIGCONT"));
 			}),
 		);
 
