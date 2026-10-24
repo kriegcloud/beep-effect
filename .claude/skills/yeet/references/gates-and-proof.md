@@ -88,7 +88,7 @@ fits a 4-core worker. By default every gate runs and every red is collected;
 | `expectation-rewrite` | Test Unit | rewritten assertions in the diff's tests and snapshots, old file replayed on the merge base | #2215 |
 | `cheap-gates` | Repo Sanity, JSDoc Ratchet, catalogs | `beep quality github-checks cheap-gates` | #2207, #2221 span |
 | `lint-policy` | Heavy / Lint Policy | `beep lint policy --base`, root docs `oxlint .`, `beep lint deprecated-apis --full` | #2186, #2189, #2201 |
-| `lint` | Lint (Biome, GritQL) | `beep ci lane lint --affected` | #2187 |
+| `lint` | Lint (package Biome, GritQL), lefthook | `beep ci lane lint --affected`, plus the pre-commit `biome check` over the diff's files | #2187 |
 | `repo-sanity` | Repo Sanity | `beep ci lane repo-sanity --changeset-status` | #2207 |
 | `effect-diagnostics` | Heavy / Effect Diagnostics | `beep ci lane effect-diagnostics --affected` | #2197, #2208, #2221 |
 | `check` | Heavy / Check | `beep ci lane check --affected` | #2208 |
@@ -106,6 +106,11 @@ source fix (`masks-base-red`, fail): that is what #2215 did to #2212's
 over-escaped `@`. The check is per file, so a file red on the merge base for
 an unrelated test also fails it; fix that red, or skip the gate with the
 reason. Deleted assertions are not flagged.
+
+The changed-files Biome step exists because package `lint` tasks never see
+paths outside a workspace package: #2187 put an EF-40 GritQL violation in
+`goals/`, no hosted lane flagged it, and lefthook then rejected every later
+commit that staged the file.
 
 Skips: `--skip <gate>=<reason>` (repeatable) records the gate as skipped with
 the reason, and the receipt still admits the flip; `yeet ready` prints the

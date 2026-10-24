@@ -188,7 +188,7 @@ describe("findExpectationRewrites", () => {
 
 describe("planFinalCheckSteps", () => {
   it("replays every subprocess gate through the hosted lane argv scoped to the merge base", () => {
-    const steps = planFinalCheckSteps("/repo", BASE);
+    const steps = planFinalCheckSteps("/repo", BASE, ["goals/x/ops/check.ts", "packages/a/src/a.ts"]);
     const gates = A.dedupe(A.map(steps, (step) => step.gate));
     expect(gates).toEqual(A.filter(FinalCheckGate.literals, (gate) => gate !== "expectation-rewrite"));
     const argv = (label: string) => O.getOrThrow(A.findFirst(steps, (step) => step.step.label === label)).step.args;
@@ -245,7 +245,17 @@ describe("planFinalCheckSteps", () => {
     expect(coverage.args).toEqual(["run", "coverage", "--affected"]);
     expect(coverage.env).toEqual({ TURBO_SCM_BASE: BASE });
     expect(A.every(steps, (step) => step.step.cwd === "/repo")).toBe(true);
-    expect(planFinalCheckSteps(BASE)("/repo")).toEqual(steps);
+    expect(argv("final-check:lint:changed-files")).toEqual([
+      "biome",
+      "check",
+      "--files-ignore-unknown=true",
+      "--no-errors-on-unmatched",
+      "goals/x/ops/check.ts",
+      "packages/a/src/a.ts",
+    ]);
+    expect(planFinalCheckSteps(BASE, ["goals/x/ops/check.ts", "packages/a/src/a.ts"])("/repo")).toEqual(steps);
+    const withoutFiles = planFinalCheckSteps("/repo", BASE, []);
+    expect(A.some(withoutFiles, (step) => step.step.label === "final-check:lint:changed-files")).toBe(false);
   });
 });
 

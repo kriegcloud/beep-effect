@@ -51,7 +51,7 @@ import {
   FinalCheckSkip,
   FinalCheckStepResult,
 } from "./FinalCheck.schemas.ts";
-import { runGitOutput } from "./GitExec.ts";
+import { runGitOutput, runGitPathList } from "./GitExec.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { CiLaneId } from "../../Ci/CiLane.ts";
@@ -86,7 +86,11 @@ const EXPECTATION_REWRITE_CONTEXT = "Test Unit (expectations edited to match new
  * `beep ci local` and hosted CI run. Lint Policy keeps its affected law tasks
  * (`beep lint policy --base`) and adds the two repo-wide sweeps that the
  * affected local scope omits but the hosted `--full` lane runs: root docs
- * oxlint and the deprecated-API oxlint sweep. Coverage runs the per-file
+ * oxlint and the deprecated-API oxlint sweep. Lint adds the pre-commit Biome
+ * pass over the diff's changed files, because package `lint` tasks never see
+ * paths outside a workspace package (#2187 landed an EF-40 GritQL violation in
+ * `goals/` that no hosted lane flagged and lefthook then rejected on every
+ * later commit staging the file). Coverage runs the per-file
  * ratchet (`beep-cli coverage --affected`), which also runs the affected
  * packages' unit tests.
  *
@@ -95,92 +99,106 @@ const EXPECTATION_REWRITE_CONTEXT = "Test Unit (expectations edited to match new
  * ```ts
  * import { planFinalCheckSteps } from "@beep/repo-cli/test/Yeet"
  *
- * const steps = planFinalCheckSteps("/repo", "abc123")
+ * const steps = planFinalCheckSteps("/repo", "abc123", ["goals/x/ops/check.ts"])
  * console.log(steps.map((step) => step.gate).includes("check")) // true
  * ```
  *
  * @param repoRoot - Checkout root used as every subprocess working directory.
  * @param mergeBase - Merge base of the branch with its base ref.
+ * @param changedFiles - Files the diff adds or modifies, repo-relative.
  * @returns Planned steps in gate order.
  * @category planning
  * @since 0.0.0
  */
 export const planFinalCheckSteps: {
-  (repoRoot: string, mergeBase: string): ReadonlyArray<FinalCheckPlannedStep>;
-  (mergeBase: string): (repoRoot: string) => ReadonlyArray<FinalCheckPlannedStep>;
-} = dual(2, (repoRoot: string, mergeBase: string): ReadonlyArray<FinalCheckPlannedStep> => {
-  const plan = CiLocalStepPlan.make({ affected: true, base: mergeBase, onMainBranch: false });
-  const lane = (gate: FinalCheckGate, hostedContext: string, laneId: CiLaneId) =>
-    FinalCheckPlannedStep.make({
-      gate,
-      hostedContext,
-      step: ciLaneDispatchStep(repoRoot, `final-check:${gate}`, laneId, plan),
-    });
-  const command = (
-    gate: FinalCheckGate,
-    hostedContext: string,
-    label: string,
-    argv: readonly [string, ...Array<string>],
-    env: Record<string, string> = {}
-  ) =>
-    FinalCheckPlannedStep.make({
-      gate,
-      hostedContext,
-      step: QualityTaskStep.make({
-        label: `final-check:${label}`,
-        command: argv[0],
-        args: A.drop(argv, 1),
-        cwd: repoRoot,
-        env,
-      }),
-    });
-  return [
-    command(
-      "cheap-gates",
-      "Repo Sanity, JSDoc Ratchet, Lint Policy (cheap tier: catalogs, schema-first, oxlint)",
-      "cheap-gates",
-      ["bun", "run", "beep", "quality", "github-checks", "cheap-gates"]
-    ),
-    command("lint-policy", "Heavy / Lint Policy (affected law tasks)", "lint-policy:laws", [
-      "bun",
-      "run",
-      "beep",
-      "lint",
-      "policy",
-      "--base",
-      mergeBase,
-    ]),
-    command("lint-policy", "Heavy / Lint Policy (root docs oxlint)", "lint-policy:docs", [
-      "bunx",
-      "oxlint",
-      ".",
-      "--config",
-      ".oxlintrc.docs.json",
-      "--max-warnings=0",
-    ]),
-    command("lint-policy", "Heavy / Lint Policy (deprecated APIs)", "lint-policy:deprecated-apis", [
-      "bun",
-      "run",
-      "beep",
-      "lint",
-      "deprecated-apis",
-      "--full",
-    ]),
-    lane("lint", "Lint (Biome, GritQL laws)", "lint"),
-    lane("repo-sanity", "Repo Sanity", "repo-sanity"),
-    lane("effect-diagnostics", "Heavy / Effect Diagnostics", "effect-diagnostics"),
-    lane("check", "Heavy / Check", "check"),
-    lane("docgen", "Heavy / Docgen", "docgen"),
-    lane("fallow", "Fallow Advisory Envelopes", "fallow"),
-    command(
-      "coverage",
-      "Heavy / Coverage Regression, Test Unit (affected packages)",
-      "coverage",
-      ["bun", "run", "coverage", "--affected"],
-      { TURBO_SCM_BASE: mergeBase }
-    ),
-  ];
-});
+  (repoRoot: string, mergeBase: string, changedFiles: ReadonlyArray<string>): ReadonlyArray<FinalCheckPlannedStep>;
+  (mergeBase: string, changedFiles: ReadonlyArray<string>): (repoRoot: string) => ReadonlyArray<FinalCheckPlannedStep>;
+} = dual(
+  3,
+  (repoRoot: string, mergeBase: string, changedFiles: ReadonlyArray<string>): ReadonlyArray<FinalCheckPlannedStep> => {
+    const plan = CiLocalStepPlan.make({ affected: true, base: mergeBase, onMainBranch: false });
+    const lane = (gate: FinalCheckGate, hostedContext: string, laneId: CiLaneId) =>
+      FinalCheckPlannedStep.make({
+        gate,
+        hostedContext,
+        step: ciLaneDispatchStep(repoRoot, `final-check:${gate}`, laneId, plan),
+      });
+    const command = (
+      gate: FinalCheckGate,
+      hostedContext: string,
+      label: string,
+      argv: readonly [string, ...Array<string>],
+      env: Record<string, string> = {}
+    ) =>
+      FinalCheckPlannedStep.make({
+        gate,
+        hostedContext,
+        step: QualityTaskStep.make({
+          label: `final-check:${label}`,
+          command: argv[0],
+          args: A.drop(argv, 1),
+          cwd: repoRoot,
+          env,
+        }),
+      });
+    return [
+      command(
+        "cheap-gates",
+        "Repo Sanity, JSDoc Ratchet, Lint Policy (cheap tier: catalogs, schema-first, oxlint)",
+        "cheap-gates",
+        ["bun", "run", "beep", "quality", "github-checks", "cheap-gates"]
+      ),
+      command("lint-policy", "Heavy / Lint Policy (affected law tasks)", "lint-policy:laws", [
+        "bun",
+        "run",
+        "beep",
+        "lint",
+        "policy",
+        "--base",
+        mergeBase,
+      ]),
+      command("lint-policy", "Heavy / Lint Policy (root docs oxlint)", "lint-policy:docs", [
+        "bunx",
+        "oxlint",
+        ".",
+        "--config",
+        ".oxlintrc.docs.json",
+        "--max-warnings=0",
+      ]),
+      command("lint-policy", "Heavy / Lint Policy (deprecated APIs)", "lint-policy:deprecated-apis", [
+        "bun",
+        "run",
+        "beep",
+        "lint",
+        "deprecated-apis",
+        "--full",
+      ]),
+      lane("lint", "Lint (package Biome, GritQL laws)", "lint"),
+      ...(A.isReadonlyArrayEmpty(changedFiles)
+        ? []
+        : [
+            command(
+              "lint",
+              "pre-commit Biome over the diff's files (goals/, scripts/ and other non-package paths)",
+              "lint:changed-files",
+              ["bunx", "biome", "check", "--files-ignore-unknown=true", "--no-errors-on-unmatched", ...changedFiles]
+            ),
+          ]),
+      lane("repo-sanity", "Repo Sanity", "repo-sanity"),
+      lane("effect-diagnostics", "Heavy / Effect Diagnostics", "effect-diagnostics"),
+      lane("check", "Heavy / Check", "check"),
+      lane("docgen", "Heavy / Docgen", "docgen"),
+      lane("fallow", "Fallow Advisory Envelopes", "fallow"),
+      command(
+        "coverage",
+        "Heavy / Coverage Regression, Test Unit (affected packages)",
+        "coverage",
+        ["bun", "run", "coverage", "--affected"],
+        { TURBO_SCM_BASE: mergeBase }
+      ),
+    ];
+  }
+);
 
 const renderCommand = (step: QualityTaskStep): string =>
   A.join(
@@ -595,7 +613,20 @@ export const runYeetFinalCheck = Effect.fn("Yeet.runYeetFinalCheck")(function* (
   const skips = yield* parseFinalCheckSkips(options.skip);
   const headSha = Str.trim(yield* runGitOutput(repoRoot, ["rev-parse", "HEAD"]));
   const mergeBase = Str.trim(yield* runGitOutput(repoRoot, ["merge-base", options.base, "HEAD"]));
-  const run: FinalCheckRun = { repoRoot, mergeBase, planned: planFinalCheckSteps(repoRoot, mergeBase), skips };
+  const changedFiles = yield* runGitPathList(repoRoot, [
+    "diff",
+    "--name-only",
+    "-z",
+    "--diff-filter=d",
+    mergeBase,
+    "HEAD",
+  ]);
+  const run: FinalCheckRun = {
+    repoRoot,
+    mergeBase,
+    planned: planFinalCheckSteps(repoRoot, mergeBase, changedFiles),
+    skips,
+  };
 
   if (options.dryRun) {
     yield* Console.log(
