@@ -130,7 +130,8 @@ export class BiomeSchemaState extends S.Opaque<BiomeSchemaState, { readonly bran
  * @since 0.0.0
  */
 export const resolveBiomeSchema = Effect.fn(function* (
-  repoRoot: string
+  repoRoot: string,
+  installedVersionRead = resolveInstalledToolVersion(repoRoot, "@biomejs/biome")
 ): Effect.fn.Return<BiomeSchemaState, VersionSyncError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -148,7 +149,7 @@ export const resolveBiomeSchema = Effect.fn(function* (
   const schemaUrl = biomeJson.$schema;
   const schemaVersion = decodeSchemaVersion(schemaUrl);
 
-  const installedVersion = yield* resolveInstalledToolVersion(repoRoot, "@biomejs/biome");
+  const installedVersion = yield* installedVersionRead;
 
   return BiomeSchemaState.make({
     schemaUrl,
