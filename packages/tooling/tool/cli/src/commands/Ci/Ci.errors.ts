@@ -174,5 +174,5 @@ export class CiLanePartitionError extends S.TaggedError<CiLanePartitionError, { 
  * @category error-handling
  * @since 0.0.0
  */
-export const reportCiCommandError = (error: { readonly message: string }) =>
+export const reportCiCommandError = (error: CiCommandError | CiLanePartitionError) =>
   Console.error(`[ci] ${error.message}`).pipe(Effect.andThen(failWithReportedExit(`[ci] ${error.message}`)));

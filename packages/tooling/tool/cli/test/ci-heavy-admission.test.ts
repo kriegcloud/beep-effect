@@ -37,7 +37,7 @@ import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as TestConsole from "effect/testing/TestConsole";
-import { parseRunnerFile } from "./fixtures/runnerFile.ts";
+import { parseRunnerFile } from "./support/runnerFile.ts";
 
 const code = ["packages/a/src/index.ts"];
 const docs = ["docs/runbooks/ci.md", "goals/x/PLAN.md"];

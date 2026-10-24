@@ -15,7 +15,7 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
-import { parseRunnerFile } from "./fixtures/runnerFile.ts";
+import { parseRunnerFile } from "./support/runnerFile.ts";
 
 /**
  * The `GITHUB_ENV` block `ci job-env` rendered before the move, with the
