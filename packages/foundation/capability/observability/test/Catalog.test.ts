@@ -34,18 +34,29 @@ import {
   VcsRevision,
   Workstation,
 } from "@beep/observability/catalog";
+import { ScopedPackageName } from "@beep/package-json/PackageName";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { describe } from "@effect/vitest";
-import { assertFalse, assertNone, assertSome, assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
+import {
+  assertFailure,
+  assertFalse,
+  assertNone,
+  assertSome,
+  assertTrue,
+  deepStrictEqual,
+  strictEqual,
+} from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { CatalogConflict } from "@beep/observability/catalog";
 
+const CatalogOwner = S.Struct({ owner: PackageName });
 const pkgA = PackageName.make("@beep/a");
 const pkgB = PackageName.make("@beep/b");
 const matterId = AttributeKeyName.make("beep.matter_id");
@@ -170,6 +181,31 @@ describe("catalog names", () => {
     assertFalse(S.is(CloudProviderName)("AWS"));
     assertTrue(S.is(VcsRevision)("4e66575c64"));
     assertFalse(S.is(VcsRevision)("main"));
+  });
+
+  it("follows the npm scoped-name rules of @beep/package-json (3-A9)", () => {
+    const isPackageName = S.is(PackageName);
+    // Inverted: the pre-3-A9 pattern rejected a leading `-`, which npm accepts.
+    assertTrue(isPackageName("@-scope/name"));
+    assertTrue(isPackageName("@scope/-name"));
+    // Inverted: the pre-3-A9 pattern had no length limit; npm caps names at 214.
+    assertTrue(isPackageName(`@beep/${Str.repeat(208)("a")}`));
+    assertFalse(isPackageName(`@beep/${Str.repeat(209)("a")}`));
+    assertFalse(isPackageName("@Beep/observability"));
+    assertFalse(isPackageName("@beep/"));
+  });
+
+  it("shares the ScopedPackageName brand and its decode message (3-A9)", () => {
+    // Type-level: a @beep/package-json ScopedPackageName is a catalog owner name, and back.
+    const owner: PackageName = ScopedPackageName.make("@beep/observability");
+    const scoped: ScopedPackageName = PackageName.make("@beep/observability");
+    strictEqual(owner, scoped);
+    // Accepted shift: the generic pattern message replaces the old custom text.
+    const decoded = S.decodeResult(CatalogOwner)({ owner: "observability" });
+    assertFailure(
+      Result.mapError(decoded, (error) => error.message),
+      'Expected a string matching the RegExp ^@[a-z0-9-][a-z0-9._-]*\\/[a-z0-9-][a-z0-9._-]*$\n  at ["owner"]'
+    );
   });
 });
 

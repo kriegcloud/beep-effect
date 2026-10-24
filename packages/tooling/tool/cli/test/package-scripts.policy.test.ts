@@ -1,4 +1,5 @@
 import {
+  CheckerEngineExemption,
   DerivationEvidence,
   ImplScriptDrift,
   PackageScriptsPolicy,
@@ -230,7 +231,7 @@ describe("package scripts policy", () => {
           file,
           yield* jsonStringifyPretty({
             name: "@beep/a",
-            scripts: { ...manifest.scripts, "beep:check": "tsgo -p tsconfig.check.json" },
+            scripts: { ...manifest.scripts, "beep:check": "tsc-rs -p tsconfig.check.json" },
           })
         );
         const before = yield* fs.readFileString(file);
@@ -240,13 +241,109 @@ describe("package scripts policy", () => {
           assertSome(HashMap.get(report.implDrift, "packages/a/package.json"), [
             ImplScriptDrift.make({
               name: "beep:check",
-              actual: "tsgo -p tsconfig.check.json",
+              actual: "tsc-rs -p tsconfig.check.json",
               expected: "tsc-rs -p tsconfig.check.json && bun run beep:check:tests",
             }),
           ]);
           expect(HashSet.size(report.written)).toBe(0);
         }
         expect(yield* fs.readFileString(file)).toBe(before);
+      })
+    );
+  });
+  it.layer(platform, { timeout: "30 seconds" })((it) => {
+    const regressed = {
+      coverage: "owned coverage",
+      "beep:build": "NODE_ENV=production tsc -p tsconfig.json && bun run babel",
+      "beep:check": "tsgo -p tsconfig.check.json && bun run beep:check:tests",
+      "beep:check:tests": "bunx --bun --no-install tsgo -p tsconfig.test.json --noEmit",
+      "beep:check:cwd": "bun run --cwd . tsgo -p tsconfig.check.json",
+      "beep:check:flags":
+        "bunx -p typescript tsc -p a.json && bunx --package @typescript/native-preview tsgo -p b.json",
+      "beep:check:wrappers": "env NODE_ENV=production tsc -p a.json; node node_modules/typescript/bin/tsc -p b.json",
+      "beep:check:assigned": "TSC=tsgo bun run beep:check:tests",
+      "beep:check:entry": "node node_modules/typescript/lib/tsc.js -p a.json",
+      "beep:check:versioned": "npx tsc@5.9.3 -p a.json && bunx tsgo@latest -p b.json",
+      "beep:check:package":
+        "bunx @typescript/native-preview@7.0.0-dev -p a.json; bunx @typescript/native-preview -p b.json",
+    };
+    const customized = {
+      coverage: "owned coverage",
+      "beep:build": "vite build",
+      "beep:check": "tsc-rs -p tsconfig.check.json && bunx --bun --no-install tsc-rs -p scripts/tsconfig.json",
+      "beep:check:stories": "tsc-rs -p tsconfig.stories.json --noEmit",
+      "beep:check:pinned": "bunx tsc-rs@0.8.0 -p tsconfig.json && node node_modules/tsc-rs/bin/tsc-rs.js -p a.json",
+      "typecheck:legacy": "tsgo -p tsconfig.json",
+    };
+    const checkerFixture = () =>
+      fixture({
+        "package.json": { name: "root", workspaces: ["packages/*"] },
+        "packages/regressed/package.json": { name: "@beep/regressed", scripts: regressed },
+        "packages/customized/package.json": { name: "@beep/customized", scripts: customized },
+      });
+    const row = (name: keyof typeof regressed, engine: "tsc" | "tsgo") => ({
+      _tag: "checker-engine",
+      name,
+      engine,
+      actual: regressed[name],
+    });
+    const allRows = [
+      row("beep:build", "tsc"),
+      row("beep:check", "tsgo"),
+      row("beep:check:assigned", "tsgo"),
+      row("beep:check:cwd", "tsgo"),
+      row("beep:check:entry", "tsc"),
+      row("beep:check:flags", "tsc"),
+      row("beep:check:flags", "tsgo"),
+      row("beep:check:package", "tsgo"),
+      row("beep:check:tests", "tsgo"),
+      row("beep:check:versioned", "tsc"),
+      row("beep:check:versioned", "tsgo"),
+      row("beep:check:wrappers", "tsc"),
+    ];
+    const checkerRows = (report: { readonly drift: HashMap.HashMap<string, ReadonlyArray<unknown>> }) =>
+      HashMap.get(report.drift, "packages/regressed/package.json").pipe(O.getOrElse(() => []));
+    it.effect(
+      "fails beep:build and beep:check scripts that run a checker other than tsc-rs",
+      Effect.fnUntraced(function* () {
+        const root = yield* checkerFixture();
+        const policy = yield* PackageScriptsPolicy.make(root);
+        yield* policy.write(root);
+        for (const report of [yield* policy.check(root), yield* policy.write(root)]) {
+          expect(checkerRows(report)).toEqual(allRows);
+          expect(HashMap.has(report.drift, "packages/customized/package.json")).toBe(false);
+        }
+      })
+    );
+    it.effect(
+      "accepts a non-tsc-rs checker only through a matching exemption row",
+      Effect.fnUntraced(function* () {
+        const root = yield* checkerFixture();
+        const exemptions = [
+          CheckerEngineExemption.make({
+            manifest: "packages/regressed/package.json",
+            script: "beep:check",
+            engine: "tsgo",
+            reason: "tsc-rs rejects a valid program in this package",
+          }),
+          CheckerEngineExemption.make({
+            manifest: "packages/regressed/package.json",
+            script: "beep:build",
+            engine: "tsgo",
+            reason: "exempts tsgo only, so the tsc build still fails",
+          }),
+          CheckerEngineExemption.make({
+            manifest: "packages/customized/package.json",
+            script: "beep:check:tests",
+            engine: "tsgo",
+            reason: "names another manifest, so it cannot cover the regressed package",
+          }),
+        ];
+        const policy = yield* PackageScriptsPolicy.make(root, exemptions);
+        yield* policy.write(root);
+        expect(checkerRows(yield* policy.check(root))).toEqual(
+          A.filter(allRows, (entry) => entry.name !== "beep:check")
+        );
       })
     );
   });

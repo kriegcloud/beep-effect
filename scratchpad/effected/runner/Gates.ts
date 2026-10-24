@@ -266,6 +266,46 @@ export const CANARY_DIAGNOSTICS = ["effect(missingPipeableSignature)", "effect(s
 export const missingCanaryDiagnostics = (report: string): ReadonlyArray<string> =>
   A.filter(CANARY_DIAGNOSTICS, (code) => !Str.includes(code)(report));
 
+/**
+ * The problems a canary tsgo run shows, empty when the Effect plugin is live.
+ *
+ * **Details**
+ *
+ * Liveness reads the report text alone. Since #1823 `tsconfig.base.json` sets the
+ * `ignoreEffect*InTscExitCode` options, so tsgo exits 0 while still reporting Effect
+ * diagnostics, and an exit code says nothing about the plugin. When the canary is not
+ * flagged, the problems still carry tsgo's real exit code and the last lines of its
+ * output, so a crashed tsgo, a refused admission or a failed `bun run` reads as a failed
+ * run, not as a silent plugin.
+ *
+ * **Example** (A live plugin reports both canary rules)
+ *
+ * ```ts
+ * import { canaryProblems } from "@beep/scratchpad/effected/runner/Gates"
+ *
+ * console.log(canaryProblems({ exitCode: 0, output: "a effect(missingPipeableSignature)\nb effect(strictBooleanExpressions)" })) // []
+ * ```
+ *
+ * @category diagnostics
+ * @since 0.0.0
+ */
+export const canaryProblems = (run: { readonly exitCode: number; readonly output: string }): ReadonlyArray<string> => {
+  const missing = missingCanaryDiagnostics(run.output);
+  if (A.isReadonlyArrayEmpty(missing)) return [];
+  const tail = A.takeRight(A.filter(Str.split(Str.trimEnd(run.output), "\n"), Str.isNonEmpty), CANARY_OUTPUT_TAIL);
+  const ranTsgo = Str.includes("effect(")(run.output);
+  return [
+    ranTsgo || run.exitCode === 0
+      ? "effect diagnostics are not live: the canary at scratchpad/effected/.canary was not flagged"
+      : `canary tsgo failed before reporting diagnostics (exit ${run.exitCode})`,
+    ...A.map(missing, (code) => `canary missing ${code}`),
+    `canary tsgo exit code: ${run.exitCode}`,
+    ...A.map(tail, (line) => `canary output: ${line}`),
+  ];
+};
+
+const CANARY_OUTPUT_TAIL = 10;
+
 const canary: {
   (config: RunnerConfig, target: AuditTarget): Effect.Effect<undefined, GateFailed | PlatformError, ChildProcessSpawner>;
   (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<undefined, GateFailed | PlatformError, ChildProcessSpawner>;
@@ -277,18 +317,11 @@ const canary: {
       cwd: config.repoRoot,
     })
   );
-  const missing = missingCanaryDiagnostics(result.output);
-  if (result.exitCode === 0 || A.isReadonlyArrayNonEmpty(missing)) {
-    yield* verdict(target, { gate: "check", exitCode: 1 });
-    return yield* GateFailed.make({
-      target,
-      gate: "check",
-      exitCode: 1,
-      problems: [
-        "effect diagnostics are not live: the canary at scratchpad/effected/.canary was not flagged",
-        ...A.map(missing, (code) => `canary missing ${code}`),
-      ],
-    });
+  const problems = canaryProblems(result);
+  if (A.isReadonlyArrayNonEmpty(problems)) {
+    const exitCode = result.exitCode === 0 ? 1 : result.exitCode;
+    yield* verdict(target, { gate: "check", exitCode });
+    return yield* GateFailed.make({ target, gate: "check", exitCode, problems });
   }
   yield* Console.log(`[effected] ${target} check: effect diagnostics live (canary flagged ${CANARY_DIAGNOSTICS.length} rules)`);
 }));

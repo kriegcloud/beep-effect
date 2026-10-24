@@ -2402,6 +2402,7 @@
       "dependencies": {
         "@beep/colors": "workspace:^",
         "@beep/identity": "workspace:^",
+        "@beep/package-json": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/opentelemetry": "catalog:",
@@ -3905,6 +3906,7 @@
         "@beep/glob": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/libpff": "workspace:^",
+        "@beep/lockfiles": "workspace:^",
         "@beep/m365": "workspace:^",
         "@beep/markdown": "workspace:^",
         "@beep/mcp-kit": "workspace:^",
