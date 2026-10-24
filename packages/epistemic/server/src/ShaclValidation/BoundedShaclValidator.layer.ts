@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { $EpistemicServerId } from "@beep/identity/packages";
 import { serializeTerm } from "@beep/rdf/Rdf";
 import { RDF_TYPE } from "@beep/rdf/Vocab/Rdf";
 import {
@@ -13,6 +14,7 @@ import {
   ShaclValidationViolation,
 } from "@beep/semantic-web/services/shacl-validation";
 import { A } from "@beep/utils";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { flow, pipe } from "effect/Function";
 import * as I from "effect/Iterable";
@@ -26,22 +28,108 @@ import type {
   ShaclValidationServiceShape,
 } from "@beep/semantic-web/services/shacl-validation";
 
+const $I = $EpistemicServerId.create("ShaclValidation/BoundedShaclValidator.layer");
+
 const emptySubjectKeys: Array<string> = [];
 const emptyViolations: Array<ShaclValidationViolation> = [];
 
-const makeViolation = (
+/**
+ * Builds one `violation`-severity result for the bounded SHACL validator.
+ *
+ * **Example** (Build a violation)
+ *
+ * ```ts
+ * import { BoundedShaclViolationFactoryLive, BoundedShaclViolationFactory } from "@beep/epistemic-server/ShaclValidation"
+ * import type { MakeBoundedShaclViolation } from "@beep/epistemic-server/ShaclValidation"
+ * import * as Effect from "effect/Effect";
+ * import * as O from "effect/Option";
+ * import { makeNamedNode } from "@beep/rdf/Rdf"
+ * const program = Effect.gen(function* () {
+ *   const make: MakeBoundedShaclViolation = (yield* BoundedShaclViolationFactory).makeViolation
+ *   return make("https://example.com/a", makeNamedNode("https://schema.org/name"), "Expected a name.", O.none())
+ * }).pipe(Effect.provide(BoundedShaclViolationFactoryLive))
+ *
+ * console.log(Effect.runSync(program).severity) // "violation"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type MakeBoundedShaclViolation = (
   focusNode: string,
   path: ShaclValidationViolation["path"],
   message: string,
   sourceShape: ShaclValidationViolation["sourceShape"]
-): ShaclValidationViolation =>
-  ShaclValidationViolation.make({
-    focusNode,
-    path,
-    severity: "violation",
-    message,
-    sourceShape,
-  });
+) => ShaclValidationViolation;
+
+/**
+ * Violation constructor seam for the bounded SHACL validator.
+ *
+ * **Details**
+ *
+ * The validator builds every violation through this service, so a test layer
+ * can observe how many violations a capped request constructs. The live layer
+ * builds each one with `ShaclValidationViolation.make`.
+ *
+ * **Example** (Count constructed violations)
+ *
+ * ```ts
+ * import {
+ *   BoundedShaclViolationFactory,
+ *   BoundedShaclViolationFactoryLive
+ * } from "@beep/epistemic-server/ShaclValidation"
+ * import * as Effect from "effect/Effect";
+ * import * as Layer from "effect/Layer";
+ * import * as MutableRef from "effect/MutableRef";
+ * const made = MutableRef.make(0)
+ * const Counting = Layer.effect(BoundedShaclViolationFactory)(
+ *   Effect.map(BoundedShaclViolationFactory, (live) =>
+ *     BoundedShaclViolationFactory.of({
+ *       makeViolation: (...args) => {
+ *         MutableRef.increment(made)
+ *         return live.makeViolation(...args)
+ *       },
+ *     })
+ *   )
+ * ).pipe(Layer.provide(BoundedShaclViolationFactoryLive))
+ *
+ * console.log(Layer.isLayer(Counting)) // true
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class BoundedShaclViolationFactory extends Context.Service<
+  BoundedShaclViolationFactory,
+  { readonly makeViolation: MakeBoundedShaclViolation }
+>()($I`BoundedShaclViolationFactory`) {}
+
+/**
+ * Live {@link BoundedShaclViolationFactory} built on `ShaclValidationViolation.make`.
+ *
+ * **Example** (Provide the live factory)
+ *
+ * ```ts
+ * import { BoundedShaclViolationFactoryLive } from "@beep/epistemic-server/ShaclValidation"
+ * import * as Layer from "effect/Layer";
+ * console.log(Layer.isLayer(BoundedShaclViolationFactoryLive)) // true
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const BoundedShaclViolationFactoryLive: Layer.Layer<BoundedShaclViolationFactory> = Layer.succeed(
+  BoundedShaclViolationFactory
+)({
+  makeViolation: (focusNode, path, message, sourceShape) =>
+    ShaclValidationViolation.make({
+      focusNode,
+      path,
+      severity: "violation",
+      message,
+      sourceShape,
+    }),
+});
 
 const sameTerm = (left: Term, right: Term): boolean => serializeTerm(left) === serializeTerm(right);
 
@@ -80,6 +168,7 @@ const matchesTargetClass = (shape: ShaclNodeShape, subjectQuads: ReadonlyArray<Q
   );
 
 const minimumCountViolation = (
+  makeViolation: MakeBoundedShaclViolation,
   shape: ShaclNodeShape,
   propertyShape: ShaclPropertyShape,
   focusNode: string,
@@ -101,6 +190,7 @@ const minimumCountViolation = (
   );
 
 const maximumCountViolation = (
+  makeViolation: MakeBoundedShaclViolation,
   shape: ShaclNodeShape,
   propertyShape: ShaclPropertyShape,
   focusNode: string,
@@ -120,6 +210,7 @@ const maximumCountViolation = (
   );
 
 const datatypeViolations = (
+  makeViolation: MakeBoundedShaclViolation,
   shape: ShaclNodeShape,
   propertyShape: ShaclPropertyShape,
   focusNode: string,
@@ -145,6 +236,7 @@ const datatypeViolations = (
   );
 
 const propertyViolations = (
+  makeViolation: MakeBoundedShaclViolation,
   shape: ShaclNodeShape,
   propertyShape: ShaclPropertyShape,
   focusNode: string,
@@ -166,14 +258,15 @@ const propertyViolations = (
   );
   return pipe(
     A.getSomes([
-      minimumCountViolation(shape, propertyShape, focusNode, countedQuads.length),
-      maximumCountViolation(shape, propertyShape, focusNode, countedQuads.length),
+      minimumCountViolation(makeViolation, shape, propertyShape, focusNode, countedQuads.length),
+      maximumCountViolation(makeViolation, shape, propertyShape, focusNode, countedQuads.length),
     ]),
-    A.appendAll(datatypeViolations(shape, propertyShape, focusNode, propertyQuads))
+    A.appendAll(datatypeViolations(makeViolation, shape, propertyShape, focusNode, propertyQuads))
   );
 };
 
 const subjectViolations = (
+  makeViolation: MakeBoundedShaclViolation,
   request: ShaclValidationRequest,
   shape: ShaclNodeShape,
   subjectKey: string
@@ -186,11 +279,12 @@ const subjectViolations = (
   const focusNode = focusNodeFor(shape, subjectKey, subjectQuads);
   return pipe(
     shape.properties,
-    I.map((propertyShape) => propertyViolations(shape, propertyShape, focusNode, subjectQuads))
+    I.map((propertyShape) => propertyViolations(makeViolation, shape, propertyShape, focusNode, subjectQuads))
   );
 };
 
 const shapeViolations = (
+  makeViolation: MakeBoundedShaclViolation,
   request: ShaclValidationRequest,
   shape: ShaclNodeShape,
   subjectKeys: ReadonlyArray<string>
@@ -198,7 +292,7 @@ const shapeViolations = (
   const focusSubjectKeys = O.isSome(shape.targetNode) ? [serializeTerm(shape.targetNode.value)] : subjectKeys;
   return pipe(
     focusSubjectKeys,
-    I.flatMap((subjectKey) => subjectViolations(request, shape, subjectKey))
+    I.flatMap((subjectKey) => subjectViolations(makeViolation, request, shape, subjectKey))
   );
 };
 
@@ -223,6 +317,50 @@ const validationResult = (
     truncated: false,
   });
 };
+
+/**
+ * Bounded SHACL-inspired validation service layer that builds violations
+ * through {@link BoundedShaclViolationFactory}.
+ *
+ * **Details**
+ *
+ * {@link BoundedShaclValidationServiceLive} is this layer with
+ * {@link BoundedShaclViolationFactoryLive} provided.
+ *
+ * **Example** (Compose over the live factory)
+ *
+ * ```ts
+ * import {
+ *   BoundedShaclValidationServiceFromFactory,
+ *   BoundedShaclViolationFactoryLive
+ * } from "@beep/epistemic-server/ShaclValidation"
+ * import * as Layer from "effect/Layer";
+ * const layer = BoundedShaclValidationServiceFromFactory.pipe(Layer.provide(BoundedShaclViolationFactoryLive))
+ *
+ * console.log(Layer.isLayer(layer)) // true
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const BoundedShaclValidationServiceFromFactory: Layer.Layer<
+  ShaclValidationService,
+  never,
+  BoundedShaclViolationFactory
+> = Layer.effect(ShaclValidationService)(
+  Effect.map(BoundedShaclViolationFactory, ({ makeViolation }) =>
+    ShaclValidationService.of({
+      validate: Effect.fn((request) => {
+        const subjectKeys = uniqueSubjectKeys(request.dataset.quads);
+        const violations = pipe(
+          request.shapes,
+          I.flatMap((shape) => shapeViolations(makeViolation, request, shape, subjectKeys))
+        );
+        return Effect.succeed(validationResult(violations, request.maxResults));
+      }),
+    } satisfies ShaclValidationServiceShape)
+  )
+);
 
 /**
  * Bounded SHACL-inspired validation service live layer.
@@ -262,16 +400,5 @@ const validationResult = (
  * @category layers
  * @since 0.0.0
  */
-export const BoundedShaclValidationServiceLive = Layer.succeed(
-  ShaclValidationService,
-  ShaclValidationService.of({
-    validate: Effect.fn((request) => {
-      const subjectKeys = uniqueSubjectKeys(request.dataset.quads);
-      const violations = pipe(
-        request.shapes,
-        I.flatMap((shape) => shapeViolations(request, shape, subjectKeys))
-      );
-      return Effect.succeed(validationResult(violations, request.maxResults));
-    }),
-  } satisfies ShaclValidationServiceShape)
-);
+export const BoundedShaclValidationServiceLive: Layer.Layer<ShaclValidationService> =
+  BoundedShaclValidationServiceFromFactory.pipe(Layer.provide(BoundedShaclViolationFactoryLive));

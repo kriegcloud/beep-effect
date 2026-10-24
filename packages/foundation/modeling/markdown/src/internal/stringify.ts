@@ -45,9 +45,8 @@
 // Autolink defense under gfm: a `.` right after a boundary-preceded `www` and
 // a `:` right after a scheme word (http/https/ftp/mailto/xmpp) are escaped so
 // raw-source literal scanners cannot fire; escapes decode away, so the text
-// is unchanged. Email-shaped plain text is a RECORDED LIMITATION: the email
-// matcher is a postprocess over decoded text,
-// so no escape spelling survives to defeat it.
+// is unchanged. Escape `@` too: the email postprocess retains source escape
+// provenance and leaves escaped addresses as plain text.
 //
 // Unrepresentable shapes (documented, synthesized-tree-only — the parser
 // never produces them): a tight list whose item holds multiple blocks, two
@@ -474,6 +473,8 @@ const CONTEXTUAL_ESCAPE: Readonly<Record<string, (cursor: EscapeCursor) => strin
     isClosingHashRun(cursor.value, cursor.index, cursor.followingText, cursor.nonTextFollows)
       ? "\\#"
       : "#",
+  "@": (cursor) =>
+    /^[A-Za-z0-9_-]*\.[A-Za-z0-9]/.test(Str.slice(cursor.index + 1)(cursor.value) + cursor.followingText) ? "\\@" : "@",
   ".": (cursor) => (isWwwDot(cursor.value, cursor.index) ? "\\." : "."),
   ":": (cursor) => (isSchemeColon(cursor.value, cursor.index) ? "\\:" : ":"),
 };
@@ -531,7 +532,7 @@ const canonicalNewline = (cursor: EscapeCursor, precedingText: string): void => 
  * line terminators, the always-escape set and the contextual escapes. Every
  * other character is emitted as itself, so runs of them are appended whole.
  */
-const reCanonicalSpecial = /[\r\n\\`*[\]<~|{_&#.:]/g;
+const reCanonicalSpecial = /[\r\n\\`*[\]<~|{_&#.:@]/g;
 
 /** The same characters as `reCanonicalSpecial`, for a direct per-character lookup. */
 const CANONICAL_SPECIAL: Readonly<Record<string, true>> = {
@@ -544,6 +545,7 @@ const CANONICAL_SPECIAL: Readonly<Record<string, true>> = {
   "#": true,
   ".": true,
   ":": true,
+  "@": true,
 };
 
 /**
