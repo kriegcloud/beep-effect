@@ -1,10 +1,12 @@
 // @effect-diagnostics nodeBuiltinImport:skip-file asyncFunction:skip-file processEnv:skip-file processEnvInEffect:skip-file globalTimers:skip-file newPromise:skip-file globalRandom:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host; asyncFunction because it polls a detached native child that outlives the Effect scope; processEnv because it sets and restores a parent-only variable and passes PATH to prove what the child inherits; processEnvInEffect because it sets and restores a parent-only variable and passes PATH to prove what the child inherits; globalTimers because the child poll waits on a real timer; newPromise because it adapts node:http server callbacks and the child poll; globalRandom because a random parent-only value proves the child does not inherit it. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import type { Server, ServerResponse } from "node:http";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { assert, describe, it, vi } from "@effect/vitest";
+import { assertFalse } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -149,6 +151,15 @@ describe("DetachedProcess", () => {
 	});
 
 	describe("reap", () => {
+		// No kill spy: a child that already exited and was waited on makes the real
+		// process.kill throw ESRCH, which must classify through the wrapped cause.
+		it.effect("reports a real exited child as false", () =>
+			Effect.gen(function* () {
+				const { pid } = spawnSync(process.execPath, ["-e", ""]);
+				assertFalse(yield* DetachedProcess.reap(pid));
+			}),
+		);
+
 		it.layer(
 			Layer.effect(
 				KillSpy,
@@ -603,11 +614,13 @@ describe("DetachedProcess", () => {
 
 
 describe("DetachedSpawnOptions schema contract", () => {
-	it.effect("keeps absent options absent and preserves explicit undefined", () => Effect.gen(function* () {
+	it.effect("keeps absent options absent and rejects explicit undefined", () => Effect.gen(function* () {
 		const minimal: DetachedSpawnOptions = { command: "node", logFile: "/tmp/child.log" };
 		assert.deepStrictEqual(yield* S.decodeEffect(DetachedSpawnOptions)(minimal), minimal);
-		const explicit: DetachedSpawnOptions = { ...minimal, args: undefined, cwd: undefined, base: undefined, env: undefined };
-		assert.deepStrictEqual(yield* S.decodeEffect(DetachedSpawnOptions)(explicit), explicit);
+		// Exact optional keys (EF-40): an optional key is omitted, never undefined.
+		for (const key of ["args", "cwd", "base", "env"]) {
+			assert.isFalse(S.is(DetachedSpawnOptions)({ ...minimal, [key]: undefined }));
+		}
 		const configured: DetachedSpawnOptions = {
 			...minimal, args: ["worker.js"], cwd: "/work", base: { PATH: undefined, HOME: "/home/ci" }, env: { MODE: "worker" },
 		};
