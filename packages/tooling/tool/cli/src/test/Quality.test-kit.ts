@@ -28,7 +28,6 @@ export * from "@beep/repo-cli/commands/Quality/Quality.command";
 export * from "@beep/repo-cli/commands/Quality/Quality.render";
 export {
   decodeGithubChecksFallowFeatureMatrix,
-  decodePackageJsonDocument,
   FallowQualityCiMode,
   FallowQualityFeatureFamily,
   FallowQualityPromotionStatus,
@@ -48,8 +47,6 @@ export {
   GithubChecksFallowFeatureMatrixRow,
   githubCheckModeFlagChoices,
   LintPolicySubcommand,
-  PackageJsonDocument,
-  PackageJsonWorkspacesDocument,
   PackageTaskProfile,
   QUALITY_TASK_LANE_RUN_REPORT_PREFIX,
   QualityTaskBypassArgName,
@@ -92,6 +89,7 @@ export * from "../commands/Quality/internal/LaneProofReuse.ts";
 export * from "../commands/Quality/internal/PackageVerify.ts";
 export {
   collectFiles,
+  discoverWorkspacePackages,
   fencedLineState,
   jsdocCommentsFromSource,
   listSourceFiles,

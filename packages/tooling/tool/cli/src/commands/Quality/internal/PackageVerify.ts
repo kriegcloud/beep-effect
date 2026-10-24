@@ -19,8 +19,10 @@ import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { manifestParser } from "../../../internal/ManifestRead.ts";
 import { QualityTaskStep, runCaptured } from "../../../internal/process/index.ts";
 import { collectDirtyWorktreeFiles } from "../../../internal/repo-run/ChangedFiles.ts";
 import { renderDocgenIssueText } from "../../Docgen/internal/Local.ts";
@@ -214,18 +216,7 @@ export class PackageVerifyReport extends S.Opaque<PackageVerifyReport, { readonl
   )
 ) {}
 
-class PackageVerifyPackageJson extends S.Opaque<PackageVerifyPackageJson, { readonly brand: unique symbol }>()(
-  S.Struct({
-    name: S.String,
-    scripts: S.OptionFromOptionalKey(S.Record(S.String, S.String)),
-  }).pipe(
-    $I.annoteSchema("PackageVerifyPackageJson", {
-      description: "Minimal package.json shape decoded for package verification.",
-    })
-  )
-) {}
-
-const decodePackageVerifyPackageJson = S.decodeUnknownEffect(S.fromJsonString(PackageVerifyPackageJson));
+const parsePackageVerifyPackageJson = manifestParser(["name", "scripts"]);
 const byWorkspaceNameAscending = Order.mapInput(Order.String, (workspace: PackageVerifyWorkspace) => workspace.name);
 const byWorkspacePathLengthDescending = Order.flip(
   Order.mapInput(Order.Number, (workspace: PackageVerifyWorkspace) => Str.length(workspace.dir))
@@ -505,17 +496,21 @@ const readPackageWorkspace = Effect.fn("PackageVerify.readPackageWorkspace")(fun
   const content = yield* fs
     .readFileString(packageJsonPath)
     .pipe(QualityScriptCommandError.mapError(`Failed to read ${packageJsonPath}.`));
-  const packageJson = yield* decodePackageVerifyPackageJson(content).pipe(
+  const packageJson = yield* parsePackageVerifyPackageJson(content).pipe(
     QualityScriptCommandError.mapError(`Failed to decode ${packageJsonPath}.`)
   );
+  if (P.isUndefined(packageJson.name)) {
+    return yield* QualityScriptCommandError.new(
+      `${packageJsonPath} does not declare a package name.`,
+      `Failed to decode ${packageJsonPath}.`,
+      {}
+    );
+  }
 
   return PackageVerifyWorkspace.make({
     name,
     dir,
-    scripts: pipe(
-      packageJson.scripts,
-      O.getOrElse(() => R.empty<string>())
-    ),
+    scripts: packageJson.scripts ?? R.empty<string>(),
   });
 });
 

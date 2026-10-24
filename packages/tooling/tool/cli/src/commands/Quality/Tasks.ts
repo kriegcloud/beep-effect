@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { StringListField, WorkspacesField } from "@beep/package-json/ManifestFields";
 import { findRepoRoot, insertEndOfOptions } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
@@ -56,6 +57,7 @@ import { coverageEnvironment } from "./internal/CoverageEnvironment.ts";
 export { coverageProducerEnvironment } from "./internal/CoverageEnvironment.ts";
 
 import { globMatches } from "../../internal/GlobPattern.ts";
+import { manifestParser } from "../../internal/ManifestRead.ts";
 import {
   CapturedStep,
   formatCommandLine,
@@ -105,7 +107,6 @@ import {
 } from "./internal/TurboLaneDigest.ts";
 import { QualityTaskConfigurationError, QualityTaskFailed, QualityTaskGroupFailed } from "./Quality.errors.ts";
 import {
-  decodePackageJsonDocument,
   GatePrecisionClass,
   GateRedSchedulingDecision,
   GITHUB_CHECK_RUN_REPORT_PREFIX,
@@ -128,6 +129,7 @@ import {
   QualityTaskName,
   RootAuditMode,
 } from "./Quality.schemas.ts";
+import type { LenientManifest } from "@beep/package-json/LenientManifest";
 import type { DomainError, NoSuchFileError } from "@beep/repo-utils";
 import type { PgliteTestcontainerResource } from "@beep/test-utils";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
@@ -138,7 +140,7 @@ import type { FlakeQuarantineTask } from "./internal/FlakeQuarantine.ts";
 import type { LaneProofSession } from "./internal/LaneProofReuse.ts";
 import type { TurboLaneDigest } from "./internal/TurboLaneDigest.ts";
 import type { UnexpectedQualityTaskFailure } from "./Quality.errors.ts";
-import type { GithubCheckLaneWaveSpec, PackageJsonDocument, PackageJsonWorkspacesDocument } from "./Quality.schemas.ts";
+import type { GithubCheckLaneWaveSpec } from "./Quality.schemas.ts";
 
 export { QualityTaskStep } from "../../internal/process/index.ts";
 /**
@@ -213,11 +215,6 @@ type QualityTaskEnvironment =
   | Path.Path
   | Crypto.Crypto
   | ChildProcessSpawner.ChildProcessSpawner;
-
-type PackageJsonWorkspaces = ReadonlyArray<string> | PackageJsonWorkspacesDocument;
-
-const isPackageJsonWorkspacePatternList = (workspaces: PackageJsonWorkspaces): workspaces is ReadonlyArray<string> =>
-  A.isArray(workspaces);
 
 type OptionalQualityTaskStep = {
   readonly enabled: boolean;
@@ -374,14 +371,22 @@ const parseRootAuditSelection = (args: ReadonlyArray<string>): RootAuditSelectio
     },
   });
 
-const workspacePatternsFromPackageJson = (packageJson: PackageJsonDocument): ReadonlyArray<string> => {
-  const workspaces: PackageJsonWorkspaces | undefined = packageJson.workspaces;
-  if (workspaces === undefined) {
-    return A.empty();
-  }
+const parsePackageJson = manifestParser(["name", "scripts", "workspaces"]);
+const decodeWorkspaces = S.decodeUnknownEffect(WorkspacesField);
+const isWorkspacePatternList = S.is(StringListField);
 
-  return isPackageJsonWorkspacePatternList(workspaces) ? workspaces : (workspaces.packages ?? A.empty());
-};
+const workspacePatternsFromPackageJson = Effect.fn("QualityTasks.workspacePatternsFromPackageJson")(function* (
+  packageJson: LenientManifest,
+  filePath: string
+): Effect.fn.Return<ReadonlyArray<string>, QualityTaskConfigurationError> {
+  if (packageJson.workspaces === undefined) {
+    return A.empty<string>();
+  }
+  const workspaces = yield* decodeWorkspaces(packageJson.workspaces).pipe(
+    QualityTaskConfigurationError.mapError(`Failed to parse ${filePath}`)
+  );
+  return isWorkspacePatternList(workspaces) ? workspaces : (workspaces.packages ?? A.empty());
+});
 
 const readJsonFile = Effect.fn("QualityTasks.readJsonFile")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -389,9 +394,7 @@ const readJsonFile = Effect.fn("QualityTasks.readJsonFile")(function* (filePath:
     .readFileString(filePath)
     .pipe(QualityTaskConfigurationError.mapError(`Failed to read ${filePath}`));
 
-  return yield* decodePackageJsonDocument(content).pipe(
-    QualityTaskConfigurationError.mapError(`Failed to parse ${filePath}`)
-  );
+  return yield* parsePackageJson(content).pipe(QualityTaskConfigurationError.mapError(`Failed to parse ${filePath}`));
 });
 
 const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* (
@@ -469,9 +472,10 @@ const workspaceTaskOwners = Effect.fn("QualityTasks.workspaceTaskOwners")(functi
 > {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const rootPackageJson = yield* readJsonFile(path.join(repoRoot, "package.json"));
+  const rootPackageJsonPath = path.join(repoRoot, "package.json");
+  const rootPackageJson = yield* readJsonFile(rootPackageJsonPath);
   const candidateDirs = yield* Effect.forEach(
-    workspacePatternsFromPackageJson(rootPackageJson),
+    yield* workspacePatternsFromPackageJson(rootPackageJson, rootPackageJsonPath),
     (pattern) => workspaceCandidateDirsForPattern(repoRoot, pattern),
     { concurrency: 4 }
   );

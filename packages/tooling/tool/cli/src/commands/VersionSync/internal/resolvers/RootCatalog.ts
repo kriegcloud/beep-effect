@@ -13,7 +13,6 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { Lockfile } from "@beep/lockfiles/Lockfile";
-import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { Str, thunkEmptyStr } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -23,7 +22,9 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
+import { manifestParser } from "../../../../internal/ManifestRead.ts";
 import { VersionSyncError } from "../../VersionSync.schemas.ts";
+import type { LenientManifest } from "@beep/package-json/LenientManifest";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/RootCatalog");
 
@@ -67,37 +68,7 @@ const decodeExactVersion = S.decodeUnknownOption(VersionSpecifierToExactVersion)
 export const exactVersionFromSpecifier = (value: unknown): string =>
   O.getOrElse(decodeExactVersion(value), () => `${value}`);
 
-/**
- * Subset of the root `package.json` that version resolvers read.
- *
- * **Example** (Construct an empty document)
- *
- * ```ts
- * import { RootPackageJsonDocument } from "@beep/repo-cli/commands/VersionSync/internal/resolvers/RootCatalog"
- *
- * const document = RootPackageJsonDocument.make({})
- * console.log(Object.keys(document.catalog).length) // 0
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export class RootPackageJsonDocument extends S.Opaque<RootPackageJsonDocument, { readonly brand: unique symbol }>()(
-  S.Struct({
-    catalog: S.Record(S.String, S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
-      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, string>()))
-    ),
-    devDependencies: S.Record(S.String, S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
-      S.withDecodingDefaultKey(Effect.succeed(R.empty<string, string>()))
-    ),
-  }).pipe(
-    $I.annoteSchema("RootPackageJsonDocument", {
-      description: "Subset of root package.json fields required to resolve an installed tool version.",
-    })
-  )
-) {}
+const parseRootPackageJson = manifestParser(["catalog", "devDependencies"]);
 
 /**
  * Read and decode the root `package.json` catalog and devDependencies.
@@ -112,13 +83,13 @@ export class RootPackageJsonDocument extends S.Opaque<RootPackageJsonDocument, {
  * ```
  *
  * @param repoRoot - Absolute repository root.
- * @returns The decoded catalog and devDependencies subset.
+ * @returns The root manifest through `LenientManifest`; a present `catalog` or `devDependencies` must keep its JSON shape.
  * @category utilities
  * @since 0.0.0
  */
 export const readRootPackageJson = Effect.fn("readRootPackageJson")(function* (
   repoRoot: string
-): Effect.fn.Return<RootPackageJsonDocument, VersionSyncError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<LenientManifest, VersionSyncError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
@@ -127,7 +98,7 @@ export const readRootPackageJson = Effect.fn("readRootPackageJson")(function* (
     .readFileString(pkgJsonPath)
     .pipe(VersionSyncError.mapError("Failed to read package.json", "package.json"));
 
-  return yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
+  return yield* parseRootPackageJson(pkgJsonContent).pipe(
     VersionSyncError.mapError("Failed to parse package.json", "package.json")
   );
 });
@@ -261,7 +232,9 @@ export const resolveInstalledToolVersion = Effect.fn("resolveInstalledToolVersio
   const pkgJson = yield* readRootPackageJson(repoRoot);
 
   const rawVersion = O.getOrElse(
-    O.orElse(R.get(pkgJson.catalog, dependencyName), () => R.get(pkgJson.devDependencies, dependencyName)),
+    O.orElse(R.get(pkgJson.catalog ?? R.empty<string, string>(), dependencyName), () =>
+      R.get(pkgJson.devDependencies ?? R.empty<string, string>(), dependencyName)
+    ),
     thunkEmptyStr
   );
 

@@ -22,6 +22,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { manifestParser } from "../../../../internal/ManifestRead.ts";
 import {
   NetworkUnavailableError,
   VersionCategoryReport,
@@ -51,18 +52,7 @@ class BunRelease extends S.Opaque<BunRelease, { readonly brand: unique symbol }>
   )
 ) {}
 
-class BunPackageJsonDocument extends S.Opaque<BunPackageJsonDocument, { readonly brand: unique symbol }>()(
-  S.Struct({
-    packageManager: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefaultKey(Effect.succeed(""))
-    ),
-  }).pipe(
-    $I.annoteSchema("BunPackageJsonDocument", {
-      description: "Subset of root package.json fields required by the Bun resolver.",
-    })
-  )
-) {}
+const parsePackageJson = manifestParser(["packageManager"]);
 
 /**
  * Vercel command fields that carry explicit Bun runtime pins.
@@ -259,10 +249,10 @@ export const resolveBunVersions: {
       .readFileString(pkgJsonPath)
       .pipe(VersionSyncError.mapError("Failed to read package.json", "package.json"));
 
-    const pkgJson = yield* decodeJsoncTextAs(BunPackageJsonDocument)(pkgJsonContent).pipe(
+    const pkgJson = yield* parsePackageJson(pkgJsonContent).pipe(
       VersionSyncError.mapError("Failed to parse package.json", "package.json")
     );
-    const packageManagerField = extractPackageManagerVersion(pkgJson.packageManager);
+    const packageManagerField = extractPackageManagerVersion(pkgJson.packageManager ?? "");
 
     const vercelJsonPath = path.join(repoRoot, "apps", "oip-web", "vercel.json");
     const vercelDocument = yield* fs.exists(vercelJsonPath).pipe(

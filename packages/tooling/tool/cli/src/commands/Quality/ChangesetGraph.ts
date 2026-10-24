@@ -8,6 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { FrontmatterSource } from "@beep/markdown/FrontmatterSource";
 import { FrontmatterFormat } from "@beep/markdown/MarkdownNode";
+import { StringListField, WorkspacesField } from "@beep/package-json/ManifestFields";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
@@ -21,8 +22,10 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { parseDocument } from "yaml";
+import { manifestParser } from "../../internal/ManifestRead.ts";
 import { runCaptured } from "../../internal/process/index.ts";
 import { ChangesetGraphError } from "./Quality.errors.ts";
+import type { LenientManifest } from "@beep/package-json/LenientManifest";
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
@@ -39,31 +42,6 @@ const $I = $RepoCliId.create("commands/Quality/ChangesetGraph");
 const nulSeparator = "\u0000";
 const gitWorkspacePackageJsonPathspecs = ["package.json"] as const;
 const retiredChangesetPackagesPath = "standards/changesets.retired-packages.json";
-
-class ChangesetGraphWorkspacesObject extends S.Opaque<
-  ChangesetGraphWorkspacesObject,
-  { readonly brand: unique symbol }
->()(
-  S.Struct({
-    packages: S.Array(S.String).pipe(S.optionalKey),
-  }).pipe(
-    $I.annoteSchema("ChangesetGraphWorkspacesObject", {
-      description: "Object-form root package workspace declaration used by the changeset graph guard.",
-    })
-  )
-) {}
-
-class ChangesetGraphPackageJson extends S.Opaque<ChangesetGraphPackageJson, { readonly brand: unique symbol }>()(
-  S.Struct({
-    name: S.optionalKey(S.String),
-    private: S.optionalKey(S.Boolean),
-    workspaces: S.optionalKey(S.Union([S.Array(S.String), ChangesetGraphWorkspacesObject])),
-  }).pipe(
-    $I.annoteSchema("ChangesetGraphPackageJson", {
-      description: "Minimal package.json shape used by the changeset graph guard.",
-    })
-  )
-) {}
 
 class RetiredChangesetPackageRecord extends S.Opaque<
   RetiredChangesetPackageRecord,
@@ -156,7 +134,10 @@ export class ChangesetGraphSummary extends S.Opaque<ChangesetGraphSummary, { rea
 
 const ChangesetBumpKind = LiteralKit(["major", "minor", "patch"]);
 
-const decodePackageJson = S.decodeUnknownEffect(S.fromJsonString(ChangesetGraphPackageJson));
+const parseRootPackageJson = manifestParser(["workspaces"]);
+const parseWorkspacePackageJson = manifestParser(["name", "private"]);
+const decodeWorkspaces = S.decodeUnknownEffect(WorkspacesField);
+const isWorkspacePatternList = S.is(StringListField);
 const decodeChangesetFrontmatter = S.decodeUnknownEffect(S.Record(S.String, ChangesetBumpKind));
 const decodeRetiredChangesetPackages = S.decodeUnknownEffect(S.fromJsonString(RetiredChangesetPackages));
 
@@ -169,11 +150,6 @@ const normalizePath = Str.replaceAll("\\", "/");
 const stripTrailingSlashes = Str.replace(/\/+$/g, "");
 const isReadmeChangeset = Str.endsWith("/README.md");
 
-type ChangesetGraphWorkspaces = ChangesetGraphPackageJson["workspaces"];
-
-const isWorkspacePatternArray = (value: Exclude<ChangesetGraphWorkspaces, undefined>): value is ReadonlyArray<string> =>
-  A.isArray(value) && A.every(value, P.isString);
-
 const toNulSeparatedLines: (output: string) => ReadonlyArray<string> = flow(
   Str.split(nulSeparator),
   A.map(Str.trim),
@@ -182,15 +158,18 @@ const toNulSeparatedLines: (output: string) => ReadonlyArray<string> = flow(
   A.sort(Order.String)
 );
 
-const workspacePatternsFrom = (document: ChangesetGraphPackageJson): ReadonlyArray<string> => {
+const workspacePatternsFrom = Effect.fn("ChangesetGraph.workspacePatternsFrom")(function* (
+  document: LenientManifest,
+  filePath: string
+): Effect.fn.Return<ReadonlyArray<string>, ChangesetGraphError> {
   if (P.isUndefined(document.workspaces)) {
     return A.empty<string>();
   }
-
-  return isWorkspacePatternArray(document.workspaces)
-    ? document.workspaces
-    : (document.workspaces.packages ?? A.empty());
-};
+  const workspaces = yield* decodeWorkspaces(document.workspaces).pipe(
+    ChangesetGraphError.mapError(`Failed to parse package manifest ${filePath}.`, filePath)
+  );
+  return isWorkspacePatternList(workspaces) ? workspaces : (workspaces.packages ?? A.empty());
+});
 
 const packageJsonPathspecForWorkspacePattern = (pattern: string): string =>
   `:(glob)${pipe(pattern, normalizePath, stripTrailingSlashes)}/package.json`;
@@ -246,14 +225,15 @@ const collectGitOutput = Effect.fn("ChangesetGraph.collectGitOutput")(function* 
 });
 
 const readPackageJson = Effect.fn("ChangesetGraph.readPackageJson")(function* (
-  filePath: string
-): Effect.fn.Return<ChangesetGraphPackageJson, ChangesetGraphError, FileSystem.FileSystem> {
+  filePath: string,
+  parse: ReturnType<typeof manifestParser>
+): Effect.fn.Return<LenientManifest, ChangesetGraphError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
   const content = yield* fs
     .readFileString(filePath)
     .pipe(ChangesetGraphError.mapError(`Failed to read package manifest ${filePath}.`, filePath));
 
-  return yield* decodePackageJson(content).pipe(
+  return yield* parse(content).pipe(
     ChangesetGraphError.mapError(`Failed to parse package manifest ${filePath}.`, filePath)
   );
 });
@@ -326,10 +306,11 @@ export const collectWorkspacePackageJsonFiles = Effect.fn("ChangesetGraph.collec
   FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
 > {
   const path = yield* Path.Path;
-  const rootPackageJson = yield* readPackageJson(path.join(repoRoot, "package.json"));
-  const workspacePathspecs = pipe(
-    workspacePatternsFrom(rootPackageJson),
-    A.map(packageJsonPathspecForWorkspacePattern)
+  const rootPackageJsonPath = path.join(repoRoot, "package.json");
+  const rootPackageJson = yield* readPackageJson(rootPackageJsonPath, parseRootPackageJson);
+  const workspacePathspecs = A.map(
+    yield* workspacePatternsFrom(rootPackageJson, rootPackageJsonPath),
+    packageJsonPathspecForWorkspacePattern
   );
   const output = yield* collectGitOutput(repoRoot, [
     "ls-files",
@@ -348,7 +329,7 @@ export const collectWorkspacePackageJsonFiles = Effect.fn("ChangesetGraph.collec
 const collectWorkspacePackages = Effect.fn("ChangesetGraph.collectWorkspacePackages")(function* (
   repoRoot: string
 ): Effect.fn.Return<
-  ReadonlyArray<ChangesetGraphPackageJson>,
+  ReadonlyArray<LenientManifest>,
   ChangesetGraphError,
   FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
 > {
@@ -357,7 +338,7 @@ const collectWorkspacePackages = Effect.fn("ChangesetGraph.collectWorkspacePacka
   const documents = yield* Effect.forEach(
     packageJsonFiles,
     Effect.fn(function* (file) {
-      const document = yield* readPackageJson(path.join(repoRoot, file));
+      const document = yield* readPackageJson(path.join(repoRoot, file), parseWorkspacePackageJson);
       if (P.isUndefined(document.name)) {
         return yield* ChangesetGraphError.make({
           message: `Workspace package manifest ${file} does not declare a package name.`,

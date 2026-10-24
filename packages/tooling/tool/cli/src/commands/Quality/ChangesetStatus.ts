@@ -29,6 +29,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { isLabsWorkspacePath } from "../../internal/cli/Labs/index.ts";
+import { manifestParser } from "../../internal/ManifestRead.ts";
 import { runCaptured } from "../../internal/process/index.ts";
 import { changesetPackageReferencesFromText, collectWorkspacePackageJsonFiles } from "./ChangesetGraph.ts";
 import { ChangesetStatusError } from "./Quality.errors.ts";
@@ -233,18 +234,6 @@ export class ChangesetStatusWorkspacePackage extends S.Opaque<
   )
 ) {}
 
-class ChangesetStatusPackageJson extends S.Opaque<ChangesetStatusPackageJson, { readonly brand: unique symbol }>()(
-  S.Struct({
-    name: S.optionalKey(S.String),
-    version: S.optionalKey(S.String),
-    private: S.optionalKey(S.Boolean),
-  }).pipe(
-    $I.annoteSchema("ChangesetStatusPackageJson", {
-      description: "Minimal package.json shape read by the path-aware changeset status wrapper.",
-    })
-  )
-) {}
-
 class ChangesetStatusChangesetConfig extends S.Opaque<
   ChangesetStatusChangesetConfig,
   { readonly brand: unique symbol }
@@ -258,7 +247,7 @@ class ChangesetStatusChangesetConfig extends S.Opaque<
   )
 ) {}
 
-const decodePackageJson = S.decodeUnknownEffect(S.fromJsonString(ChangesetStatusPackageJson));
+const parsePackageJson = manifestParser(["name", "version", "private"]);
 const decodeChangesetConfig = S.decodeUnknownEffect(S.fromJsonString(ChangesetStatusChangesetConfig));
 
 const toNulSeparatedPaths: (output: string) => ReadonlyArray<string> = flow(
@@ -542,7 +531,7 @@ const collectChangedWorkspacePackages = Effect.fn("ChangesetStatus.collectChange
       const content = yield* fs
         .readFileString(path.join(repoRoot, manifestFile))
         .pipe(ChangesetStatusError.mapError(`Failed to read package manifest ${manifestFile}.`, manifestFile));
-      const document = yield* decodePackageJson(content).pipe(
+      const document = yield* parsePackageJson(content).pipe(
         ChangesetStatusError.mapError(`Failed to parse package manifest ${manifestFile}.`, manifestFile)
       );
       if (P.isUndefined(document.name)) {
