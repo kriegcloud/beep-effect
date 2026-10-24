@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); wave 2d-2 merged (#2121, `@beep/md` syntax bridge, D-48..D-51); 2d-3 merged (#2141, D-52); D-53 merged (#2143); wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-p): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, W3-b), 3-2 merged (#2129, `@beep/repo-tsconfig`, W3-c, W3-k..W3-n), 3-4 merged (#2126, `@beep/package-json`, W3-f), 3-3 merged (#2134, `@beep/config-file`, W3-e), 3-5 merged (#2159, `@beep/lockfiles`, W3-g), 3-A1..3-A9 queued; wave 4 and the closing roadmap (`research/wave-4-plan-2026-10-23.md`, W4-a..W4-t): R0 merged (#2156, docs: reuse-ledger backfill, SPEC W4 rows), 4-S (`@beep/sbom`, W4-b) in review in this PR, the rest queued in the PR sequence below.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); wave 2d-2 merged (#2121, `@beep/md` syntax bridge, D-48..D-51); 2d-3 merged (#2141, D-52); D-53 merged (#2143); wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-p): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, W3-b), 3-2 merged (#2129, `@beep/repo-tsconfig`, W3-c, W3-k..W3-n), 3-4 merged (#2126, `@beep/package-json`, W3-f), 3-3 merged (#2134, `@beep/config-file`, W3-e), 3-5 merged (#2159, `@beep/lockfiles`, W3-g), 3-A1..3-A9 queued; wave 4 and the closing roadmap (`research/wave-4-plan-2026-10-23.md`, W4-a..W4-t): 4-X (`@beep/xdg`, W4-c) in review in this PR; R0 merged (#2156, docs: reuse-ledger backfill, SPEC W4 rows), the rest queued in the PR sequence below.
 
 ## Phases
 
@@ -18,9 +18,7 @@ Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged 
 
 The binding plan for wave 3 is `research/wave-3-plan-2026-10-23.md`: its "PR sequence" table sets
 the sub-wave order, dependencies and parallel lanes, and its decisions are recorded as W3-a onward
-(numbered after merging main). The binding plan for wave 4, the 3-A adoptions still open, wave 5 and the
-close is `research/wave-4-plan-2026-10-23.md`; its "PR sequence" table is the execution order for
-everything left, and its decisions are recorded as W4-a onward.
+(numbered after merging main).
 
 | Wave | Packages | Notes |
 | --- | --- | --- |
@@ -51,6 +49,7 @@ everything left, and its decisions are recorded as W4-a onward.
 | 3-A7 (queued) | `TsconfigSync.schemas` onto `@beep/tsconfig` | repo-cli `TsconfigSync.schemas.ts`, with byte parity of tsconfig-sync output. After 3-2. |
 | 3-A8 (queued, optional) | `GitHubMarkdown.table` adoption | repo-cli `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts`. After 3-1. |
 | 3-A9 (queued, optional) | `ScopedPackageName` | observability `catalog/Catalog.names.ts`. After 3-4. |
+| 4-X (merged, #2184) | `@beep/xdg` | W4-c, W4-h (4-X part). Root `Xdg`, `AppDirs`, `NativeDirs` and the new `XdgBase` leaf; `./XdgConfig` subpath-only (root-closure test). Absolute values only; HOME-optional `XdgBase`; the platform through `HostProcessPlatform`; branded Opaque records. Adopters: m365-mcp `OutboxConfig` roots, repo-cli `WorkstationState` (env-matrix parity committed against the old bodies). Frozen `systemd-path` goldens (900 cases) and `ops/xdg-systemd-differential.ts` (0 undocumented differences); the lab xdg directories are gone; coverage 100/100/100/100. Cut after 3-3 merged. |
 | 4-S (in review, this PR) | `@beep/sbom` | W4-b, W4-g, W4-j, W4-s (4-S parts). The 8 pure modules of the lab `sbom` (IdentityToken included) as branded `S.Opaque` records admitted once per constructor; `SigstoreSigner` stays in the lab (signer-only `index.ts`, deferred `@beep/sigstore`). Bun-safe raw-glob reachability, `S.optionalKey` kept on the 5 input structs with their explicit-undefined tests inverted to pin rejection (#1928 under EF-40, W4-j), `ajv`/`ajv-formats` exact pins with no new `bun.lock` hash, the full-schema oracle and `ops/sbom-corpus.ts` (189 manifests, 0 schema failures). Lab retargets: the signer, github-actions `ActionsIdentityToken`/`ActionsProvenance`, both PROMOTED maps. |
 | 4 (queued) | `@beep/sbom` (4-S), `@beep/xdg` (4-X), `@beep/cli-kit` (4-C), `@beep/repo-workspaces` (4-W-a, 4-W-b) | W4-a..W4-g; order and adoptions in "Wave 4 and the closing roadmap" below. `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
 | 5 (queued, W5) | `@beep/github-actions` | Leaf driver; after 4-S, 3-A8 and W4-j. |
@@ -148,11 +147,9 @@ bridge section that closes map sites #237 and #290 and the placement half of
 
 PR #1928 changed `S.optional` to `S.optionalKey` across the lab, and the
 scratchpad tests are not part of hosted CI, so these failed on `main` before
-wave 1 (attributed on a pristine `426d494b34` checkout, 2026-10-21). Until
-#2145 landed, each promotion restored the upstream optional semantics its
-tests assert, as `@beep/commands` did in wave 1. EF-40 (#2145) is on `main`
-now, so per W4-j each later promotion keeps `S.optionalKey` and inverts its
-explicit-undefined tests to pin rejection; 4-S is the first to do so.
+wave 1 (attributed on a pristine `426d494b34` checkout, 2026-10-21). Each
+promotion restores the upstream optional semantics its tests assert, as
+`@beep/commands` did in wave 1.
 
 | Module | Failing on main | Wave |
 | --- | --- | --- |
@@ -160,7 +157,6 @@ explicit-undefined tests to pin rejection; 4-S is the first to do so.
 | `engine` | `ProcessGuard.test.ts` explicit-undefined `onRejection` | deferred |
 | `github-actions` | Artifact, BlobStore, DetachedProcess, GitHubToken, twirp, PackageManagerInstaller, sigv4, ToolInstaller option schemas (GitHubMarkdown and ManagedDocument fixed in 3-1, W3-b) | 5 |
 | `cli` | CliLog/CliTest property tests, round-3 config and key-input schemas, CliMessage and Status hostile-glyph suites | 4 |
-| `sbom` | type-level only: the `SbomInput`, `SbomJsonOptions`, `SbomMetadataOptions`, `ComponentInput` and `CopyrightYears` explicit-undefined tests (6 TS2379 in the package check; Node and Bun runs passed) | fixed in 4-S under EF-40 (W4-j): the five structs keep `S.optionalKey` and the four explicit-undefined tests pin rejection, by `S.is` and by `@ts-expect-error` |
 
 ## Execution Notes
 

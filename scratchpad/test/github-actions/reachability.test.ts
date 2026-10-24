@@ -66,8 +66,8 @@ const runtimeSpecifiers = (source: string): ReadonlyArray<string> => {
  * halves of `npm` and `tsconfig-json` became `@beep/npm-spec` and `@beep/tsconfig`, and the
  * `tsconfig-json` loader half `@beep/repo-tsconfig`; `env` became `@beep/runtime-env`; this
  * package's reporting suite became `@beep/github-reporting`; wave 3-3 promoted `config-file`
- * whole; the pure half of `sbom`, which this package reaches for `IdentityToken` and
- * `SlsaProvenance`, became `@beep/sbom`). Upstream
+ * whole, wave 4-X `xdg` whole, and the pure half of `sbom`, which this package reaches
+ * for `IdentityToken` and `SlsaProvenance`, became `@beep/sbom`). Upstream
  * reached each as a bare `@effected/*` edge and the lab as a relative sibling
  * entrypoint; promoted, each is a bare package edge again, so the walker stops at
  * it as it stops at a lab sibling. A kit module not yet promoted would still be a
@@ -99,6 +99,7 @@ const PROMOTED_KIT_PACKAGES = new Set([
 	"@beep/toml",
 	"@beep/tsconfig",
 	"@beep/walker",
+	"@beep/xdg",
 	"@beep/yaml",
 ]);
 
