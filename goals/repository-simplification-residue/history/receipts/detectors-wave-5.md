@@ -346,7 +346,8 @@ Ten existing EV003 exceptions keep their reasons, with an owner and exit appende
 - `withUnreadableDataDir` (owner `@beep/professional-desktop`);
 - AgentMessage `query`/`call`/`fixture`.
 
-The EV003 family now has 22 exceptions, every one with an owner and an exit, and 0 open rows.
+The EV003 family now has 23 exceptions, every one with an owner and an exit, and 0 open rows:
+the base's 15 exceptions, less the 5 that retire, plus the 13 conversions (15 − 5 + 13 = 23).
 
 ## Remaining frontier
 
@@ -356,8 +357,9 @@ The EV003 family now has 22 exceptions, every one with an owner and an exit, and
 - **Waves 7-9, the owner/exit register.** 698 exceptions; EV003's 23 and the 7 wave 4 rows now
   carry an owner and exit. Wave 7 is EV010. Wave 8 is EV002, EV004 and EV006. Wave 9 is the rest,
   including the two remaining EV008 exceptions and the EV012 rows.
-- **Open rows: 390.** EV002 167, EV010 150, EV004 56, EV015 17 (splittable since wave 4) and
-  EV012 3 (no production seam). These are #1875 migrations, not detector false positives.
+- **Open rows: 390.** EV002 167, EV010 150, EV004 56 and EV015 17 (splittable since wave 4); the
+  three EV012 rows were resolved on `main` by the #2216 seams. These are #1875 migrations, not
+  detector false positives.
 - **Closeout:** a fresh zero actionable scan once #1875 has migrated its cohorts, then flip
   #1855 to `complete`.
 
