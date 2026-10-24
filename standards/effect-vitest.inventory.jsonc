@@ -4007,13 +4007,13 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/research-history-sift.test.ts:123:provideTestLayer@4#1",
+      "id": "EV002:packages/tooling/tool/cli/test/research-history-sift.test.ts:112:provideTestLayer@4#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/research-history-sift.test.ts",
-      "line": 123,
-      "endLine": 123,
+      "line": 112,
+      "endLine": 112,
       "symbol": "provideTestLayer",
       "occurrence": "v2:93d41d56807a1b28204bd8aed28fcd95c14ff636a66f8e27c7e15079fc1b9912",
       "class": "unresolved-layer-provide",
@@ -4028,15 +4028,36 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/research-history-sift.test.ts:132:provideTestLayer@4#1",
+      "id": "EV002:packages/tooling/tool/cli/test/research-history-sift.test.ts:121:provideTestLayer@4#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/research-history-sift.test.ts",
-      "line": 132,
-      "endLine": 132,
+      "line": 121,
+      "endLine": 121,
       "symbol": "provideTestLayer",
       "occurrence": "v2:2549314596fac96308adad525c9088257853bd48fb407d76e80d775cce9b3f27",
+      "class": "unresolved-layer-provide",
+      "evidence": "provideTestLayer",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV002:packages/tooling/tool/cli/test/research-history-sift.test.ts:134:provideTestLayer@4#1",
+      "lens": "resource",
+      "ruleId": "EV002",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/research-history-sift.test.ts",
+      "line": 134,
+      "endLine": 134,
+      "symbol": "provideTestLayer",
+      "occurrence": "v2:33a1937de078d802f478903a2c75457257b69230bf9c34da34ee840c9640553a",
       "class": "unresolved-layer-provide",
       "evidence": "provideTestLayer",
       "replacement": {
@@ -4057,7 +4078,7 @@
       "line": 145,
       "endLine": 145,
       "symbol": "provideTestLayer",
-      "occurrence": "v2:33a1937de078d802f478903a2c75457257b69230bf9c34da34ee840c9640553a",
+      "occurrence": "v2:7ee8d66e9b96d8ad9d21d21b29c0112d72b5da7d981dcc7b15051e77d4a07e0f",
       "class": "unresolved-layer-provide",
       "evidence": "provideTestLayer",
       "replacement": {
@@ -4078,27 +4099,6 @@
       "line": 156,
       "endLine": 156,
       "symbol": "provideTestLayer",
-      "occurrence": "v2:7ee8d66e9b96d8ad9d21d21b29c0112d72b5da7d981dcc7b15051e77d4a07e0f",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideTestLayer",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/tooling/tool/cli/test/research-history-sift.test.ts:167:provideTestLayer@4#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/research-history-sift.test.ts",
-      "line": 167,
-      "endLine": 167,
-      "symbol": "provideTestLayer",
       "occurrence": "v2:7215689daabad5b3962852b7a984e1bb52d47bbadb0cc87fbd57cddba954802c",
       "class": "unresolved-layer-provide",
       "evidence": "provideTestLayer",
@@ -4112,13 +4112,13 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/research-history-sift.test.ts:190:provideTestLayer@4#1",
+      "id": "EV002:packages/tooling/tool/cli/test/research-history-sift.test.ts:179:provideTestLayer@4#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/research-history-sift.test.ts",
-      "line": 190,
-      "endLine": 190,
+      "line": 179,
+      "endLine": 179,
       "symbol": "provideTestLayer",
       "occurrence": "v2:93e619514961f7ad95bd9c64cef05d3245e1a0e98301e5fe2571d1b4e5c934d7",
       "class": "unresolved-layer-provide",
@@ -5734,29 +5734,7 @@
       "confidence": 0.95,
       "mechanization": "detector",
       "status": "exception",
-      "reason": "The permission bracket is intentionally shorter than the surrounding test: the unreadable-directory assertion must observe failed access before chmod restoration, while the interruption regression holds mode 0 until cancellation. A shared acquireUseRelease helper makes both paths use the same restoration finalizer; moving it to it.layer or the whole test scope changes the observed lifetime. Node and Bun pass all 10 integration tests; a dropped-restoration mutation fails the mode-before-cleanup assertion (0 instead of 448) and restores the source afterward. See research/pr1323-readiness-and-interruption-proof.md."
-    },
-    {
-      "id": "EV003:packages/documents/server/test/DmsMirrorBox.test.ts:291:withFakeBox@20#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/documents-server",
-      "file": "packages/documents/server/test/DmsMirrorBox.test.ts",
-      "line": 291,
-      "endLine": 292,
-      "symbol": "withFakeBox",
-      "occurrence": "v2:c6863aaba5d90a50c6dab7f43e6b2a2d0e21be7f320c9c8eb59a87eb7ac9fb69",
-      "class": "resource-wrapper",
-      "evidence": "<A>(adapter: (fake: FakeBoxHarness) => Layer.Layer<A>) => Layer.unwrap(Effect.map(FakeBoxFixture, adapter)).pipe(Layer.provideMerge(Layer.sync(FakeBoxFixture, makeFakeBox)))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "This pure layer-composition factory returns a Layer to public it.layer registration. It neither builds nor scopes a layer privately; Layer.sync allocates a fresh fake when the public hook acquires the layer, preserving per-case state."
+      "reason": "The permission bracket is intentionally shorter than the surrounding test: the unreadable-directory assertion must observe failed access before chmod restoration, while the interruption regression holds mode 0 until cancellation. A shared acquireUseRelease helper makes both paths use the same restoration finalizer; moving it to it.layer or the whole test scope changes the observed lifetime. Node and Bun pass all 10 integration tests; a dropped-restoration mutation fails the mode-before-cleanup assertion (0 instead of 448) and restores the source afterward. See research/pr1323-readiness-and-interruption-proof.md. Owner: @beep/professional-desktop. Exit: EV003 recognizes a deliberately shorter-than-test permission bracket as its own judgment class. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/AgentMessage.layer.test.ts:10:query@55#1",
@@ -5778,7 +5756,7 @@
       "confidence": 0.55,
       "mechanization": "judgment",
       "status": "exception",
-      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope. Owner: @beep/repo-cli. Exit: EV003 recognizes per-call layer builds over a helper parameter, or the store exposes an open-by-path service. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:74:call@53#1",
@@ -5800,7 +5778,7 @@
       "confidence": 0.55,
       "mechanization": "judgment",
       "status": "exception",
-      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope. Owner: @beep/repo-cli. Exit: EV003 recognizes per-call layer builds over a helper parameter, or the toolkit exposes a grant-scoped handler service. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:85:fixture@59#1",
@@ -5822,7 +5800,7 @@
       "confidence": 0.55,
       "mechanization": "judgment",
       "status": "exception",
-      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope. Owner: @beep/repo-cli. Exit: EV003 recognizes per-call layer builds over a helper parameter, or the store exposes an open-by-path service. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/ai-metrics-command.test.ts:206:withPrependedPath@26#1",
@@ -5843,7 +5821,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
+      "status": "exception",
+      "reason": "Prepends a bin directory of ssh and rsync shims to PATH for one `mirror sync` call. The real ChildProcessSpawner resolves those executables through the inherited process PATH, and it.layer would leak the PATH change across the block. Owner: @beep/repo-cli. Exit: the mirror sync resolves ssh and rsync through Config or an injected executable path, so the test provides the shim paths instead. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:1836:withEnvVarEffect@6#1",
@@ -5864,7 +5843,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test asserts the storybook lane rejects an ambient BEEP_CACHE_TOOLCHAIN_DIGEST, which runCiLane reads from Bun.env (assertCacheRuntimeKeyUnspecified(step.command, step.args, Bun.env, stepEnv)); the ambient environment is the subject. Owner: @beep/repo-cli. Exit: CiLane reads its ambient environment through Config or an injected environment service and hands spawned children an explicit env, so the test provides both. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:195:withEnvVarEffect@25#1",
@@ -5885,7 +5865,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
+      "status": "exception",
+      "reason": "Sets and restores one Bun.env key around a CI lane call. CiLane reads BEEP_CACHE_TOOLCHAIN_DIGEST, BEEP_QUALITY_CHECK_CONCURRENCY and the TURBO_* names from Bun.env directly and passes the ambient environment to native children; withPartitionShim also uses it for PATH and the CI_LANE_TEST_* inputs its shim reads. Process environment is global, and it.layer would leak it across the block. Owner: @beep/repo-cli. Exit: CiLane reads its ambient environment through Config or an injected environment service and hands spawned children an explicit env, so the test provides both. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:221:withPartitionShim@26#1",
@@ -5906,7 +5887,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
+      "status": "exception",
+      "reason": "Writes bunx and bun shims into a fresh temp root and prepends them to PATH with the CI_LANE_TEST_* values the shim reads: the lane spawns its tools through the inherited PATH, and the shim reads its inputs from the environment it inherits. Process environment is global, and it.layer would leak it across the block. Owner: @beep/repo-cli. Exit: CiLane reads its ambient environment through Config or an injected environment service and hands spawned children an explicit env, so the test provides both. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:287:withWorkingDirectory@29#1",
@@ -5927,209 +5909,17 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/files-command.test.ts:755:withEnvVar@19#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/files-command.test.ts",
-      "line": 755,
-      "endLine": 771,
-      "symbol": "withEnvVar",
-      "occurrence": "v2:43148eae429cc0baa37f4448b1a7b9b6c5b7f5114ccc281bd69df221299c7941",
-      "class": "resource-wrapper",
-      "evidence": "<A, E, R>(name: string, value: string, use: Effect.Effect<A, E, R>) => Effect.acquireUseRelease( Effect.sync(() => { const previousValue = Bun.env[name]; Bun.env[name] = value; return previousValue; }",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:162:withTempDirectory@4#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 162,
-      "endLine": 196,
-      "symbol": "withTempDirectory",
-      "occurrence": "v2:33de5e81822d6e7d42083f8ed3205b810b67ad8ecf2fec128accc831cc9e5c7a",
-      "class": "resource-wrapper",
-      "evidence": "withTempDirectory((tmpDir) => Effect.gen(function* () { const fs = yield* FileSystem.FileSystem; const path = yield* Path.Path; const binDir = path.join(tmpDir, \"bin\"); const argsPath = path.join(tmpD",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
       "status": "exception",
-      "reason": "The public it.layer owns the native platform and it.effect owns the test scope; makeTempDirectoryScoped acquires each case root in that scope. This wrapper retains acquireUseRelease solely to restore process.cwd and constructs a fresh TestConsole at the original body-local seam. Actual root-graph Node/Bun qualification showed one platform build/release, seven roots all absent, five cleanup/restoration controls passing, and shared-console mutants failing. Moving process-global restoration into a shared layer would change the tested lifetime."
+      "reason": "Changes into a temp checkout for one partition-lane call: the lane locates the repository through findRepoRoot(), which starts from process.cwd(), and the test proves the unreadable-inventory mapping there. A cwd override is process state, and it.layer would leak it across the block. Owner: @beep/repo-cli. Exit: the CI lane takes its repository root from an injected working-directory service or an explicit option. #1855 wave 5 register."
     },
     {
-      "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:200:withTempDirectory@4#1",
+      "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:44:withPathPrefix@23#1",
       "lens": "detector",
       "ruleId": "EV003",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 200,
-      "endLine": 236,
-      "symbol": "withTempDirectory",
-      "occurrence": "v2:0f8aab2e9be03b93538db715ff5c4eff138bfe65e4241303f64903a123768a8d",
-      "class": "resource-wrapper",
-      "evidence": "withTempDirectory((tmpDir) => Effect.gen(function* () { const fs = yield* FileSystem.FileSystem; const path = yield* Path.Path; const binDir = path.join(tmpDir, \"bin\"); const argsPath = path.join(tmpD",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:240:withTempDirectory@4#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 240,
-      "endLine": 277,
-      "symbol": "withTempDirectory",
-      "occurrence": "v2:203bb0807addca5148c3bac6478e2e3999fdb574d7e6112643f70e37a4449184",
-      "class": "resource-wrapper",
-      "evidence": "withTempDirectory((tmpDir) => Effect.gen(function* () { const fs = yield* FileSystem.FileSystem; const path = yield* Path.Path; const binDir = path.join(tmpDir, \"bin\"); const argsPath = path.join(tmpD",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The public it.layer owns the native platform and it.effect owns the test scope; makeTempDirectoryScoped acquires each case root in that scope. This wrapper retains acquireUseRelease solely to restore process.cwd and constructs a fresh TestConsole at the original body-local seam. Actual root-graph Node/Bun qualification showed one platform build/release, seven roots all absent, five cleanup/restoration controls passing, and shared-console mutants failing. Moving process-global restoration into a shared layer would change the tested lifetime."
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:281:withTempDirectory@4#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 281,
-      "endLine": 301,
-      "symbol": "withTempDirectory",
-      "occurrence": "v2:905b8b0e1f6433d733e25f4f2ef344991f193f70c23b9bbe2f630bc69d618a68",
-      "class": "resource-wrapper",
-      "evidence": "withTempDirectory((tmpDir) => Effect.gen(function* () { const fs = yield* FileSystem.FileSystem; const path = yield* Path.Path; const videoDir = path.join(tmpDir, \"videos\"); yield* fs.makeDirectory(vi",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:305:withTempDirectory@4#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 305,
-      "endLine": 335,
-      "symbol": "withTempDirectory",
-      "occurrence": "v2:05bf3b6059442f84f5cd06248b7a3840c9428fd51a37665657977fa63e893736",
-      "class": "resource-wrapper",
-      "evidence": "withTempDirectory((tmpDir) => Effect.gen(function* () { const fs = yield* FileSystem.FileSystem; const path = yield* Path.Path; const binDir = path.join(tmpDir, \"bin\"); const argsPath = path.join(tmpD",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:339:withTempDirectory@4#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 339,
-      "endLine": 379,
-      "symbol": "withTempDirectory",
-      "occurrence": "v2:1eaeeb98ec68c4366be964d2ff425c1c0143a681fd12ea8ae40173831caf6baa",
-      "class": "resource-wrapper",
-      "evidence": "withTempDirectory((tmpDir) => Effect.gen(function* () { const fs = yield* FileSystem.FileSystem; const path = yield* Path.Path; const binDir = path.join(tmpDir, \"bin\"); const argsPath = path.join(tmpD",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:34:withTempDirectory@67#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 34,
-      "endLine": 48,
-      "symbol": "withTempDirectory",
-      "occurrence": "v2:712196b8cf16c2bf14e42b4bc2a530f39312f40ba9e1c0830d2775152ee56e25",
-      "class": "resource-wrapper",
-      "evidence": "function* <A, E, R>( use: (tmpDir: string) => Effect.Effect<A, E, R> ) { const fs = yield* FileSystem.FileSystem; const tmpDir = yield* fs.makeTempDirectoryScoped(); return yield* Effect.acquireUseRel",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The public it.layer owns the native platform and it.effect owns the test scope; makeTempDirectoryScoped acquires each case root in that scope. This wrapper retains acquireUseRelease solely to restore process.cwd and constructs a fresh TestConsole at the original body-local seam. Actual root-graph Node/Bun qualification showed one platform build/release, seven roots all absent, five cleanup/restoration controls passing, and shared-console mutants failing. Moving process-global restoration into a shared layer would change the tested lifetime."
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:383:withTempDirectory@4#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 383,
-      "endLine": 416,
-      "symbol": "withTempDirectory",
-      "occurrence": "v2:16d4a75ff10cc8e23fbff69448d109371a17521f52bfe9ecc19f859176fc18e6",
-      "class": "resource-wrapper",
-      "evidence": "withTempDirectory((tmpDir) => Effect.gen(function* () { const fs = yield* FileSystem.FileSystem; const path = yield* Path.Path; const binDir = path.join(tmpDir, \"bin\"); const argsPath = path.join(tmpD",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The public it.layer owns the native platform and it.effect owns the test scope; makeTempDirectoryScoped acquires each case root in that scope. This wrapper retains acquireUseRelease solely to restore process.cwd and constructs a fresh TestConsole at the original body-local seam. Actual root-graph Node/Bun qualification showed one platform build/release, seven roots all absent, five cleanup/restoration controls passing, and shared-console mutants failing. Moving process-global restoration into a shared layer would change the tested lifetime."
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:50:withPathPrefix@23#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 50,
-      "endLine": 62,
+      "line": 44,
+      "endLine": 56,
       "symbol": "withPathPrefix",
       "occurrence": "v2:e84e401be343a186a5e1a972675752adbf0a6acc70354d989554504bf1d2f780",
       "class": "resource-wrapper",
@@ -6141,7 +5931,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
+      "status": "exception",
+      "reason": "Prepends a bin directory of ffmpeg and ffprobe shims to PATH for one image command call; the command builds FFmpeg.makeLayer() with the default bare `ffmpeg`/`ffprobe` names. The real ChildProcessSpawner resolves those executables through the inherited process PATH, and it.layer would leak the PATH change across the block. Owner: @beep/repo-cli. Exit: the image command reads its ffmpeg and ffprobe paths through Config (BEEP_FFMPEG_PATH/BEEP_FFPROBE_PATH, as Files' MediaExec already does), so the test provides a ConfigProvider. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/quality-scheduler-synthetic-scenario.test.ts:145:withPrependedPath@26#1",
@@ -6163,7 +5954,7 @@
       "confidence": 0.95,
       "mechanization": "detector",
       "status": "exception",
-      "reason": "Retain the deliberately SHORT PATH acquireUseRelease bracket: prepend only the disposable systemctl shim during fixture-owner reaping, restore the exact previous/unset PATH before later journal/export assertions. Root ownership is already per-test and outer native services runner-owned. Broadening PATH to the entire layer/test or deleting restoration changes global state/isolation. Sequential fixture scope and synchronous final restoration are required. Source and import provenance: research/cli-continuation-nine-lineage.json; reviewed scope: research/cli-continuation-nine-proof.md."
+      "reason": "Retain the deliberately SHORT PATH acquireUseRelease bracket: prepend only the disposable systemctl shim during fixture-owner reaping, restore the exact previous/unset PATH before later journal/export assertions. Root ownership is already per-test and outer native services runner-owned. Broadening PATH to the entire layer/test or deleting restoration changes global state/isolation. Sequential fixture scope and synchronous final restoration are required. Source and import provenance: research/cli-continuation-nine-lineage.json; reviewed scope: research/cli-continuation-nine-proof.md. Owner: @beep/repo-cli. Exit: the fixture-owner reaper resolves systemctl through Config or an injected executable path. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/quality-tasks.test.ts:359:withEnvVarEffect@25#1",
@@ -6184,70 +5975,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/research-daily.test.ts:315:withRedirectingCognee@4#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/research-daily.test.ts",
-      "line": 315,
-      "endLine": 327,
-      "symbol": "withRedirectingCognee",
-      "occurrence": "v2:b38346857cf51059c6e455cd4bbbd540e94bbcf19554e31f4a50470611217e7d",
-      "class": "resource-wrapper",
-      "evidence": "withRedirectingCognee((baseUrl) => Effect.gen(function* () { const settings = yield* readCogneeSettings.pipe(withConfig({ COGNEE_API_URL: baseUrl })); const error = yield* Effect.flip( O.match(setting",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/research-daily.test.ts:48:withRedirectingCognee@30#1",
-      "lens": "detector",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/research-daily.test.ts",
-      "line": 48,
-      "endLine": 63,
-      "symbol": "withRedirectingCognee",
-      "occurrence": "v2:12c7cf856143f4a3eec0a476db828e31b1955c625285febfc3e35c7c0200c35a",
-      "class": "resource-wrapper",
-      "evidence": "<A, E, R>(use: (baseUrl: string) => Effect.Effect<A, E, R>) => Effect.acquireUseRelease( Effect.sync(() => Bun.serve({ fetch: () => new Response(null, { headers: { location: \"http://cognee.example.com",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV003:packages/tooling/tool/cli/test/research-history-sift.test.ts:64:seedHistory@69#1",
-      "lens": "resource",
-      "ruleId": "EV003",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/research-history-sift.test.ts",
-      "line": 64,
-      "endLine": 94,
-      "symbol": "seedHistory",
-      "occurrence": "v2:33a974c52311ff051a0961bf1e8a8afc9aee389d63ab6e0dad7d6b48ebffa413",
-      "class": "resource-wrapper",
-      "evidence": "function* ( historyPath: string, rows: ReadonlyArray<HistoryRow> ) { yield* Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: \":memory:\" }))).pipe( Effect.flatMap((context)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Sets and restores one Bun.env key around a quality task call. Tasks.ts reads BEEP_QUALITY_CHECK_CONCURRENCY, LaneProofReuse.ts reads BEEP_YEET_LANE_PROOF_MODE and BEEP_YEET_PROOF_BASE, isCiSync reads the CI flags, all from Bun.env, and PATH carries the tool shims the tasks spawn. Process environment is global, and it.layer would leak it across the block. Owner: @beep/repo-cli. Exit: those reads move to Config and the shims to an injected executable path, so the test provides a ConfigProvider. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/session-ledger.test.ts:124:withCwd@16#1",
@@ -6269,7 +5998,7 @@
       "confidence": 0.95,
       "mechanization": "detector",
       "status": "exception",
-      "reason": "The CLI command reads process.cwd directly. withCwd acquires and releases a narrow override around one command call, restoring the original function even on failure; native Git checkout behavior is the test subject."
+      "reason": "The CLI command reads process.cwd directly. withCwd acquires and releases a narrow override around one command call, restoring the original function even on failure; native Git checkout behavior is the test subject. Owner: @beep/repo-cli. Exit: the session open, note and register commands take their checkout from an injected working-directory service instead of process.cwd(). #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/worktree-remove-fence.test.ts:81:withCwd@16#1",
@@ -6290,7 +6019,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
+      "status": "exception",
+      "reason": "Overrides process.cwd for one worktree remove call: the command decides self-retirement with isWithin(path, targetPath, process.cwd()) and resolves the invoking clone from it. A cwd override is process state, and it.layer would leak it across the block. Owner: @beep/repo-cli. Exit: the worktree command takes its invoking directory from an injected working-directory service. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/worktree-remove-fence.test.ts:98:withRealCwd@20#1",
@@ -6311,7 +6041,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
+      "status": "exception",
+      "reason": "Changes the OS-level working directory: the archive fence reads /proc/<pid>/cwd and the command moves the process out of the lane it removes, so only process.chdir exercises it. A cwd override is process state, and it.layer would leak it across the block. Owner: @beep/repo-cli. Exit: the fence takes the invoking process's working directory as an injected input instead of reading its own /proc entry. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/yeet-inbox-porcelain.test.ts:533:inTempCheckout@6#1",
@@ -6333,7 +6064,7 @@
       "confidence": 0.95,
       "mechanization": "detector",
       "status": "exception",
-      "reason": "Public layers own services. inTempRepo and inTempCheckout keep per-invocation root lifetimes; checkout release ownership precedes seeding, restores cwd and exposes remove failures. See goals/effect-vitest-canon/research/inbox-porcelain-scope-proof.md."
+      "reason": "Public layers own services. inTempRepo and inTempCheckout keep per-invocation root lifetimes; checkout release ownership precedes seeding, restores cwd and exposes remove failures. See goals/effect-vitest-canon/research/inbox-porcelain-scope-proof.md. Owner: @beep/repo-cli. Exit: the yeet inbox runners resolve the checkout through an injected working-directory service instead of process.cwd(). #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/yeet-inbox-porcelain.test.ts:556:inTempCheckout@6#1",
@@ -6355,7 +6086,7 @@
       "confidence": 0.95,
       "mechanization": "detector",
       "status": "exception",
-      "reason": "Public layers own services. inTempRepo and inTempCheckout keep per-invocation root lifetimes; checkout release ownership precedes seeding, restores cwd and exposes remove failures. See goals/effect-vitest-canon/research/inbox-porcelain-scope-proof.md."
+      "reason": "Public layers own services. inTempRepo and inTempCheckout keep per-invocation root lifetimes; checkout release ownership precedes seeding, restores cwd and exposes remove failures. See goals/effect-vitest-canon/research/inbox-porcelain-scope-proof.md. Owner: @beep/repo-cli. Exit: the yeet inbox runners resolve the checkout through an injected working-directory service instead of process.cwd(). #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/yeet-inbox-porcelain.test.ts:577:inTempCheckout@6#1",
@@ -6377,7 +6108,7 @@
       "confidence": 0.95,
       "mechanization": "detector",
       "status": "exception",
-      "reason": "Public layers own services. inTempRepo and inTempCheckout keep per-invocation root lifetimes; checkout release ownership precedes seeding, restores cwd and exposes remove failures. See goals/effect-vitest-canon/research/inbox-porcelain-scope-proof.md."
+      "reason": "Public layers own services. inTempRepo and inTempCheckout keep per-invocation root lifetimes; checkout release ownership precedes seeding, restores cwd and exposes remove failures. See goals/effect-vitest-canon/research/inbox-porcelain-scope-proof.md. Owner: @beep/repo-cli. Exit: the yeet inbox runners resolve the checkout through an injected working-directory service instead of process.cwd(). #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/yeet-inbox-porcelain.test.ts:594:inTempCheckout@6#1",
@@ -6399,7 +6130,7 @@
       "confidence": 0.95,
       "mechanization": "detector",
       "status": "exception",
-      "reason": "Public layers own services. inTempRepo and inTempCheckout keep per-invocation root lifetimes; checkout release ownership precedes seeding, restores cwd and exposes remove failures. See goals/effect-vitest-canon/research/inbox-porcelain-scope-proof.md."
+      "reason": "Public layers own services. inTempRepo and inTempCheckout keep per-invocation root lifetimes; checkout release ownership precedes seeding, restores cwd and exposes remove failures. See goals/effect-vitest-canon/research/inbox-porcelain-scope-proof.md. Owner: @beep/repo-cli. Exit: the yeet inbox runners resolve the checkout through an injected working-directory service instead of process.cwd(). #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/yeet-sweep-retire.test.ts:150:withCwd@16#1",
@@ -6420,7 +6151,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
+      "status": "exception",
+      "reason": "Overrides process.cwd for one sweep or retire call: the command resolves the lane and its owning clone from process.cwd(). A cwd override is process state, and it.layer would leak it across the block. Owner: @beep/repo-cli. Exit: yeet sweep and retire take their invoking directory from an injected working-directory service. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/yeet-sweep-retire.test.ts:262:withRealCwd@20#1",
@@ -6441,7 +6173,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
+      "status": "exception",
+      "reason": "Changes the OS-level working directory: the archive fence reads /proc/<pid>/cwd, so only process.chdir exercises it. A cwd override is process state, and it.layer would leak it across the block. Owner: @beep/repo-cli. Exit: the fence takes the invoking process's working directory as an injected input instead of reading its own /proc entry. #1855 wave 5 register."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/yeet.test.ts:300:withEnvVarEffect@25#1",
@@ -6462,7 +6195,8 @@
       "severity": "major",
       "confidence": 0.95,
       "mechanization": "detector",
-      "status": "open"
+      "status": "exception",
+      "reason": "Sets PATH to a bin directory holding a gh shim for the runGhPullRequestView/findOpenPullRequest/validateOpenPullRequest calls, which spawn `gh`. The real ChildProcessSpawner resolves those executables through the inherited process PATH, and it.layer would leak the PATH change across the block. Owner: @beep/repo-cli. Exit: the yeet gh operations resolve gh through Config or an injected executable path, or the test supplies a fake ChildProcessSpawner as yeet-sweep-retire's ghLayer does. #1855 wave 5 register."
     },
     {
       "id": "EV004:apps/professional-desktop/test/integration/PgliteDataDirCompatibility.test.ts:107:scoped@10#1",
@@ -8259,13 +7993,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/image-command.test.ts:143:scoped@2#1",
+      "id": "EV004:packages/tooling/tool/cli/test/image-command.test.ts:137:scoped@2#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/image-command.test.ts",
-      "line": 143,
-      "endLine": 158,
+      "line": 137,
+      "endLine": 152,
       "symbol": "scoped",
       "occurrence": "v2:b1ae76ae8aa390b84fae8475f82761c7e687bb453955f38e573beaf589cd6f15",
       "class": "shared-helper-scope-lifetime-review",
@@ -8502,27 +8236,6 @@
       "endLine": 131,
       "symbol": "scoped",
       "occurrence": "v2:2621c586d7c30e35eb81094d1023b10aa70ab75a6456230621e43a54b2db81b8",
-      "class": "inner-helper-scope-lifetime-review",
-      "evidence": "Effect.scoped",
-      "replacement": {
-        "primitive": "readme.resource-safety",
-        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV004:packages/tooling/tool/cli/test/research-history-sift.test.ts:92:scoped@4#1",
-      "lens": "resource",
-      "ruleId": "EV004",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/research-history-sift.test.ts",
-      "line": 92,
-      "endLine": 92,
-      "symbol": "scoped",
-      "occurrence": "v2:1b6749924b9a28820e879c3edb9a81d60b61f34fc934e903fb9b090dd0d969b4",
       "class": "inner-helper-scope-lifetime-review",
       "evidence": "Effect.scoped",
       "replacement": {
@@ -8852,13 +8565,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:605:scoped@90#1",
+      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:604:scoped@90#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 605,
-      "endLine": 605,
+      "line": 604,
+      "endLine": 604,
       "symbol": "scoped",
       "occurrence": "v2:fd38a106cc700c15e4b795210ab591a0b982f0b65b63deb6419c5387b4838e50",
       "class": "inner-helper-scope-lifetime-review",
@@ -8874,13 +8587,13 @@
       "reason": "This is the original dynamic child scope from provideScopedLayer, now explicit after providing the per-test fake spawner. Closing it at runCaptured/collectStepOutput completion preserves kill/unref assertions and fiber interruption ordering; extending it to test teardown would change the subject. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:625:scoped@12#1",
+      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:624:scoped@12#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 625,
-      "endLine": 625,
+      "line": 624,
+      "endLine": 624,
       "symbol": "scoped",
       "occurrence": "v2:e869ce1a1546eae7d0fd4905b635d626d960327734bdb5cd3aea1627778f1c78",
       "class": "inner-helper-scope-lifetime-review",
@@ -8896,13 +8609,13 @@
       "reason": "This is the original dynamic child scope from provideScopedLayer, now explicit after providing the per-test fake spawner. Closing it at runCaptured/collectStepOutput completion preserves kill/unref assertions and fiber interruption ordering; extending it to test teardown would change the subject. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:647:scoped@12#1",
+      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:646:scoped@12#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 647,
-      "endLine": 647,
+      "line": 646,
+      "endLine": 646,
       "symbol": "scoped",
       "occurrence": "v2:ba491ee54f648278120d309959c08ef35b08c535762e63b486d1d0cb2e4f9e22",
       "class": "inner-helper-scope-lifetime-review",
@@ -8918,13 +8631,13 @@
       "reason": "This is the original dynamic child scope from provideScopedLayer, now explicit after providing the per-test fake spawner. Closing it at runCaptured/collectStepOutput completion preserves kill/unref assertions and fiber interruption ordering; extending it to test teardown would change the subject. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:673:scoped@10#1",
+      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:672:scoped@10#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 673,
-      "endLine": 673,
+      "line": 672,
+      "endLine": 672,
       "symbol": "scoped",
       "occurrence": "v2:1e62e0d96ff6d84c2a202ddd07dc64a071ef5bd0010002641932443d8b45ba4f",
       "class": "inner-helper-scope-lifetime-review",
@@ -8940,13 +8653,13 @@
       "reason": "This is the original dynamic child scope from provideScopedLayer, now explicit after providing the per-test fake spawner. Closing it at runCaptured/collectStepOutput completion preserves kill/unref assertions and fiber interruption ordering; extending it to test teardown would change the subject. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:694:scoped@91#1",
+      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:693:scoped@91#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 694,
-      "endLine": 694,
+      "line": 693,
+      "endLine": 693,
       "symbol": "scoped",
       "occurrence": "v2:41aa9e092e6a58028af7e7c92ee4def9344a63898d9be6e02c8d8f032ae74f06",
       "class": "inner-helper-scope-lifetime-review",
@@ -8962,13 +8675,13 @@
       "reason": "This is the original dynamic child scope from provideScopedLayer, now explicit after providing the per-test fake spawner. Closing it at runCaptured/collectStepOutput completion preserves kill/unref assertions and fiber interruption ordering; extending it to test teardown would change the subject. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:721:scoped@91#1",
+      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:720:scoped@91#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 721,
-      "endLine": 721,
+      "line": 720,
+      "endLine": 720,
       "symbol": "scoped",
       "occurrence": "v2:beff3b69ea6deec4bb16233863bc21919f1f6c4540fc80076060928ff0b7841b",
       "class": "inner-helper-scope-lifetime-review",
@@ -8983,13 +8696,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:743:scoped@91#1",
+      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:742:scoped@91#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 743,
-      "endLine": 743,
+      "line": 742,
+      "endLine": 742,
       "symbol": "scoped",
       "occurrence": "v2:32ff75a4050a19ee0c7f1cc775fedb88a427d8c2485a905a8f569c93730b59f4",
       "class": "inner-helper-scope-lifetime-review",
@@ -9004,13 +8717,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:771:scoped@91#1",
+      "id": "EV004:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:770:scoped@91#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 771,
-      "endLine": 771,
+      "line": 770,
+      "endLine": 770,
       "symbol": "scoped",
       "occurrence": "v2:bc41693cd579095e2fbaa284fc0e2e1f43c75012a8b24e1106f5c7e1d0b44ecc",
       "class": "inner-helper-scope-lifetime-review",
@@ -11070,155 +10783,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "The unchanged 25 ms delay is inside the independently constructed AtomRegistry runtime logger layer, intentionally exercising reporting while layer acquisition is pending. The test awaits AtomRegistry.getResult; it does not sleep on its own clock. A probe confirmed the migrated test starts with TestClock time zero and completes without advancing it. See goals/effect-vitest-canon/research/desktop-live-clock-completion-proof.md."
-    },
-    {
-      "id": "EV008:packages/drivers/duckdb/test/DuckDb.service.test.ts:774:sleep@37#1",
-      "lens": "resource",
-      "ruleId": "EV008",
-      "package": "@beep/duckdb",
-      "file": "packages/drivers/duckdb/test/DuckDb.service.test.ts",
-      "line": 774,
-      "endLine": 774,
-      "symbol": "sleep",
-      "occurrence": "v2:ac97008478e94cf6f1b80a2df4e971be0dd4418f99ceee5f3f503911dbbb46bb",
-      "class": "controlled-clock-wait-review",
-      "evidence": "Effect.sleep(\"1 hour\")",
-      "replacement": {
-        "primitive": "readme.testclock",
-        "sketch": "readme.testclock: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) by coordinating scheduled work with TestClock advancement in the same effect test. Diagnose the root cause first (D6). Only a bounded external-system wait that actually requires live time should use the TestClock.withLive alternative; wrap that wait and its timeout without replacing the surrounding test clock. TestClock.withLive: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) only when a bounded external-system wait actually requires live time. Wrap that wait, including its timeout, with TestClock.withLive while retaining the surrounding test clock. Effect and default layer testers install TestClock; explicit provision can supply one elsewhere. Diagnose the wait's root cause first (D6)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The one-hour transaction callback is deliberately pending and explicitly interrupted after native BEGIN is armed; the test does not wait for this sleep to elapse."
-    },
-    {
-      "id": "EV008:packages/drivers/libpff/test/Libpff.pffexport.test.ts:1171:sleep@17#1",
-      "lens": "detector",
-      "ruleId": "EV008",
-      "package": "@beep/libpff",
-      "file": "packages/drivers/libpff/test/Libpff.pffexport.test.ts",
-      "line": 1171,
-      "endLine": 1171,
-      "symbol": "sleep",
-      "occurrence": "v2:22ed0fdeeec17eaeb7c4dc2f220b7d365f799a642b57355e54255cbcfdaba7b9",
-      "class": "test-clock-stall-risk",
-      "evidence": "Effect.sleep(\"1250 millis\")",
-      "replacement": {
-        "primitive": "readme.testclock",
-        "sketch": "readme.testclock: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) by coordinating scheduled work with TestClock advancement in the same effect test. Diagnose the root cause first (D6). Only a bounded external-system wait that actually requires live time should use the TestClock.withLive alternative; wrap that wait and its timeout without replacing the surrounding test clock. TestClock.withLive: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) only when a bounded external-system wait actually requires live time. Wrap that wait, including its timeout, with TestClock.withLive while retaining the surrounding test clock. Effect and default layer testers install TestClock; explicit provision can supply one elsewhere. Diagnose the wait's root cause first (D6)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "Retain the original1250millisecond wall-clock absence observation after the250millisecond native subprocess timeout. New child readiness and TERM-handler markers provide positive cancellation evidence before the unchanged no-late-file assertion. A TestClock advance cannot stand in for a real child process; delayed-start and wrong-termination controls distinguish this stronger oracle from the old vacuous pass."
-    },
-    {
-      "id": "EV008:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:567:sleep@37#1",
-      "lens": "resource",
-      "ruleId": "EV008",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 567,
-      "endLine": 567,
-      "symbol": "sleep",
-      "occurrence": "v2:38f9909a58496c9895a96d4876db14af540f97693446da41c9d5c54df1f4bfc6",
-      "class": "deferred-clock-wait-review",
-      "evidence": "Effect.sleep(\"10 millis\")",
-      "replacement": {
-        "primitive": "readme.testclock",
-        "sketch": "Review deferred or uncertain helper/service execution and its clock owner; this wait is not proven to stall direct registration execution. readme.testclock: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) by coordinating scheduled work with TestClock advancement in the same effect test. Diagnose the root cause first (D6). Only a bounded external-system wait that actually requires live time should use the TestClock.withLive alternative; wrap that wait and its timeout without replacing the surrounding test clock. TestClock.withLive: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) only when a bounded external-system wait actually requires live time. Wrap that wait, including its timeout, with TestClock.withLive while retaining the surrounding test clock. Effect and default layer testers install TestClock; explicit provision can supply one elsewhere. Diagnose the wait's root cause first (D6)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV008:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:580:sleep@42#2",
-      "lens": "resource",
-      "ruleId": "EV008",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 580,
-      "endLine": 580,
-      "symbol": "sleep",
-      "occurrence": "v2:38f9909a58496c9895a96d4876db14af540f97693446da41c9d5c54df1f4bfc6",
-      "class": "deferred-clock-wait-review",
-      "evidence": "Effect.sleep(\"10 millis\")",
-      "replacement": {
-        "primitive": "readme.testclock",
-        "sketch": "Review deferred or uncertain helper/service execution and its clock owner; this wait is not proven to stall direct registration execution. readme.testclock: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) by coordinating scheduled work with TestClock advancement in the same effect test. Diagnose the root cause first (D6). Only a bounded external-system wait that actually requires live time should use the TestClock.withLive alternative; wrap that wait and its timeout without replacing the surrounding test clock. TestClock.withLive: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) only when a bounded external-system wait actually requires live time. Wrap that wait, including its timeout, with TestClock.withLive while retaining the surrounding test clock. Effect and default layer testers install TestClock; explicit provision can supply one elsewhere. Diagnose the wait's root cause first (D6)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV008:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:720:sleep@23#1",
-      "lens": "resource",
-      "ruleId": "EV008",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 720,
-      "endLine": 720,
-      "symbol": "sleep",
-      "occurrence": "v2:beff3b69ea6deec4bb16233863bc21919f1f6c4540fc80076060928ff0b7841b",
-      "class": "controlled-clock-wait-review",
-      "evidence": "Effect.sleep(\"1 minute\")",
-      "replacement": {
-        "primitive": "readme.testclock",
-        "sketch": "readme.testclock: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) by coordinating scheduled work with TestClock advancement in the same effect test. Diagnose the root cause first (D6). Only a bounded external-system wait that actually requires live time should use the TestClock.withLive alternative; wrap that wait and its timeout without replacing the surrounding test clock. TestClock.withLive: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) only when a bounded external-system wait actually requires live time. Wrap that wait, including its timeout, with TestClock.withLive while retaining the surrounding test clock. Effect and default layer testers install TestClock; explicit provision can supply one elsewhere. Diagnose the wait's root cause first (D6)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV008:packages/tooling/tool/cli/test/yeet-monitor-comment-stream.test.ts:181:spaced@69#1",
-      "lens": "resource",
-      "ruleId": "EV008",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/yeet-monitor-comment-stream.test.ts",
-      "line": 181,
-      "endLine": 181,
-      "symbol": "spaced",
-      "occurrence": "v2:56caed4640f6aefab0af82853d55a65ddf111054996b0ff6a5348a1f14040e37",
-      "class": "deferred-clock-wait-review",
-      "evidence": "Schedule.spaced(Duration.millis(5))",
-      "replacement": {
-        "primitive": "readme.testclock",
-        "sketch": "Review deferred or uncertain helper/service execution and its clock owner; this wait is not proven to stall direct registration execution. readme.testclock: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) by coordinating scheduled work with TestClock advancement in the same effect test. Diagnose the root cause first (D6). Only a bounded external-system wait that actually requires live time should use the TestClock.withLive alternative; wrap that wait and its timeout without replacing the surrounding test clock. TestClock.withLive: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) only when a bounded external-system wait actually requires live time. Wrap that wait, including its timeout, with TestClock.withLive while retaining the surrounding test clock. Effect and default layer testers install TestClock; explicit provision can supply one elsewhere. Diagnose the wait's root cause first (D6)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV008:packages/tooling/tool/cli/test/yeet-pr-provenance.test.ts:192:sleep@14#1",
-      "lens": "resource",
-      "ruleId": "EV008",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/yeet-pr-provenance.test.ts",
-      "line": 192,
-      "endLine": 192,
-      "symbol": "sleep",
-      "occurrence": "v2:9176da18f96dd100088796e7965aa9e02a071bd6b9e77f38fea63c7e9a6620b1",
-      "class": "deferred-clock-wait-review",
-      "evidence": "Effect.sleep(\"3 seconds\")",
-      "replacement": {
-        "primitive": "readme.testclock",
-        "sketch": "Review deferred or uncertain helper/service execution and its clock owner; this wait is not proven to stall direct registration execution. readme.testclock: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) by coordinating scheduled work with TestClock advancement in the same effect test. Diagnose the root cause first (D6). Only a bounded external-system wait that actually requires live time should use the TestClock.withLive alternative; wrap that wait and its timeout without replacing the surrounding test clock. TestClock.withLive: Use for test-clock-stall-risk findings (EV008, candidate class test-clock-stall-risk) only when a bounded external-system wait actually requires live time. Wrap that wait, including its timeout, with TestClock.withLive while retaining the surrounding test clock. Effect and default layer testers install TestClock; explicit provision can supply one elsewhere. Diagnose the wait's root cause first (D6)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
     },
     {
       "id": "EV009:apps/professional-desktop/test/browser-failure-atoms.test.ts:57:it.live@2#1",
@@ -14413,13 +13977,13 @@
       "reason": "NodeServices supplies the real filesystem and path services for fresh private SQLite mailboxes and grant-bound MCP authorization fixtures. The bounded outer it.layer owns the temporary resources; a mocked filesystem would remove the persistence and path boundary being exercised."
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/accounts-usage.test.ts:57:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/accounts-usage.test.ts:58:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/accounts-usage.test.ts",
-      "line": 57,
-      "endLine": 57,
+      "line": 58,
+      "endLine": 58,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -16007,13 +15571,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/package-scripts.policy.test.ts:11:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/package-scripts.policy.test.ts:12:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/package-scripts.policy.test.ts",
-      "line": 11,
-      "endLine": 11,
+      "line": 12,
+      "endLine": 12,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -17068,13 +16632,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/version-sync-effect.test.ts:36:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/version-sync-effect.test.ts:42:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/version-sync-effect.test.ts",
-      "line": 36,
-      "endLine": 36,
+      "line": 42,
+      "endLine": 42,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -18194,48 +17758,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "The retained hoisted mock controls the plain findRepoRoot module function used by command dispatch; it is not a Context.Service replaceable with Layer.mock. Selection resets and real-child cases preserve both boundaries. See goals/effect-vitest-canon/research/cli-lint-workers-package-proof.json."
-    },
-    {
-      "id": "EV013:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:565:retry-loop@16#1",
-      "lens": "resource",
-      "ruleId": "EV013",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 565,
-      "endLine": 568,
-      "symbol": "retry-loop",
-      "occurrence": "v2:38a97aea515f3e7ad7136fc12dbf9e57f1432c48ee150002d7ae448648b85d4f",
-      "class": "retry-loop-candidate",
-      "evidence": "for (let attempt = 0; attempt < 2_000 && !ready; attempt += 1) { ready = yield* fs.exists(readyPath); if (!ready) yield* Effect.sleep(\"10 millis\"); }",
-      "replacement": {
-        "primitive": "it.flakyTest",
-        "sketch": "it.flakyTest: Use for retry-loop-candidate judgments (EV013, candidate class retry-loop-candidate) only after TestClock, event-driven waits, and scope ownership are ruled out; record external nondeterminism, a reason row, and a follow-up."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV013:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:578:retry-loop@16#1",
-      "lens": "resource",
-      "ruleId": "EV013",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 578,
-      "endLine": 581,
-      "symbol": "retry-loop",
-      "occurrence": "v2:38a97aea515f3e7ad7136fc12dbf9e57f1432c48ee150002d7ae448648b85d4f",
-      "class": "retry-loop-candidate",
-      "evidence": "for (let attempt = 0; attempt < 300 && nestedAlive; attempt += 1) { nestedAlive = yield* fs.exists(`/proc/${nestedPid}`); if (nestedAlive) yield* Effect.sleep(\"10 millis\"); }",
-      "replacement": {
-        "primitive": "it.flakyTest",
-        "sketch": "it.flakyTest: Use for retry-loop-candidate judgments (EV013, candidate class retry-loop-candidate) only after TestClock, event-driven waits, and scope ownership are ruled out; record external nondeterminism, a reason row, and a follow-up."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
     },
     {
       "id": "EV014:apps/architecture-lab-proof/test/ArchitectureLabProof.test.ts:15:it.layer@2#1",
@@ -22308,13 +21830,13 @@
       "reason": "This layer acquires only an in-memory Probe value and synchronous ConfigProvider/Logger services. Its release increments an in-memory counter; it performs no external I/O or clock waits. The default hook budget is sufficient; concurrent acquisition and exactly-once cleanup are the regression subjects."
     },
     {
-      "id": "EV014:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:591:it.layer@2#1",
+      "id": "EV014:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:590:it.layer@2#1",
       "lens": "resource",
       "ruleId": "EV014",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 591,
-      "endLine": 591,
+      "line": 590,
+      "endLine": 590,
       "symbol": "it.layer",
       "occurrence": "v2:b91f5eecba979f8ffcd77aa9895660e52851a44756e50c3f67363186de709b62",
       "class": "resource-layer-without-hook-timeout",

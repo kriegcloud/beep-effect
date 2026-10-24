@@ -37,7 +37,7 @@ import {
   runMatchPerson,
 } from "@beep/repo-cli/test/Files";
 import { it } from "@beep/test-runner";
-import { fcRuns, provideScopedLayer } from "@beep/test-utils";
+import { fcRuns } from "@beep/test-utils";
 import { A, N, O, Str } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { expect } from "@effect/vitest";
@@ -752,23 +752,9 @@ const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")
   }).pipe(Effect.asVoid);
 });
 
+// The subjects read these names through `Config`, so the value is a provider service and no global changes.
 const withEnvVar = <A, E, R>(name: string, value: string, use: Effect.Effect<A, E, R>) =>
-  Effect.acquireUseRelease(
-    Effect.sync(() => {
-      const previousValue = Bun.env[name];
-      Bun.env[name] = value;
-      return previousValue;
-    }),
-    () => provideScopedLayer(ConfigProvider.layer(ConfigProvider.fromUnknown({ [name]: value })))(use),
-    (previousValue) =>
-      Effect.sync(() => {
-        if (previousValue === undefined) {
-          delete Bun.env[name];
-        } else {
-          Bun.env[name] = previousValue;
-        }
-      })
-  );
+  Effect.provideService(use, ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ [name]: value }));
 
 const writeFfprobeShim = Effect.fn("FilesTest.writeFfprobeShim")(function* (
   binDir: string,

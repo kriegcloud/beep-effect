@@ -9,6 +9,7 @@ import { A, Str } from "@beep/utils";
 import { dual } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import { Node, SyntaxKind } from "ts-morph";
 import type {
@@ -1047,8 +1048,51 @@ const helperReachability = (
   };
 };
 
+const TEST_CLOCK_MODULES = ["effect/testing", "effect/testing/TestClock"];
+
+// A block layer that composes `TestClock.layer()`, directly or through same-file bindings, installs a
+// TestClock as the Clock again, so waits in the block still run on a TestClock.
+const composesTestClock = (expression: MorphNode, imports: EffectVitestImports): boolean => {
+  const seen = A.empty<MorphNode>();
+  const visit = (node: MorphNode): boolean =>
+    A.some([node, ...node.getDescendants()], (current) => {
+      if (Node.isPropertyAccessExpression(current))
+        return isProvenanceExpression(current, imports, TEST_CLOCK_MODULES, "TestClock", ["layer"]);
+      if (!Node.isIdentifier(current)) return false;
+      return O.exists(imports.resolveBinding(current), (binding) => {
+        // Identity, not `Equal`: structural equality over ts-morph nodes walks the whole tree.
+        if (!Node.isVariableDeclaration(binding) || A.some(seen, (visited) => visited === binding)) return false;
+        seen.push(binding);
+        return O.exists(O.fromUndefinedOr(binding.getInitializer()), visit);
+      });
+    });
+  return visit(expression);
+};
+
+// `it.layer(layer, { excludeTestServices: true })` builds its block without TestEnv, so every test in it,
+// nested blocks included, runs on the live Clock exactly as `it.live` does (@effect/vitest `makeLayer`).
+// Only a literal `true` counts; a computed flag, or a layer that composes TestClock, keeps the TestClock reading.
+const excludesTestServices = (call: CallExpression, imports: EffectVitestImports): boolean => {
+  const builder = call.getExpression();
+  if (!Node.isCallExpression(builder)) return false;
+  const [layer, options] = builder.getArguments();
+  if (layer === undefined || !Node.isObjectLiteralExpression(options)) return false;
+  const property = options.getProperty("excludeTestServices");
+  return (
+    Node.isPropertyAssignment(property) &&
+    property.getInitializer()?.getKind() === SyntaxKind.TrueKeyword &&
+    !composesTestClock(layer, imports)
+  );
+};
+
 /**
  * Index callback registration modes once for repeated per-node detector queries.
+ *
+ * **Details**
+ *
+ * An `it.effect` registered in an `it.layer(layer, { excludeTestServices: true })` block, or in a block
+ * nested inside one, is indexed as `live`: the block is built without TestEnv, so its tests run on the
+ * live Clock.
  *
  * **Example** (Build a syntax-only harness index)
  *
@@ -1076,15 +1120,20 @@ export const createEffectVitestHarnessIndex: {
     if (A.contains(members, "live")) return "live";
     return "plain";
   };
-  const registerCallbacks = (call: CallExpression, mode: EffectVitestHarnessMode): boolean => {
+  // Layer callbacks built without TestEnv: their tests run on the live Clock.
+  const liveLayers = MutableHashSet.empty<number>();
+  const registerCallback = (start: number, mode: EffectVitestHarnessMode, live: boolean): boolean => {
+    if (O.isSome(MutableHashMap.get(modes, start))) return false;
+    MutableHashMap.set(modes, start, mode);
+    if (live) MutableHashSet.add(liveLayers, start);
+    return true;
+  };
+  const registerCallbacks = (call: CallExpression, mode: EffectVitestHarnessMode, liveOwner = false): boolean => {
+    const live = mode === "layer" && (liveOwner || excludesTestServices(call, imports));
+    const registered = mode === "effect" && liveOwner ? "live" : mode;
     let changed = false;
-    const callbacks = effectVitestTestCallbacks(call, imports);
-    for (const callback of callbacks) {
-      if (O.isNone(MutableHashMap.get(modes, callback.getStart()))) {
-        MutableHashMap.set(modes, callback.getStart(), mode);
-        changed = true;
-      }
-    }
+    for (const callback of effectVitestTestCallbacks(call, imports))
+      changed = registerCallback(callback.getStart(), registered, live) || changed;
     return changed;
   };
   const layerCalls = A.empty<{
@@ -1109,7 +1158,8 @@ export const createEffectVitestHarnessIndex: {
       changed = false;
       for (const { call, owner, members } of layerCalls) {
         if (O.contains(MutableHashMap.get(modes, owner.getStart()), "layer")) {
-          changed = registerCallbacks(call, modeFromMembers(members)) || changed;
+          const liveOwner = MutableHashSet.has(liveLayers, owner.getStart());
+          changed = registerCallbacks(call, modeFromMembers(members), liveOwner) || changed;
         }
       }
     }
