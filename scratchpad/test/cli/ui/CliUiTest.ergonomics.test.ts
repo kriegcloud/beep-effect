@@ -17,7 +17,7 @@ import * as Context from "effect/Context";
 import { assertSome, assertNone } from "@effect/vitest/utils";
 import { MemoryFileSystem } from "@beep/memfs";
 import * as Command from "effect/cli/Command";
-import { Cancelled, CliExit } from "../../../effected/cli/index.ts";
+import { Cancelled, CliExit } from "@beep/cli-kit";
 import type { KeyName } from "../../../effected/cli/ui.ts";
 import { CliUi, Select, TextInput } from "../../../effected/cli/ui.ts";
 import { CliUiTest, type CliUiTestSession } from "../../../effected/cli/ui-testing.ts";

@@ -1,5 +1,5 @@
 {
-  "previous": "3822c357fb18228ee17d3cf344c9d12d195b41688db1a3ed2de536af887c6c74",
+  "previous": "d7d8a9953b908e6022f051b3f8fa0c633aef38e6b207274ff725ccd91f59255f",
   "review": {
     "reviewer": "Claude Opus 5.5 (effected-promotion 3-A1, refactor/repo-cli-lockfiles-adoption)",
     "reason": "Record the 3-A1 dependency edge @beep/repo-cli -> @beep/lockfiles with its tsconfig references, and the policy-fingerprint input set that follows repo-cli's new runtime closure (@beep/lockfiles, @beep/npm-spec); no qualification is granted.",

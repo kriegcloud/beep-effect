@@ -1,9 +1,9 @@
 import { dual, pipe } from "effect/Function";
-import type * as Cli from "../index.ts";
+import type * as Cli from "@beep/cli-kit";
 import type { Key } from "ink";
 import * as O from "effect/Option";
 import * as MutableHashSet from "effect/MutableHashSet";
-import { graphemes } from "../internal/displayWidth.ts";
+import { graphemes } from "@beep/cli-kit/internal/displayWidth";
 import { inkModules } from "./internal/ink.ts";
 import { useScreenGuard } from "./internal/ScreenContext.ts";
 import { KeyName, UiKey } from "./UiKey.ts";
@@ -152,9 +152,9 @@ const WORDS: Record<KeyName, string> = {
 };
 
 const labelOf: {
-	(key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet): string;
-	(glyphs: Cli.GlyphSet): (key: KeyName | { readonly char: string }) => string;
-} = dual(2, (key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet): string => {
+	(key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet.Encoded): string;
+	(glyphs: Cli.GlyphSet.Encoded): (key: KeyName | { readonly char: string }) => string;
+} = dual(2, (key: KeyName | { readonly char: string }, glyphs: Cli.GlyphSet.Encoded): string => {
 	if (!P.isString(key)) return key.char;
 	return (glyphs.kind === "unicode" ? ARROWS[key] : undefined) ?? WORDS[key];
 });
@@ -303,7 +303,7 @@ export class KeyTable<Action> {
 	 *
 	 * ```ts
 	 * import { KeyTable } from "@beep/scratchpad/effected/cli/ui/KeyTable"
-	 * import { Glyphs } from "@beep/scratchpad/effected/cli/Glyphs"
+	 * import { Glyphs } from "@beep/cli-kit/Glyphs"
 	 *
 	 * console.log(KeyTable.root.help(Glyphs.ascii)[0]?.label) // esc
 	 * ```
@@ -312,7 +312,7 @@ export class KeyTable<Action> {
 	 * @category formatting
 	 * @since 0.0.0
 	 */
-	readonly help = (glyphs: Cli.GlyphSet): ReadonlyArray<KeyHelpRow> => {
+	readonly help = (glyphs: Cli.GlyphSet.Encoded): ReadonlyArray<KeyHelpRow> => {
 		const taken = MutableHashSet.empty<string>();
 		const rows: Array<KeyHelpRow> = [];
 		for (const binding of this.bindings) {

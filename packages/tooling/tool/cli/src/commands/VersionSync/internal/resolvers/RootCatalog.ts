@@ -163,7 +163,7 @@ export const readRootLockfile = Effect.fn("readRootLockfile")(function* (
     .pipe(VersionSyncError.mapError("Failed to read bun.lock", "bun.lock"));
 
   return yield* Lockfile.parse(lockContent, { format: "bun" }).pipe(
-    Effect.map(O.some),
+    Effect.asSome,
     VersionSyncError.mapError("Failed to parse bun.lock", "bun.lock")
   );
 });
@@ -204,7 +204,11 @@ export const readRootLockfile = Effect.fn("readRootLockfile")(function* (
 export const readLockfileResolvedVersion = Effect.fn("readLockfileResolvedVersion")(function* (
   repoRoot: string,
   dependencyName: string,
-  lockfileRead = readRootLockfile(repoRoot)
+  lockfileRead: Effect.Effect<
+    O.Option<Lockfile>,
+    VersionSyncError,
+    FileSystem.FileSystem | Path.Path
+  > = readRootLockfile(repoRoot)
 ): Effect.fn.Return<O.Option<string>, VersionSyncError, FileSystem.FileSystem | Path.Path> {
   const lockfile = yield* lockfileRead;
   return O.flatMap(lockfile, (document) => document.rootPackage(dependencyName)).pipe(
@@ -243,7 +247,11 @@ export const readLockfileResolvedVersion = Effect.fn("readLockfileResolvedVersio
 export const resolveInstalledToolVersion = Effect.fn("resolveInstalledToolVersion")(function* (
   repoRoot: string,
   dependencyName: string,
-  lockfileRead = readRootLockfile(repoRoot)
+  lockfileRead: Effect.Effect<
+    O.Option<Lockfile>,
+    VersionSyncError,
+    FileSystem.FileSystem | Path.Path
+  > = readRootLockfile(repoRoot)
 ): Effect.fn.Return<string, VersionSyncError, FileSystem.FileSystem | Path.Path> {
   const lockfileVersion = yield* readLockfileResolvedVersion(repoRoot, dependencyName, lockfileRead);
   if (O.isSome(lockfileVersion)) {
