@@ -302,9 +302,19 @@ const WORKSPACE_PREFIX = "workspace:";
  * row carries, and no pnpm output recording that shape has been observed.
  * The edge stays honestly unnameable instead.
  *
+ * **Example** (Resolve a root workspace link)
+ *
+ * ```ts
+ * import { resolveLinkTarget } from "@beep/lockfiles/internal/pnpm"
+ * import * as O from "effect/Option"
+ * console.log(O.getOrUndefined(resolveLinkTarget("", "./packages/lib"))) // packages/lib
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
  * @internal
  */
-const resolveLinkTarget: {
+export const resolveLinkTarget: {
   (importerPath: string, target: string): O.Option<string>;
   (target: string): (importerPath: string) => O.Option<string>;
 } = dual(

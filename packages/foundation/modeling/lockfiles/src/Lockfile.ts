@@ -18,7 +18,7 @@ import * as Str from "effect/String";
 import { BunExtension } from "./BunExtension.ts";
 import { parseBun } from "./internal/bun.ts";
 import { parseNpm } from "./internal/npm.ts";
-import { parsePnpm } from "./internal/pnpm.ts";
+import { parsePnpm, resolveLinkTarget } from "./internal/pnpm.ts";
 import { FramingReason } from "./internal/shared.ts";
 import { parseYarn } from "./internal/yarn.ts";
 import { LockfileFormat } from "./LockfileFormat.ts";
@@ -630,8 +630,8 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
    * Under bun and npm the answer may be a workspace package (both key a
    * hoisted workspace link the same way); a caller that wants only registry
    * installs filters on `isWorkspace`. pnpm records a workspace root
-   * dependency as `link:<path>`, which names no snapshot, so it answers
-   * `Option.none()`. Only bun has a repo consumer today (repo-cli
+   * dependency as `link:<path>`, which resolves to the workspace package
+   * at that root-relative path when present. Only bun has a repo consumer today (repo-cli
    * `CatalogUsage` and `RootCatalog`); the pnpm branch is the one production
    * caller of `LockfileImporter#dependency`. An aliased bun install answers to its
    * alias, so compare `name` when the real package matters.
@@ -663,6 +663,11 @@ export class Lockfile extends S.Class<Lockfile, { readonly brand: unique symbol 
           O.flatMap(this.importer("."), (root) => root.dependency(name)),
           (dependency) =>
             O.flatMap(O.fromUndefinedOr(dependency.version), (version) => {
+              if (Str.startsWith("link:")(version)) {
+                return O.flatMap(resolveLinkTarget("", Str.slice(5)(version)), (target) =>
+                  A.findFirst(this.workspacePackages, (pkg) => pkg.instanceId === target)
+                );
+              }
               const resolution = `${version}${dependency.peerSuffix ?? ""}`;
               // An aliased dependency records `<real>@<version>`, already the id.
               return O.orElse(this.packageByInstanceId(`${name}@${resolution}`), () =>

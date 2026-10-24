@@ -11,6 +11,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 import { fixture } from "./support/fixtures.ts";
 import type { LockfileFormat } from "@beep/lockfiles/LockfileFormat";
 
@@ -178,10 +179,27 @@ describe("Lockfile#rootPackage", () => {
     })
   );
 
-  it.effect("pnpm: a workspace root dependency recorded as link:<path> answers None", () =>
+  it.effect("pnpm: a workspace root dependency recorded as link:<path> resolves the workspace", () =>
     Effect.gen(function* () {
       const lockfile = yield* Lockfile.parse(LINKED_PNPM, { format: "pnpm" });
-      assertNone(lockfile.rootPackage("@local/lib"));
+      const linked = O.getOrThrow(lockfile.rootPackage("@local/lib"));
+      strictEqual(linked.instanceId, "packages/lib");
+      assertTrue(linked.isWorkspace);
+      for (const target of ["./packages/lib", "packages/other/../lib"]) {
+        const normalized = yield* Lockfile.parse(Str.replace("link:packages/lib", `link:${target}`)(LINKED_PNPM), {
+          format: "pnpm",
+        });
+        assertSome(
+          O.map(normalized.rootPackage("@local/lib"), (pkg) => pkg.instanceId),
+          "packages/lib"
+        );
+      }
+      for (const target of ["packages/absent", "../packages/lib", "."]) {
+        const missing = yield* Lockfile.parse(Str.replace("link:packages/lib", `link:${target}`)(LINKED_PNPM), {
+          format: "pnpm",
+        });
+        assertNone(missing.rootPackage("@local/lib"));
+      }
       assertSome(versionOf(lockfile.rootPackage("react")), "18.3.1");
     })
   );

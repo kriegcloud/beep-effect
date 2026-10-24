@@ -1,3 +1,4 @@
+import { Lockfile } from "@beep/lockfiles/Lockfile";
 import {
   BunVersionState,
   buildBunReport,
@@ -10,6 +11,8 @@ import {
   extractBunArchiveChecksum,
   ReportRendererService,
   ReportRendererServiceLive,
+  ResolverService,
+  ResolverServiceLive,
   RootPackageJsonDocument,
   readLockfileResolvedVersion,
   resolveBunVersions,
@@ -44,6 +47,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { vi } from "vitest";
 
 const UnknownJson = S.fromJsonString(S.Unknown);
 const decodeJsonEffect = S.decodeEffect(UnknownJson);
@@ -1068,4 +1072,43 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync installed
       })
     );
   });
+});
+
+it.layer(VersionSyncTestLayer)("VersionSync shared lockfile", (it) => {
+  it.effect("parses bun.lock once per resolution run for Biome and Turbo", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped();
+      yield* fs.writeFileString(path.join(root, "package.json"), yield* encodeJson({ name: "fixture" }));
+      yield* fs.writeFileString(path.join(root, "biome.jsonc"), "{}");
+      yield* fs.writeFileString(path.join(root, "turbo.json"), "{}");
+      yield* fs.writeFileString(
+        path.join(root, "bun.lock"),
+        yield* encodeJson({
+          lockfileVersion: 1,
+          workspaces: { "": { name: "fixture" } },
+          packages: {
+            turbo: ["turbo@2.10.14", "", {}],
+            "@biomejs/biome": ["@biomejs/biome@2.5.6", "", {}],
+          },
+        })
+      );
+      const parse = yield* Effect.acquireRelease(
+        Effect.sync(() => vi.spyOn(Lockfile, "parse")),
+        (spy) => Effect.sync(() => spy.mockRestore())
+      );
+      const resolver = yield* ResolverService.pipe(Effect.provide(ResolverServiceLive));
+      const options = VersionSyncOptions.cases.check.make({ biomeOnly: true, turboOnly: true, skipNetwork: true });
+      for (const expectedCalls of [1, 2]) {
+        const resolution = yield* resolver.resolve(root, options);
+        expect(A.map(resolution.report.categories, (category) => category.category)).toEqual(["biome", "turbo"]);
+        expect(A.map(resolution.report.categories, (category) => category.latest)).toEqual([
+          O.some("2.5.6"),
+          O.some("2.10.14"),
+        ]);
+        expect(parse).toHaveBeenCalledTimes(expectedCalls);
+      }
+    })
+  );
 });
