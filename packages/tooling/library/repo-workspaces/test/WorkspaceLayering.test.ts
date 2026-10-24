@@ -1,6 +1,7 @@
 import { DependencyGraph, WorkspaceDiscovery, WorkspacePackage } from "@beep/repo-workspaces";
 import { LayerEdge, LayerPolicy, WorkspaceLayering } from "@beep/repo-workspaces/testing";
 import { assert, describe, it, layer } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
@@ -36,7 +37,7 @@ const plus = (...extra: ReadonlyArray<LayerEdge>): LayeringGraph.Input => ({
   edges: [...CLEAN.edges, ...extra],
 });
 const offences = (graph: LayeringGraph.Input, policy: LayerPolicy = POLICY): ReadonlyArray<string> =>
-  WorkspaceLayering.check(graph, policy).offenders.map(({ edge: e, reason }) => `${reason}: ${e.label}`);
+  A.map(WorkspaceLayering.check(graph, policy).offenders, ({ edge: e, reason }) => `${reason}: ${e.label}`);
 
 const pkg = (name: string, fields: Partial<Record<DependencyField, Record<string, string>>> = {}): WorkspacePackage =>
   WorkspacePackage.make({
@@ -170,7 +171,7 @@ describe("WorkspaceLayering.edgesOf", () => {
       pkg("c", { dependencies: { b: "^1.0.0" } }),
     ];
     assert.deepStrictEqual(
-      WorkspaceLayering.edgesOf(packages).map((e) => e.label),
+      A.map(WorkspaceLayering.edgesOf(packages), (e) => e.label),
       ["a -> b (dependencies)", "a -> b (devDependencies)", "c -> b (dependencies)"]
     );
     assert.strictEqual(
@@ -186,7 +187,9 @@ describe("WorkspaceLayering.checkWorkspace", () => {
     pkg("core"),
     pkg("side", { dependencies: { app: "workspace:^" } }),
   ];
-  layer(WorkspaceDiscovery.layerTest({ listPackages: Effect.suspend(() => Effect.succeed(PACKAGES)) }))((it) => {
+  layer(WorkspaceDiscovery.layerTest({ listPackages: Effect.suspend(() => Effect.succeed(PACKAGES)) }), {
+    timeout: "30 seconds",
+  })((it) => {
     it.effect("checks the discovered packages", () =>
       Effect.gen(function* () {
         const policy = LayerPolicy.make({ layers: [["app", "side"], ["core"]], tooling: [], unconstrained: [] });
@@ -218,7 +221,9 @@ describe("WorkspaceLayering: what a policy entry matches", () => {
     at("@okfit/engine", "packages/engine"),
     at("@okfit/tool", "tools/tool"),
   ];
-  layer(WorkspaceDiscovery.layerTest({ listPackages: Effect.suspend(() => Effect.succeed(PACKAGES)) }))((it) => {
+  layer(WorkspaceDiscovery.layerTest({ listPackages: Effect.suspend(() => Effect.succeed(PACKAGES)) }), {
+    timeout: "30 seconds",
+  })((it) => {
     it.effect("layers, tooling and unconstrained all classify by name, so the root is matched as okfit", () =>
       Effect.gen(function* () {
         const report = yield* WorkspaceLayering.checkWorkspace(

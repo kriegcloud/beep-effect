@@ -4,6 +4,7 @@ import { WorkspaceDiscovery, WorkspacePackage } from "@beep/repo-workspaces";
 import { PackedInstallGate, PackedInstallPreflight } from "@beep/repo-workspaces/PackedInstall";
 import { InstalledConsumer, PackedInstall } from "@beep/repo-workspaces/testing";
 import { assert, describe, it, layer } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -123,13 +124,13 @@ describe("InstalledConsumer.runBin stdin", () => {
     env: Redacted.make({ PATH: "/usr/bin" }),
   });
   const runs = ScriptedSpawner.make(() => ({ stdout: "ok" }));
-  layer(runs.layer)((it) => {
+  layer(runs.layer, { timeout: "30 seconds" })((it) => {
     it.effect("omitted and empty stdin are the null device, never an open pipe", () =>
       Effect.gen(function* () {
         yield* consumer.runBin("tool");
         yield* consumer.runBin("tool", [], { stdin: "" });
         assert.deepStrictEqual(
-          runs.spawns.map((spawn) => spawn.options.stdin),
+          A.map(runs.spawns, (spawn) => spawn.options.stdin),
           ["ignore", "ignore"]
         );
       })

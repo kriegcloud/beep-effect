@@ -14,9 +14,11 @@ import { assertDefined, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const ConsumerDocument = S.Struct({ dependencies: S.Record(S.String, S.String) });
 
@@ -91,11 +93,11 @@ it.effect.prop(
       assertDefined(name);
       const runtimeMaps = R.fromEntries(
         A.map(["dependencies", "optionalDependencies", "peerDependencies"] as const, (field) => {
-          const entries = A.filter(parsed.unresolved, (entry) => entry.startsWith(`${field}.`));
+          const entries = A.filter(parsed.unresolved, (entry) => Str.startsWith(`${field}.`)(entry));
           const dependencies = R.fromEntries(
             A.map(entries, (entry) => {
-              const separator = entry.lastIndexOf(": ");
-              return [entry.slice(field.length + 1, separator), entry.slice(separator + 2)] as const;
+              const separator = O.getOrThrow(Str.lastIndexOf(": ")(entry));
+              return [Str.slice(field.length + 1, separator)(entry), Str.slice(separator + 2)(entry)] as const;
             })
           );
           return [field, dependencies] as const;

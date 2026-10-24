@@ -4,6 +4,7 @@ import { assert, describe, it, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const VALID = { layers: [["app"], ["core"]], tooling: [], unconstrained: ["@e2e/*"] };
 
@@ -55,7 +56,7 @@ describe("LayerPolicy.decode", () => {
 
   it.effect("rejects an unconstrained glob that cannot compile", () =>
     Effect.gen(function* () {
-      const error = yield* Effect.flip(LayerPolicy.decode({ ...VALID, unconstrained: ["a".repeat(65_537)] }));
+      const error = yield* Effect.flip(LayerPolicy.decode({ ...VALID, unconstrained: [Str.repeat(65_537)("a")] }));
       assert.strictEqual(error.reason, "decode");
     })
   );

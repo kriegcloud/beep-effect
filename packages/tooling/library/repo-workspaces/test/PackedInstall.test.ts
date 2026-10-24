@@ -4,6 +4,7 @@ import { WorkspaceDiscovery, WorkspaceInfo, WorkspacePackage } from "@beep/repo-
 import { BinProvenance, PackedInstallError } from "@beep/repo-workspaces/PackedInstall";
 import { InstalledConsumer, PackedInstall } from "@beep/repo-workspaces/testing";
 import { assert, describe, it, layer } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -15,6 +16,7 @@ import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { SpawnScript } from "@beep/commands";
 import type { MemoryFileSystemSeed } from "@beep/memfs";
 
@@ -87,7 +89,7 @@ describe("PackedInstall.run", () => {
         assert.strictEqual(error.package, "@x/carrier");
         const probes = probing.spawns.slice(0, 4);
         assert.deepStrictEqual(
-          probes.map((spawn) => [spawn.command, ...spawn.args]),
+          A.map(probes, (spawn) => [spawn.command, ...spawn.args]),
           [
             ["npm", "--version"],
             ["pnpm", "--version"],
@@ -97,7 +99,7 @@ describe("PackedInstall.run", () => {
         );
         for (const spawn of probes) {
           assert.strictEqual(spawn.cwd, probes[0]?.cwd);
-          assert.isTrue(spawn.cwd?.startsWith("/tmp/"), `probed from ${spawn.cwd}, never the repo`);
+          assert.isTrue(Str.startsWith("/tmp/")(spawn.cwd ?? ""), `probed from ${spawn.cwd}, never the repo`);
           assert.deepStrictEqual(spawn.env, SCRUBBED);
           assert.strictEqual(spawn.extendEnv, false);
           assert.strictEqual(spawn.options.stdin, "ignore");
@@ -204,7 +206,7 @@ describe("PackedInstall.run", () => {
           assert.strictEqual(pack?.command, "pnpm");
           assert.strictEqual(pack?.cwd, "/repo/packages/carrier");
           assert.deepStrictEqual(
-            pack?.args.filter((arg) => !arg.startsWith("/")),
+            A.filter(pack?.args ?? [], (arg) => !Str.startsWith("/")(arg)),
             ["pack", "--pack-destination", "--config.ignore-scripts=true"]
           );
         })
@@ -248,7 +250,7 @@ describe("PackedInstall.run", () => {
         const destination = pack?.args[3] ?? "";
         assert.deepStrictEqual(pack?.args, ["pack", "--ignore-scripts", "--pack-destination", destination]);
         assert.isTrue(
-          destination.startsWith(defaulted.spawns[0]?.cwd ?? "<no probe>"),
+          Str.startsWith(defaulted.spawns[0]?.cwd ?? "<no probe>")(destination),
           "the destination lives in the scratch dir"
         );
       })
@@ -344,7 +346,7 @@ describe("PackedInstall.run past the pack", () => {
           env: ENV,
         });
         assert.deepStrictEqual(
-          result.consumers.map((c) => [c.manager, c.managerVersion, c.directory]),
+          A.map(result.consumers, (c) => [c.manager, c.managerVersion, c.directory]),
           [
             ["npm", "11.19.1", "/scratch/consumer-npm"],
             ["pnpm", "12.5.1", "/scratch/consumer-pnpm"],
@@ -358,18 +360,18 @@ describe("PackedInstall.run past the pack", () => {
         assert.include(String(result.consumers[0]), "/scratch/consumer-npm", "the printed consumer shows its fields");
         assert.notInclude(String(result.consumers[0]), "/home/u", "but its env prints redacted");
 
-        const tars = happy.spawns.filter((spawn) => spawn.command === "tar");
+        const tars = A.filter(happy.spawns, (spawn) => spawn.command === "tar");
         assert.deepStrictEqual(
-          tars.map((spawn) => [spawn.cwd, ...spawn.args]),
+          A.map(tars, (spawn) => [spawn.cwd, ...spawn.args]),
           [
             ["/scratch/tarballs/0", "-xzOf", CARRIER_TGZ, "package/package.json"],
             ["/scratch/tarballs/1", "-xzOf", LIB_TGZ, "package/package.json"],
           ]
         );
 
-        const installs = happy.spawns.filter((spawn) => spawn.args[0] === "install");
+        const installs = A.filter(happy.spawns, (spawn) => spawn.args[0] === "install");
         assert.deepStrictEqual(
-          installs.map((spawn) => [spawn.command, spawn.cwd, ...spawn.args]),
+          A.map(installs, (spawn) => [spawn.command, spawn.cwd, ...spawn.args]),
           [
             ["npm", "/scratch/consumer-npm", "install", "--ignore-scripts", "--no-audit", "--no-fund"],
             ["pnpm", "/scratch/consumer-pnpm", "install", "--config.ignore-scripts=true"],
@@ -410,11 +412,11 @@ describe("PackedInstall.run past the pack", () => {
         assert.deepStrictEqual([error.reason, error.package], ["UnresolvedProtocol", "@x/carrier"]);
         assert.include(error.message, "dependencies.@x/lib: workspace:^");
         assert.strictEqual(
-          unresolved.spawns.filter((spawn) => spawn.command === "tar").length,
+          A.filter(unresolved.spawns, (spawn) => spawn.command === "tar").length,
           1,
           "the manifest was read"
         );
-        assert.isFalse(unresolved.spawns.some((spawn) => spawn.args[0] === "install"));
+        assert.isFalse(A.some(unresolved.spawns, (spawn) => spawn.args[0] === "install"));
       })
     );
   });
@@ -447,7 +449,7 @@ describe("PackedInstall.run past the pack", () => {
                 error.message,
                 `${tarball} packs ${packedName ?? "a package with no name"}, not ${name}`
               );
-              assert.isFalse(wrongIdentity.spawns.some((spawn) => spawn.args[0] === "install"));
+              assert.isFalse(A.some(wrongIdentity.spawns, (spawn) => spawn.args[0] === "install"));
             })
         );
       });
@@ -510,11 +512,11 @@ describe("PackedInstall.run past the pack", () => {
           env: ENV,
         });
         assert.deepStrictEqual(
-          result.consumers.map((consumer) => consumer.manager),
+          A.map(result.consumers, (consumer) => consumer.manager),
           ["npm"]
         );
-        assert.strictEqual(twice.spawns.filter((spawn) => spawn.args[0] === "--version").length, 1);
-        assert.strictEqual(twice.spawns.filter((spawn) => spawn.args[0] === "install").length, 1);
+        assert.strictEqual(A.filter(twice.spawns, (spawn) => spawn.args[0] === "--version").length, 1);
+        assert.strictEqual(A.filter(twice.spawns, (spawn) => spawn.args[0] === "install").length, 1);
       })
     );
   });
@@ -551,7 +553,7 @@ describe("PackedInstall.run past the pack", () => {
     );
   });
 
-  const LONG = "a".repeat(3000);
+  const LONG = Str.repeat(3000)("a");
   const brokenInstall = ScriptedSpawner.make((command, args) =>
     args[0] === "install" ? { exit: 1, stdout: LONG, stderr: "ERR_INSTALL_BOOM" } : manifests()(command, args)
   );
@@ -566,8 +568,8 @@ describe("PackedInstall.run past the pack", () => {
         );
         assert.deepStrictEqual([error.reason, error.manager], ["InstallFailed", "npm"]);
         const output = error.output ?? "";
-        assert.isTrue(output.endsWith("ERR_INSTALL_BOOM"), "stderr comes last");
-        assert.isTrue(output.startsWith("aaa"), "stdout precedes it");
+        assert.isTrue(Str.endsWith("ERR_INSTALL_BOOM")(output), "stderr comes last");
+        assert.isTrue(Str.startsWith("aaa")(output), "stdout precedes it");
         assert.strictEqual(output.length, 2000, "only the tail is kept");
       })
     );
@@ -593,7 +595,7 @@ describe("PackedInstall.run past the pack", () => {
         assert.deepStrictEqual([error.reason, error.manager], ["InstallFailed", "npm"]);
         assert.strictEqual(error.message, "npm install timed out after 50ms");
         assert.isTrue(
-          hungInstall.spawns.some((spawn) => spawn.args[0] === "install"),
+          A.some(hungInstall.spawns, (spawn) => spawn.args[0] === "install"),
           "the install was spawned"
         );
       })
@@ -697,13 +699,13 @@ describe("PackedInstall.run past the pack", () => {
           });
           assert.deepStrictEqual(
             planned,
-            Object.keys(result.tarballs),
+            R.keys(result.tarballs),
             "closure names exactly what the run packed, in order"
           );
 
-          const packs = overridden.spawns.filter((spawn) => spawn.args[0] === "pack");
+          const packs = A.filter(overridden.spawns, (spawn) => spawn.args[0] === "pack");
           assert.deepStrictEqual(
-            packs.map((spawn) => [spawn.command, spawn.cwd, spawn.args[3]]),
+            A.map(packs, (spawn) => [spawn.command, spawn.cwd, spawn.args[3]]),
             [
               ["npm", "/repo/packages/carrier/dist/prod/npm/pkg", "/scratch/tarballs/0"],
               ["npm", "/repo/packages/lib/dist/prod/npm/pkg", "/scratch/tarballs/1"],
@@ -711,7 +713,7 @@ describe("PackedInstall.run past the pack", () => {
             ],
             "the directory is packed in place, the tarball is not packed at all"
           );
-          const tars = overridden.spawns.filter((spawn) => spawn.command === "tar");
+          const tars = A.filter(overridden.spawns, (spawn) => spawn.command === "tar");
           assert.deepStrictEqual(
             tars.at(-1)?.args,
             ["-xzOf", EXT_TGZ, "package/package.json"],
@@ -732,9 +734,10 @@ describe("PackedInstall.run past the pack", () => {
           const fs = yield* FileSystem.FileSystem;
           assert.strictEqual(
             yield* fs.readFileString("/scratch/consumer-pnpm/pnpm-workspace.yaml"),
-            `minimumReleaseAge: 0\noverrides:\n${Object.entries(specs)
-              .map(([name, spec]) => `  "${name}": "${spec}"`)
-              .join("\n")}\n`
+            `minimumReleaseAge: 0\noverrides:\n${A.join(
+              A.map(R.toEntries(specs), ([name, spec]) => `  "${name}": "${spec}"`),
+              "\n"
+            )}\n`
           );
         })
     );
@@ -744,16 +747,19 @@ describe("PackedInstall.run past the pack", () => {
   rootedSuite(
     fromWorkspace,
     overrideSeed({
-      "/repo/pnpm-workspace.yaml": [
-        "packages:",
-        "  - packages/*",
-        "overrides:",
-        '  "@y/dir": "file:../ext/dir"',
-        '  "@y/tgz": "file:/ext/stale.tgz"',
-        '  "@y/registry": "^1.0.0"',
-        '  "parent>@y/child": "file:../ext/child"',
-        "",
-      ].join("\n"),
+      "/repo/pnpm-workspace.yaml": A.join(
+        [
+          "packages:",
+          "  - packages/*",
+          "overrides:",
+          '  "@y/dir": "file:../ext/dir"',
+          '  "@y/tgz": "file:/ext/stale.tgz"',
+          '  "@y/registry": "^1.0.0"',
+          '  "parent>@y/child": "file:../ext/child"',
+          "",
+        ],
+        "\n"
+      ),
     })
   )((it) => {
     it.effect("workspaceOverrides takes the root's file: overrides, and an explicit entry wins over one", () =>
@@ -773,7 +779,7 @@ describe("PackedInstall.run past the pack", () => {
           "@y/dir": `file:${DIR_TGZ}`,
           "@y/tgz": `file:${EXT_TGZ}`,
         });
-        assert.deepStrictEqual(Object.keys(result.tarballs), ["@x/carrier", "@x/lib", "@y/dir", "@y/tgz"]);
+        assert.deepStrictEqual(R.keys(result.tarballs), ["@x/carrier", "@x/lib", "@y/dir", "@y/tgz"]);
       })
     );
 
@@ -894,7 +900,7 @@ describe("PackedInstall.run past the pack", () => {
         );
         assert.deepStrictEqual([error.reason, error.package], ["InvalidOverride", "@y/tgz"]);
         assert.strictEqual(error.message, `override @y/tgz: ${EXT_TGZ} packs @y/other, not @y/tgz`);
-        assert.isFalse(misnamed.spawns.some((spawn) => spawn.args[0] === "install"));
+        assert.isFalse(A.some(misnamed.spawns, (spawn) => spawn.args[0] === "install"));
       })
     );
   });
@@ -915,7 +921,7 @@ describe("PackedInstall.run past the pack", () => {
         assert.deepStrictEqual([error.reason, error.package], ["BinConflict", "@x/lib"]);
         assert.include(error.message, "@x/lib declares the bin x, which the carrier @x/carrier declares");
         assert.include(error.message, "pass allowSharedBins: true", "the message names the way out");
-        assert.isFalse(conflicting.spawns.some((spawn) => spawn.args[0] === "install"));
+        assert.isFalse(A.some(conflicting.spawns, (spawn) => spawn.args[0] === "install"));
       })
     );
 
@@ -930,11 +936,11 @@ describe("PackedInstall.run past the pack", () => {
           allowSharedBins: true,
         });
         assert.deepStrictEqual(
-          result.consumers.map((consumer) => consumer.manager),
+          A.map(result.consumers, (consumer) => consumer.manager),
           ["npm"]
         );
         assert.isTrue(
-          conflicting.spawns.some((spawn) => spawn.args[0] === "install"),
+          A.some(conflicting.spawns, (spawn) => spawn.args[0] === "install"),
           "the install ran"
         );
         const missing = yield* Effect.flip(
@@ -988,7 +994,7 @@ describe("PackedInstall.run past the pack", () => {
           })
         );
         assert.deepStrictEqual([error.reason, error.package], ["BinConflict", "@y/x"]);
-        assert.isFalse(conflictingOverride.spawns.some((spawn) => spawn.args[0] === "install"));
+        assert.isFalse(A.some(conflictingOverride.spawns, (spawn) => spawn.args[0] === "install"));
       })
     );
   });
@@ -1027,9 +1033,11 @@ describe("InstalledConsumer.runBin", () => {
     env: Redacted.make({ PATH: "/usr/bin", HOME: "/home/u", XDG_DATA_HOME: "/home/u/.local/share", INIT_CWD: "/repo" }),
   });
   const runs = ScriptedSpawner.make((command) =>
-    command.endsWith("/tool") ? { stdout: "1.2.3\n", stderr: "warn\n", exit: 3 } : ScriptedSpawner.notFound(command)
+    Str.endsWith("/tool")(command)
+      ? { stdout: "1.2.3\n", stderr: "warn\n", exit: 3 }
+      : ScriptedSpawner.notFound(command)
   );
-  layer(runs.layer)((it) => {
+  layer(runs.layer, { timeout: "30 seconds" })((it) => {
     it.effect(
       "runs the bin from the consumer under the install env, the caller's env winning over the scrub, a non-zero exit a result",
       () =>
@@ -1126,7 +1134,7 @@ describe("InstalledConsumer.runBin", () => {
 
   // The real clock: the bin's ceiling is a real ceiling.
   const hung = ScriptedSpawner.make(() => ({ hang: true }));
-  layer(hung.layer, { excludeTestServices: true })((it) => {
+  layer(hung.layer, { excludeTestServices: true, timeout: "30 seconds" })((it) => {
     it.effect("a bin that outlives its timeout fails BinFailed naming the ceiling", () =>
       Effect.gen(function* () {
         const error = yield* Effect.flip(consumer.runBin("tool", [], { timeout: "50 millis" })).pipe(
@@ -1440,7 +1448,7 @@ describe("InstalledConsumer.carrierCommand and runCarrierBin", () => {
     [`${NM}/@x/broken/package.json`]: "{ not json",
   };
   const runs = ScriptedSpawner.make((command, args) =>
-    command === "node" ? { stdout: `ran ${args.join(" ")}\n`, exit: 2 } : ScriptedSpawner.notFound(command)
+    command === "node" ? { stdout: `ran ${A.join(args, " ")}\n`, exit: 2 } : ScriptedSpawner.notFound(command)
   );
   layer(Layer.mergeAll(MemoryFileSystem.layerWith(SEED), Path.layer, runs.layer), { timeout: "30 seconds" })((it) => {
     it.effect(

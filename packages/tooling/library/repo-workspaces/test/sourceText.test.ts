@@ -10,6 +10,9 @@ import {
 } from "@beep/repo-workspaces/internal/sourceText";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 /** A `/` that opens a regex blanks the body in the code view; one that divides leaves the code view untouched. */
 const divides = (text: string): boolean => lex(text).code === text;
@@ -73,7 +76,7 @@ describe("sourceText review regressions", () => {
   for (const [text, value] of escapedImports) {
     it(`cooks ECMAScript specifier escapes in ${text}`, () => {
       assert.deepStrictEqual(
-        specifierLiterals(lex(text)).map((literal) => literal.value),
+        A.map(specifierLiterals(lex(text)), (literal) => literal.value),
         [value]
       );
     });
@@ -92,15 +95,20 @@ describe("sourceText review regressions", () => {
     assert.isTrue(divides("const 𝒙return = 8; 𝒙return / 2;"));
   });
 
-  for (const separator of ["\r", "\u2028", "\u2029", "\r\n"]) {
-    it(`preserves line terminator ${separator.codePointAt(0)} in all lexed views and locations`, () => {
+  for (const [separator, label] of [
+    ["\r", "CR"],
+    ["\u2028", "LS"],
+    ["\u2029", "PS"],
+    ["\r\n", "CRLF"],
+  ] as const) {
+    it(`preserves line terminator ${label} in all lexed views and locations`, () => {
       const text = `/* a${separator}b */${separator}// harmless${separator}process.touch();`;
       const lexed = lex(text);
       assert.strictEqual(lexed.code.length, text.length);
       assert.strictEqual(lexed.withoutComments.length, text.length);
-      assert.deepStrictEqual(lexed.code.split(separator), ["    ", "    ", "           ", "process.touch();"]);
+      assert.deepStrictEqual(Str.split(separator)(lexed.code), ["    ", "    ", "           ", "process.touch();"]);
       assert.strictEqual(lexed.withoutComments, lexed.code);
-      const offset = text.indexOf("process");
+      const offset = O.getOrThrow(Str.indexOf("process")(text));
       assert.deepStrictEqual(references(lexed.code, "process"), [offset]);
       assert.deepStrictEqual(locate(text)(offset), { line: 4, column: 1 });
     });
@@ -113,10 +121,10 @@ describe("sourceText cooked identifier regressions", () => {
     it(`matches the whole cooked identifier ${raw} at its original UTF-16 offset`, () => {
       const text = `const label = "😀"; /* comment */\r\nconst p = ${raw};`;
       const lexed = lex(text);
-      const at = text.indexOf(raw);
+      const at = O.getOrThrow(Str.indexOf(raw)(text));
       assert.strictEqual(lexed.withoutComments.length, text.length);
       assert.strictEqual(lexed.code.length, text.length);
-      assert.strictEqual(lexed.code.slice(at, at + raw.length), raw);
+      assert.strictEqual(Str.slice(at, at + raw.length)(lexed.code), raw);
       assert.deepStrictEqual(references(lexed.code, "process"), [at]);
       assert.deepStrictEqual(locate(text)(at), { line: 2, column: 11 });
     });
@@ -165,7 +173,7 @@ describe("sourceText cooked identifier regressions", () => {
     it(`reads the whole literal argument of standalone ${callee}`, () => {
       const text = `const label = "😀"; ${callee}("node:process");`;
       const lexed = lex(text);
-      const start = text.indexOf('"node:process"');
+      const start = O.getOrThrow(Str.indexOf('"node:process"')(text));
       assert.deepStrictEqual(specifierLiterals(lexed), [SourceLiteral.make({ start, value: "node:process" })]);
       assert.strictEqual(lexed.withoutComments.length, text.length);
       assert.strictEqual(lexed.code.length, text.length);
@@ -219,7 +227,7 @@ describe("sourceText round-3 identifier and receiver regressions", () => {
   it("reads complete raw identifier tokens and cooks only valid continuations", () => {
     const text = "𝒙; stdout.wr\\u0069te\\u{58}; \\u{110000}stdout";
     assert.deepStrictEqual(
-      [...identifierTokens(text)].map((token) => [token.index, token[0]]),
+      A.map([...identifierTokens(text)], (token) => [token.index, token[0]]),
       [
         [0, "𝒙"],
         [4, "stdout"],
@@ -242,7 +250,7 @@ describe("sourceText round-3 identifier and receiver regressions", () => {
       const lexed = lex(text);
       assert.strictEqual(lexed.code.length, text.length, text);
       assert.strictEqual(lexed.withoutComments.length, text.length, text);
-      assert.deepStrictEqual(references(lexed.code, "process"), [text.indexOf("process")], text);
+      assert.deepStrictEqual(references(lexed.code, "process"), [O.getOrThrow(Str.indexOf("process")(text))], text);
       assert.include(lexed.code, "/ 2; process.cwd(); const z = 1 / 4;", text);
     }
     assert.isTrue(divides("const y = x! / 2; const z = 1 / 4;"));
@@ -254,7 +262,7 @@ describe("sourceText round-3 identifier and receiver regressions", () => {
       const text = `${prefix} /process.cwd()/.test(value); process.cwd();`;
       const lexed = lex(text);
       assert.notInclude(lexed.code, "/process.cwd()/", text);
-      assert.deepStrictEqual(references(lexed.code, "process"), [text.lastIndexOf("process")], text);
+      assert.deepStrictEqual(references(lexed.code, "process"), [O.getOrThrow(Str.lastIndexOf("process")(text))], text);
       assert.strictEqual(lexed.code.length, text.length, text);
     }
   });
@@ -291,7 +299,11 @@ describe("sourceText round-3 identifier and receiver regressions", () => {
       "...globalThis",
     ]) {
       const text = `"😀"; ${receiver}?.pr\\u006fcess;`;
-      assert.deepStrictEqual(references(lex(text).code, "process"), [text.indexOf("pr\\u006fcess")], text);
+      assert.deepStrictEqual(
+        references(lex(text).code, "process"),
+        [O.getOrThrow(Str.indexOf("pr\\u006fcess")(text))],
+        text
+      );
     }
   });
 });

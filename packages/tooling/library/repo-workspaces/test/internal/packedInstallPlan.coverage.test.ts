@@ -9,9 +9,12 @@ import {
 import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, it } from "@effect/vitest";
 import { assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 it.effect("accepts version lines amid noise and handles a Yarn version lacking a minor component", () =>
   Effect.sync(() => {
@@ -25,11 +28,11 @@ it.effect("accepts version lines amid noise and handles a Yarn version lacking a
       overrides: {},
     });
     assert.deepStrictEqual(
-      files.map((file) => file.file),
+      A.map(files, (file) => file.file),
       ["package.json", ".yarnrc.yml"]
     );
     assert.strictEqual(
-      files.find((file) => file.file === ".yarnrc.yml")?.content,
+      O.getOrUndefined(A.findFirst(files, (file) => file.file === ".yarnrc.yml"))?.content,
       "nodeLinker: node-modules\nenableImmutableInstalls: false\nenableScripts: false\nenableTelemetry: false\n"
     );
   })
@@ -81,12 +84,12 @@ it.effect("JSON codecs retain quoting, final newlines and tolerant packed-manife
       overrides: { '@x/a"\n': '/a"\n.tgz' },
     });
     assert.strictEqual(
-      files.find((file) => file.file === "pnpm-workspace.yaml")?.content,
+      O.getOrUndefined(A.findFirst(files, (file) => file.file === "pnpm-workspace.yaml"))?.content,
       'minimumReleaseAge: 0\noverrides:\n  "@x/a\\"\\n": "file:/a\\"\\n.tgz"\n'
     );
-    const manifest = files.find((file) => file.file === "package.json")?.content ?? "";
-    assert.isTrue(manifest.endsWith("}\n"));
-    assert.isFalse(manifest.endsWith("}\n\n"));
+    const manifest = O.getOrUndefined(A.findFirst(files, (file) => file.file === "package.json"))?.content ?? "";
+    assert.isTrue(Str.endsWith("}\n")(manifest));
+    assert.isFalse(Str.endsWith("}\n\n")(manifest));
     assert.strictEqual(
       manifest,
       '{\n  "name": "packed-install-pnpm",\n  "version": "0.0.0",\n  "private": true,\n  "devEngines": {\n    "packageManager": {\n      "name": "pnpm",\n      "version": "12.0.0",\n      "onFail": "ignore"\n    }\n  },\n  "dependencies": {\n    "carrier": "file:/carrier.tgz"\n  }\n}\n'

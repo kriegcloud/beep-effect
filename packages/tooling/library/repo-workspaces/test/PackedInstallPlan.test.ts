@@ -1,7 +1,9 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { WorkspacePackage } from "@beep/repo-workspaces";
 import {
   binConflict,
   binTargetOf,
+  ConsumerInput,
   closureOf,
   consumerFiles,
   fileOverridesOf,
@@ -14,10 +16,14 @@ import {
 } from "@beep/repo-workspaces/internal/packedInstallPlan";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const JsonObject = S.fromJsonString(S.Record(S.String, S.Unknown));
 
@@ -25,9 +31,9 @@ const pkg = (name: string, fields: Record<string, Record<string, string>> = {}):
   WorkspacePackage.make({
     name,
     version: "1.0.0",
-    path: `/repo/packages/${name.replace("@x/", "")}`,
-    packageJsonPath: `/repo/packages/${name.replace("@x/", "")}/package.json`,
-    relativePath: `packages/${name.replace("@x/", "")}`,
+    path: `/repo/packages/${Str.replace("@x/", "")(name)}`,
+    packageJsonPath: `/repo/packages/${Str.replace("@x/", "")(name)}/package.json`,
+    relativePath: `packages/${Str.replace("@x/", "")(name)}`,
     workspaceRoot: "/repo",
     ...fields,
   });
@@ -51,7 +57,7 @@ const INPUT = {
   dependencies: { effect: "4.0.0-rc.117" },
 };
 const fileMap = (files: ReadonlyArray<{ readonly file: string; readonly content: string }>) =>
-  Object.fromEntries(files.map(({ file, content }) => [file, content]));
+  R.fromEntries(A.map(files, ({ file, content }) => [file, content]));
 
 describe("scrubEnv", () => {
   it("keeps an own __proto__ environment variable while removing traps and undefined values", () => {
@@ -98,14 +104,14 @@ describe("closureOf", () => {
   it("auto walks runtime edges transitively from the carrier, carrier first, through cycles, never devDependencies", () => {
     const closure = closureOf(PACKAGES, "@x/carrier", "auto");
     assertSuccess(
-      Result.map(closure, (packages) => packages.map((p) => p.name)),
+      Result.map(closure, (packages) => A.map(packages, (p) => p.name)),
       ["@x/carrier", "@x/lib", "@x/peer", "@x/deep"]
     );
   });
 
   it("an explicit list is taken as given, carrier first, and an unknown name fails", () => {
     const explicit = closureOf(PACKAGES, "@x/carrier", ["@x/lib", "@x/carrier"]);
-    assert.deepStrictEqual(Result.isSuccess(explicit) ? explicit.success.map((p) => p.name) : [], [
+    assert.deepStrictEqual(Result.isSuccess(explicit) ? A.map(explicit.success, (p) => p.name) : [], [
       "@x/carrier",
       "@x/lib",
     ]);
@@ -117,7 +123,7 @@ describe("closureOf", () => {
 describe("consumerFiles", () => {
   it("npm: overrides in the manifest, the carrier a dependency (never dev, never an override), the probed version pinned", () => {
     const files = fileMap(consumerFiles({ ...INPUT, manager: "npm", version: "11.19.1" }));
-    assert.deepStrictEqual(Object.keys(files), ["package.json"]);
+    assert.deepStrictEqual(R.keys(files), ["package.json"]);
     assert.strictEqual(
       files["package.json"],
       '{\n  "name": "packed-install-npm",\n  "version": "0.0.0",\n  "private": true,\n  "packageManager": "npm@11.19.1",\n  "dependencies": {\n    "@x/carrier": "file:/t/carrier.tgz",\n    "effect": "4.0.0-rc.117"\n  },\n  "overrides": {\n    "@x/lib": "file:/t/lib.tgz"\n  }\n}\n'
@@ -167,7 +173,7 @@ describe("consumerFiles", () => {
     const gated = "npmMinimalAgeGate: 0\n";
     for (const version of ["4.10.0", "4.18.1", "5.0.0"]) {
       assert.isTrue(
-        fileMap(consumerFiles({ ...INPUT, manager: "yarn", version }))[".yarnrc.yml"]?.endsWith(gated),
+        Str.endsWith(gated)(fileMap(consumerFiles({ ...INPUT, manager: "yarn", version }))[".yarnrc.yml"] ?? ""),
         version
       );
     }
@@ -330,7 +336,7 @@ describe("fileOverridesOf", () => {
       '{"overrides":{"__proto__":"file:../evil","constructor":"file:../ctor","prototype":"file:../proto"}}'
     );
     const out = fileOverridesOf(document);
-    assert.deepStrictEqual(Object.entries(out), [
+    assert.deepStrictEqual(R.toEntries(out), [
       ["constructor", "../ctor"],
       ["prototype", "../proto"],
     ]);
@@ -338,7 +344,7 @@ describe("fileOverridesOf", () => {
       [R.get(out, "constructor"), R.get(out, "prototype")],
       [O.some("../ctor"), O.some("../proto")]
     );
-    assert.isFalse(Object.hasOwn(out, "__proto__"));
+    assert.isFalse(R.has(out, "__proto__"));
     assert.deepStrictEqual(R.get(fileOverridesOf({ overrides: {} }), "constructor"), O.none());
   });
 
@@ -372,3 +378,14 @@ describe("binTargetOf", () => {
     assert.isUndefined(binTargetOf("{ nope", "x"));
   });
 });
+
+it.effect.prop(
+  "a consumer plan generated from its schema survives an encode/decode round trip",
+  [Arbitrary.schema(ConsumerInput)],
+  ([value]) =>
+    Effect.gen(function* () {
+      const decoded = yield* S.decodeEffect(ConsumerInput)(yield* S.encodeEffect(ConsumerInput)(value));
+      assert.isTrue(S.toEquivalence(ConsumerInput)(decoded, value));
+    }),
+  { arbitrary: fcRuns(50) }
+);

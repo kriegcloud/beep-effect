@@ -1,6 +1,7 @@
 import { MemoryFileSystem } from "@beep/memfs";
 import { Offence, SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
 import { assert, describe, it, vi } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
@@ -18,7 +19,8 @@ describe("SourceBoundary coverage controls", () => {
   it.effect("console member parsing tolerates whitespace, astral names and a missing member", () =>
     Effect.sync(() => {
       assert.deepStrictEqual(
-        SourceBoundary.check("f.ts", "console \n . \t log(x); console.; console.𝒙(x);", ["console-stdout"]).map(
+        A.map(
+          SourceBoundary.check("f.ts", "console \n . \t log(x); console.; console.𝒙(x);", ["console-stdout"]),
           (offence) => offence.detail
         ),
         ["console.log", "console", "console.𝒙"]
@@ -36,7 +38,10 @@ describe("SourceBoundary coverage controls", () => {
       try {
         assert.deepStrictEqual(
           SourceBoundary.verifyFixtures(),
-          SourceBoundary.fixtures.filter((fixture) => fixture.flagged).map((fixture) => `missed: ${fixture.name}`)
+          A.map(
+            A.filter(SourceBoundary.fixtures, (fixture) => fixture.flagged),
+            (fixture) => `missed: ${fixture.name}`
+          )
         );
       } finally {
         spy.mockRestore();
@@ -56,9 +61,10 @@ describe("SourceBoundary coverage controls", () => {
       try {
         assert.deepStrictEqual(
           SourceBoundary.verifyFixtures(),
-          SourceBoundary.fixtures
-            .filter((fixture) => fixture.flagged === false)
-            .map((fixture) => `false positive: ${fixture.name}`)
+          A.map(
+            A.filter(SourceBoundary.fixtures, (fixture) => fixture.flagged === false),
+            (fixture) => `false positive: ${fixture.name}`
+          )
         );
       } finally {
         spy.mockRestore();
@@ -78,11 +84,11 @@ describe("SourceBoundary coverage controls", () => {
           allowRules: { console: ["a.ts"] },
         });
         assert.deepStrictEqual(
-          report.offences.map((offence) => offence.rule),
+          A.map(report.offences, (offence) => offence.rule),
           ["process"]
         );
         assert.deepStrictEqual(
-          report.waived.map((offence) => offence.rule),
+          A.map(report.waived, (offence) => offence.rule),
           ["console"]
         );
       })

@@ -1,36 +1,39 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+// The `.` entry never reaches the `./testing` cluster or the Node sync preset.
+// The walk follows every specifier SourceBoundary reads, type-only imports
+// included, over the package sources Vite's raw glob import inlines, so the
+// suite needs no filesystem.
 import { WorkspaceEnumerationDepthError } from "@beep/repo-workspaces";
 import { SourceBoundary } from "@beep/repo-workspaces/testing";
 import { WorkspaceEnumerationDepthError as SyncDepthError } from "@beep/repo-workspaces/WorkspacesSync";
 import { assert, describe, it } from "@effect/vitest";
+import * as A from "effect/Array";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as Str from "effect/String";
+import { hostPath } from "./support/hostPath.ts";
+import { sourceTexts } from "./support/sourceGraph.ts";
 
-const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "../src");
-const PACKAGE_SRC = SRC;
-
-/** Every relative import of a module, resolved to its source path. */
-const importsOf = (file: string): ReadonlyArray<string> =>
-  SourceBoundary.importSpecifiers(readFileSync(file, "utf8"))
-    .filter((specifier) => specifier.startsWith("."))
-    .map((specifier) => resolve(dirname(file), specifier.replace(/\.js$/, ".ts")));
+/** Every relative import of a module, resolved to its `src`-relative path. */
+const importsOf = (module: string): ReadonlyArray<string> =>
+  A.map(
+    A.filter(SourceBoundary.importSpecifiers(O.getOrElse(R.get(sourceTexts, module), () => "")), Str.startsWith(".")),
+    (specifier) => hostPath.posix.join(hostPath.posix.dirname(module), Str.replace(/\.js$/, ".ts")(specifier))
+  );
 
 /** Every module reachable from an entrypoint, transitively. */
-const reachableFrom = (entry: string): ReadonlySet<string> => {
-  const seen = new Set<string>();
-  const queue = [entry];
-  while (queue.length > 0) {
-    const file = queue.pop();
-    if (file === undefined || seen.has(file)) continue;
-    seen.add(file);
-    for (const next of importsOf(file)) queue.push(next);
+const reachableFrom = (entry: string): ReadonlyArray<string> => {
+  const seen = MutableHashSet.empty<string>();
+  let frontier: ReadonlyArray<string> = [entry];
+  while (A.isReadonlyArrayNonEmpty(frontier)) {
+    for (const module of frontier) MutableHashSet.add(seen, module);
+    frontier = A.filter(A.flatMap(frontier, importsOf), (module) => !MutableHashSet.has(seen, module));
   }
-  return seen;
+  return A.fromIterable(seen);
 };
 
 const TESTING_ONLY =
-  /repo-workspaces\/src\/(testing|SourceBoundary|LayerPolicy|WorkspaceLayering|PackedInstall|internal\/sourceText|internal\/packedInstallPlan)\.ts$/;
+  /^(testing|SourceBoundary|LayerPolicy|WorkspaceLayering|PackedInstall|internal\/sourceText|internal\/packedInstallPlan)\.ts$/;
 
 describe("entrypoint boundary", () => {
   it("exports the synchronous enumeration depth error from the main entrypoint", () => {
@@ -38,19 +41,19 @@ describe("entrypoint boundary", () => {
   });
 
   it("nothing reachable from `.` belongs to ./testing", () => {
-    const offenders = [...reachableFrom(resolve(PACKAGE_SRC, "index.ts"))].filter((file) => TESTING_ONLY.test(file));
+    const offenders = A.filter(reachableFrom("index.ts"), (module) => TESTING_ONLY.test(module));
     assert.deepStrictEqual(offenders, [], "repo-shape checks belong behind ./testing");
   });
 
   it("nothing reachable from `.` is ./node-sync", () => {
-    const offenders = [...reachableFrom(resolve(PACKAGE_SRC, "index.ts"))].filter((file) =>
-      /repo-workspaces\/src\/node-sync\.ts$/.test(file)
+    assert.deepStrictEqual(
+      A.filter(reachableFrom("index.ts"), (module) => module === "node-sync.ts"),
+      []
     );
-    assert.deepStrictEqual(offenders, []);
   });
 
   it("positive control: ./testing DOES reach its modules", () => {
-    const reachable = [...reachableFrom(resolve(SRC, "testing.ts"))];
+    const reachable = reachableFrom("testing.ts");
     assert.isAbove(reachable.length, 1, "the walker must actually resolve imports");
     for (const module of [
       "SourceBoundary",
@@ -60,18 +63,11 @@ describe("entrypoint boundary", () => {
       "PackedInstall",
       "internal/packedInstallPlan",
     ]) {
-      assert.isTrue(
-        reachable.some((file) => file.endsWith(`repo-workspaces/src/${module}.ts`)),
-        module
-      );
+      assert.include(reachable, `${module}.ts`, module);
     }
   });
 
   it("the walker resolves the main entry's modules, or it proves nothing", () => {
-    assert.isTrue(
-      [...reachableFrom(resolve(PACKAGE_SRC, "index.ts"))].some((file) =>
-        /repo-workspaces\/src\/WorkspaceDiscovery\.ts$/.test(file)
-      )
-    );
+    assert.include(reachableFrom("index.ts"), "WorkspaceDiscovery.ts");
   });
 });

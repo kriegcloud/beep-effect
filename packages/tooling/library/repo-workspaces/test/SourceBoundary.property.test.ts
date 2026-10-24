@@ -12,6 +12,7 @@ import {
 } from "@beep/repo-workspaces/SourceBoundary";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -65,11 +66,17 @@ it.effect.prop(
     Effect.gen(function* () {
       const quote = S.encodeEffect(QuotedString);
       const quoted = yield* Effect.forEach(specifiers, (value) => quote(value));
-      const text = quoted.map((specifier) => `import ${specifier}; /* comment */`).join("\n");
+      const text = A.join(
+        A.map(quoted, (specifier) => `import ${specifier}; /* comment */`),
+        "\n"
+      );
       const parsed = SourceBoundary.importSpecifiers(text);
       assert.deepStrictEqual(parsed, specifiers);
       const requoted = yield* Effect.forEach(parsed, (value) => quote(value));
-      const rendered = requoted.map((specifier) => `import ${specifier};`).join("\n");
+      const rendered = A.join(
+        A.map(requoted, (specifier) => `import ${specifier};`),
+        "\n"
+      );
       assert.deepStrictEqual(SourceBoundary.importSpecifiers(rendered), parsed);
       assert.deepStrictEqual(SourceBoundary.importSpecifiers(SourceBoundary.stripComments(text)), parsed);
     }),

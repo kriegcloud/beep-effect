@@ -1,11 +1,13 @@
 import { MemoryFileSystem } from "@beep/memfs";
 import { SourceBoundary } from "@beep/repo-workspaces/testing";
 import { assert, describe, layer } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
+import * as Str from "effect/String";
 
 const SEED = {
   "/repo/src/index.ts": 'export { a } from "./a.ts";\n',
@@ -27,7 +29,7 @@ const BackslashPath = Layer.effect(
     return {
       ...posix,
       sep: "\\",
-      relative: (from: string, to: string) => posix.relative(from, to).split("/").join("\\"),
+      relative: (from: string, to: string) => A.join(Str.split("/")(posix.relative(from, to)), "\\"),
     };
   })
 ).pipe(Layer.provide(Path.layer));
@@ -82,7 +84,7 @@ describe("SourceBoundary.scan over a virtual tree", () => {
       it.effect("an uncompilable allow glob fails typed", () =>
         Effect.gen(function* () {
           const error = yield* Effect.flip(
-            SourceBoundary.scan({ root: "/repo/src", rules: RULES, allow: ["a".repeat(65_537)] })
+            SourceBoundary.scan({ root: "/repo/src", rules: RULES, allow: [Str.repeat(65_537)("a")] })
           );
           assert.strictEqual(error._tag, "GlobPatternError");
         })
@@ -116,7 +118,7 @@ describe("SourceBoundary.scan over a virtual tree", () => {
           assert.deepStrictEqual(scan.allowed, []);
           assert.deepStrictEqual(scan.violations, ["actual/a.ts:1:1 process process"]);
           assert.deepStrictEqual(
-            scan.waived.map((o) => o.label),
+            A.map(scan.waived, (o) => o.label),
             ["allowed/a.ts:1:1 process process"]
           );
         }).pipe(Effect.timeout("3 seconds"))
@@ -209,7 +211,7 @@ describe("SourceBoundary.scan over a virtual tree", () => {
           "server.ts:1:20 process process",
         ]);
         assert.deepStrictEqual(
-          scan.waived.map((offence) => offence.label),
+          A.map(scan.waived, (offence) => offence.label),
           ["main.ts:1:26 process process", "main.ts:2:1 process process"]
         );
       }).pipe(Effect.timeout("3 seconds"))
@@ -223,7 +225,7 @@ describe("SourceBoundary.scan over a virtual tree", () => {
           allowRules: { forbidImports: ["io.ts"], "stdout-write": ["server.ts"] },
         });
         assert.deepStrictEqual(
-          scan.waived.map((offence) => offence.label),
+          A.map(scan.waived, (offence) => offence.label),
           ["io.ts:1:26 forbidImports node:fs"]
         );
         assert.include(scan.violations, "main.ts:2:9 stdout-write stdout.write");
@@ -249,7 +251,7 @@ describe("SourceBoundary.scan over a virtual tree", () => {
           SourceBoundary.scan({
             root: "/lsp/src",
             rules: LSP_RULES,
-            allowRules: { "stdout-write": ["a".repeat(65_537)] },
+            allowRules: { "stdout-write": [Str.repeat(65_537)("a")] },
           })
         );
         assert.strictEqual(error._tag, "GlobPatternError");
@@ -279,7 +281,7 @@ describe("SourceBoundary.scan over a virtual tree", () => {
             assert.deepStrictEqual(scan.files, ["commands/about.ts", "main.ts", "version.ts"]);
             assert.deepStrictEqual(scan.violations, [`commands/about.ts:1:28 forbidTokens ${TOKEN}`]);
             assert.deepStrictEqual(
-              scan.waived.map((offence) => offence.label),
+              A.map(scan.waived, (offence) => offence.label),
               [`version.ts:1:24 forbidTokens ${TOKEN}`],
               "the confinement is live: the one permitted use is reported, not dropped"
             );
@@ -322,7 +324,7 @@ describe("SourceBoundary.scan over a virtual tree", () => {
             allowRules: { "node:process": ["nested/**"] },
           });
           assert.deepStrictEqual(
-            scan.waived.map((offence) => offence.label),
+            A.map(scan.waived, (offence) => offence.label),
             ["nested/b.mts:1:21 node:process node:process"]
           );
           assert.deepStrictEqual(scan.violations, ["a.ts:1:18 process process"]);

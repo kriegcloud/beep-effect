@@ -60,7 +60,7 @@ it.effect.prop(
         ...A.map(report.offenders, ({ edge, reason }) => `${reason}: ${edge.from} -> ${edge.to} (${edge.field})`),
         ...O.match(report.cycle, {
           onNone: () => [],
-          onSome: (members) => [`dependency cycle among: ${members.join(", ")}`],
+          onSome: (members) => [`dependency cycle among: ${A.join(members, ", ")}`],
         }),
         ...A.map(report.missingDeclared, (name) => `declared but not in the workspace: ${name}`),
         ...A.map(report.missingRequiredEdges, (edge) => `required edge missing: ${edge}`),

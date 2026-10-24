@@ -1,20 +1,15 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it builds real temp trees or spawns real processes that the code under test must see on the host. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
 // runBin / runCarrierBin stdin against a REAL spawned bin that echoes what it
 // reads. A hand-made consumer over a temp directory: no package manager runs.
 
-import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { InstalledConsumer } from "@beep/repo-workspaces/testing";
-import { NodeServices } from "@effect/platform-node";
-import { afterAll, assert, layer } from "@effect/vitest";
+import { afterAll, assert, beforeAll, layer } from "@effect/vitest";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Path from "effect/Path";
 import * as Redacted from "effect/Redacted";
 import * as Stream from "effect/Stream";
-
-const DIR = realpathSync(mkdtempSync(join(tmpdir(), "run-bin-stdin-")));
-afterAll(() => rmSync(DIR, { recursive: true, force: true }));
+import { makeNodeFixture, nodeHost } from "../utils/nodeFixture.ts";
 
 // Writes "got:<stdin>" and the byte count; reads to end of input, so an open pipe would hang.
 const ECHO = `#!/usr/bin/env node
@@ -25,15 +20,31 @@ process.stdin.on("end", () => {
   process.stdout.write("got:" + input.toString("utf8") + "|" + input.length);
 });
 `;
-mkdirSync(join(DIR, "node_modules", ".bin"), { recursive: true });
-mkdirSync(join(DIR, "node_modules", "carrier", "bin"), { recursive: true });
-writeFileSync(join(DIR, "node_modules", "carrier", "bin", "echo.js"), ECHO);
-writeFileSync(
-  join(DIR, "node_modules", "carrier", "package.json"),
-  JSON.stringify({ name: "carrier", version: "1.0.0", bin: { echo: "bin/echo.js" } })
+const CARRIER_MANIFEST = '{"name":"carrier","version":"1.0.0","bin":{"echo":"bin/echo.js"}}';
+
+const fixture = makeNodeFixture();
+/** The consumer directory, realpath'd, written once before the suite runs. */
+let directory = "";
+
+beforeAll(() =>
+  fixture.runtime.runPromise(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const dir = yield* fs.realPath(yield* fixture.tempDirectory("run-bin-stdin-"));
+      const carrier = path.join(dir, "node_modules", "carrier");
+      const shim = path.join(dir, "node_modules", ".bin", "echo");
+      yield* fs.makeDirectory(path.join(dir, "node_modules", ".bin"), { recursive: true });
+      yield* fs.makeDirectory(path.join(carrier, "bin"), { recursive: true });
+      yield* fs.writeFileString(path.join(carrier, "bin", "echo.js"), ECHO);
+      yield* fs.writeFileString(path.join(carrier, "package.json"), CARRIER_MANIFEST);
+      yield* fs.writeFileString(shim, ECHO);
+      yield* fs.chmod(shim, 0o755);
+      directory = dir;
+    })
+  )
 );
-writeFileSync(join(DIR, "node_modules", ".bin", "echo"), ECHO);
-chmodSync(join(DIR, "node_modules", ".bin", "echo"), 0o755);
+afterAll(() => fixture.close());
 
 /** The consumer over the real PATH, read through `Config` so the ambient provider decides. */
 const consumer = Config.String("PATH").pipe(
@@ -42,14 +53,14 @@ const consumer = Config.String("PATH").pipe(
     InstalledConsumer.make({
       manager: "npm",
       managerVersion: "0.0.0",
-      directory: DIR,
+      directory,
       carrier: "carrier",
       env: Redacted.make({ PATH: path }),
     })
   )
 );
 
-layer(NodeServices.layer, { timeout: "30 seconds" })("runBin and runCarrierBin stdin, real spawn", (it) => {
+layer(nodeHost, { timeout: "30 seconds" })("runBin and runCarrierBin stdin, real spawn", (it) => {
   it.effect("a string is written to the bin's stdin and closed", () =>
     Effect.gen(function* () {
       const output = yield* (yield* consumer).runBin("echo", [], { stdin: "héllo" });

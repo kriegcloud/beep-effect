@@ -39,7 +39,7 @@ const ioLayer = Layer.mergeAll(
       faults: {
         stat: () => denied("stat"),
         exists: (file) =>
-          file.endsWith("cli.js") || file.includes("/repo/carrier/") || file === "/external/package.json"
+          Str.endsWith("cli.js")(file) || Str.includes("/repo/carrier/")(file) || file === "/external/package.json"
             ? denied("exists")
             : undefined,
       },
@@ -116,6 +116,7 @@ describe("PackedInstall IO boundaries", () => {
   });
 });
 
+import * as Str from "effect/String";
 import type { MemoryFileSystemFaults } from "@beep/memfs";
 
 const cases: ReadonlyArray<readonly [string, MemoryFileSystemFaults, string]> = [
@@ -142,7 +143,7 @@ const cases: ReadonlyArray<readonly [string, MemoryFileSystemFaults, string]> = 
     },
     "bin",
   ],
-  ["link resolution", { realPath: (file) => (file.endsWith("/tool") ? denied("realPath") : undefined) }, "bin"],
+  ["link resolution", { realPath: (file) => (Str.endsWith("/tool")(file) ? denied("realPath") : undefined) }, "bin"],
   [
     "unknown link errno",
     {
@@ -189,7 +190,7 @@ for (const [name, faults, operation] of cases) {
 const runCases: ReadonlyArray<readonly [string, MemoryFileSystemFaults, string, string]> = [
   [
     "packed directory listing",
-    { readDirectory: (file) => (file.includes("/tarballs/") ? denied("readDirectory") : undefined) },
+    { readDirectory: (file) => (Str.includes("/tarballs/")(file) ? denied("readDirectory") : undefined) },
     '{"name":"carrier"}',
     "Io",
   ],

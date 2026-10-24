@@ -1,7 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import {
   BoundaryFixture,
   BoundaryRule as BoundaryRuleModel,
@@ -11,12 +8,18 @@ import {
 } from "@beep/repo-workspaces/SourceBoundary";
 import { SourceBoundary } from "@beep/repo-workspaces/testing";
 import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { sourceTexts } from "./support/sourceGraph.ts";
 import type { BoundaryRule, OffenceRule } from "@beep/repo-workspaces/testing";
 
 const lines = (text: string, rule: BoundaryRule): ReadonlyArray<number> =>
-  SourceBoundary.check("fixture.ts", text, [rule]).map((offence) => offence.line);
+  A.map(SourceBoundary.check("fixture.ts", text, [rule]), (offence) => offence.line);
 
 describe("SourceBoundary round-3 boundary regressions", () => {
   it("spares incomplete and malformed stdout members", () => {
@@ -50,7 +53,7 @@ describe("SourceBoundary round-3 boundary regressions", () => {
     ] as const) {
       const source = `"😀";\n  child.${receiver} /* comment */ ?. /* comment */ ${member}(chunk)`;
       assert.deepStrictEqual(
-        SourceBoundary.check("f.ts", source, ["stdout-write"]).map((offence) => offence.label),
+        A.map(SourceBoundary.check("f.ts", source, ["stdout-write"]), (offence) => offence.label),
         [`f.ts:2:9 stdout-write ${detail}`],
         source
       );
@@ -82,7 +85,7 @@ describe("SourceBoundary round-3 boundary regressions", () => {
         const source = `  ${token}${suffix};`;
         assert.isTrue(SourceBoundary.referencesProcess(source, options), source);
         assert.deepStrictEqual(
-          SourceBoundary.check("f.ts", source, ["process"], options).map((offence) => offence.label),
+          A.map(SourceBoundary.check("f.ts", source, ["process"], options), (offence) => offence.label),
           ["f.ts:1:3 process process"],
           source
         );
@@ -104,7 +107,8 @@ describe("SourceBoundary round-3 boundary regressions", () => {
     for (const receiver of ["stdout", "process.stdout", "stdout?"]) {
       const member = `${receiver}.end`;
       assert.deepStrictEqual(
-        SourceBoundary.check("f.ts", `  ${member} /* comment */ ?. /* comment */ (chunk);`, ["stdout-write"]).map(
+        A.map(
+          SourceBoundary.check("f.ts", `  ${member} /* comment */ ?. /* comment */ (chunk);`, ["stdout-write"]),
           (offence) => offence.label
         ),
         [`f.ts:1:${receiver === "process.stdout" ? 11 : 3} stdout-write stdout.end`]
@@ -122,7 +126,7 @@ describe("SourceBoundary round-3 boundary regressions", () => {
     for (const operand of ["x !", "x/* comment */!", "x!!", "x ! /* comment */ !", "f(x) ! !", "xs[0] ! !"]) {
       const source = `const y = ${operand} / 2;\n  process.cwd(); const z = 1 / 4;`;
       assert.deepStrictEqual(
-        SourceBoundary.check("f.ts", source, ["process"]).map((offence) => offence.label),
+        A.map(SourceBoundary.check("f.ts", source, ["process"]), (offence) => offence.label),
         ["f.ts:2:3 process process"],
         source
       );
@@ -155,7 +159,7 @@ describe("SourceBoundary round-3 boundary regressions", () => {
     ]) {
       const source = `${receiver}?.pr\\u006fcess; ${receiver}.console.log(x);`;
       assert.deepStrictEqual(
-        SourceBoundary.check("f.ts", source, ["process", "console-stdout"]).map((offence) => offence.detail),
+        A.map(SourceBoundary.check("f.ts", source, ["process", "console-stdout"]), (offence) => offence.detail),
         ["process", "console.log"],
         source
       );
@@ -169,7 +173,7 @@ describe("SourceBoundary.stripComments", () => {
     const out = SourceBoundary.stripComments(text);
     assert.strictEqual(out.length, text.length);
     assert.notInclude(out, "process");
-    assert.strictEqual(out.split("\n").length, 3);
+    assert.strictEqual(Str.split("\n")(out).length, 3);
     assert.include(out, "const b = 2;");
   });
 
@@ -252,17 +256,20 @@ describe("SourceBoundary.referencesProcess", () => {
 
 describe("SourceBoundary.importSpecifiers", () => {
   it("reads static, side-effect, re-export, type-only, dynamic and require specifiers, in order", () => {
-    const text = [
-      'import { a } from "./a.js";',
-      'import "./side-effect.js";',
-      'export { b } from "./b.js";',
-      'export * as c from "./c.js";',
-      'import type { D } from "./d.js";',
-      'const e = await import("./e.js");',
-      "const f = await import(`./f.js`);",
-      'const g = require("./g.js");',
-      'import h = require("./h.js");',
-    ].join("\n");
+    const text = A.join(
+      [
+        'import { a } from "./a.js";',
+        'import "./side-effect.js";',
+        'export { b } from "./b.js";',
+        'export * as c from "./c.js";',
+        'import type { D } from "./d.js";',
+        'const e = await import("./e.js");',
+        "const f = await import(`./f.js`);",
+        'const g = require("./g.js");',
+        'import h = require("./h.js");',
+      ],
+      "\n"
+    );
     assert.deepStrictEqual(SourceBoundary.importSpecifiers(text), [
       "./a.js",
       "./side-effect.js",
@@ -295,13 +302,16 @@ describe("SourceBoundary.importSpecifiers", () => {
   });
 
   it("ignores strings that are not specifiers, commented-out imports and computed dynamic imports", () => {
-    const text = [
-      'const s = "node:process";',
-      '// import x from "./gone.js";',
-      'const t = obj.require("./not.js");',
-      'declare module "./ambient.js" {}',
-      "const u = import(`./${name}.js`);",
-    ].join("\n");
+    const text = A.join(
+      [
+        'const s = "node:process";',
+        '// import x from "./gone.js";',
+        'const t = obj.require("./not.js");',
+        'declare module "./ambient.js" {}',
+        "const u = import(`./${name}.js`);",
+      ],
+      "\n"
+    );
     assert.deepStrictEqual(SourceBoundary.importSpecifiers(text), []);
   });
 });
@@ -324,35 +334,41 @@ describe("SourceBoundary.check", () => {
   });
 
   it("forbidImports matches an exact name, its subpaths, and a trailing-star prefix — nothing else", () => {
-    const text = [
-      'import { NodeServices } from "@effect/platform-node";',
-      'import { App } from "@effected/app/x";',
-      'import { Dirs } from "@effected/application";',
-      'import { Effect } from "effect";',
-    ].join("\n");
+    const text = A.join(
+      [
+        'import { NodeServices } from "@effect/platform-node";',
+        'import { App } from "@effected/app/x";',
+        'import { Dirs } from "@effected/application";',
+        'import { Effect } from "effect";',
+      ],
+      "\n"
+    );
     const found = SourceBoundary.check("f.ts", text, [{ forbidImports: ["@effect/platform*", "@effected/app"] }]);
     assert.deepStrictEqual(
-      found.map((offence) => offence.detail),
+      A.map(found, (offence) => offence.detail),
       ["@effect/platform-node", "@effected/app/x"]
     );
   });
 
   it("forbidTokens flags each token's exact text in code, as whole text, and names the token", () => {
-    const text = [
-      "export const version = process.env.__PACKAGE_VERSION__;",
-      'const s = "process.env.__PACKAGE_VERSION__";',
-      "// process.env.__PACKAGE_VERSION__",
-      "const longer = process.env.__PACKAGE_VERSION__S;",
-      "const prefixed = xprocess.env.__PACKAGE_VERSION__;",
-      "const spaced = process . env.__PACKAGE_VERSION__;",
-      "const member = globalThis.process.env.__PACKAGE_VERSION__;",
-      "eval(code); evaluate(code);",
-    ].join("\n");
+    const text = A.join(
+      [
+        "export const version = process.env.__PACKAGE_VERSION__;",
+        'const s = "process.env.__PACKAGE_VERSION__";',
+        "// process.env.__PACKAGE_VERSION__",
+        "const longer = process.env.__PACKAGE_VERSION__S;",
+        "const prefixed = xprocess.env.__PACKAGE_VERSION__;",
+        "const spaced = process . env.__PACKAGE_VERSION__;",
+        "const member = globalThis.process.env.__PACKAGE_VERSION__;",
+        "eval(code); evaluate(code);",
+      ],
+      "\n"
+    );
     const found = SourceBoundary.check("f.ts", text, [
       { forbidTokens: ["process.env.__PACKAGE_VERSION__", "eval(", "", "eval("] },
     ]);
     assert.deepStrictEqual(
-      found.map((offence) => offence.label),
+      A.map(found, (offence) => offence.label),
       [
         "f.ts:1:24 forbidTokens process.env.__PACKAGE_VERSION__",
         "f.ts:7:27 forbidTokens process.env.__PACKAGE_VERSION__",
@@ -377,7 +393,7 @@ describe("SourceBoundary.check", () => {
       'process.stdout.end("x");\nprocess.stdout.end();\nstdout?.end( line );\nstdout.end( );\nconst endless = stdout.ending;';
     assert.deepStrictEqual(lines(text, "stdout-write"), [1, 3]);
     assert.deepStrictEqual(
-      SourceBoundary.check("main.ts", 'process.stdout.end("x");', ["stdout-write"]).map((offence) => offence.detail),
+      A.map(SourceBoundary.check("main.ts", 'process.stdout.end("x");', ["stdout-write"]), (offence) => offence.detail),
       ["stdout.end"]
     );
   });
@@ -442,7 +458,7 @@ describe("SourceBoundary.check console-stdout", () => {
       "console-stdout",
     ]);
     assert.deepStrictEqual(
-      found.map((offence) => offence.label),
+      A.map(found, (offence) => offence.label),
       ["f.ts:2:1 console-stdout console.log", "f.ts:3:11 console-stdout console"]
     );
   });
@@ -464,15 +480,15 @@ describe("SourceBoundary.fixtures", () => {
   });
 
   it("covers both polarities for every rule kind", () => {
-    const kinds = new Set(SourceBoundary.fixtures.map((fixture) => kindOf(fixture.rule)));
+    const kinds = new Set(A.map(SourceBoundary.fixtures, (fixture) => kindOf(fixture.rule)));
     for (const kind of kinds) {
-      const own = SourceBoundary.fixtures.filter((fixture) => kindOf(fixture.rule) === kind);
+      const own = A.filter(SourceBoundary.fixtures, (fixture) => kindOf(fixture.rule) === kind);
       assert.isTrue(
-        own.some((fixture) => fixture.flagged),
+        A.some(own, (fixture) => fixture.flagged),
         `${kind} has a flagged fixture`
       );
       assert.isTrue(
-        own.some((fixture) => !fixture.flagged),
+        A.some(own, (fixture) => !fixture.flagged),
         `${kind} has a spared fixture`
       );
     }
@@ -484,10 +500,11 @@ describe("SourceBoundary on the real tree", () => {
   // ConfigDependencyHooks.ts embeds a node program (REPLAY_SCRIPT) as template
   // text: it reads process.argv, writes process.stdout and calls import(url),
   // all as TEXT that this module never executes.
-  const file = resolve(dirname(fileURLToPath(import.meta.url)), "../src/ConfigDependencyHooks.ts");
-  const text = readFileSync(file, "utf8");
-  const open = text.indexOf("const REPLAY_SCRIPT = `");
-  const script = text.slice(text.indexOf("`", open) + 1, text.indexOf("\n`;", open));
+  const text = O.getOrElse(R.get(sourceTexts, "ConfigDependencyHooks.ts"), () => "");
+  const open = O.getOrElse(Str.indexOf("const REPLAY_SCRIPT = `")(text), () => 0);
+  const rest = Str.slice(open)(text);
+  const body = open + O.getOrElse(Str.indexOf("`")(rest), () => 0) + 1;
+  const script = Str.slice(body, open + O.getOrElse(Str.indexOf("\n`;")(rest), () => 0))(text);
 
   it("positive control: the embedded script, lexed as code, does read process and write stdout", () => {
     assert.isAbove(script.length, 1000, "the REPLAY_SCRIPT body was located");
@@ -498,7 +515,7 @@ describe("SourceBoundary on the real tree", () => {
   it("spares the process reads and the stdout write that sit in REPLAY_SCRIPT's template text", () => {
     const offences = SourceBoundary.check("src/ConfigDependencyHooks.ts", text, ["process", "stdout-write", "console"]);
     assert.deepStrictEqual(
-      offences.map((offence) => offence.label),
+      A.map(offences, (offence) => offence.label),
       []
     );
     assert.notInclude(SourceBoundary.importSpecifiers(text), "url");
@@ -522,7 +539,7 @@ describe("SourceBoundary review regressions", () => {
     assert.deepStrictEqual(SourceBoundary.importSpecifiers(text), ["node:process"]);
     assert.isTrue(SourceBoundary.importsNode(text, "process"));
     assert.deepStrictEqual(
-      SourceBoundary.check("f.ts", text, ["node:process", { forbidImports: ["node:*"] }]).map((o) => o.label),
+      A.map(SourceBoundary.check("f.ts", text, ["node:process", { forbidImports: ["node:*"] }]), (o) => o.label),
       ["f.ts:1:15 node:process node:process", "f.ts:1:15 forbidImports node:process"]
     );
   });
@@ -540,12 +557,17 @@ describe("SourceBoundary review regressions", () => {
     assert.isTrue(SourceBoundary.referencesProcess("process.env.__PACKAGE_VERSION__𝒙;"));
   });
 
-  for (const separator of ["\r", "\u2028", "\u2029", "\r\n"]) {
-    it(`ends a line comment and locates the following code after ${separator.codePointAt(0)}`, () => {
+  for (const [separator, label] of [
+    ["\r", "CR"],
+    ["\u2028", "LS"],
+    ["\u2029", "PS"],
+    ["\r\n", "CRLF"],
+  ] as const) {
+    it(`ends a line comment and locates the following code after ${label}`, () => {
       const text = `// harmless${separator}process.touch();`;
       assert.strictEqual(SourceBoundary.stripComments(text), `           ${separator}process.touch();`);
       assert.deepStrictEqual(
-        SourceBoundary.check("f.ts", text, ["process"]).map((o) => o.label),
+        A.map(SourceBoundary.check("f.ts", text, ["process"]), (o) => o.label),
         ["f.ts:2:1 process process"]
       );
     });
@@ -578,7 +600,8 @@ describe("SourceBoundary round-2 scanner contracts", () => {
     assert.isFalse(SourceBoundary.referencesProcess("child.\\u0070rocess;"));
     assert.isFalse(SourceBoundary.referencesProcess("process\\u00ZZ;"));
     assert.deepStrictEqual(
-      SourceBoundary.check("src/a.ts", 'const label = "😀";\r\n\tconst p = \\u{70}rocess;', ["process"]).map(
+      A.map(
+        SourceBoundary.check("src/a.ts", 'const label = "😀";\r\n\tconst p = \\u{70}rocess;', ["process"]),
         (offence) => offence.label
       ),
       ["src/a.ts:2:12 process process"]
@@ -588,7 +611,7 @@ describe("SourceBoundary round-2 scanner contracts", () => {
   it("uses the raw escaped console width when sparing stderr methods", () => {
     assert.deepStrictEqual(SourceBoundary.check("f.ts", '\\u0063onsole.warn("x");', ["console-stdout"]), []);
     assert.deepStrictEqual(
-      SourceBoundary.check("f.ts", '\\u{63}onsole.log("x");', ["console-stdout"]).map((offence) => offence.label),
+      A.map(SourceBoundary.check("f.ts", '\\u{63}onsole.log("x");', ["console-stdout"]), (offence) => offence.label),
       ["f.ts:1:1 console-stdout console.log"]
     );
   });
@@ -598,25 +621,39 @@ describe("SourceBoundary round-2 scanner contracts", () => {
     assert.deepStrictEqual(SourceBoundary.importSpecifiers(text), ["node:process", "node:process"]);
     assert.isTrue(SourceBoundary.importsNode(text, "process"));
     assert.deepStrictEqual(
-      SourceBoundary.check("src/a.ts", text, ["node:process"]).map((offence) => offence.label),
+      A.map(SourceBoundary.check("src/a.ts", text, ["node:process"]), (offence) => offence.label),
       ["src/a.ts:1:14 node:process node:process", "src/a.ts:2:11 node:process node:process"]
     );
     assert.deepStrictEqual(
-      SourceBoundary.check("f.ts", text, [{ forbidImports: ["node:*"] }]).map((offence) => offence.detail),
+      A.map(SourceBoundary.check("f.ts", text, [{ forbidImports: ["node:*"] }]), (offence) => offence.detail),
       ["node:process", "node:process"]
     );
   });
 
   it("spares escaped member and computed optional require calls", () => {
-    const text = [
-      'obj.\\u0072equire("node:process");',
-      'obj?.require?.("node:process");',
-      'require?.("node:process" + suffix);',
-      'require\\u0078?.("node:process");',
-      '\\u00ZZrequire?.("node:process");',
-    ].join("\n");
+    const text = A.join(
+      [
+        'obj.\\u0072equire("node:process");',
+        'obj?.require?.("node:process");',
+        'require?.("node:process" + suffix);',
+        'require\\u0078?.("node:process");',
+        '\\u00ZZrequire?.("node:process");',
+      ],
+      "\n"
+    );
     assert.deepStrictEqual(SourceBoundary.importSpecifiers(text), []);
     assert.isFalse(SourceBoundary.importsNode(text, "process"));
     assert.deepStrictEqual(SourceBoundary.check("f.ts", text, ["node:process"]), []);
   });
 });
+
+it.effect.prop(
+  "scan options generated from their schema survive an encode/decode round trip",
+  [Arbitrary.schema(ScanOptions)],
+  ([value]) =>
+    Effect.gen(function* () {
+      const decoded = yield* S.decodeEffect(ScanOptions)(yield* S.encodeEffect(ScanOptions)(value));
+      assert.isTrue(S.toEquivalence(ScanOptions)(decoded, value));
+    }),
+  { arbitrary: fcRuns(50) }
+);

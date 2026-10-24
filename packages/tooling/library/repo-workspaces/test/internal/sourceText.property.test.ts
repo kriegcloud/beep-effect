@@ -4,6 +4,7 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -31,11 +32,11 @@ it.effect.prop(
       }
       assert.deepStrictEqual(specifierLiterals(parsed), []);
       assert.strictEqual(parsed.literals.length, 1);
-      assert.strictEqual(parsed.literals[0]?.value, quoted.slice(1, -1));
-      const offset = text.lastIndexOf("process");
+      assert.strictEqual(parsed.literals[0]?.value, Str.slice(1, -1)(quoted));
+      const offset = O.getOrThrow(Str.lastIndexOf("process")(text));
       assert.deepStrictEqual(references(parsed.code, "process"), [offset]);
       assert.deepStrictEqual(locate(text)(offset), {
-        line: Str.split(/\r\n|[\r\n\u2028\u2029]/u)(text.slice(0, offset)).length,
+        line: Str.split(/\r\n|[\r\n\u2028\u2029]/u)(Str.slice(0, offset)(text)).length,
         column: 1,
       });
     }),
