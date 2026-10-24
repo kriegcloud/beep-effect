@@ -10,6 +10,7 @@ import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/in
 import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/laws/NoNativeRuntimeHotspots";
 import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A } from "@beep/utils";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
@@ -106,10 +107,7 @@ class EffectLawsAllowlistEntry extends S.Opaque<EffectLawsAllowlistEntry, { read
 class EffectLawsAllowlistDocument extends S.Opaque<EffectLawsAllowlistDocument, { readonly brand: unique symbol }>()(
   S.Struct({
     version: S.tag(1),
-    entries: S.Array(EffectLawsAllowlistEntry).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<EffectLawsAllowlistEntry>()))
-    ),
+    entries: ArrayKeyDefaultEmpty(EffectLawsAllowlistEntry),
   }).pipe(
     $I.annoteSchema("EffectLawsAllowlistDocument", {
       description: "Schema-backed allowlist document for custom Effect law exceptions.",
@@ -159,10 +157,7 @@ export class AllowlistCheckSummary extends S.Opaque<AllowlistCheckSummary, { rea
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-    diagnostics: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    diagnostics: ArrayKeyDefaultEmpty(S.String),
   }).pipe(
     $I.annoteSchema("AllowlistCheckSummary", {
       description: "Summary of effect laws allowlist integrity diagnostics.",

@@ -1,5 +1,5 @@
 {
-  "previous": "97e0d34e65de21a53eec3053646db50ce13eb985b97a944d7f951f5785b86557",
+  "previous": "74cf5688072a5c3ed651e7ea7fb3dc7e72492e72c84415cd0b3c9c78aeaafd6a",
   "review": {
     "reviewer": "Claude Opus 5.5 (effected-promotion wave 4-S, feat/effected-promotion-w4-sbom)",
     "reason": "Record the new wave-4-S workspace @beep/sbom scaffolded by create-package with the generated task set, and the root catalog exact pins ajv 8.20.0 and ajv-formats 3.0.1, both already locked; no qualification is granted.",
