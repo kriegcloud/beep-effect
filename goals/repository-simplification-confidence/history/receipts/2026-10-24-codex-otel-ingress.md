@@ -26,7 +26,7 @@ Measured on the old config:
 
 ## Repair
 
-The collector config gains one metrics-pipeline processor, `transform/prom-label-collisions`, placed after the existing PII scrub processors and before `batch`. It runs only when both keys are present: it moves the inherited `os.version` to `os.version.inherited` and keeps both values. Resources with only Codex or only Claude attributes are untouched. The PII scrub processors, their order, `resource_constant_labels`, the traces pipeline and every other container are unchanged.
+The collector config gains one metrics-pipeline processor, `transform/prom-label-collisions`, placed after the existing PII scrub processors and before `batch`. It runs only when both keys are present: it moves the second `os.version` key (of unattributed origin; see Provenance) to `os.version.inherited` and keeps both values. The `os.version.inherited` / `os_version_inherited` name is kept only to stay consistent with the deployed collector config; it does not assert where the key came from. Resources with only Codex or only Claude attributes are untouched. The PII scrub processors, their order, `resource_constant_labels`, the traces pipeline and every other container are unchanged.
 
 `otelcol-contrib validate` passed against the new config, which was applied in place. Rewriting the file in place preserves the bind-mounted inode.
 
