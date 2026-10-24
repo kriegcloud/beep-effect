@@ -864,6 +864,12 @@
         ]
       },
       {
+        "name": "@beep/repo-workspaces",
+        "patterns": [
+          "packages/tooling/library/repo-workspaces/src/**"
+        ]
+      },
+      {
         "name": "@beep/runpod",
         "patterns": [
           "packages/drivers/runpod/src/**"
@@ -4525,6 +4531,43 @@
         ]
       },
       {
+        "from": "@beep/repo-workspaces",
+        "allow": [
+          "@beep/commands",
+          "@beep/fc-runs",
+          "@beep/git",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/lockfiles",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/package-json",
+          "@beep/repo-workspaces",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/yaml"
+        ],
+        "allowTypeOnly": [
+          "@beep/commands",
+          "@beep/fc-runs",
+          "@beep/git",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/lockfiles",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/package-json",
+          "@beep/repo-workspaces",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/yaml"
+        ]
+      },
+      {
         "from": "@beep/runpod",
         "allow": [
           "@beep/codegen-kit",
@@ -4676,6 +4719,7 @@
           "@beep/repo-cli",
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
+          "@beep/repo-workspaces",
           "@beep/runtime-env",
           "@beep/sbom",
           "@beep/schema",
@@ -4734,6 +4778,7 @@
           "@beep/repo-cli",
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
+          "@beep/repo-workspaces",
           "@beep/runtime-env",
           "@beep/sbom",
           "@beep/schema",

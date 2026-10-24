@@ -2380,6 +2380,15 @@
       "@beep/cli-kit/testing": [
         "./packages/foundation/capability/cli-kit/src/testing.ts"
       ],
+      "@beep/repo-workspaces": [
+        "./packages/tooling/library/repo-workspaces/src/index.ts"
+      ],
+      "@beep/repo-workspaces/*": [
+        "./packages/tooling/library/repo-workspaces/src/*"
+      ],
+      "@beep/repo-workspaces/internal/*": [
+        "./packages/tooling/library/repo-workspaces/src/internal/*"
+      ],
       "@beep/sbom": ["./packages/foundation/modeling/sbom/src/index.ts"],
       "@beep/sbom/*": ["./packages/foundation/modeling/sbom/src/*"],
       "@beep/sbom/internal/*": [

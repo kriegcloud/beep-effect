@@ -6,8 +6,8 @@ import * as PlatformError from "effect/PlatformError";
 import { MemoryFileSystem } from "@beep/memfs";
 import { ScriptedSpawner } from "@beep/commands";
 import { InstalledConsumer, PackedInstall } from "../../effected/workspaces/PackedInstall.ts";
-import { WorkspaceDiscoveryError, WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";
-import { WorkspacePackage } from "../../effected/workspaces/WorkspacePackage.ts";
+import { WorkspaceDiscoveryError, WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
+import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 
 const denied = (method: string) => Effect.fail(PlatformError.systemError({ _tag: "PermissionDenied", module: "FileSystem", method }));
 const carrier = WorkspacePackage.make({ name: "carrier", version: "1.0.0", path: "/repo/carrier", relativePath: "carrier", packageJsonPath: "/repo/carrier/package.json", workspaceRoot: "/repo" });
