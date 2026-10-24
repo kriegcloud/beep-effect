@@ -27,8 +27,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
-import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import * as S from "effect/Schema";
 import { SkillEffective, SkillGitRevision, SkillSnapshot } from "./Skills.schemas.ts";
 import { SkillsLockWrittenFile } from "./SkillsLock.schemas.ts";
@@ -239,10 +238,7 @@ export class SkillReplayReport extends S.Opaque<SkillReplayReport, { readonly br
     effectiveTreeHash: S.OptionFromOptionalKey(Sha256Hex),
     hunks: S.Array(SkillHunkReport),
     diff: S.String,
-    promoteCandidates: S.Array(Sha256Hex).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<Sha256Hex>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    promoteCandidates: ArrayKeyDefaultEmpty(Sha256Hex),
   }).pipe(
     $I.annoteSchema("SkillReplayReport", {
       description: "One vendored skill's replay at its lock pin: verdict, per-hunk report, and upstream diff.",

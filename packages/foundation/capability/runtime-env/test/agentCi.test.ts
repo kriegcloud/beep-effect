@@ -86,6 +86,23 @@ describe("detectCi", () => {
     assert.deepStrictEqual(ci({ CONTINUOUS_INTEGRATION: "" }), O.none());
     assert.deepStrictEqual(ci({ GITHUB_ACTIONS: "", CI: "", CONTINUOUS_INTEGRATION: "" }), O.none());
   });
+  // Review round 2: the falsy set is Config.Boolean's (effect Schema.FalseLiterals), read case-insensitively,
+  // so no spelling the retired repo-cli predicates read as not-CI turns into CI.
+  const FALSY = ["false", "no", "off", "0", "n"] as const;
+  const MIXED_CASE = ["NO", "No", "OFF", "Off", "N", "False", "fAlSe"] as const;
+  for (const v of [...FALSY, ...MIXED_CASE]) {
+    it(`CI=${v} → none`, () => assert.deepStrictEqual(ci({ CI: v }), O.none()));
+    it(`CONTINUOUS_INTEGRATION=${v} → none`, () => assert.deepStrictEqual(ci({ CONTINUOUS_INTEGRATION: v }), O.none()));
+    it(`GITHUB_ACTIONS=${v} → none`, () => assert.deepStrictEqual(ci({ GITHUB_ACTIONS: v }), O.none()));
+  }
+  it("a falsy GITHUB_ACTIONS falls through to a truthy CI", () =>
+    assert.deepStrictEqual(ci({ GITHUB_ACTIONS: "off", CI: "true" }), O.some("generic")));
+  // Config.Boolean rejects a value outside its literals; detectCi cannot fail, so an unknown value is a set
+  // variable and counts as CI, as in std-env. Whitespace is not trimmed (Config.Boolean does not trim either),
+  // so a padded falsy spelling is an unknown value.
+  for (const v of ["banana", "nope", " no", "no ", "falsey"]) {
+    it(`unknown CI=${JSON.stringify(v)} → generic`, () => assert.deepStrictEqual(ci({ CI: v }), O.some("generic")));
+  }
 });
 
 // Added beyond the brief: the key list and the detector cannot drift.

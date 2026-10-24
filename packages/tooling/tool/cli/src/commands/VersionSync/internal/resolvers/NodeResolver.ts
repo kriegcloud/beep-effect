@@ -9,6 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A, Str, thunkFalse } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -90,10 +91,7 @@ class WorkflowStep extends S.Opaque<WorkflowStep, { readonly brand: unique symbo
 
 class WorkflowJob extends S.Opaque<WorkflowJob, { readonly brand: unique symbol }>()(
   S.Struct({
-    steps: S.Array(WorkflowStep).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<WorkflowStep>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<WorkflowStep>()))
-    ),
+    steps: ArrayKeyDefaultEmpty(WorkflowStep),
   }).pipe(
     $I.annoteSchema("WorkflowJob", {
       description: "Subset of GitHub workflow job fields required for node-version discovery.",

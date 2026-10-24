@@ -21,6 +21,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -364,10 +365,7 @@ export class RetiredIriAuthoritiesSummary extends S.Opaque<
     skippedBinaryFiles: S.Int,
     exemptFiles: S.Int,
     strictFailure: S.Boolean,
-    findings: S.Array(RetiredIriAuthorityFinding).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<RetiredIriAuthorityFinding>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<RetiredIriAuthorityFinding>()))
-    ),
+    findings: ArrayKeyDefaultEmpty(RetiredIriAuthorityFinding),
   }).pipe(
     $I.annoteSchema("RetiredIriAuthoritiesSummary", {
       description: "Result of one retired IRI authority law run over the git-tracked text files.",

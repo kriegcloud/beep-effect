@@ -17,6 +17,7 @@ import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { Env } from "./types.ts";
 
@@ -145,13 +146,28 @@ const tableAgent = (env: Env): O.Option<string> =>
  */
 export const detectAgent = (env: Env): O.Option<string> => O.orElse(announcedAgent(env), () => tableAgent(env));
 
-// "" is falsy, as in detectAgent and std-env: an empty variable is an unset one.
-const isTruthy = (value: string | undefined): boolean =>
-  isSet(value) && Str.toLowerCase(value) !== "false" && value !== "0";
+// The spellings effect's Config.Boolean decodes to false (Schema.FalseLiterals in effect 4.0.5's Schema.ts).
+const CiFalsyValue = LiteralKit(["false", "no", "off", "0", "n"]).pipe(
+  $I.annoteSchema("CiFalsyValue", {
+    description: "A lower-cased CI flag value that Config.Boolean reads as false.",
+  })
+);
+
+const isCiFalsyValue = S.is(CiFalsyValue);
+
+// "" is falsy, as in detectAgent and std-env: an empty variable is an unset one. Config.Boolean's false spellings
+// are falsy in any case; any other value, untrimmed, is a set variable and so truthy.
+const isTruthy = (value: string | undefined): boolean => isSet(value) && !isCiFalsyValue(Str.toLowerCase(value));
 
 /**
  * The CI this process runs in: `github-actions` when `GITHUB_ACTIONS` is truthy (even under `CI=false`, since the
  * provider signal is explicit), else `generic` when `CI` or `CONTINUOUS_INTEGRATION` is truthy.
+ *
+ * **Details**
+ *
+ * A variable is falsy when it is unset, empty, or one of the spellings `Config.Boolean` reads as false (`false`,
+ * `no`, `off`, `0`, `n`), compared case-insensitively. Any other value is truthy, untrimmed: where
+ * `Config.Boolean` rejects an unknown value, a set CI variable still means CI.
  *
  * **Example** (Prefer an explicit CI provider signal)
  *
