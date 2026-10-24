@@ -266,6 +266,36 @@ export const CANARY_DIAGNOSTICS = ["effect(missingPipeableSignature)", "effect(s
 export const missingCanaryDiagnostics = (report: string): ReadonlyArray<string> =>
   A.filter(CANARY_DIAGNOSTICS, (code) => !Str.includes(code)(report));
 
+/**
+ * The problems a canary tsgo report shows, empty when the Effect plugin is live.
+ *
+ * **Details**
+ *
+ * The verdict reads the report text alone. Since #1823 `tsconfig.base.json` sets the
+ * `ignoreEffect*InTscExitCode` options, so tsgo exits 0 while still reporting Effect
+ * diagnostics: its exit code says nothing about whether the plugin is live.
+ *
+ * **Example** (A live plugin reports both canary rules)
+ *
+ * ```ts
+ * import { canaryProblems } from "@beep/scratchpad/effected/runner/Gates"
+ *
+ * console.log(canaryProblems("a effect(missingPipeableSignature)\nb effect(strictBooleanExpressions)")) // []
+ * ```
+ *
+ * @category diagnostics
+ * @since 0.0.0
+ */
+export const canaryProblems = (report: string): ReadonlyArray<string> => {
+  const missing = missingCanaryDiagnostics(report);
+  return A.isReadonlyArrayNonEmpty(missing)
+    ? [
+        "effect diagnostics are not live: the canary at scratchpad/effected/.canary was not flagged",
+        ...A.map(missing, (code) => `canary missing ${code}`),
+      ]
+    : [];
+};
+
 const canary: {
   (config: RunnerConfig, target: AuditTarget): Effect.Effect<undefined, GateFailed | PlatformError, ChildProcessSpawner>;
   (target: AuditTarget): (config: RunnerConfig) => Effect.Effect<undefined, GateFailed | PlatformError, ChildProcessSpawner>;
@@ -277,18 +307,10 @@ const canary: {
       cwd: config.repoRoot,
     })
   );
-  const missing = missingCanaryDiagnostics(result.output);
-  if (result.exitCode === 0 || A.isReadonlyArrayNonEmpty(missing)) {
+  const problems = canaryProblems(result.output);
+  if (A.isReadonlyArrayNonEmpty(problems)) {
     yield* verdict(target, { gate: "check", exitCode: 1 });
-    return yield* GateFailed.make({
-      target,
-      gate: "check",
-      exitCode: 1,
-      problems: [
-        "effect diagnostics are not live: the canary at scratchpad/effected/.canary was not flagged",
-        ...A.map(missing, (code) => `canary missing ${code}`),
-      ],
-    });
+    return yield* GateFailed.make({ target, gate: "check", exitCode: 1, problems });
   }
   yield* Console.log(`[effected] ${target} check: effect diagnostics live (canary flagged ${CANARY_DIAGNOSTICS.length} rules)`);
 }));
