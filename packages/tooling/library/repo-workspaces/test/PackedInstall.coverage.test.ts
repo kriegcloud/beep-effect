@@ -1,13 +1,22 @@
 import { ScriptedSpawner } from "@beep/commands";
 import { MemoryFileSystem } from "@beep/memfs";
-import { InstalledConsumer, PackedInstall } from "@beep/repo-workspaces/PackedInstall";
+import {
+  InstalledConsumer,
+  PackedInstall,
+  PackedInstallBudget,
+  PackedInstallOptions,
+  RunBinOptions,
+} from "@beep/repo-workspaces/PackedInstall";
 import { WorkspaceDiscovery, WorkspaceDiscoveryError } from "@beep/repo-workspaces/WorkspaceDiscovery";
 import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, describe, it } from "@effect/vitest";
+import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
+import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 
 const denied = (method: string) =>
   Effect.fail(PlatformError.systemError({ _tag: "PermissionDenied", module: "FileSystem", method }));
@@ -369,4 +378,29 @@ it.layer(
       assert.strictEqual(error.message, "could not read package/package.json out of /scratch/tarballs/0/carrier.tgz");
     })
   );
+});
+
+describe("PackedInstall option ceilings and stdin", () => {
+  const install = { carrier: "carrier", closure: "auto", managers: ["npm"], bins: [], env: {} } as const;
+
+  it("a ceiling is any input Duration.fromInput accepts, and nothing else", () => {
+    assertTrue(S.is(PackedInstallOptions)({ ...install, installTimeout: "2 minutes", packTimeout: 5_000 }));
+    assertTrue(S.is(PackedInstallBudget)({ managers: ["npm"], packages: 1, perConsumer: "1 second" }));
+    assertTrue(S.is(RunBinOptions)({ timeout: "30 seconds" }));
+    assertFalse(S.is(PackedInstallOptions)({ ...install, installTimeout: "soon" }));
+    assertFalse(S.is(RunBinOptions)({ timeout: "forever-ish" }));
+  });
+
+  it("stdin takes a string, bytes or a byte stream", () => {
+    assertTrue(S.is(RunBinOptions)({ stdin: "input" }));
+    assertTrue(S.is(RunBinOptions)({ stdin: new Uint8Array([1, 2]) }));
+    assertTrue(S.is(RunBinOptions)({ stdin: Stream.make(new Uint8Array([1])) }));
+    assertFalse(S.is(RunBinOptions)({ stdin: 42 }));
+  });
+
+  it("an explicit undefined ceiling or stdin is rejected (EF-40)", () => {
+    assertFalse(S.is(RunBinOptions)({ timeout: undefined }));
+    assertFalse(S.is(RunBinOptions)({ stdin: undefined }));
+    assertFalse(S.is(PackedInstallOptions)({ ...install, installTimeout: undefined }));
+  });
 });

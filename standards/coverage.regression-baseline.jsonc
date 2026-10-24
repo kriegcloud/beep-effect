@@ -41774,6 +41774,18 @@
             "functions": 0
           }
         },
+        "packages/tooling/library/repo-workspaces/src/LayerPolicy.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/tooling/library/repo-workspaces/src/LockfileReader.ts": {
           "lines": 100,
           "statements": 100,
@@ -41787,6 +41799,18 @@
           }
         },
         "packages/tooling/library/repo-workspaces/src/PackageManagerName.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/repo-workspaces/src/PackedInstall.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -41834,6 +41858,18 @@
             "functions": 0
           }
         },
+        "packages/tooling/library/repo-workspaces/src/SourceBoundary.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/tooling/library/repo-workspaces/src/VersioningStrategy.ts": {
           "lines": 100,
           "statements": 100,
@@ -41859,6 +41895,18 @@
           }
         },
         "packages/tooling/library/repo-workspaces/src/WorkspaceDiscovery.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/repo-workspaces/src/WorkspaceLayering.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -42014,6 +42062,18 @@
             "functions": 0
           }
         },
+        "packages/tooling/library/repo-workspaces/src/internal/dependencyFields.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/tooling/library/repo-workspaces/src/internal/enumerate.ts": {
           "lines": 100,
           "statements": 100,
@@ -42074,6 +42134,18 @@
             "functions": 0
           }
         },
+        "packages/tooling/library/repo-workspaces/src/internal/packedInstallPlan.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
         "packages/tooling/library/repo-workspaces/src/internal/patterns.ts": {
           "lines": 100,
           "statements": 100,
@@ -42099,6 +42171,18 @@
           }
         },
         "packages/tooling/library/repo-workspaces/src/internal/roots.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/repo-workspaces/src/internal/sourceText.ts": {
           "lines": 100,
           "statements": 100,
           "branches": 100,
@@ -42143,6 +42227,18 @@
             "lines": 0,
             "statements": 1,
             "branches": 1,
+            "functions": 0
+          }
+        },
+        "packages/tooling/library/repo-workspaces/src/testing.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
             "functions": 0
           }
         }
