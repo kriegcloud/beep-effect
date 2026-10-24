@@ -803,6 +803,8 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `it.layer(services, { excludeTestServices: true, timeout: "5 seconds" })("live suite", (it) => { ${poll} });`,
         `it.layer(services, { excludeTestServices: true })((it) => { it.layer(other)((it) => { ${poll} }); });`,
         `${until} it.layer(services, { excludeTestServices: true })((it) => { it.effect("poll", () => until(probe)); });`,
+        `const base = services; const twice = L.mergeAll(base, base); it.layer(twice, { excludeTestServices: true })((it) => { ${poll} });`,
+        `const left = L.mergeAll(services, right); const right = L.mergeAll(other, left); it.layer(left, { excludeTestServices: true })((it) => { ${poll} });`,
       ];
       for (const body of live) assertFalse(yield* hasRule(body, "EV008"));
 
@@ -815,6 +817,7 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `${until} it.layer(services)((it) => { it.effect("poll", () => until(probe)); });`,
         `it.layer(L.mergeAll(services, TC.layer()), { excludeTestServices: true })((it) => { ${poll} });`,
         `const clocked = L.mergeAll(services, TC.layer()); it.layer(clocked, { excludeTestServices: true })((it) => { ${poll} });`,
+        `const clocked = L.mergeAll(services, TC.layer()); const twice = L.mergeAll(clocked, clocked); it.layer(twice, { excludeTestServices: true })((it) => { ${poll} });`,
         `${until} it.layer(services, { excludeTestServices: true })((it) => { it.effect("live", () => until(probe)); }); it.layer(services)((it) => { it.effect("clock", () => until(probe)); });`,
       ];
       for (const body of testClock) assertTrue(yield* hasRule(body, "EV008"));
