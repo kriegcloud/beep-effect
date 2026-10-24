@@ -1,8 +1,10 @@
 /** Synthetic process-crash boundary; no providers, credentials or tools. */
+
 import {
   AmbiguityResolution,
   Claim,
   Envelope,
+  isMailboxLockTimeout,
   makeAgentMessageSqliteClient,
   makeAgentMessageStore,
   Receipt,
@@ -40,7 +42,15 @@ const program = Effect.scoped(
     const checkpoint = yield* Config.String("BEEP_MESSAGE_FIXTURE_CHECKPOINT");
     const stage = yield* Config.String("BEEP_MESSAGE_FIXTURE_STAGE");
     const client = yield* makeAgentMessageSqliteClient(filename, "100 millis");
-    const store = yield* makeAgentMessageStore().pipe(Effect.provideService(SqlClient.SqlClient, client));
+    const store = yield* makeAgentMessageStore().pipe(
+      Effect.provideService(SqlClient.SqlClient, client),
+      // Concurrent children can exceed the deliberately short native busy timeout during
+      // schema initialization. Retry only its classified lock error; other failures stay fatal.
+      Effect.tapError((error) =>
+        isMailboxLockTimeout(error) ? writeCheckpoint(`${checkpoint}.contended`, "contended") : Effect.void
+      ),
+      Effect.retry({ while: isMailboxLockTimeout, times: 8, schedule: Schedule.spaced("50 millis") })
+    );
     const fs = yield* FileSystem.FileSystem;
     if (stage === "lock") {
       yield* client`BEGIN IMMEDIATE`;

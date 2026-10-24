@@ -249,6 +249,7 @@ Every failure is a `Schema.TaggedError` routed with `Effect.catchTag`. Causes ar
 - `PackageName`, `Dependency`, `SpdxLicense`, `PackageManager`, `Person`, `Repository`, `Bugs`, `Funding`, `DevEngine` — the leaf concepts, each owning its own statics, brand and error, usable independently of `Package`. `Repository` and `Bugs` decode the `repository` and `bugs` fields from either their shorthand or object form, the same way `Person` does for `author`, `contributors` and `maintainers`; `Repository` also exposes `browseUrl` and `gitUrl` getters that normalize a shorthand or SSH form to `https://`.
 - `Repository.directoryUrl` — the browse URL of a monorepo member's own subdirectory, built from `repository.directory` against the host's path convention on GitHub, GitLab and Bitbucket. `none` for a host whose convention is unknown, or for a `directory` that climbs out of the repository — a guessed path would resolve to nothing while looking authoritative. With no `directory`, it is `browseUrl`.
 - `Funding` — the `funding` field, decoded from a bare URL string, an object, or an array of either, and **always** to an array so a consumer never branches on arity. Each entry re-encodes in the form it was read from, and unrecognized keys survive in `rest`.
+- `ManifestFields` — the schemas behind the generic npm, Node, TypeScript, bundler, Yarn and Bun fields `Package` types beyond its core: `files`, `imports`, `module`, `browser`, `man`, `directories`, `config`, `bundleDependencies`/`bundledDependencies`, `overrides`, `engineStrict`, `os`, `cpu`, `libc`, `preferGlobal`, `workspaces` (with the Opaque `WorkspacesConfig` object form), `sideEffects`, `types`/`typings`, `typesVersions`, `resolutions`, `patchedDependencies`, `trustedDependencies`, `catalog` and `readme`. Each decodes to its plain JSON shape and encodes back unchanged, string maps keeping their source key order; `LenientManifest` degrades each one on its own.
 - `licenseExpressionOf` — a `SpdxLicense` as an `Option<SpdxExpression>` from `@beep/spdx`, for a caller that wants the parsed expression rather than the string. `none` for the `SEE LICENSE IN …` and `UNLICENSED` forms, which are valid `license` values but not license expressions.
 - `Package` also types `keywords`, `maintainers` and `homepage` directly, alongside the existing `author` and `contributors`.
 - Field schemas (`DependencyMapField`, `BinField`, `ExportsField`, `PublishConfigField`, `PeerDependenciesMetaField`, `StringMapField`) exported for subclasses that extend the model. The deprecated `RepositoryField` raw union was removed at promotion: `Package.repository` decodes through `Repository.FromValue`, which round-trips the original shorthand or object form.
@@ -311,7 +312,9 @@ Promotion changes, beyond the lab port recorded below:
 
 ### Added exports
 
-`ManifestEmail` (the `email` field schema).
+`ManifestEmail` (the `email` field schema). `ManifestFields` and the 25 `Package` fields it backs (3-A2, SPEC W3-f 3-A2 row), absent upstream, which `@beep/repo-utils` modeled on its own before.
+
+`DevEngine.onFail` accepts `download` beside upstream's `warn`, `error` and `ignore`: npm documents only the three, but the OpenJS devEngines proposal defines `download` and pnpm implements it.
 
 ### Deviations
 
