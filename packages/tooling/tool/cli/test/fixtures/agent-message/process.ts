@@ -4,6 +4,7 @@ import {
   AmbiguityResolution,
   Claim,
   Envelope,
+  isMailboxLockTimeout,
   makeAgentMessageSqliteClient,
   makeAgentMessageStore,
   Receipt,
@@ -19,7 +20,6 @@ import * as Reactivity from "effect/reactivity/Reactivity";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/sql/SqlClient";
-import type { RouterError } from "@beep/repo-cli/test/AgentMessage";
 
 const EnvelopeJson = S.fromJsonString(Envelope);
 const ResolutionJson = S.fromJsonString(AmbiguityResolution);
@@ -35,9 +35,6 @@ const writeCheckpoint = Effect.fnUntraced(function* (checkpoint: string, content
   yield* fs.writeFileString(staged, content, { mode: 0o600 });
   yield* fs.rename(staged, checkpoint);
 });
-
-const isMailboxLockTimeout = (error: RouterError) =>
-  error.code === "storage" && error.message === "Agent message SQL operation failed: LockTimeoutError.";
 
 const program = Effect.scoped(
   Effect.gen(function* () {

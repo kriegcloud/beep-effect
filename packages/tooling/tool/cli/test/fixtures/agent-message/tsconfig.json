@@ -5,6 +5,5 @@
   "exclude": [],
   "compilerOptions": {
     "rootDir": "../../.."
-  },
-  "references": [{ "path": "../../../tsconfig.json" }]
+  }
 }
