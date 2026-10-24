@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
+import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
@@ -64,8 +65,13 @@ const $I = $RepoCliId.create("commands/Files/Files.plan");
 export class TargetNameForEntryOptions extends S.Opaque<TargetNameForEntryOptions, { readonly brand: unique symbol }>()(
   S.Struct({
     dimensions: S.Option(MediaDimensions),
+    dateCreated: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     file: SortableFile,
+    hash: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     index: S.Finite,
+    withAspectRatio: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    withDimensions: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
+    withSizeMb: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     width: S.Finite,
   }).pipe(
     $I.annoteSchema("TargetNameForEntryOptions", {
@@ -180,17 +186,32 @@ export const targetNameForEntry: {
   (options: TargetNameForEntryOptions): (prefix: SafeFilePrefix) => string;
   (prefix: SafeFilePrefix, options: TargetNameForEntryOptions): string;
 } = dual(2, (prefix: SafeFilePrefix, options: TargetNameForEntryOptions): string => {
-  const { dimensions, file, index, width } = TargetNameForEntryOptions.make(options);
+  const { dateCreated, dimensions, file, hash, index, width, withAspectRatio, withDimensions, withSizeMb } =
+    TargetNameForEntryOptions.make(options);
   const formattedIndex = formatIndex(index, width);
-  return pipe(
-    dimensions,
-    O.match({
-      onNone: () => `${prefix}_${formattedIndex}${file.extension}`,
-      onSome: (mediaDimensions) =>
-        `${prefix}_${formattedIndex}_${mediaDimensions.width}x${mediaDimensions.height}${file.extension}`,
-    })
-  );
+  const parts = [`${prefix}`, formattedIndex];
+  if (O.isSome(dateCreated)) parts.push(dateCreated.value);
+  if (O.isSome(dimensions)) {
+    if (withDimensions) parts.push(`${dimensions.value.width}x${dimensions.value.height}`);
+    if (withAspectRatio) {
+      const divisor = greatestCommonDivisor(dimensions.value.width, dimensions.value.height);
+      parts.push(`ar${dimensions.value.width / divisor}x${dimensions.value.height / divisor}`);
+    }
+  }
+  if (withSizeMb) {
+    const hundredths = (file.size * BigInt(100) + BigInt(500_000)) / BigInt(1_000_000);
+    parts.push(`${hundredths / BigInt(100)}.${pipe(`${hundredths % BigInt(100)}`, Str.padStart(2, "0"))}MB`);
+  }
+  if (O.isSome(hash)) parts.push(`sha256-${hash.value}`);
+  return `${A.join(parts, "_")}${file.extension}`;
 });
+
+const greatestCommonDivisor = (left: number, right: number): number => {
+  let a = left;
+  let b = right;
+  while (b !== 0) [a, b] = [b, a % b];
+  return a;
+};
 
 /**
  * Check whether a plan skipped any files.

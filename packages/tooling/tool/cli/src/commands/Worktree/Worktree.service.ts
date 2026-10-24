@@ -1350,8 +1350,8 @@ const preserveResidue = Effect.fn("WorktreeRemovalService.preserveResidue")(func
     );
     return manifest;
   }).pipe(
-    Effect.catchCause((cause) =>
-      Effect.gen(function* () {
+    Effect.catchCause(
+      Effect.fnUntraced(function* (cause) {
         const restored = yield* Effect.forEach(yield* Ref.get(rollback), Effect.exit);
         const cleanup = [
           fs

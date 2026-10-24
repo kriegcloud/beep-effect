@@ -5,13 +5,20 @@
  * @since 0.0.0
  */
 
+import { Exiftool, ReadTagsRequest } from "@beep/exiftool";
 import { A, Str } from "@beep/utils";
+import { sha256 } from "@noble/hashes/sha2.js";
 import * as Config from "effect/Config";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import { flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as Stream from "effect/Stream";
 import { imageSizeFromFile } from "image-size/fromFile";
 import sharp from "sharp";
 import { runCapturedStreams } from "../../../internal/process/StepExec.ts";
@@ -25,6 +32,7 @@ import {
   sharpFormatForNormalize,
 } from "../Files.media.ts";
 import { decodeFfprobeOutputJson, decodeImageSizeMetadata, MediaDimensions } from "../Files.schemas.ts";
+import type { ExifMetadata, ExiftoolError } from "@beep/exiftool";
 import type * as Crypto from "effect/Crypto";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type {
@@ -223,6 +231,89 @@ export const probeMediaDimensions = Effect.fn("Files.probeMediaDimensions")(func
   }
 
   return yield* probeVideoDimensions(file);
+});
+
+const zonedMediaDate = (value: unknown): O.Option<DateTime.Utc> => {
+  if (!P.isString(value)) return O.none();
+  const match = /^(\d{4})[:-](\d{2})[:-](\d{2})[ T](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/.exec(value);
+  if (match === null) return O.none();
+  return DateTime.make(`${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}:${match[6]}${match[7]}`);
+};
+
+const rawTagValue = (raw: Readonly<Record<string, unknown>>, name: string): O.Option<unknown> =>
+  pipe(
+    R.toEntries(raw),
+    A.findFirst(([key]) => key === name || Str.endsWith(`:${name}`)(key)),
+    O.map(([, value]) => value)
+  );
+
+type CreationDateMetadata = Pick<ExifMetadata, "raw" | "dateTimeOriginal" | "createDate">;
+
+const originalDateWithOffset = (metadata: CreationDateMetadata): O.Option<DateTime.Utc> => {
+  const original = metadata.dateTimeOriginal;
+  const offset = rawTagValue(metadata.raw, "OffsetTimeOriginal");
+  return O.isSome(original) && O.isSome(offset) && P.isString(offset.value)
+    ? zonedMediaDate(`${original.value}${offset.value}`)
+    : O.none();
+};
+
+const firstZonedDate = (values: ReadonlyArray<unknown>): O.Option<DateTime.Utc> => {
+  for (const value of values) {
+    const date = zonedMediaDate(value);
+    if (O.isSome(date)) return date;
+  }
+  return O.none();
+};
+
+const creationDateFromMetadata = (metadata: CreationDateMetadata): O.Option<DateTime.Utc> => {
+  const withOffset = originalDateWithOffset(metadata);
+  if (O.isSome(withOffset)) return withOffset;
+  const raw = metadata.raw;
+  return firstZonedDate([
+    ...O.toArray(metadata.dateTimeOriginal),
+    ...O.toArray(metadata.createDate),
+    ...A.flatMap(["CreationDate", "DateCreated", "MediaCreateDate", "TrackCreateDate"], (tag) =>
+      O.toArray(rawTagValue(raw, tag))
+    ),
+  ]);
+};
+
+/**
+ * Read a creation timestamp only when its UTC offset is explicit.
+ *
+ * @param file - Selected media file.
+ * @returns UTC-safe creation timestamp, if embedded metadata supplies one.
+ * @throws ExiftoolError when the metadata reader cannot inspect the file.
+ * @category media
+ * @since 0.0.0
+ */
+export const probeMediaCreationDate = Effect.fn("Files.probeMediaCreationDate")(function* (
+  file: SortableFile
+): Effect.fn.Return<O.Option<DateTime.Utc>, ExiftoolError, Exiftool> {
+  const exiftool = yield* Exiftool;
+  const result = yield* exiftool.readTags(ReadTagsRequest.make({ filePath: file.sourcePath }));
+  return creationDateFromMetadata(result.metadata);
+});
+
+/**
+ * Hash the original media bytes in bounded chunks before any rename.
+ *
+ * @param file - Selected media file.
+ * @returns Full lowercase SHA-256 digest.
+ * @category media
+ * @since 0.0.0
+ */
+export const hashMediaFile = Effect.fn("Files.hashMediaFile")(function* (
+  file: SortableFile
+): Effect.fn.Return<string, FilesCommandError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const hasher = sha256.create();
+  yield* Stream.runForEach(fs.stream(file.sourcePath, { chunkSize: 1024 * 1024 }), (chunk) =>
+    Effect.sync(() => {
+      hasher.update(chunk);
+    })
+  ).pipe(FilesCommandError.mapError(`Failed to hash media file "${file.sourcePath}"`));
+  return Hex.encode(hasher.digest());
 });
 
 /**

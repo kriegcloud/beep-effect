@@ -5,12 +5,14 @@
  * @since 0.0.0
  */
 
+import { Exiftool } from "@beep/exiftool";
 import { $RepoCliId } from "@beep/identity/packages";
 import { profilePhase } from "@beep/observability";
 import { A, Str } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -18,6 +20,7 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import { printLines } from "../../internal/cli/Printer.ts";
 import {
@@ -84,6 +87,7 @@ import {
   NormalizeSummary,
   RenamePlan,
   RenamePlanEntry,
+  SortAndRenameOptions,
   SortAndRenameSummary,
   SortableFile,
   SortableFileCollection,
@@ -107,7 +111,13 @@ import { runFlattenMediaFiles } from "./internal/FlattenMedia.ts";
 import { auditImagesImpl, curateImagesImpl } from "./internal/ImageCuration.ts";
 import { runMatchPerson } from "./internal/MatchPerson.ts";
 import { PersonMatchWorkerServiceLive } from "./internal/MatchPerson.worker-service.ts";
-import { isUnsafeMetadataVideoExtension, probeImageDimensions, probeMediaDimensions } from "./internal/MediaExec.ts";
+import {
+  hashMediaFile,
+  isUnsafeMetadataVideoExtension,
+  probeImageDimensions,
+  probeMediaCreationDate,
+  probeMediaDimensions,
+} from "./internal/MediaExec.ts";
 import { processFilesImpl } from "./internal/Process.ts";
 import {
   parseSidecarExtensions,
@@ -165,7 +175,7 @@ type FilesCommandPlatformRequirements =
   | Crypto.Crypto
   | HttpClient.HttpClient;
 
-type FilesCommandServiceRequirements = FilesCommandPlatformRequirements | PersonMatchWorkerService;
+type FilesCommandServiceRequirements = FilesCommandPlatformRequirements | PersonMatchWorkerService | Exiftool;
 
 interface DetectBordersCollectedEntries {
   readonly files: ReadonlyArray<SortableFile>;
@@ -285,7 +295,7 @@ export interface FilesCommandServiceShape {
     dir: string,
     prefix: string,
     dryRun: boolean,
-    withDimensions?: boolean
+    options?: boolean | SortAndRenameOptions
   ) => Effect.Effect<SortAndRenameSummary, FilesCommandError>;
 
   /**
@@ -459,6 +469,7 @@ const collectSortableFile = Effect.fn("Files.collectSortableFile")(function* (
   return {
     file: O.some(
       SortableFile.make({
+        birthtime: stat.birthtime,
         canonicalPath: canonicalPath.value,
         extension,
         mediaKind,
@@ -1558,34 +1569,90 @@ const buildArchivePoorCandidatesPlan = Effect.fn("Files.buildArchivePoorCandidat
   });
 });
 
+const formatUtcDate = (date: DateTime.DateTime): string =>
+  pipe(DateTime.formatIso(date), Str.replace(/[-:]/g, ""), Str.replace(/\.\d{3}Z$/, "Z"));
+
+const creationDateToken = Effect.fn("Files.creationDateToken")(function* (
+  file: SortableFile,
+  mediaDate: O.Option<DateTime.Utc>
+) {
+  if (O.isSome(mediaDate)) return `m${formatUtcDate(mediaDate.value)}`;
+  if (
+    O.isSome(file.birthtime) &&
+    Number.isFinite(file.birthtime.value.getTime()) &&
+    file.birthtime.value.getTime() > 0
+  ) {
+    return `b${formatUtcDate(DateTime.fromDateUnsafe(file.birthtime.value))}`;
+  }
+  return `n${formatUtcDate(yield* DateTime.now)}`;
+});
+
+const sortUsesMediaOnly = (options: SortAndRenameOptions): boolean =>
+  options.withDimensions ||
+  options.withAspectRatio ||
+  options.withDateCreated ||
+  options.withHash ||
+  options.withSizeMb;
+
 const buildRenamePlan = Effect.fn("Files.buildRenamePlan")(function* (
   dir: string,
   prefix: SafeFilePrefix,
-  withDimensions: boolean
+  options: SortAndRenameOptions
 ): Effect.fn.Return<
   RenamePlan,
   FilesCommandError,
-  FileSystem.FileSystem | Path.Path | Terminal.Terminal | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
+  | FileSystem.FileSystem
+  | Path.Path
+  | Terminal.Terminal
+  | Crypto.Crypto
+  | ChildProcessSpawner.ChildProcessSpawner
+  | Exiftool
 > {
   const path = yield* Path.Path;
-  const collection = yield* collectSortableFiles(dir, withDimensions, "sort scan");
+  const mediaOnly = sortUsesMediaOnly(options);
+  const collection = yield* collectSortableFiles(dir, mediaOnly, "sort scan");
   const width = `${A.length(collection.files)}`.length + 1;
-  const dimensionsByFile: ReadonlyArray<O.Option<MediaDimensions>> = withDimensions
-    ? yield* runFilesProgressForEach(collection.files, (file) => probeMediaDimensions(file).pipe(Effect.asSome), {
-        concurrency: FilesConcurrency.metadata,
-        label: "sort probe",
-      })
-    : A.map(collection.files, O.none<MediaDimensions>);
+  const dimensionsByFile: ReadonlyArray<O.Option<MediaDimensions>> =
+    options.withDimensions || options.withAspectRatio
+      ? yield* runFilesProgressForEach(collection.files, (file) => probeMediaDimensions(file).pipe(Effect.asSome), {
+          concurrency: FilesConcurrency.metadata,
+          label: "sort probe",
+        })
+      : A.map(collection.files, O.none<MediaDimensions>);
   let index = 0;
   let plan = A.empty<RenamePlanEntry>();
+  let warnedMetadataRead = false;
 
   for (const [file, dimensions] of A.zip(collection.files, dimensionsByFile)) {
+    const dateCreated = options.withDateCreated
+      ? O.some(
+          yield* creationDateToken(
+            file,
+            yield* probeMediaCreationDate(file).pipe(
+              Effect.tapError(() => {
+                if (warnedMetadataRead) return Effect.void;
+                warnedMetadataRead = true;
+                return Console.error(
+                  "files sort-and-rename: warning: exiftool could not read creation metadata; using filesystem birth time or current UTC for affected media. Install exiftool to inspect embedded dates."
+                );
+              }),
+              Effect.orElseSucceed(() => O.none<DateTime.Utc>())
+            )
+          )
+        )
+      : O.none<string>();
+    const hash = options.withHash ? O.some(yield* hashMediaFile(file)) : O.none<string>();
     const targetName = targetNameForEntry(
       prefix,
       TargetNameForEntryOptions.make({
         dimensions,
+        dateCreated,
         file,
+        hash,
         index,
+        withAspectRatio: options.withAspectRatio,
+        withDimensions: options.withDimensions,
+        withSizeMb: options.withSizeMb,
         width,
       })
     );
@@ -2152,16 +2219,21 @@ const sortAndRenameFilesImpl = Effect.fn("FilesCommandService.sortAndRenameFiles
   dir: string,
   prefix: string,
   dryRun: boolean,
-  withDimensions = false
+  requestedOptions: boolean | SortAndRenameOptions = false
 ): Effect.fn.Return<SortAndRenameSummary, FilesCommandError, FilesCommandServiceRequirements> {
+  const options = P.isBoolean(requestedOptions)
+    ? SortAndRenameOptions.make({ withDimensions: requestedOptions })
+    : requestedOptions;
+  const { withDimensions } = options;
+  const mediaOnly = sortUsesMediaOnly(options);
   const safePrefix = yield* validatePrefix(prefix);
   const { directory } = yield* validateDirectory(dir);
-  const plan = yield* buildRenamePlan(directory, safePrefix, withDimensions);
+  const plan = yield* buildRenamePlan(directory, safePrefix, options);
   const entries = plan.entries;
 
   if (!A.isReadonlyArrayNonEmpty(entries)) {
     yield* Console.log(`files sort-and-rename: 0 file(s) in "${directory}"; nothing to rename.`);
-    if (withDimensions === true && hasSkippedFiles(plan.skippedCount)) {
+    if (mediaOnly && hasSkippedFiles(plan.skippedCount)) {
       yield* Console.log(`files sort-and-rename: skipped ${plan.skippedCount} non-media file(s).`);
     }
     return SortAndRenameSummary.make({
@@ -2176,7 +2248,7 @@ const sortAndRenameFilesImpl = Effect.fn("FilesCommandService.sortAndRenameFiles
 
   yield* preflightTargetCollisions(entries);
   yield* Console.log(`files sort-and-rename: ${A.length(entries)} file(s) planned in "${directory}".`);
-  if (withDimensions === true && hasSkippedFiles(plan.skippedCount)) {
+  if (mediaOnly && hasSkippedFiles(plan.skippedCount)) {
     yield* Console.log(`files sort-and-rename: skipped ${plan.skippedCount} non-media file(s).`);
   }
   yield* logRenamePlan(entries);
@@ -2310,9 +2382,8 @@ const makeFilesCommandService = Effect.fn("FilesCommandService.make")(function* 
     processFiles: Effect.fn("FilesCommandService.processFiles")((options) =>
       processFilesImpl(options).pipe(Effect.provide(runtimeContext))
     ),
-    sortAndRenameFiles: Effect.fn("FilesCommandService.sortAndRenameFiles")(
-      (dir, prefix, dryRun, withDimensions = false) =>
-        sortAndRenameFilesImpl(dir, prefix, dryRun, withDimensions).pipe(Effect.provide(runtimeContext))
+    sortAndRenameFiles: Effect.fn("FilesCommandService.sortAndRenameFiles")((dir, prefix, dryRun, options = false) =>
+      sortAndRenameFilesImpl(dir, prefix, dryRun, options).pipe(Effect.provide(runtimeContext))
     ),
     stripMetadataFiles: Effect.fn("FilesCommandService.stripMetadataFiles")((dir, dryRun) =>
       stripMetadataFilesImpl(dir, dryRun).pipe(Effect.provide(runtimeContext))
@@ -2335,7 +2406,10 @@ const makeFilesCommandService = Effect.fn("FilesCommandService.make")(function* 
  * @since 0.0.0
  */
 export const FilesCommandServiceLive: Layer.Layer<FilesCommandService, never, FilesCommandPlatformRequirements> =
-  Layer.effect(FilesCommandService, makeFilesCommandService()).pipe(Layer.provide(PersonMatchWorkerServiceLive));
+  Layer.effect(FilesCommandService, makeFilesCommandService()).pipe(
+    Layer.provide(PersonMatchWorkerServiceLive),
+    Layer.provide(Exiftool.makeLayer())
+  );
 
 /**
  * Audit direct images and write deterministic review evidence without changing source files.
@@ -2592,7 +2666,7 @@ export const processFiles = Effect.fn("Files.processFiles")(function* (
  * @param dir - Directory whose direct regular files should be sorted and renamed.
  * @param prefix - Safe generated filename prefix.
  * @param dryRun - Whether to print the plan without applying it.
- * @param withDimensions - Whether to include probed media dimensions in generated names.
+ * @param options - Independently selectable generated media fields, or the legacy dimensions boolean.
  * @returns Summary counts for the operation.
  * @category use-cases
  * @since 0.0.0
@@ -2601,10 +2675,10 @@ export const sortAndRenameFiles = Effect.fn("Files.sortAndRenameFiles")(function
   dir: string,
   prefix: string,
   dryRun: boolean,
-  withDimensions = false
+  options: boolean | SortAndRenameOptions = false
 ): Effect.fn.Return<SortAndRenameSummary, FilesCommandError, FilesCommandService> {
   const files = yield* FilesCommandService;
-  return yield* files.sortAndRenameFiles(dir, prefix, dryRun, withDimensions);
+  return yield* files.sortAndRenameFiles(dir, prefix, dryRun, options);
 });
 
 /**
