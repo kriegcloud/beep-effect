@@ -304,7 +304,7 @@ const spawn = (executable: string, args: ReadonlyArray<string>, cwd?: string) =>
  * An outer `Effect.timeout` sized by the run's own ceilings, and vitest's guard a
  * minute above it, so a named PackedInstallError fires before either guard does.
  */
-const guards = (...runs: ReadonlyArray<PackedInstallBudget>) => {
+const guards = (...runs: ReadonlyArray<PackedInstallBudget.Encoded>) => {
   const effect = runs.map(PackedInstall.timeoutBudget).reduce(Duration.sum, Duration.zero);
   return { effect, vitest: Duration.toMillis(effect) + 60_000 };
 };

@@ -10,7 +10,7 @@ import {
   versionOf,
 } from "@beep/repo-workspaces/internal/packedInstallPlan";
 import { assert, it } from "@effect/vitest";
-import { assertDefined, assertSuccess } from "@effect/vitest/utils";
+import { assertDefined, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -54,10 +54,9 @@ it.effect.prop(
     Effect.sync(() => {
       const previous = `${first.major}.${first.minor}.${first.patch}`;
       const expected = `${last.major}.${last.minor}.${last.patch}`;
-      const parsed = versionOf(`startup\r\nv${previous}\r\nv${expected}\r\nfinished\r\n`);
-      assert.strictEqual(parsed, expected);
-      assert.strictEqual(versionOf(expected), expected);
-      assert.strictEqual(versionOf(`v${parsed}\n`), parsed);
+      assertSome(versionOf(`startup\r\nv${previous}\r\nv${expected}\r\nfinished\r\n`), expected);
+      assertSome(versionOf(expected), expected);
+      assertSome(versionOf(`v${expected}\n`), expected);
     }),
   runs
 );

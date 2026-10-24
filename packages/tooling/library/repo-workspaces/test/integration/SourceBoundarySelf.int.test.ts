@@ -80,7 +80,7 @@ describe("@effected/workspaces, scanned by SourceBoundary", () => {
       "the ./testing modules read no process, import no node: or platform module, and touch no console or stdout",
       () =>
         Effect.gen(function* () {
-          const rules: ReadonlyArray<BoundaryRule> = [
+          const rules: ReadonlyArray<BoundaryRule.Encoded> = [
             "process",
             "node:process",
             "stdout-write",

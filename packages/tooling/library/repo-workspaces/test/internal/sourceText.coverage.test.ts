@@ -2,9 +2,11 @@ import {
   codePointAt,
   codePointBefore,
   isIdentifierChar,
+  LexedSource,
   lex,
   locate,
   references,
+  SourceLiteral,
   specifierLiterals,
 } from "@beep/repo-workspaces/internal/sourceText";
 import { assert, it } from "@effect/vitest";
@@ -59,11 +61,14 @@ for (const text of unchanged) {
 
 it.effect("shebang and unterminated comments blank only their own extent", () =>
   Effect.sync(() => {
-    assert.deepStrictEqual(lex("#!node\nprocess"), {
-      withoutComments: "      \nprocess",
-      code: "      \nprocess",
-      literals: [],
-    });
+    assert.deepStrictEqual(
+      lex("#!node\nprocess"),
+      LexedSource.make({
+        withoutComments: "      \nprocess",
+        code: "      \nprocess",
+        literals: [],
+      })
+    );
     assert.strictEqual(lex("#!node").code, "      ");
     assert.strictEqual(lex("/* open").code, "       ");
     assert.strictEqual(lex("// open").code, "       ");
@@ -91,7 +96,7 @@ it.effect("regex, templates and string continuations retain raw text while hidin
     assert.include(lex(template).code, "{x: 1}");
     assert.deepStrictEqual(lex(template).literals, []);
     const string = '"a\\\r\nb"';
-    assert.deepStrictEqual(lex(string).literals, [{ start: 0, value: "a\\\r\nb" }]);
+    assert.deepStrictEqual(lex(string).literals, [SourceLiteral.make({ start: 0, value: "a\\\r\nb" })]);
     assert.strictEqual(lex("`a${1}unterminated").withoutComments, "`a${1}unterminated");
   })
 );
@@ -108,10 +113,12 @@ it.effect("reference filtering handles whitespace, optional type keys and option
 it.effect("specifier extraction rejects other callees and cooks out-of-range Unicode without throwing", () =>
   Effect.sync(() => {
     assert.deepStrictEqual(specifierLiterals(lex(' import ( "x" , {}); require ( "y" ); f("z"); obj.require("a");')), [
-      { start: 10, value: "x" },
-      { start: 31, value: "y" },
+      SourceLiteral.make({ start: 10, value: "x" }),
+      SourceLiteral.make({ start: 31, value: "y" }),
     ]);
-    assert.deepStrictEqual(specifierLiterals(lex('import "\\u{110000}";')), [{ start: 7, value: "\\u{110000}" }]);
+    assert.deepStrictEqual(specifierLiterals(lex('import "\\u{110000}";')), [
+      SourceLiteral.make({ start: 7, value: "\\u{110000}" }),
+    ]);
     assert.deepStrictEqual(locate("a\r\nb\rc\u2028d\u2029e")(0), { line: 1, column: 1 });
     assert.deepStrictEqual(locate("a\r\nb\rc\u2028d\u2029e")(10), { line: 5, column: 2 });
   })

@@ -90,7 +90,7 @@ const promotedRoot = (pkg: string): string => dirname(realpathSync(labRequire.re
 // Read actual module imports, including the tests' devDependency edges. The
 // port uses relative sibling imports instead of workspace manifest specifiers;
 // promoted kit modules are reached through their bare package specifiers.
-const moduleGraph = (): LayeringGraph => {
+const moduleGraph = (): LayeringGraph.Input => {
 	const labModules = readdirSync(LAB, { withFileTypes: true })
 		.filter((entry) => entry.isDirectory() && (readdirSync(join(LAB, entry.name)).includes("index.ts") || R.values(PROMOTED).includes(entry.name)))
 		.map((entry) => entry.name);
@@ -149,16 +149,16 @@ const Live = Workspaces.layer({ cwd: LAB_WORKSPACE }).pipe(Layer.provideMerge(La
 const facts = Effect.gen(function* () {
 	const policy = yield* LayerPolicy.load(POLICY);
 	const packages = yield* (yield* WorkspaceDiscovery).listPackages;
-	const graph: LayeringGraph = { names: packages.map((pkg) => pkg.name), edges: WorkspaceLayering.edgesOf(packages) };
+	const graph: LayeringGraph.Input = { names: packages.map((pkg) => pkg.name), edges: WorkspaceLayering.edgesOf(packages) };
 	return { policy, packages, graph };
 });
 
 const plus = (
-	graph: LayeringGraph,
+	graph: LayeringGraph.Input,
 	from: string,
 	to: string,
 	field: DependencyField = "peerDependencies",
-): LayeringGraph => ({
+): LayeringGraph.Input => ({
 	names: graph.names,
 	edges: [...graph.edges, LayerEdge.make({ from, to, field })],
 });

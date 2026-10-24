@@ -5,9 +5,11 @@ import {
   lex,
   locate,
   references,
+  SourceLiteral,
   specifierLiterals,
 } from "@beep/repo-workspaces/internal/sourceText";
 import { assert, describe, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 
 /** A `/` that opens a regex blanks the body in the code view; one that divides leaves the code view untouched. */
 const divides = (text: string): boolean => lex(text).code === text;
@@ -51,9 +53,9 @@ describe("sourceText review regressions", () => {
     const lexed = lex(text);
     assert.strictEqual(lexed.withoutComments, text);
     assert.strictEqual(lexed.code.length, text.length);
-    assert.deepStrictEqual(lexed.literals, [{ start: 14, value: "\\u006eode:process" }]);
-    assert.deepStrictEqual(specifierLiterals(lexed), [{ start: 14, value: "node:process" }]);
-    assert.deepStrictEqual(lexed.literals, [{ start: 14, value: "\\u006eode:process" }]);
+    assert.deepStrictEqual(lexed.literals, [SourceLiteral.make({ start: 14, value: "\\u006eode:process" })]);
+    assert.deepStrictEqual(specifierLiterals(lexed), [SourceLiteral.make({ start: 14, value: "node:process" })]);
+    assert.deepStrictEqual(lexed.literals, [SourceLiteral.make({ start: 14, value: "\\u006eode:process" })]);
   });
 
   const escapedImports = [
@@ -164,12 +166,12 @@ describe("sourceText cooked identifier regressions", () => {
       const text = `const label = "😀"; ${callee}("node:process");`;
       const lexed = lex(text);
       const start = text.indexOf('"node:process"');
-      assert.deepStrictEqual(specifierLiterals(lexed), [{ start, value: "node:process" }]);
+      assert.deepStrictEqual(specifierLiterals(lexed), [SourceLiteral.make({ start, value: "node:process" })]);
       assert.strictEqual(lexed.withoutComments.length, text.length);
       assert.strictEqual(lexed.code.length, text.length);
       assert.deepStrictEqual(lexed.literals, [
-        { start: 14, value: "😀" },
-        { start, value: "node:process" },
+        SourceLiteral.make({ start: 14, value: "😀" }),
+        SourceLiteral.make({ start, value: "node:process" }),
       ]);
     });
   }
@@ -228,10 +230,10 @@ describe("sourceText round-3 identifier and receiver regressions", () => {
     assert.strictEqual(identifierAt(text, 11), "wr\\u0069te\\u{58}");
     assert.strictEqual(identifierAt(11)(text), "wr\\u0069te\\u{58}");
     assert.isUndefined(identifierAt(text, 10));
-    assert.strictEqual(cookIdentifier("wr\\u0069te\\u{58}"), "writeX");
-    assert.strictEqual(cookIdentifier("\\uD835\\uDC99"), "𝒙");
-    assert.isUndefined(cookIdentifier("write\\u00ZZ"));
-    assert.isUndefined(cookIdentifier("\\u{110000}stdout"));
+    assertSome(cookIdentifier("wr\\u0069te\\u{58}"), "writeX");
+    assertSome(cookIdentifier("\\uD835\\uDC99"), "𝒙");
+    assertNone(cookIdentifier("write\\u00ZZ"));
+    assertNone(cookIdentifier("\\u{110000}stdout"));
   });
 
   it("keeps division after spaced, commented and repeated postfix assertions", () => {

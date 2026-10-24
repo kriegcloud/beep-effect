@@ -13,7 +13,7 @@ import {
   versionOf,
 } from "@beep/repo-workspaces/internal/packedInstallPlan";
 import { assert, describe, it } from "@effect/vitest";
-import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -85,12 +85,12 @@ describe("scrubEnv", () => {
 
 describe("versionOf", () => {
   it("takes the last version-shaped line of --version output", () => {
-    assert.strictEqual(versionOf("11.19.1\n"), "11.19.1");
-    assert.strictEqual(versionOf("v1.4.2"), "1.4.2");
-    assert.strictEqual(versionOf("WARN this project pins pnpm@12.6.0\n12.5.1\n"), "12.5.1");
-    assert.strictEqual(versionOf("4.5.0-rc.1\n"), "4.5.0-rc.1");
-    assert.isUndefined(versionOf(""));
-    assert.isUndefined(versionOf("command not found"));
+    assertSome(versionOf("11.19.1\n"), "11.19.1");
+    assertSome(versionOf("v1.4.2"), "1.4.2");
+    assertSome(versionOf("WARN this project pins pnpm@12.6.0\n12.5.1\n"), "12.5.1");
+    assertSome(versionOf("4.5.0-rc.1\n"), "4.5.0-rc.1");
+    assertNone(versionOf(""));
+    assertNone(versionOf("command not found"));
   });
 });
 

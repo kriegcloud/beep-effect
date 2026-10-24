@@ -2,20 +2,21 @@ import {
   binTargetOf,
   closureOf,
   consumerFiles,
+  PackedManifest,
   readPackedManifest,
   versionOf,
 } from "@beep/repo-workspaces/internal/packedInstallPlan";
 import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, it } from "@effect/vitest";
-import { assertSuccess } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
 it.effect("accepts version lines amid noise and handles a Yarn version lacking a minor component", () =>
   Effect.sync(() => {
-    assert.strictEqual(versionOf("notice\r\nv1.2.3-beta.1\r\n"), "1.2.3-beta.1");
-    assert.isUndefined(versionOf("notice only"));
+    assertSome(versionOf("notice\r\nv1.2.3-beta.1\r\n"), "1.2.3-beta.1");
+    assertNone(versionOf("notice only"));
     const files = consumerFiles({
       manager: "yarn",
       version: "4",
@@ -90,11 +91,14 @@ it.effect("JSON codecs retain quoting, final newlines and tolerant packed-manife
       manifest,
       '{\n  "name": "packed-install-pnpm",\n  "version": "0.0.0",\n  "private": true,\n  "devEngines": {\n    "packageManager": {\n      "name": "pnpm",\n      "version": "12.0.0",\n      "onFail": "ignore"\n    }\n  },\n  "dependencies": {\n    "carrier": "file:/carrier.tgz"\n  }\n}\n'
     );
-    assertSuccess(readPackedManifest('{"name":42,"bin":{"tool":null},"dependencies":["workspace:*"]}'), {
-      name: undefined,
-      bins: ["tool"],
-      unresolved: ["dependencies.0: workspace:*"],
-    });
+    assertSuccess(
+      readPackedManifest('{"name":42,"bin":{"tool":null},"dependencies":["workspace:*"]}'),
+      PackedManifest.make({
+        name: undefined,
+        bins: ["tool"],
+        unresolved: ["dependencies.0: workspace:*"],
+      })
+    );
     const malformed = readPackedManifest("{");
     assert.instanceOf(malformed.pipe(Result.flip, Result.getOrThrow), S.SchemaError);
     for (const text of ["{", "42", "[]", "null"]) assert.isUndefined(binTargetOf(text, "tool"));

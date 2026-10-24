@@ -1,7 +1,7 @@
 import { ScriptedSpawner } from "@beep/commands";
 import { MemoryFileSystem } from "@beep/memfs";
 import { WorkspaceDiscovery, WorkspaceInfo, WorkspacePackage } from "@beep/repo-workspaces";
-import { PackedInstallError } from "@beep/repo-workspaces/PackedInstall";
+import { BinProvenance, PackedInstallError } from "@beep/repo-workspaces/PackedInstall";
 import { InstalledConsumer, PackedInstall } from "@beep/repo-workspaces/testing";
 import { assert, describe, it, layer } from "@effect/vitest";
 import * as Duration from "effect/Duration";
@@ -1214,10 +1214,10 @@ describe("InstalledConsumer.binProvenance", () => {
   layer(Layer.mergeAll(MemoryFileSystem.layerWith(SEED), Path.layer), { timeout: "30 seconds" })((it) => {
     it.effect("names the package a .bin symlink resolves into, past a nameless nested package.json", () =>
       Effect.gen(function* () {
-        assert.deepStrictEqual(yield* at("npm").binProvenance("tool"), {
-          package: "@x/carrier",
-          target: `${NM}/@x/carrier/dist/bin.js`,
-        });
+        assert.deepStrictEqual(
+          yield* at("npm").binProvenance("tool"),
+          BinProvenance.make({ package: "@x/carrier", target: `${NM}/@x/carrier/dist/bin.js` })
+        );
       })
     );
 
@@ -1235,10 +1235,10 @@ describe("InstalledConsumer.binProvenance", () => {
 
     it.effect("realpaths the consumer directory first, so an alias or a trailing slash keeps the bound", () =>
       Effect.gen(function* () {
-        assert.deepStrictEqual(yield* at("npm", "/alias/consumer-npm/").binProvenance("tool"), {
-          package: "@x/carrier",
-          target: `${NM}/@x/carrier/dist/bin.js`,
-        });
+        assert.deepStrictEqual(
+          yield* at("npm", "/alias/consumer-npm/").binProvenance("tool"),
+          BinProvenance.make({ package: "@x/carrier", target: `${NM}/@x/carrier/dist/bin.js` })
+        );
       })
     );
 
@@ -1361,9 +1361,10 @@ describe("PackedInstall.timeoutBudgetFor", () => {
         assert.strictEqual(Duration.format(budget), "12m 10s");
         // Defaults: the run's own four-minute install and two-minute pack, no per-consumer work.
         const defaults = yield* PackedInstall.timeoutBudgetFor({
-          ...options,
-          installTimeout: undefined,
-          packTimeout: undefined,
+          carrier: options.carrier,
+          managers: options.managers,
+          bins: options.bins,
+          env: options.env,
           closure: [],
         });
         assert.strictEqual(

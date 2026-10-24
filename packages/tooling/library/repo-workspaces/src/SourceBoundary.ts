@@ -25,10 +25,123 @@ import {
   lex,
   locate,
   references,
+  skipSpaceBack,
+  skipSpaceForward,
   specifierLiterals,
+  unitAt,
 } from "./internal/sourceText.ts";
+import type { SourceLiteral } from "./internal/sourceText.ts";
 
 const $I = $RepoWorkspacesId.create("SourceBoundary");
+
+/**
+ * The rules that need no configuration: the global `process` and `console`
+ * references, `node:process` imports and stdout writes (see {@link BoundaryRule}).
+ *
+ * **Example** (Recognize a global rule name)
+ *
+ * ```ts
+ * import { GlobalRule } from "@beep/repo-workspaces/SourceBoundary";
+ *
+ * console.log(GlobalRule.is["stdout-write"]("stdout-write")) // true
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const GlobalRule = LiteralKit(["process", "node:process", "stdout-write", "console", "console-stdout"]).pipe(
+  $I.annoteSchema("GlobalRule", { description: "A boundary rule that needs no configuration." })
+);
+/**
+ * Decoded representation accepted by {@link GlobalRule}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GlobalRule = typeof GlobalRule.Type;
+
+/**
+ * Forbids imports whose specifier equals an entry, is a subpath of one, or
+ * starts with an entry's text before a trailing `*` (see {@link BoundaryRule}).
+ *
+ * **Example** (Forbid the platform packages)
+ *
+ * ```ts
+ * import { ForbidImportsRule } from "@beep/repo-workspaces/SourceBoundary";
+ *
+ * const rule = ForbidImportsRule.make({ forbidImports: ["@effect/platform*"] });
+ * console.log(rule.forbidImports.length) // 1
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export class ForbidImportsRule extends S.Opaque<ForbidImportsRule, { readonly brand: unique symbol }>()(
+  S.Struct({
+    forbidImports: S.Array(S.String).pipe(
+      $I.annoteKey("BoundaryRule.forbidImports", { description: "Forbidden module names or prefixes." })
+    ),
+  }).pipe($I.annoteSchema("ForbidImportsRule", { description: "A rule forbidding module specifiers." }))
+) {}
+
+/**
+ * Companion types for {@link ForbidImportsRule}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ForbidImportsRule {
+  /**
+   * The plain, unbranded encoded shape of a {@link ForbidImportsRule}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ForbidImportsRule.Encoded;
+}
+
+/**
+ * Forbids each entry's exact text wherever it appears in code (see
+ * {@link SourceBoundary.check} for how a token is matched).
+ *
+ * **Example** (Forbid the build-time version token)
+ *
+ * ```ts
+ * import { ForbidTokensRule } from "@beep/repo-workspaces/SourceBoundary";
+ *
+ * const rule = ForbidTokensRule.make({ forbidTokens: ["process.env.__PACKAGE_VERSION__"] });
+ * console.log(rule.forbidTokens[0]) // process.env.__PACKAGE_VERSION__
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export class ForbidTokensRule extends S.Opaque<ForbidTokensRule, { readonly brand: unique symbol }>()(
+  S.Struct({
+    forbidTokens: S.Array(S.String).pipe(
+      $I.annoteKey("BoundaryRule.forbidTokens", { description: "Exact forbidden code tokens." })
+    ),
+  }).pipe($I.annoteSchema("ForbidTokensRule", { description: "A rule forbidding exact code tokens." }))
+) {}
+
+/**
+ * Companion types for {@link ForbidTokensRule}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ForbidTokensRule {
+  /**
+   * The plain, unbranded encoded shape of a {@link ForbidTokensRule}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ForbidTokensRule.Encoded;
+}
 
 /**
  * One rule a source file must keep.
@@ -82,19 +195,9 @@ const $I = $RepoWorkspacesId.create("SourceBoundary");
  * @category schemas
  * @since 0.0.0
  */
-export const BoundaryRule = S.Union([
-  S.Literals(["process", "node:process", "stdout-write", "console", "console-stdout"]),
-  S.Struct({
-    forbidImports: S.Array(S.String).pipe(
-      $I.annoteKey("BoundaryRule.forbidImports", { description: "Forbidden module names or prefixes." })
-    ),
-  }),
-  S.Struct({
-    forbidTokens: S.Array(S.String).pipe(
-      $I.annoteKey("BoundaryRule.forbidTokens", { description: "Exact forbidden code tokens." })
-    ),
-  }),
-]).pipe($I.annoteSchema("BoundaryRule", { description: "One rule a source file must keep." }));
+export const BoundaryRule = S.Union([GlobalRule, ForbidImportsRule, ForbidTokensRule]).pipe(
+  $I.annoteSchema("BoundaryRule", { description: "One rule a source file must keep." })
+);
 /**
  * Decoded representation accepted by {@link BoundaryRule}.
  *
@@ -102,6 +205,22 @@ export const BoundaryRule = S.Union([
  * @since 0.0.0
  */
 export type BoundaryRule = typeof BoundaryRule.Type;
+
+/**
+ * Companion types for {@link BoundaryRule}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace BoundaryRule {
+  /**
+   * The plain encoded rule: a global rule name, or an unbranded `{ forbidImports }` or `{ forbidTokens }` record.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof BoundaryRule.Encoded;
+}
 
 /**
  * Controls which exact tokens are exempt from the `process` rule.
@@ -119,33 +238,44 @@ export type BoundaryRule = typeof BoundaryRule.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ReferenceOptions = S.Struct({
-  /**
-   * Exact tokens exempt from the `process` rule, each starting at the
-   * reference (`"process.env.MY_CONSTANT"`). `process.env.__PACKAGE_VERSION__`
-   * is always exempt: the bundler substitutes it at build time. To hold such a
-   * token to named files, forbid it with a `{ forbidTokens }` rule as well (see
-   * {@link BoundaryRule}).
-   */
-  ignoreTokens: S.String.pipe(
-    S.Array,
-    S.optionalKey,
-    $I.annoteKey("ReferenceOptions.ignoreTokens", {
-      description: "Exact process-reference tokens to exempt, in addition to the build-time version token.",
+export class ReferenceOptions extends S.Opaque<ReferenceOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Exact tokens exempt from the `process` rule, each starting at the
+     * reference (`"process.env.MY_CONSTANT"`). `process.env.__PACKAGE_VERSION__`
+     * is always exempt: the bundler substitutes it at build time. To hold such a
+     * token to named files, forbid it with a `{ forbidTokens }` rule as well (see
+     * {@link BoundaryRule}).
+     */
+    ignoreTokens: S.String.pipe(
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("ReferenceOptions.ignoreTokens", {
+        description: "Exact process-reference tokens to exempt, in addition to the build-time version token.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ReferenceOptions", {
+      description: "Optional exact-token exemptions for the process rule, resolved only when checking references.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("ReferenceOptions", {
-    description: "Optional exact-token exemptions for the process rule, resolved only when checking references.",
-  })
-);
+  )
+) {}
+
 /**
- * Configuration accepted by {@link ReferenceOptions}.
+ * Companion types for {@link ReferenceOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ReferenceOptions = typeof ReferenceOptions.Type;
+export declare namespace ReferenceOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link ReferenceOptions}, which the checks take.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ReferenceOptions.Encoded;
+}
 
 /**
  * A snippet with the verdict one rule must reach on it.
@@ -163,19 +293,32 @@ export type ReferenceOptions = typeof ReferenceOptions.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const BoundaryFixture = S.Struct({
-  name: S.String.pipe($I.annoteKey("BoundaryFixture.name", { description: "What the snippet exercises." })),
-  source: S.String.pipe($I.annoteKey("BoundaryFixture.source", { description: "The source text." })),
-  rule: BoundaryRule.pipe($I.annoteKey("BoundaryFixture.rule", { description: "The rule it is checked against." })),
-  flagged: S.Boolean.pipe($I.annoteKey("BoundaryFixture.flagged", { description: "Whether that rule must flag it." })),
-}).pipe($I.annoteSchema("BoundaryFixture", { description: "A snippet with the verdict one rule must reach on it." }));
+export class BoundaryFixture extends S.Opaque<BoundaryFixture, { readonly brand: unique symbol }>()(
+  S.Struct({
+    name: S.String.pipe($I.annoteKey("BoundaryFixture.name", { description: "What the snippet exercises." })),
+    source: S.String.pipe($I.annoteKey("BoundaryFixture.source", { description: "The source text." })),
+    rule: BoundaryRule.pipe($I.annoteKey("BoundaryFixture.rule", { description: "The rule it is checked against." })),
+    flagged: S.Boolean.pipe(
+      $I.annoteKey("BoundaryFixture.flagged", { description: "Whether that rule must flag it." })
+    ),
+  }).pipe($I.annoteSchema("BoundaryFixture", { description: "A snippet with the verdict one rule must reach on it." }))
+) {}
+
 /**
- * Decoded representation accepted by {@link BoundaryFixture}.
+ * Companion types for {@link BoundaryFixture}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type BoundaryFixture = typeof BoundaryFixture.Type;
+export declare namespace BoundaryFixture {
+  /**
+   * The plain, unbranded encoded shape of a {@link BoundaryFixture}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof BoundaryFixture.Encoded;
+}
 
 /**
  * The rule an {@link Offence} names: every string {@link BoundaryRule}, plus
@@ -349,72 +492,82 @@ export class SourceScan extends S.Class<SourceScan, { readonly brand: unique sym
  * import * as S from "effect/Schema";
  * import { ScanOptions } from "@beep/repo-workspaces/SourceBoundary";
  *
- * console.log(S.is(ScanOptions)({ root: "/repo/src", rules: ["process"], allowRules: { process: undefined } })) // true
+ * console.log(S.is(ScanOptions)({ root: "/repo/src", rules: ["process"], allowRules: { process: ["generated/**"] } })) // true
  * ```
  *
  * @public
  * @category schemas
  * @since 0.0.0
  */
-export const ScanOptions = S.Struct({
-  ...ReferenceOptions.fields,
-  /** The directory to scan. */
-  root: S.String.pipe($I.annoteKey("ScanOptions.root", { description: "The directory to scan." })),
-  /** The rules every non-allowed file must keep. */
-  rules: S.Array(BoundaryRule).pipe(
-    $I.annoteKey("ScanOptions.rules", {
-      description: "The rules every non-allowed file must keep, in evaluation order.",
+export class ScanOptions extends S.Opaque<ScanOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    ...ReferenceOptions.fields,
+    /** The directory to scan. */
+    root: S.String.pipe($I.annoteKey("ScanOptions.root", { description: "The directory to scan." })),
+    /** The rules every non-allowed file must keep. */
+    rules: S.Array(BoundaryRule).pipe(
+      $I.annoteKey("ScanOptions.rules", {
+        description: "The rules every non-allowed file must keep, in evaluation order.",
+      })
+    ),
+    /** Globs, relative to `root` with `/` separators, naming files exempt from every rule. */
+    allow: S.String.pipe(
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("ScanOptions.allow", {
+        description: "Root-relative globs exempting files from every rule; omitted means no exemptions.",
+      })
+    ),
+    /**
+     * Globs per rule, matched like `allow`, naming files exempt from that one
+     * rule. A matching file is still checked against every other rule, and
+     * each offence a glob waives is reported in `SourceScan.waived`
+     * rather than dropped. The `"forbidImports"` key covers every
+     * `{ forbidImports }` rule, and the `"forbidTokens"` key every
+     * `{ forbidTokens }` rule, which is how a token is confined to named files.
+     * A file `allow` matches is exempt from every rule, so nothing in it is
+     * waived.
+     */
+    allowRules: S.Record(OffenceRule, S.String.pipe(S.Array, S.optionalKey)).pipe(
+      S.optionalKey,
+      $I.annoteKey("ScanOptions.allowRules", {
+        description: "Optional per-rule root-relative waiver globs; an absent entry waives nothing.",
+      })
+    ),
+    /**
+     * File extensions to scan. Defaults to `.ts`, `.mts`, `.cts`, `.js`,
+     * `.mjs` and `.cjs`; declaration files are always skipped.
+     */
+    extensions: S.String.pipe(
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("ScanOptions.extensions", {
+        description:
+          "Source extensions to scan; omitted uses the scanner defaults and declaration files are always skipped.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ScanOptions", {
+      description: "Source selection, rules and waivers whose defaults are resolved lazily by the scan.",
     })
-  ),
-  /** Globs, relative to `root` with `/` separators, naming files exempt from every rule. */
-  allow: S.String.pipe(
-    S.Array,
-    S.optionalKey,
-    $I.annoteKey("ScanOptions.allow", {
-      description: "Root-relative globs exempting files from every rule; omitted means no exemptions.",
-    })
-  ),
-  /**
-   * Globs per rule, matched like `allow`, naming files exempt from that one
-   * rule. A matching file is still checked against every other rule, and
-   * each offence a glob waives is reported in `SourceScan.waived`
-   * rather than dropped. The `"forbidImports"` key covers every
-   * `{ forbidImports }` rule, and the `"forbidTokens"` key every
-   * `{ forbidTokens }` rule, which is how a token is confined to named files.
-   * A file `allow` matches is exempt from every rule, so nothing in it is
-   * waived.
-   */
-  allowRules: S.Record(OffenceRule, S.String.pipe(S.Array, S.optionalKey)).pipe(
-    S.optionalKey,
-    $I.annoteKey("ScanOptions.allowRules", {
-      description:
-        "Optional per-rule root-relative waiver globs; absent and explicitly undefined entries waive nothing.",
-    })
-  ),
-  /**
-   * File extensions to scan. Defaults to `.ts`, `.mts`, `.cts`, `.js`,
-   * `.mjs` and `.cjs`; declaration files are always skipped.
-   */
-  extensions: S.String.pipe(
-    S.Array,
-    S.optionalKey,
-    $I.annoteKey("ScanOptions.extensions", {
-      description:
-        "Source extensions to scan; omitted uses the scanner defaults and declaration files are always skipped.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("ScanOptions", {
-    description: "Plain-object source selection, rules and waivers whose defaults are resolved lazily by the scan.",
-  })
-);
+  )
+) {}
+
 /**
- * Configuration accepted by {@link ScanOptions}.
+ * Companion types for {@link ScanOptions}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ScanOptions = typeof ScanOptions.Type;
+export declare namespace ScanOptions {
+  /**
+   * The plain, unbranded encoded shape of a {@link ScanOptions}, which {@link SourceBoundary.scan} takes.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ScanOptions.Encoded;
+}
 
 const DEFAULT_EXTENSIONS: ReadonlyArray<string> = [".ts", ".mts", ".cts", ".js", ".mjs", ".cjs"];
 const DECLARATION = /\.d\.[cm]?ts$/;
@@ -441,105 +594,235 @@ const STDERR_METHODS = MutableHashSet.fromIterable(["error", "warn", "trace", "a
 const END_WITH_CHUNK = /^\s*(?:\?\.\s*)?\(\s*[^\s)]/u;
 
 /** Whether the reference at `at` is itself a member access (`globalThis.process`), which no ignore token exempts. */
-const isMemberAccess: {
-  (code: string, at: number): boolean;
-  (at: number): (code: string) => boolean;
-} = dual(2, (code: string, at: number): boolean => {
-  let j = at - 1;
-  while (j >= 0 && /\s/.test(code.charAt(j))) j--;
-  return code[j] === ".";
-});
+const isMemberAccess = (code: string, at: number): boolean => unitAt(code, skipSpaceBack(code, at - 1)) === ".";
 
-const processReads: {
-  (code: string, ignoreTokens: ReadonlyArray<string>): ReadonlyArray<number>;
-  (ignoreTokens: ReadonlyArray<string>): (code: string) => ReadonlyArray<number>;
-} = dual(
-  2,
-  (code: string, ignoreTokens: ReadonlyArray<string>): ReadonlyArray<number> =>
-    A.filter(
-      references(code, "process"),
-      (at) =>
-        isMemberAccess(code, at) ||
-        !A.some(
-          ignoreTokens,
-          (token) => code.startsWith(token, at) && identifierAt(code, at + token.length) === undefined
-        )
-    )
-);
+/** Whether `token` is written whole at `at`: it starts there and no identifier character continues it. */
+const tokenAt = (code: string, at: number, token: string): boolean =>
+  Str.startsWith(token, at)(code) && identifierAt(code, at + token.length) === undefined;
 
-const stdoutWrites = (code: string): ReadonlyArray<{ readonly at: number; readonly method: string }> => {
-  const found: Array<{ readonly at: number; readonly method: string }> = [];
-  for (const token of identifierTokens(code)) {
-    const at = token.index;
-    if (cookIdentifier(token[0]) !== "stdout" || code[at - 1] === "#") continue;
-    const member = memberAfter(code, at);
-    if (member === undefined) continue;
-    const [method, end] = member;
-    if (method === "write" || (method === "end" && END_WITH_CHUNK.test(code.slice(end)))) found.push({ at, method });
-  }
+const processReads = (code: string, ignoreTokens: ReadonlyArray<string>): ReadonlyArray<number> =>
+  A.filter(
+    references(code, "process"),
+    (at) => isMemberAccess(code, at) || !A.some(ignoreTokens, (token) => tokenAt(code, at, token))
+  );
+
+/** The cooked member after the identifier reference at `at` and its raw end offset, through `.` or `?.`. */
+const memberAfter = (code: string, at: number): O.Option<readonly [member: string, end: number]> =>
+  O.flatMap(O.fromUndefinedOr(identifierAt(code, at)), (rawName) => memberFrom(code, at + rawName.length));
+
+/** The cooked member a `.` or `?.` at or after `from` opens, with its raw end offset. */
+const memberFrom = (code: string, from: number): O.Option<readonly [member: string, end: number]> => {
+  let j = skipSpaceForward(code, from);
+  if (unitAt(code, j) === "?" && unitAt(code, j + 1) === ".") j++;
+  if (unitAt(code, j) !== ".") return O.none();
+  const start = skipSpaceForward(code, j + 1);
+  return O.flatMap(O.fromUndefinedOr(identifierAt(code, start)), (rawMember) =>
+    O.map(cookIdentifier(rawMember), (member) => [member, start + rawMember.length] as const)
+  );
+};
+
+/** Whether the member call writes: `write`, or an `end` that passes a chunk. */
+const writes = (code: string, [method, end]: readonly [member: string, end: number]): boolean =>
+  method === "write" || (method === "end" && END_WITH_CHUNK.test(Str.slice(end)(code)));
+
+/** The stdout write the identifier token starts, if it is a `stdout` reference followed by a writing call. */
+const stdoutWriteAt = (
+  code: string,
+  token: RegExpExecArray
+): O.Option<{ readonly at: number; readonly method: string }> => {
+  const at = token.index;
+  if (!O.contains(cookIdentifier(token[0]), "stdout") || unitAt(code, at - 1) === "#") return O.none();
+  return pipe(
+    memberAfter(code, at),
+    O.filter((member) => writes(code, member)),
+    O.map(([method]) => ({ at, method }))
+  );
+};
+
+const stdoutWrites = (code: string): ReadonlyArray<{ readonly at: number; readonly method: string }> =>
+  A.getSomes(A.map(identifierTokens(code), (token) => stdoutWriteAt(code, token)));
+
+/** The first offset at or after `from` where `token` occurs in `code`, or `-1`. */
+const indexFrom = (code: string, token: string, from: number): number =>
+  O.match(Str.indexOf(token)(Str.slice(from)(code)), { onNone: () => -1, onSome: (offset) => from + offset });
+
+/** Every offset where `token` occurs in `code`, overlapping occurrences included. */
+const occurrencesOf = (code: string, token: string): ReadonlyArray<number> => {
+  const found: Array<number> = [];
+  for (let at = indexFrom(code, token, 0); at >= 0; at = indexFrom(code, token, at + 1)) found.push(at);
   return found;
 };
 
-/** The cooked member and its raw end offset after a validated identifier reference, including optional member access. */
-const memberAfter: {
-  (code: string, at: number): readonly [string, number] | undefined;
-  (at: number): (code: string) => readonly [string, number] | undefined;
-} = dual(2, (code: string, at: number): readonly [string, number] | undefined =>
-  O.fromUndefinedOr(identifierAt(code, at)).pipe(
-    O.map((rawName): readonly [string, number] | undefined => {
-      let j = at + rawName.length;
-      while (j < code.length && /\s/.test(code.charAt(j))) j++;
-      if (code[j] === "?" && code[j + 1] === ".") j++;
-      if (code[j] !== ".") return undefined;
-      j++;
-      while (j < code.length && /\s/.test(code.charAt(j))) j++;
-      const rawMember = identifierAt(code, j);
-      if (rawMember === undefined) return undefined;
-      const member = cookIdentifier(rawMember);
-      return member === undefined ? undefined : [member, j + rawMember.length];
-    }),
-    O.getOrUndefined
-  )
-);
+/** Whether an occurrence at `at` continues an identifier (or follows a private `#`). */
+const continuesIdentifier = (code: string, at: number): boolean =>
+  isIdentifierChar(codePointBefore(code, at)) || unitAt(code, at - 1) === "#";
 
 /**
  * Every offset where `token` appears in `code` as whole text: a token that
  * starts with an identifier character must not continue one (nor follow `#`),
  * and one that ends with an identifier character must not run into another.
  */
-const tokenOccurrences: {
-  (code: string, token: string): ReadonlyArray<number>;
-  (token: string): (code: string) => ReadonlyArray<number>;
-} = dual(2, (code: string, token: string): ReadonlyArray<number> => {
-  if (token.length === 0) return [];
+const tokenOccurrences = (code: string, token: string): ReadonlyArray<number> => {
+  if (Str.isEmpty(token)) return [];
   const guardStart = isIdentifierChar(codePointAt(token, 0));
   const guardEnd = isIdentifierChar(codePointBefore(token, token.length));
-  const found: Array<number> = [];
-  for (let at = code.indexOf(token); at !== -1; at = code.indexOf(token, at + 1)) {
-    if (guardStart && (isIdentifierChar(codePointBefore(code, at)) || code[at - 1] === "#")) continue;
-    if (guardEnd && identifierAt(code, at + token.length) !== undefined) continue;
-    found.push(at);
-  }
-  return found;
-});
+  return A.filter(
+    occurrencesOf(code, token),
+    (at) =>
+      !(guardStart && continuesIdentifier(code, at)) &&
+      !(guardEnd && identifierAt(code, at + token.length) !== undefined)
+  );
+};
 
 const forbids: {
   (entry: string, specifier: string): boolean;
   (specifier: string): (entry: string) => boolean;
 } = dual(2, (entry: string, specifier: string): boolean =>
-  entry.endsWith("*")
-    ? specifier.startsWith(entry.slice(0, -1))
-    : specifier === entry || specifier.startsWith(`${entry}/`)
+  Str.endsWith("*")(entry)
+    ? Str.startsWith(Str.slice(0, -1)(entry))(specifier)
+    : specifier === entry || Str.startsWith(`${entry}/`)(specifier)
 );
 
 const isNodeModule: {
   (specifier: string, module: string): boolean;
   (module: string): (specifier: string) => boolean;
 } = dual(2, (specifier: string, module: string): boolean =>
-  A.some([module, `node:${module}`], (name) => specifier === name || specifier.startsWith(`${name}/`))
+  A.some([module, `node:${module}`], (name) => specifier === name || Str.startsWith(`${name}/`)(specifier))
 );
 
-const FIXTURES: ReadonlyArray<BoundaryFixture> = [
+/** One rule's match, before it is located and attributed to a file. */
+interface Finding {
+  readonly detail: string;
+  readonly offset: number;
+  readonly rule: OffenceRule;
+}
+
+/** What every rule reads from one lexed file. */
+interface CheckInput {
+  readonly code: string;
+  readonly ignoreTokens: ReadonlyArray<string>;
+  readonly specifiers: ReadonlyArray<SourceLiteral>;
+}
+
+const byOffset = Order.mapInput(Num.Order, (finding: Finding) => finding.offset);
+
+const consoleStdoutFinding = (code: string, offset: number): O.Option<Finding> => {
+  const member = O.map(memberAfter(code, offset), ([name]) => name);
+  if (O.exists(member, (name) => MutableHashSet.has(STDERR_METHODS, name))) return O.none();
+  const detail = O.match(member, { onNone: () => "console", onSome: (name) => `console.${name}` });
+  return O.some({ offset, rule: "console-stdout", detail });
+};
+
+const globalRuleFindings = (input: CheckInput, rule: GlobalRule): ReadonlyArray<Finding> =>
+  GlobalRule.match(rule, {
+    process: () =>
+      A.map(processReads(input.code, input.ignoreTokens), (offset) => ({ offset, rule, detail: "process" })),
+    "node:process": () =>
+      A.map(
+        A.filter(input.specifiers, (literal) => isNodeModule(literal.value, "process")),
+        (literal) => ({ offset: literal.start, rule, detail: literal.value })
+      ),
+    "stdout-write": () =>
+      A.map(stdoutWrites(input.code), ({ at, method }) => ({ offset: at, rule, detail: `stdout.${method}` })),
+    console: () => A.map(references(input.code, "console"), (offset) => ({ offset, rule, detail: "console" })),
+    "console-stdout": () =>
+      A.getSomes(A.map(references(input.code, "console"), (offset) => consoleStdoutFinding(input.code, offset))),
+  });
+
+const tokenFindings = (code: string, tokens: ReadonlyArray<string>): ReadonlyArray<Finding> =>
+  A.flatMap(A.fromIterable(MutableHashSet.fromIterable(tokens)), (token) =>
+    A.map(tokenOccurrences(code, token), (offset): Finding => ({ offset, rule: "forbidTokens", detail: token }))
+  );
+
+const importFindings = (
+  specifiers: ReadonlyArray<SourceLiteral>,
+  entries: ReadonlyArray<string>
+): ReadonlyArray<Finding> =>
+  A.map(
+    A.filter(specifiers, (literal) => A.some(entries, forbids(literal.value))),
+    (literal): Finding => ({ offset: literal.start, rule: "forbidImports", detail: literal.value })
+  );
+
+const ruleFindings = (input: CheckInput, rule: BoundaryRule.Encoded): ReadonlyArray<Finding> => {
+  if (P.isString(rule)) return globalRuleFindings(input, rule);
+  return "forbidTokens" in rule
+    ? tokenFindings(input.code, rule.forbidTokens)
+    : importFindings(input.specifiers, rule.forbidImports);
+};
+
+/** What a directory entry is once links are followed; `"Dangling"` for a link to nothing. */
+const entryType = (fs: FileSystem.FileSystem, full: string) =>
+  fs.stat(full).pipe(
+    Effect.map((info): FileSystem.File.Type | "Dangling" => info.type),
+    // stat follows links, so a dangling one fails NotFound; it has nothing to scan, so skip it.
+    // A NotFound on an entry that is not a link still fails: nothing may drop out of the scan silently.
+    Effect.catchIf(
+      (error) => error.reason._tag === "NotFound",
+      (error) =>
+        fs.readLink(full).pipe(
+          Effect.as("Dangling" as const),
+          Effect.mapError(() => error)
+        )
+    )
+  );
+
+/** Whether a regular file named `name` is a scanned source: a listed extension and not a declaration file. */
+const isSourceFile = (name: string, extensions: ReadonlyArray<string>): boolean =>
+  !DECLARATION.test(name) && A.some(extensions, (extension) => Str.endsWith(extension)(name));
+
+/** One directory's subdirectories to walk and source files to scan, `node_modules` never entered. */
+const listDirectory = Effect.fnUntraced(function* (directory: string, extensions: ReadonlyArray<string>) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const names = yield* fs.readDirectory(directory);
+  const entries = yield* Effect.forEach(names, (name) => {
+    const full = path.join(directory, name);
+    return Effect.map(entryType(fs, full), (type) => ({ name, full, type }));
+  });
+  return {
+    directories: A.map(
+      A.filter(entries, ({ name, type }) => type === "Directory" && name !== "node_modules"),
+      ({ full }) => full
+    ),
+    files: A.map(
+      A.filter(entries, ({ name, type }) => type === "File" && isSourceFile(name, extensions)),
+      ({ full }) => full
+    ),
+  };
+});
+
+/**
+ * Every source file under `root`, walked with an explicit stack and real-directory ancestry, so an
+ * ancestor symlink cycle terminates while distinct logical paths are each listed.
+ */
+const sourceFiles = Effect.fnUntraced(function* (root: string, extensions: ReadonlyArray<string>) {
+  const fs = yield* FileSystem.FileSystem;
+  const found: Array<string> = [];
+  const pending: Array<{ readonly directory: string; readonly ancestors: ReadonlyArray<string> }> = [
+    { directory: root, ancestors: [] },
+  ];
+  while (A.isArrayNonEmpty(pending)) {
+    const { directory, ancestors } = A.lastNonEmpty(pending);
+    pending.pop();
+    const real = yield* fs.realPath(directory);
+    if (A.contains(ancestors, real)) continue;
+    const listed = yield* listDirectory(directory, extensions);
+    found.push(...listed.files);
+    for (const child of listed.directories) pending.push({ directory: child, ancestors: A.append(ancestors, real) });
+  }
+  return found;
+});
+
+/** Every `allowRules` entry compiled to its glob set, keyed by rule. */
+const compileWaivers = Effect.fnUntraced(function* (allowRules: Readonly<Record<string, ReadonlyArray<string>>>) {
+  const waivers = MutableHashMap.empty<string, GlobSet>();
+  for (const [rule, patterns] of R.toEntries(allowRules)) {
+    MutableHashMap.set(waivers, rule, yield* GlobSet.compile(patterns));
+  }
+  return waivers;
+});
+
+const FIXTURE_INPUTS: ReadonlyArray<BoundaryFixture.Encoded> = [
   {
     name: "node:process: an escaped import",
     source: 'import p from "\\u006eode:process";',
@@ -776,6 +1059,8 @@ const FIXTURES: ReadonlyArray<BoundaryFixture> = [
   },
 ];
 
+const FIXTURES: ReadonlyArray<BoundaryFixture> = A.map(FIXTURE_INPUTS, (fixture) => BoundaryFixture.make(fixture));
+
 /**
  * Source-text boundary checks: which files read `process`, import a forbidden
  * module, or write to stdout or the console.
@@ -871,12 +1156,12 @@ export class SourceBoundary {
    * @since 0.0.0
    */
   static readonly referencesProcess: {
-    (text: string, options?: ReferenceOptions): boolean;
-    (options?: ReferenceOptions): (text: string) => boolean;
+    (text: string, options?: ReferenceOptions.Encoded): boolean;
+    (options?: ReferenceOptions.Encoded): (text: string) => boolean;
   } = dual(
     (args) => P.isString(args[0]),
-    (text: string, options?: ReferenceOptions): boolean =>
-      processReads(lex(text).code, [...EXEMPT, ...(options?.ignoreTokens ?? [])]).length > 0
+    (text: string, options?: ReferenceOptions.Encoded): boolean =>
+      A.isReadonlyArrayNonEmpty(processReads(lex(text).code, A.appendAll(EXEMPT, options?.ignoreTokens ?? [])))
   );
 
   /**
@@ -949,66 +1234,34 @@ export class SourceBoundary {
     (
       file: string,
       text: string,
-      rules: ReadonlyArray<BoundaryRule>,
-      options?: ReferenceOptions
+      rules: ReadonlyArray<BoundaryRule.Encoded>,
+      options?: ReferenceOptions.Encoded
     ): ReadonlyArray<Offence>;
     (
       text: string,
-      rules: ReadonlyArray<BoundaryRule>,
-      options?: ReferenceOptions
+      rules: ReadonlyArray<BoundaryRule.Encoded>,
+      options?: ReferenceOptions.Encoded
     ): (file: string) => ReadonlyArray<Offence>;
   } = dual(
     (args) => P.isString(args[1]),
     (
       file: string,
       text: string,
-      rules: ReadonlyArray<BoundaryRule>,
-      options?: ReferenceOptions
+      rules: ReadonlyArray<BoundaryRule.Encoded>,
+      options?: ReferenceOptions.Encoded
     ): ReadonlyArray<Offence> => {
       const lexed = lex(text);
       const at = locate(text);
-      const specifiers = specifierLiterals(lexed);
-      const found: Array<{ readonly offset: number; readonly rule: Offence["rule"]; readonly detail: string }> = [];
-      for (const rule of rules) {
-        if (rule === "process") {
-          for (const offset of processReads(lexed.code, [...EXEMPT, ...(options?.ignoreTokens ?? [])])) {
-            found.push({ offset, rule, detail: "process" });
-          }
-        } else if (rule === "node:process") {
-          for (const literal of specifiers) {
-            if (isNodeModule(literal.value, "process"))
-              found.push({ offset: literal.start, rule, detail: literal.value });
-          }
-        } else if (rule === "stdout-write") {
-          for (const { at, method } of stdoutWrites(lexed.code))
-            found.push({ offset: at, rule, detail: `stdout.${method}` });
-        } else if (rule === "console") {
-          for (const offset of references(lexed.code, "console")) found.push({ offset, rule, detail: "console" });
-        } else if (rule === "console-stdout") {
-          for (const offset of references(lexed.code, "console")) {
-            const member = memberAfter(lexed.code, offset)?.[0];
-            if (member !== undefined && MutableHashSet.has(STDERR_METHODS, member)) continue;
-            found.push({ offset, rule, detail: member === undefined ? "console" : `console.${member}` });
-          }
-        } else if ("forbidTokens" in rule) {
-          for (const token of MutableHashSet.fromIterable(rule.forbidTokens)) {
-            for (const offset of tokenOccurrences(lexed.code, token))
-              found.push({ offset, rule: "forbidTokens", detail: token });
-          }
-        } else {
-          for (const literal of specifiers) {
-            if (A.some(rule.forbidImports, forbids(literal.value))) {
-              found.push({ offset: literal.start, rule: "forbidImports", detail: literal.value });
-            }
-          }
-        }
-      }
-      return A.map(
-        A.sort(
-          found,
-          Order.mapInput(Num.Order, (f: (typeof found)[number]) => f.offset)
-        ),
-        ({ offset, rule, detail }) => Offence.make({ file, ...at(offset), rule, detail })
+      const input: CheckInput = {
+        code: lexed.code,
+        specifiers: specifierLiterals(lexed),
+        ignoreTokens: A.appendAll(EXEMPT, options?.ignoreTokens ?? []),
+      };
+      return pipe(
+        rules,
+        A.flatMap((rule) => ruleFindings(input, rule)),
+        A.sort(byOffset),
+        A.map(({ offset, rule, detail }) => Offence.make({ file, ...at(offset), rule, detail }))
       );
     }
   );
@@ -1043,76 +1296,41 @@ export class SourceBoundary {
    * @category validation
    * @since 0.0.0
    */
-  static readonly scan = Effect.fn("SourceBoundary.scan")(function* (options: ScanOptions) {
+  static readonly scan = Effect.fn("SourceBoundary.scan")(function* (options: ScanOptions.Encoded) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const allow = yield* GlobSet.compile(options.allow ?? []);
-    const allowRules = MutableHashMap.empty<string, GlobSet>();
-    for (const [rule, patterns] of R.toEntries<string, ReadonlyArray<string> | undefined>(options.allowRules ?? {})) {
-      if (patterns !== undefined) MutableHashMap.set(allowRules, rule, yield* GlobSet.compile(patterns));
-    }
-    const extensions = options.extensions ?? DEFAULT_EXTENSIONS;
-    const posix = (relative: string): string => A.join(relative.split(path.sep), "/");
-    const files: Array<string> = [];
-    const allowed: Array<string> = [];
-    const offences: Array<Offence> = [];
-    const waived: Array<Offence> = [];
-    const pending: Array<{ readonly directory: string; readonly ancestors: ReadonlyArray<string> }> = [
-      { directory: options.root, ancestors: [] },
-    ];
-    while (A.isArrayNonEmpty(pending)) {
-      const { directory, ancestors } = A.lastNonEmpty(pending);
-      pending.pop();
-      const real = yield* fs.realPath(directory);
-      if (A.some(ancestors, (ancestor) => ancestor === real)) continue;
-      const ancestry = A.append(ancestors, real);
-      for (const name of yield* fs.readDirectory(directory)) {
-        const full = path.join(directory, name);
-        // stat follows links, so a dangling one fails NotFound; it has nothing to scan, so skip it.
-        // A NotFound on an entry that is not a link still fails: nothing may drop out of the scan silently.
-        const found = yield* fs.stat(full).pipe(
-          Effect.asSome,
-          Effect.catchIf(
-            (error) => error.reason._tag === "NotFound",
-            (error) =>
-              fs.readLink(full).pipe(
-                Effect.as(O.none<FileSystem.File.Info>()),
-                Effect.mapError(() => error)
-              )
-          )
-        );
-        if (O.isNone(found)) continue;
-        const info = found.value;
-        if (info.type === "Directory") {
-          if (name !== "node_modules") pending.push({ directory: full, ancestors: ancestry });
-          continue;
-        }
-        if (
-          info.type !== "File" ||
-          DECLARATION.test(name) ||
-          !A.some(extensions, (extension) => name.endsWith(extension))
-        ) {
-          continue;
-        }
-        const file = posix(path.relative(options.root, full));
-        files.push(file);
-        if (allow.matches(file)) {
-          allowed.push(file);
-          continue;
-        }
-        for (const offence of SourceBoundary.check(file, yield* fs.readFileString(full), options.rules, options)) {
-          (O.getOrUndefined(MutableHashMap.get(allowRules, offence.rule))?.matches(file) === true
-            ? waived
-            : offences
-          ).push(offence);
-        }
-      }
-    }
+    const waivers = yield* compileWaivers(options.allowRules ?? {});
+    const relative = (full: string): string => A.join(Str.split(path.sep)(path.relative(options.root, full)), "/");
+    const files = A.map(yield* sourceFiles(options.root, options.extensions ?? DEFAULT_EXTENSIONS), (full) => ({
+      full,
+      file: relative(full),
+    }));
+    const checked = A.filter(files, ({ file }) => !allow.matches(file));
+    const found = A.flatten(
+      yield* Effect.forEach(checked, ({ full, file }) =>
+        Effect.map(fs.readFileString(full), (text) => SourceBoundary.check(file, text, options.rules, options))
+      )
+    );
+    const isWaived = (offence: Offence): boolean =>
+      O.exists(MutableHashMap.get(waivers, offence.rule), (globs) => globs.matches(offence.file));
     return SourceScan.make({
-      files: A.sort(files, byCodeUnit),
-      allowed: A.sort(allowed, byCodeUnit),
-      offences: A.sort(offences, byPosition),
-      waived: A.sort(waived, byPosition),
+      files: A.sort(
+        A.map(files, ({ file }) => file),
+        byCodeUnit
+      ),
+      allowed: A.sort(
+        A.filter(
+          A.map(files, ({ file }) => file),
+          (file) => allow.matches(file)
+        ),
+        byCodeUnit
+      ),
+      offences: A.sort(
+        A.filter(found, (offence) => !isWaived(offence)),
+        byPosition
+      ),
+      waived: A.sort(A.filter(found, isWaived), byPosition),
     });
   });
 
@@ -1150,7 +1368,9 @@ export class SourceBoundary {
     pipe(
       FIXTURES,
       A.filter(
-        (fixture) => SourceBoundary.check("fixture.ts", fixture.source, [fixture.rule]).length > 0 !== fixture.flagged
+        (fixture) =>
+          A.isReadonlyArrayNonEmpty(SourceBoundary.check("fixture.ts", fixture.source, [fixture.rule])) !==
+          fixture.flagged
       ),
       A.map((fixture) => `${fixture.flagged ? "missed" : "false positive"}: ${fixture.name}`)
     );

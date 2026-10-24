@@ -75,35 +75,56 @@ export class LayerEdge extends S.Class<LayerEdge, { readonly brand: unique symbo
  * ```ts
  * import { LayeringGraph } from "@beep/repo-workspaces/WorkspaceLayering";
  * import * as S from "effect/Schema";
-import * as P from "effect/Predicate";
  *
  * console.log(S.is(LayeringGraph)({ names: [], edges: [] })) // true
  * ```
  *
  * @public
- * @category type-level
+ * @category schemas
  * @since 0.0.0
  */
-export const LayeringGraph = S.Struct({
-  /** Every workspace package name, the root included. */
-  names: S.Array(S.String).pipe(
-    $I.annoteKey("LayeringGraph.names", { description: "Workspace package names in input order, including the root." })
-  ),
-  /** One edge per declaring field. */
-  edges: S.Array(LayerEdge).pipe(
-    $I.annoteKey("LayeringGraph.edges", { description: "Dependency edges in input order, one per declaring field." })
-  ),
-}).pipe(
-  $I.annoteSchema("LayeringGraph", {
-    description: "The plain-object input package names and dependency edges for a layering check.",
-  })
-);
+export class LayeringGraph extends S.Opaque<LayeringGraph, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Every workspace package name, the root included. */
+    names: S.Array(S.String).pipe(
+      $I.annoteKey("LayeringGraph.names", {
+        description: "Workspace package names in input order, including the root.",
+      })
+    ),
+    /** One edge per declaring field. */
+    edges: S.Array(LayerEdge).pipe(
+      $I.annoteKey("LayeringGraph.edges", { description: "Dependency edges in input order, one per declaring field." })
+    ),
+  }).pipe(
+    $I.annoteSchema("LayeringGraph", {
+      description: "The package names and dependency edges a layering check reads.",
+    })
+  )
+) {}
 
-/** The readonly graph input described by {@link LayeringGraph}.
+/**
+ * Companion types for {@link LayeringGraph}.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export type LayeringGraph = typeof LayeringGraph.Type;
+export declare namespace LayeringGraph {
+  /**
+   * The plain, unbranded encoded shape of a {@link LayeringGraph}.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof LayeringGraph.Encoded;
+  /**
+   * The constructor input of a {@link LayeringGraph}: package names and live {@link LayerEdge}
+   * values, without the brand, which {@link WorkspaceLayering.check} takes.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Input = (typeof LayeringGraph)["~type.make.in"];
+}
 
 const OffenceReason = LiteralKit([
   "upward",
@@ -238,12 +259,23 @@ const offence: {
   (to: Place): (from: Place) => OffenceReason | undefined;
 } = dual(2, (from: Place, to: Place): OffenceReason | undefined => {
   if (from.kind === "unconstrained" || from.kind === "unclassified") return undefined;
-  if (to.kind === "unconstrained") return "intoUnconstrained";
-  if (to.kind === "unclassified") return "intoUnclassified";
+  const into = intoOffence(to);
+  if (into !== undefined) return into;
   if (from.kind === "tooling") return to.kind === "layer" ? "toolingReachesLayer" : undefined;
-  if (to.kind === "tooling") return undefined;
-  return to.index > from.index ? undefined : to.index === from.index ? "sameLayer" : "upward";
+  return fromLayerOffence(from.index, to);
 });
+
+/** An edge into a package the policy leaves unconstrained or does not classify. */
+const intoOffence = (to: Place): OffenceReason | undefined => {
+  if (to.kind === "unconstrained") return "intoUnconstrained";
+  return to.kind === "unclassified" ? "intoUnclassified" : undefined;
+};
+
+/** An edge from layer `index` into a layer at or above it; one into tooling or a lower layer is allowed. */
+const fromLayerOffence = (index: number, to: Place): OffenceReason | undefined => {
+  if (to.kind !== "layer" || to.index > index) return undefined;
+  return to.index === index ? "sameLayer" : "upward";
+};
 
 /** The sorted members of every strongly connected component larger than one (cf. `DependencyGraph.ts` `cycleMembers`). */
 const cycleOf: {
@@ -327,9 +359,9 @@ export abstract class WorkspaceLayering {
    * @since 0.0.0
    */
   static readonly check: {
-    (graph: LayeringGraph, policy: LayerPolicy): LayeringReport;
-    (policy: LayerPolicy): (graph: LayeringGraph) => LayeringReport;
-  } = dual(2, (graph: LayeringGraph, policy: LayerPolicy): LayeringReport => {
+    (graph: LayeringGraph.Input, policy: LayerPolicy): LayeringReport;
+    (policy: LayerPolicy): (graph: LayeringGraph.Input) => LayeringReport;
+  } = dual(2, (graph: LayeringGraph.Input, policy: LayerPolicy): LayeringReport => {
     const fields = MutableHashSet.fromIterable<DependencyField>(policy.effectiveFields);
     const edges = A.filter(graph.edges, (e) => MutableHashSet.has(fields, e.field));
     const unconstrained = GlobSet.make({ patterns: policy.unconstrained });

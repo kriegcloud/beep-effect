@@ -1,6 +1,7 @@
 import { ScriptedSpawner } from "@beep/commands";
 import { MemoryFileSystem } from "@beep/memfs";
 import { WorkspaceDiscovery, WorkspacePackage } from "@beep/repo-workspaces";
+import { PackedInstallGate, PackedInstallPreflight } from "@beep/repo-workspaces/PackedInstall";
 import { InstalledConsumer, PackedInstall } from "@beep/repo-workspaces/testing";
 import { assert, describe, it, layer } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -52,11 +53,11 @@ describe("PackedInstall.preflight and gate", () => {
     it.effect("is ready with nothing missing, and gate says run even under CI", () =>
       Effect.gen(function* () {
         const result = yield* PackedInstall.preflight(options);
-        assert.deepStrictEqual(result, { ready: true, missing: [] });
-        assert.deepStrictEqual(yield* PackedInstall.gate(result).pipe(withEnv({ CI: "true" })), {
-          action: "run",
-          message: "",
-        });
+        assert.deepStrictEqual(result, PackedInstallPreflight.make({ ready: true, missing: [] }));
+        assert.deepStrictEqual(
+          yield* PackedInstall.gate(result).pipe(withEnv({ CI: "true" })),
+          PackedInstallGate.make({ action: "run", message: "" })
+        );
       })
     );
   });
@@ -69,16 +70,22 @@ describe("PackedInstall.preflight and gate", () => {
     it.effect("names exactly the missing manifest", () =>
       Effect.gen(function* () {
         const result = yield* PackedInstall.preflight(options);
-        assert.deepStrictEqual(result, { ready: false, missing: [`/repo/packages/lib/${PROD}/package.json`] });
+        assert.deepStrictEqual(
+          result,
+          PackedInstallPreflight.make({ ready: false, missing: [`/repo/packages/lib/${PROD}/package.json`] })
+        );
       })
     );
 
     it.effect("honours packFrom: another directory is checked, and source checks nothing", () =>
       Effect.gen(function* () {
         const dev = yield* PackedInstall.preflight({ ...options, packFrom: { directory: "dist/dev/pkg" } });
-        assert.deepStrictEqual(dev, { ready: false, missing: ["/repo/packages/carrier/dist/dev/pkg/package.json"] });
+        assert.deepStrictEqual(
+          dev,
+          PackedInstallPreflight.make({ ready: false, missing: ["/repo/packages/carrier/dist/dev/pkg/package.json"] })
+        );
         const source = yield* PackedInstall.preflight({ ...options, packFrom: "source" });
-        assert.deepStrictEqual(source, { ready: true, missing: [] });
+        assert.deepStrictEqual(source, PackedInstallPreflight.make({ ready: true, missing: [] }));
       })
     );
 

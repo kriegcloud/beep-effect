@@ -18,7 +18,7 @@ const POLICY = LayerPolicy.make({
   requiredEdges: ["front-a -> engine"],
 });
 
-const CLEAN: LayeringGraph = {
+const CLEAN: LayeringGraph.Input = {
   names: ["root", "app", "front-a", "front-b", "engine", "core", "tool", "@e2e/smoke"],
   edges: [
     edge("app", "front-a"),
@@ -31,11 +31,11 @@ const CLEAN: LayeringGraph = {
     edge("root", "tool", "devDependencies"),
   ],
 };
-const plus = (...extra: ReadonlyArray<LayerEdge>): LayeringGraph => ({
+const plus = (...extra: ReadonlyArray<LayerEdge>): LayeringGraph.Input => ({
   names: CLEAN.names,
   edges: [...CLEAN.edges, ...extra],
 });
-const offences = (graph: LayeringGraph, policy: LayerPolicy = POLICY): ReadonlyArray<string> =>
+const offences = (graph: LayeringGraph.Input, policy: LayerPolicy = POLICY): ReadonlyArray<string> =>
   WorkspaceLayering.check(graph, policy).offenders.map(({ edge: e, reason }) => `${reason}: ${e.label}`);
 
 const pkg = (name: string, fields: Partial<Record<DependencyField, Record<string, string>>> = {}): WorkspacePackage =>
@@ -83,7 +83,7 @@ describe("WorkspaceLayering.check", () => {
   });
 
   it("reports every package the policy does not classify, including an edgeless one and an unlisted root", () => {
-    const graph: LayeringGraph = {
+    const graph: LayeringGraph.Input = {
       names: [...CLEAN.names, "stray", "orphan"],
       edges: [...CLEAN.edges, edge("app", "stray"), edge("stray", "front-a")],
     };
@@ -106,7 +106,7 @@ describe("WorkspaceLayering.check", () => {
       tooling: ["tool", "tool2"],
       unconstrained: POLICY.unconstrained,
     });
-    const graph: LayeringGraph = {
+    const graph: LayeringGraph.Input = {
       names: [...CLEAN.names, "tool2"],
       edges: [...CLEAN.edges, edge("tool", "tool2"), edge("tool", "core")],
     };
@@ -143,7 +143,10 @@ describe("WorkspaceLayering.check", () => {
   });
 
   it("sees a cycle closed only by a devDependency exactly when devDependencies are checked", () => {
-    const graph: LayeringGraph = { names: ["a", "b"], edges: [edge("a", "b"), edge("b", "a", "devDependencies")] };
+    const graph: LayeringGraph.Input = {
+      names: ["a", "b"],
+      edges: [edge("a", "b"), edge("b", "a", "devDependencies")],
+    };
     const all = LayerPolicy.make({ layers: [["a"], ["b"]], tooling: [], unconstrained: [] });
     assert.deepStrictEqual(WorkspaceLayering.check(graph, all).cycle, O.some(["a", "b"]));
     const runtime = LayerPolicy.make({ ...all, fields: ["dependencies"] });

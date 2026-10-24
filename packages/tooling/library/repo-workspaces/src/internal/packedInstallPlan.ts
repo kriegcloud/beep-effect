@@ -102,27 +102,28 @@ export const scrubEnv = (env: Readonly<Record<string, string | undefined>>): Rec
   return out;
 };
 
+/** A version-shaped `--version` line, its leading `v` outside the capture. */
+const VERSION_LINE = /^v?(\d+\.\d+\.\d+\S*)$/;
+
 /**
  * The last version-shaped line of `--version` output, without a leading `v`.
  *
  * **Example** (Read the final version line)
  *
  * ```ts
+ * import * as O from "effect/Option";
  * import { versionOf } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
- * console.log(versionOf("startup notice\nv4.10.0\n")) // 4.10.0
+ * console.log(O.getOrUndefined(versionOf("startup notice\nv4.10.0\n"))) // 4.10.0
  * ```
  *
  * @category parsing
  * @since 0.0.0
  */
-export const versionOf = (stdout: string): string | undefined => {
-  for (const line of stdout.split(/\r?\n/).reverse()) {
-    const match = /^v?(\d+\.\d+\.\d+\S*)$/.exec(line.trim());
-    if (match?.[1] !== undefined) return match[1];
-  }
-  return undefined;
-};
+export const versionOf = (stdout: string): O.Option<string> =>
+  A.findFirst(A.reverse(Str.split(/\r?\n/)(stdout)), (line) =>
+    O.flatMap(Str.match(VERSION_LINE)(Str.trim(line)), (match) => O.fromUndefinedOr(match[1]))
+  );
 
 /**
  * The carrier first, then the rest of the closure; the failure names the first package the workspace lacks.
@@ -159,30 +160,59 @@ export const closureOf: {
     closure: ReadonlyArray<string> | "auto"
   ): Result.Result<ReadonlyArray<WorkspacePackage>, string> => {
     const byName = MutableHashMap.fromIterable(A.map(packages, (pkg) => [pkg.name, pkg] as const));
-    const root = O.getOrUndefined(MutableHashMap.get(byName, carrier));
-    if (root === undefined) return Result.fail(carrier);
-    if (closure !== "auto") {
-      const unknown = A.findFirst(closure, (name) => !MutableHashMap.has(byName, name));
-      if (O.isSome(unknown)) return Result.fail(unknown.value);
-      const rest = A.filter(A.dedupe(closure), (name) => name !== carrier);
-      return Result.succeed([root, ...A.flatMap(rest, (name) => O.toArray(MutableHashMap.get(byName, name)))]);
-    }
-    const ordered: Array<WorkspacePackage> = [root];
-    const seen = MutableHashSet.make(carrier);
-    for (const current of ordered) {
-      for (const field of RUNTIME_DEPENDENCY_FIELDS) {
-        for (const name of A.sort(R.keys(current[field]), Str.Order)) {
-          const dependency = O.getOrUndefined(MutableHashMap.get(byName, name));
-          if (dependency !== undefined && !MutableHashSet.has(seen, name)) {
-            MutableHashSet.add(seen, name);
-            ordered.push(dependency);
-          }
-        }
-      }
-    }
-    return Result.succeed(ordered);
+    return O.match(MutableHashMap.get(byName, carrier), {
+      onNone: () => Result.fail(carrier),
+      onSome: (root) =>
+        closure === "auto" ? Result.succeed(autoClosure(byName, root)) : namedClosure(byName, root, closure),
+    });
   }
 );
+
+/** Every runtime dependency name a package declares, field by field, each field's names sorted. */
+const runtimeDependencyNames = (pkg: WorkspacePackage): ReadonlyArray<string> =>
+  A.flatMap(RUNTIME_DEPENDENCY_FIELDS, (field) => A.sort(R.keys(pkg[field]), Str.Order));
+
+/** The carrier, then every workspace package its runtime fields reach, breadth first. */
+const autoClosure = (
+  byName: MutableHashMap.MutableHashMap<string, WorkspacePackage>,
+  root: WorkspacePackage
+): ReadonlyArray<WorkspacePackage> => {
+  const ordered: Array<WorkspacePackage> = [root];
+  const seen = MutableHashSet.make(root.name);
+  for (const current of ordered) {
+    for (const name of runtimeDependencyNames(current)) {
+      const dependency = MutableHashMap.get(byName, name);
+      if (O.isSome(dependency) && !MutableHashSet.has(seen, name)) {
+        MutableHashSet.add(seen, name);
+        ordered.push(dependency.value);
+      }
+    }
+  }
+  return ordered;
+};
+
+/** The carrier, then the named packages in order; the failure is the first name the workspace lacks. */
+const namedClosure = (
+  byName: MutableHashMap.MutableHashMap<string, WorkspacePackage>,
+  root: WorkspacePackage,
+  closure: ReadonlyArray<string>
+): Result.Result<ReadonlyArray<WorkspacePackage>, string> =>
+  O.match(
+    A.findFirst(closure, (name) => !MutableHashMap.has(byName, name)),
+    {
+      onSome: (unknown) => Result.fail(unknown),
+      onNone: () =>
+        Result.succeed(
+          A.prepend(
+            A.flatMap(
+              A.filter(A.dedupe(closure), (name) => name !== root.name),
+              (name) => O.toArray(MutableHashMap.get(byName, name))
+            ),
+            root
+          )
+        ),
+    }
+  );
 
 /**
  * What one consumer project needs.
@@ -200,41 +230,55 @@ export const closureOf: {
  * @category models
  * @since 0.0.0
  */
-export const ConsumerInput = S.Struct({
-  manager: PackageManagerName.pipe(
-    $I.annoteKey("ConsumerInput.manager", { description: "The consumer package manager." })
-  ),
-  /** The version `--version` reported, pinned so the consumer runs the manager that was probed. */
-  version: S.String.pipe(
-    $I.annoteKey("ConsumerInput.version", { description: "The probed package manager version to pin." })
-  ),
-  carrier: S.Struct({ name: S.String, tarball: S.String }).pipe(
-    $I.annoteKey("ConsumerInput.carrier", { description: "The carrier package to install directly." })
-  ),
-  /** Every packed package except the carrier: name to absolute tarball path. */
-  overrides: S.Record(S.String, S.String).pipe(
-    $I.annoteKey("ConsumerInput.overrides", { description: "External replacements keyed by package name." })
-  ),
-  dependencies: S.Record(S.String, S.String).pipe(
-    $I.annoteKey("ConsumerInput.dependencies", { description: "Additional consumer dependency specifiers." })
-  ),
-}).pipe(
-  $I.annoteSchema("ConsumerInput", {
-    description: "Package manager, packed carrier and dependency inputs for a scratch consumer.",
-  })
-);
+export class ConsumerInput extends S.Opaque<ConsumerInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    manager: PackageManagerName.pipe(
+      $I.annoteKey("ConsumerInput.manager", { description: "The consumer package manager." })
+    ),
+    /** The version `--version` reported, pinned so the consumer runs the manager that was probed. */
+    version: S.String.pipe(
+      $I.annoteKey("ConsumerInput.version", { description: "The probed package manager version to pin." })
+    ),
+    carrier: S.Struct({ name: S.String, tarball: S.String }).pipe(
+      $I.annoteKey("ConsumerInput.carrier", { description: "The carrier package to install directly." })
+    ),
+    /** Every packed package except the carrier: name to absolute tarball path. */
+    overrides: S.Record(S.String, S.String).pipe(
+      $I.annoteKey("ConsumerInput.overrides", { description: "External replacements keyed by package name." })
+    ),
+    dependencies: S.Record(S.String, S.String).pipe(
+      $I.annoteKey("ConsumerInput.dependencies", { description: "Additional consumer dependency specifiers." })
+    ),
+  }).pipe(
+    $I.annoteSchema("ConsumerInput", {
+      description: "Package manager, packed carrier and dependency inputs for a scratch consumer.",
+    })
+  )
+) {}
 
 /**
- * Supplies the package manager, packed carrier, replacements, and dependencies for a scratch consumer.
+ * Companion types for {@link ConsumerInput}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ConsumerInput = typeof ConsumerInput.Type;
+export declare namespace ConsumerInput {
+  /**
+   * The plain encoded consumer plan {@link consumerFiles} takes: package manager, packed carrier, replacements, and dependencies.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ConsumerInput.Encoded;
+}
 
 const major = (version: string): number => Number.parseInt(version, 10);
 
-const minor = (version: string): number => Number.parseInt(version.split(".")[1] ?? "", 10);
+const minor = (version: string): number =>
+  Number.parseInt(
+    O.getOrElse(A.get(Str.split(".")(version), 1), () => ""),
+    10
+  );
 
 const YARNRC =
   "nodeLinker: node-modules\nenableImmutableInstalls: false\nenableScripts: false\nenableTelemetry: false\n";
@@ -304,7 +348,7 @@ const pnpmWorkspaceYaml = (specs: Readonly<Record<string, string>>): string => {
  * @since 0.0.0
  */
 export const consumerFiles = (
-  input: ConsumerInput
+  input: ConsumerInput.Encoded
 ): ReadonlyArray<{ readonly file: string; readonly content: string }> => {
   const specs = R.fromEntries(
     A.map(R.toEntries(input.overrides), ([name, tarball]) => [name, `file:${tarball}`] as const)
@@ -396,33 +440,62 @@ const UNRESOLVABLE = /^(?:workspace:|catalog:|link:|file:(?!\/))/;
  * @category models
  * @since 0.0.0
  */
-export const PackedManifest = S.Struct({
-  /** Its `name`, when that is a string. */
-  name: S.UndefinedOr(S.String).pipe(
-    $I.annoteKey("PackedManifest.name", { description: "The packed package name, or explicit undefined." })
-  ),
-  /** Every runtime specifier only the workspace could resolve (see `UNRESOLVABLE`), as `field.name: spec`. */
-  unresolved: S.Array(S.String).pipe(
-    $I.annoteKey("PackedManifest.unresolved", { description: "Runtime specifiers requiring workspace resolution." })
-  ),
-  /**
-   * The bin names it declares: the keys of a `bin` object, or for a `bin`
-   * string the package name without its scope, as npm links it.
-   */
-  bins: S.Array(S.String).pipe($I.annoteKey("PackedManifest.bins", { description: "Declared executable names." })),
-}).pipe(
-  $I.annoteSchema("PackedManifest", {
-    description: "Tolerant packed manifest facts used to check runtime specifiers and bins.",
-  })
-);
+export class PackedManifest extends S.Opaque<PackedManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Its `name`, when that is a string. */
+    name: S.UndefinedOr(S.String).pipe(
+      $I.annoteKey("PackedManifest.name", { description: "The packed package name, or explicit undefined." })
+    ),
+    /** Every runtime specifier only the workspace could resolve (see `UNRESOLVABLE`), as `field.name: spec`. */
+    unresolved: S.Array(S.String).pipe(
+      $I.annoteKey("PackedManifest.unresolved", { description: "Runtime specifiers requiring workspace resolution." })
+    ),
+    /**
+     * The bin names it declares: the keys of a `bin` object, or for a `bin`
+     * string the package name without its scope, as npm links it.
+     */
+    bins: S.Array(S.String).pipe($I.annoteKey("PackedManifest.bins", { description: "Declared executable names." })),
+  }).pipe(
+    $I.annoteSchema("PackedManifest", {
+      description: "Tolerant packed manifest facts used to check runtime specifiers and bins.",
+    })
+  )
+) {}
 
 /**
- * Retains the package name, executable names, and unresolved runtime specifiers from a packed manifest.
+ * Companion types for {@link PackedManifest}.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type PackedManifest = typeof PackedManifest.Type;
+export declare namespace PackedManifest {
+  /**
+   * The plain encoded package name, executable names, and unresolved runtime specifiers from a packed manifest.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PackedManifest.Encoded;
+}
+
+/** A package name without its `@scope/`, as npm links a `bin` string. */
+const unscoped = (name: string): string => Str.replace(/^@[^/]+\//, "")(name);
+
+/** The bin names a manifest's `bin` declares: an object's keys, or for a string the unscoped package name. */
+const binsOf = (bin: unknown, name: string | undefined): ReadonlyArray<string> => {
+  if (P.isObject(bin)) return R.keys(bin);
+  return P.isString(bin) && name !== undefined ? [unscoped(name)] : [];
+};
+
+/** Every runtime specifier in one dependency field that only the workspace could resolve, as `field.name: spec`. */
+const unresolvedIn = (field: string, block: unknown): ReadonlyArray<string> =>
+  P.isObjectOrArray(block)
+    ? pipe(
+        R.toEntries({ ...block }),
+        A.filter(([, spec]) => P.isString(spec) && UNRESOLVABLE.test(spec)),
+        A.map(([dependency, spec]) => `${field}.${dependency}: ${String(spec)}`)
+      )
+    : [];
 
 /**
  * Parse a packed manifest into the facts the run checks; the failure is the parse error or a non-object.
@@ -446,26 +519,9 @@ export const readPackedManifest = (manifestJson: string): Result.Result<PackedMa
   if (Result.isFailure(decoded)) return Result.fail(decoded.failure);
   const manifest = decoded.success;
   if (!P.isObject(manifest)) return Result.fail(PackedManifestError.make({ message: "package.json is not an object" }));
-  const record = manifest;
-  const name = P.isString(record.name) ? record.name : undefined;
-  const unresolved = A.flatMap(RUNTIME_DEPENDENCY_FIELDS, (field) => {
-    const block = record[field];
-    if (!P.isObjectOrArray(block)) return [];
-    return pipe(
-      R.toEntries({ ...block }),
-      A.filter(([, spec]) => P.isString(spec) && UNRESOLVABLE.test(spec)),
-      A.map(([dependency, spec]) => `${field}.${dependency}: ${String(spec)}`)
-    );
-  });
-  const bin = record.bin;
-  const bins = P.isString(bin)
-    ? name === undefined
-      ? []
-      : [name.replace(/^@[^/]+\//, "")]
-    : P.isObject(bin)
-      ? R.keys(bin)
-      : [];
-  return Result.succeed({ name, unresolved, bins });
+  const name = P.isString(manifest.name) ? manifest.name : undefined;
+  const unresolved = A.flatMap(RUNTIME_DEPENDENCY_FIELDS, (field) => unresolvedIn(field, manifest[field]));
+  return Result.succeed(PackedManifest.make({ name, unresolved, bins: binsOf(manifest.bin, name) }));
 };
 
 /**
@@ -487,19 +543,20 @@ export const readPackedManifest = (manifestJson: string): Result.Result<PackedMa
 export const binTargetOf: {
   (name: string): (manifestJson: string) => string | undefined;
   (manifestJson: string, name: string): string | undefined;
-} = dual(2, (manifestJson: string, name: string): string | undefined => {
-  const decoded = S.decodeOption(JsonValue)(manifestJson);
-  if (O.isNone(decoded)) return undefined;
-  const manifest = decoded.value;
-  if (!P.isObject(manifest)) return undefined;
-  const bin = manifest.bin;
-  if (P.isString(bin)) {
-    return P.isString(manifest.name) && manifest.name.replace(/^@[^/]+\//, "") === name ? bin : undefined;
-  }
-  if (!P.isObject(bin)) return undefined;
-  const target = bin[name];
-  return P.isString(target) && R.has(bin, name) ? target : undefined;
-});
+} = dual(2, (manifestJson: string, name: string): string | undefined =>
+  pipe(
+    S.decodeOption(JsonValue)(manifestJson),
+    O.filter(P.isObject),
+    O.flatMap((manifest) => binEntry(manifest.bin, manifest.name, name)),
+    O.getOrUndefined
+  )
+);
+
+/** The file a `bin` field declares for `name`, given the manifest's `name`. */
+const binEntry = (bin: unknown, packageName: unknown, name: string): O.Option<string> => {
+  if (P.isString(bin)) return P.isString(packageName) && unscoped(packageName) === name ? O.some(bin) : O.none();
+  return P.isObject(bin) && R.has(bin, name) ? O.liftPredicate(bin[name], P.isString) : O.none();
+};
 
 /**
  * Every specifier in a packed manifest's runtime maps that only the workspace could resolve (see `UNRESOLVABLE`).
@@ -610,8 +667,8 @@ export const fileOverridesOf = (document: unknown): Record<string, string> => {
   if (!P.isObject(document) || !P.isObject(document.overrides)) return R.fromEntries([]);
   for (const [name, spec] of R.toEntries(document.overrides)) {
     if (name === "__proto__") continue;
-    if (P.isString(spec) && spec.startsWith("file:") && BARE_NAME.test(name)) {
-      out = HashMap.set(out, name, spec.slice(5));
+    if (P.isString(spec) && Str.startsWith("file:")(spec) && BARE_NAME.test(name)) {
+      out = HashMap.set(out, name, Str.slice(5)(spec));
       order.push(name);
     }
   }
@@ -634,4 +691,4 @@ export const fileOverridesOf = (document: unknown): Record<string, string> => {
  * @category normalization
  * @since 0.0.0
  */
-export const overridePath = (spec: string): string => (spec.startsWith("file:") ? spec.slice(5) : spec);
+export const overridePath = (spec: string): string => (Str.startsWith("file:")(spec) ? Str.slice(5)(spec) : spec);
