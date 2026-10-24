@@ -760,6 +760,26 @@ const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")
 const withEnvVar = <A, E, R>(name: string, value: string, use: Effect.Effect<A, E, R>) =>
   Effect.provideService(use, ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ [name]: value }));
 
+// `exiftool` is resolved by the real ChildProcessSpawner through the inherited process PATH, not `Config`,
+// so this one wrapper replaces PATH for a single command call and restores the exact previous value.
+const withReplacedPath = <A, E, R>(pathValue: string, use: Effect.Effect<A, E, R>) =>
+  Effect.acquireUseRelease(
+    Effect.sync(() => {
+      const previousPath = Bun.env.PATH;
+      Bun.env.PATH = pathValue;
+      return previousPath;
+    }),
+    () => use,
+    (previousPath) =>
+      Effect.sync(() => {
+        if (previousPath === undefined) {
+          delete Bun.env.PATH;
+        } else {
+          Bun.env.PATH = previousPath;
+        }
+      })
+  );
+
 const writeFfprobeShim = Effect.fn("FilesTest.writeFfprobeShim")(function* (
   binDir: string,
   width: number,
@@ -3372,8 +3392,7 @@ exit 74
       const datasetDir = yield* makeDatasetDir(tmpDir);
       yield* writeSvgFile(path.join(datasetDir, "first.svg"), 3, 2);
       yield* writeSvgFile(path.join(datasetDir, "second.svg"), 2, 1);
-      yield* withEnvVar(
-        "PATH",
+      yield* withReplacedPath(
         path.join(tmpDir, "missing-bin"),
         runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir, "--with-date-created"])
       );

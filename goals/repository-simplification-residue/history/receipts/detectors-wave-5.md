@@ -20,7 +20,7 @@ re-exports `vitest`), so the row never enters the inventory.
 | --- | ---: | ---: | ---: | ---: |
 | EV001 | 1 | 0 | 1 | 0 |
 | EV002 | 98 | 168 | 98 | 168 |
-| EV003 | 15 | 20 | 22 | 0 |
+| EV003 | 15 | 20 | 23 | 0 |
 | EV004 | 89 | 57 | 89 | 56 |
 | EV005 | 6 | 0 | 6 | 0 |
 | EV006 | 56 | 0 | 56 | 0 |
@@ -32,7 +32,7 @@ re-exports `vitest`), so the row never enters the inventory.
 | EV013 | 0 | 2 | 0 | 0 |
 | EV014 | 233 | 0 | 233 | 0 |
 | EV015 | 17 | 17 | 17 | 17 |
-| **Total** | **692** | **422** | **697** | **394** |
+| **Total** | **692** | **422** | **698** | **394** |
 
 The 35 EV003 rows (15 exceptions, 20 open), the 9 EV008 rows (5 of them open hand-offs) and the
 2 EV013 polls, at the base:
@@ -57,10 +57,11 @@ The 35 EV003 rows (15 exceptions, 20 open), the 9 EV008 rows (5 of them open han
   and `Libpff.pffexport.test.ts:1171`.
 - EV013 hand-offs (2 open): `step-capture-lifecycle` :565/:578.
 
-After the wave, `lint effect-vitest --write` leaves 1,091 rows. Rows were paired by
-`(ruleId, file, symbol, occurrence, ordinal)` against the base inventory: 23 removed, none added,
-22 changed in place (12 open rows converted to exceptions, 10 EV003 exception reasons given an
-owner and exit). A second `--write` is byte-identical (sha256 check OK), and the plain scan
+After the wave, `lint effect-vitest --write` leaves 1,092 rows on the base. Rows were paired by
+`(ruleId, file, symbol, occurrence, ordinal)` against the base inventory: 22 removed, 22 changed in
+place (12 open rows converted to exceptions, 10 EV003 exception reasons given an owner and exit),
+and one open row converted to an exception at a narrower wrapper (`files-command`, see below), so
+13 open rows become owner/exit exceptions in all. A second `--write` is byte-identical (sha256 check OK), and the plain scan
 reports `introduced=0 resolved=0`. All 7 `#1855 wave 4 register` exceptions are present.
 
 ## The EV003 process-state ruling
@@ -88,7 +89,7 @@ wrappers, judged by reason.
 
 | Row | Disposition | Why |
 | --- | --- | --- |
-| `files-command:755` `withEnvVar` | migrated, resolved | `BEEP_UV_PATH`, `BEEP_TIKA_TIMEOUT_MILLIS`, `BEEP_FFMPEG_PATH` and `BEEP_FFPROBE_PATH` are all read through `Config` (`MatchPerson.ts` `readOptionalConfig`, `Tika.server.ts` `Config.Int`, `MediaExec.ts` `Config.String`). The wrapper already provided `ConfigProvider.fromUnknown({ [name]: value })`; its `Bun.env` write was dead. It is now `Effect.provideService(use, ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ [name]: value }))`, the same provider as before (`ConfigProvider.layer` is `Layer.succeed(ConfigProvider)`). |
+| `files-command:755` `withEnvVar` | migrated, resolved | `BEEP_UV_PATH`, `BEEP_TIKA_TIMEOUT_MILLIS`, `BEEP_FFMPEG_PATH` and `BEEP_FFPROBE_PATH` are all read through `Config` (`MatchPerson.ts` `readOptionalConfig`, `Tika.server.ts` `Config.Int`, `MediaExec.ts` `Config.String`). The wrapper already provided `ConfigProvider.fromUnknown({ [name]: value })`; its `Bun.env` write was dead for those names. It is now `Effect.provideService(use, ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ [name]: value }))`, the same provider as before (`ConfigProvider.layer` is `Layer.succeed(ConfigProvider)`). **Correction found by the full suite:** one call passed `PATH`, which `Files` does not read through `Config`; the real `ChildProcessSpawner` resolves `exiftool` through the inherited process `PATH`, so "warns once and uses filesystem dates when exiftool is unavailable" failed on Bun and Node. That call now uses a separate `withReplacedPath` save/restore wrapper, and its EV003 row is an owner/exit exception (exit: Files resolves exiftool through Config, like its `BEEP_FFMPEG_PATH`/`BEEP_FFPROBE_PATH` reads). |
 | `image-command` `withTempDirectory` ×8 (4 exc, 4 open) | chdir deleted, resolved | Ruled below: the acquire is real process state, but nothing reads it. |
 | `image-command:50` (now :44) `withPathPrefix` | exception | `FFmpeg.makeLayer()` keeps the bare `ffmpeg`/`ffprobe` names, resolved through the inherited `PATH`. Exit: the image command reads those paths through `Config`, as `MediaExec` already does. |
 | `ai-metrics-command:206` `withPrependedPath` | exception | ssh/rsync shims resolved through the inherited `PATH`. |
@@ -328,7 +329,7 @@ The EV003 family now has 22 exceptions, every one with an owner and an exit, and
 - **Wave 6, EV014 named test layers (233 exceptions, 0 open).** Resolve imported test layers
   across files, and rule on same-file `Layer.effect`/`scoped` test layers without a hook timeout
   (`detectors-wave-4.md` census).
-- **Waves 7-9, the owner/exit register.** 697 exceptions; EV003's 22 and the 7 wave 4 rows now
+- **Waves 7-9, the owner/exit register.** 698 exceptions; EV003's 23 and the 7 wave 4 rows now
   carry an owner and exit. Wave 7 is EV010. Wave 8 is EV002, EV004 and EV006. Wave 9 is the rest,
   including the two remaining EV008 exceptions and the EV012 rows.
 - **Open rows: 394.** EV002 168, EV010 150, EV004 56, EV015 17 (splittable since wave 4) and
@@ -356,7 +357,7 @@ tasks). Results are in the lane report and the PR body; this receipt records the
 - Suites: effect-vitest-detectors (240 tests, 3 of them new), -contract, -primitives, -store, lint-command,
   files-command, image-command, research-daily, research-history-sift and step-capture-lifecycle,
   10 files, 508 of 508 on Bun and 508 of 508 on Node. `ConfigFileKeyTyping` passes 7 of 7 on both.
-- `lint effect-vitest`: after `--write`, `introduced=0 resolved=0`, 1,091 findings. The second
+- `lint effect-vitest`: after `--write`, `introduced=0 resolved=0`, 1,092 findings on the base (1,088 after merging main a1542ea161). The second
   `--write` is byte-stable.
 - Biome and oxlint (`--disable-nested-config`) are clean on the 9 changed source and test files.
 

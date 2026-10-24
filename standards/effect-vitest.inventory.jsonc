@@ -5892,6 +5892,28 @@
       "reason": "Changes into a temp checkout for one partition-lane call: the lane locates the repository through findRepoRoot(), which starts from process.cwd(), and the test proves the unreadable-inventory mapping there. A cwd override is process state, and it.layer would leak it across the block. Owner: @beep/repo-cli. Exit: the CI lane takes its repository root from an injected working-directory service or an explicit option. #1855 wave 5 register."
     },
     {
+      "id": "EV003:packages/tooling/tool/cli/test/files-command.test.ts:765:withReplacedPath@25#1",
+      "lens": "detector",
+      "ruleId": "EV003",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/files-command.test.ts",
+      "line": 765,
+      "endLine": 781,
+      "symbol": "withReplacedPath",
+      "occurrence": "v2:c1c794157c8d9b7a948acbbecb4e33a142a9a1c507d0bb208f399ecc9dc448c0",
+      "class": "resource-wrapper",
+      "evidence": "<A, E, R>(pathValue: string, use: Effect.Effect<A, E, R>) => Effect.acquireUseRelease( Effect.sync(() => { const previousPath = Bun.env.PATH; Bun.env.PATH = pathValue; return previousPath; }), () => u",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "major",
+      "confidence": 0.95,
+      "mechanization": "detector",
+      "status": "exception",
+      "reason": "Replaces PATH with a missing bin directory for one `files sort-and-rename --with-date-created` call so `exiftool` is unavailable. The real ChildProcessSpawner resolves `exiftool` through the inherited process PATH, not Config, and it.layer would leak the PATH change across the block. Owner: @beep/repo-cli. Exit: Files resolves exiftool through Config (a BEEP_EXIFTOOL_PATH like its BEEP_FFMPEG_PATH/BEEP_FFPROBE_PATH reads), so the test provides a ConfigProvider. #1855 wave 5 register."
+    },
+    {
       "id": "EV003:packages/tooling/tool/cli/test/image-command.test.ts:44:withPathPrefix@23#1",
       "lens": "detector",
       "ruleId": "EV003",
