@@ -1,8 +1,10 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { CacheKey, CacheKeyBadPatternError, CacheKeyReadError } from "@beep/github-actions";
 import { InvalidDigestLengthError } from "@beep/github-actions/CacheKey";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { flow } from "effect/Function";
@@ -693,4 +695,16 @@ describe("CacheKey", () => {
       );
     });
   });
+});
+
+describe("CacheKey codec property", () => {
+  it.effect.prop(
+    "CacheKey round-trips through its codec",
+    [Arbitrary.schema(CacheKey)],
+    ([value]) =>
+      Effect.gen(function* () {
+        assert.deepStrictEqual(yield* S.decodeEffect(CacheKey)(yield* S.encodeEffect(CacheKey)(value)), value);
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 });

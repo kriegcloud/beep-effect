@@ -1,9 +1,11 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { AppIdentity, GitHubApp, GitHubAppError, InstallationToken } from "@beep/github/GitHubApp";
 import { GitHubClient } from "@beep/github/GitHubClient";
 import { ActionOutputs, ActionState, ActionStateError, GitHubToken, GitHubTokenError } from "@beep/github-actions";
 import { ProvisionOptions, ReadOptions } from "@beep/github-actions/GitHubToken";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, fail } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -22,8 +24,8 @@ const Json = S.fromJsonString(S.Unknown);
 
 describe("GitHubToken option schemas", () => {
   it("provision options retain plain objects and redacted keys and reject explicit undefined fields", () => {
-    const minimal: ProvisionOptions = { appId: "app", privateKey: Redacted.make("pem") };
-    const scoped: ProvisionOptions = {
+    const minimal: ProvisionOptions.Encoded = { appId: "app", privateKey: Redacted.make("pem") };
+    const scoped: ProvisionOptions.Encoded = {
       ...minimal,
       installationId: 42,
       owner: "acme",
@@ -32,7 +34,7 @@ describe("GitHubToken option schemas", () => {
     };
     for (const input of [minimal, scoped]) {
       assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(ProvisionOptions)(input)), input);
-      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(ProvisionOptions)(input)), input);
+      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(ProvisionOptions)(ProvisionOptions.make(input))), input);
     }
     // Exact optional keys (EF-40): an optional key is omitted, never undefined.
     for (const key of ["installationId", "owner", "required", "stateKey"]) {
@@ -50,9 +52,9 @@ describe("GitHubToken option schemas", () => {
     assert.isFalse(S.is(ReadOptions)({ stateKey: undefined }));
     assert.isFalse(S.is(ReadOptions)({ skew: undefined }));
     for (const input of [{}, { stateKey: "token", skew: Duration.seconds(30) }]) {
-      const options: ReadOptions = input;
+      const options: ReadOptions.Encoded = input;
       assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(ReadOptions)(options)), options);
-      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(ReadOptions)(options)), options);
+      assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(ReadOptions)(ReadOptions.make(options))), options);
     }
     assert.isFalse(S.is(ReadOptions)({ skew: 30 }));
     assert.isFalse(S.is(ReadOptions)({ stateKey: null }));
@@ -508,4 +510,16 @@ describe("GitHubToken", () => {
       });
     }
   });
+});
+
+describe("ReadOptions codec property", () => {
+  it.effect.prop(
+    "ReadOptions round-trips through its codec",
+    [Arbitrary.schema(ReadOptions)],
+    ([value]) =>
+      Effect.gen(function* () {
+        assert.deepStrictEqual(yield* S.decodeEffect(ReadOptions)(yield* S.encodeEffect(ReadOptions)(value)), value);
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 });

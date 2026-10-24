@@ -1,3 +1,10 @@
+/**
+ * The entry point an action's `main`, `pre` and `post` scripts call.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { WorkflowCommand } from "@beep/github-commands";
 import { NodeServices } from "@effect/platform-node";
 import * as Bool from "effect/Boolean";

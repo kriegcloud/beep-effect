@@ -1,9 +1,17 @@
 import { BlobClient, BlockBlobClient } from "@azure/storage-blob";
-import { Artifact, ArtifactError } from "@beep/github-actions/Artifact";
+import {
+  Artifact,
+  ArtifactError,
+  ArtifactItem,
+  ArtifactRef,
+  DownloadResult,
+  UploadResult,
+} from "@beep/github-actions/Artifact";
 import { BlobTransferError } from "@beep/github-actions/BlobTransfer";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertExitFailure, assertNone } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
@@ -222,7 +230,10 @@ describe("Artifact uncovered protocol outcomes", () => {
       it.effect("list handles conflicts, missing rows and row defaults", () =>
         Effect.gen(function* () {
           const list = yield* (yield* Artifact).list;
-          assert.deepStrictEqual(list, expected);
+          assert.deepStrictEqual(
+            list,
+            A.map(expected, (item) => ArtifactItem.make(item))
+          );
         })
       );
     });
@@ -232,7 +243,7 @@ describe("Artifact uncovered protocol outcomes", () => {
       Effect.gen(function* () {
         const artifact = yield* Artifact;
         assert.strictEqual((yield* upload(artifact)).id, 0);
-        assert.deepStrictEqual(yield* artifact.delete("logs"), { id: 7 });
+        assert.deepStrictEqual(yield* artifact.delete("logs"), ArtifactRef.make({ id: 7 }));
         assertNone(yield* artifact.get("absent"));
         const downloaded = yield* artifact.download(7);
         assert.include(downloaded.downloadPath, "effected-artifact-download-");
@@ -255,9 +266,12 @@ describe("Artifact uncovered protocol outcomes", () => {
         const artifact = yield* Artifact;
         assert.deepStrictEqual(
           yield* artifact.upload("logs", ["/work/a.txt"], "/work", { retentionDays: 7, compressionLevel: 3 }),
-          { id: 7, size: 13 }
+          UploadResult.make({ id: 7, size: 13 })
         );
-        assert.deepStrictEqual(yield* artifact.download(7, { path: "/out" }), { downloadPath: "/out" });
+        assert.deepStrictEqual(
+          yield* artifact.download(7, { path: "/out" }),
+          DownloadResult.make({ downloadPath: "/out" })
+        );
       })
     );
   });

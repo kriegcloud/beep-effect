@@ -19,7 +19,7 @@ describe("ChildEnv", () => {
       // The pair is the point: a caller spreading the whole answer cannot
       // forget the flag, and a mutant returning only `env` fails here.
       const answer = ChildEnv.prependPath(["/tools/bin"], { base: { PATH: "/usr/bin" }, platform: "linux" });
-      assert.deepStrictEqual(answer, { env: { PATH: "/tools/bin:/usr/bin" }, extendEnv: true });
+      assert.deepStrictEqual(answer, PathPrependEnv.make({ env: { PATH: "/tools/bin:/usr/bin" }, extendEnv: true }));
     });
 
     it("carries exactly one env entry — the additions, nothing restated", () => {
@@ -136,7 +136,7 @@ describe("ChildEnv regression contracts", () => {
 
   it.effect("validates plain additions and requires the true merge flag", () =>
     Effect.gen(function* () {
-      const additions: PathPrependEnv = { env: { PATH: "/tools" }, extendEnv: true };
+      const additions: PathPrependEnv.Encoded = { env: { PATH: "/tools" }, extendEnv: true };
       assert.deepStrictEqual(yield* S.decodeEffect(PathPrependEnv)(additions), additions);
       assert.isFalse(S.is(PathPrependEnv)({ env: {}, extendEnv: false }));
       assert.isFalse(S.is(PathPrependEnv)({ env: {} }));
@@ -146,7 +146,10 @@ describe("ChildEnv regression contracts", () => {
 
   it.effect("keeps undefined base entries and requires explicit base and platform", () =>
     Effect.gen(function* () {
-      const options: PathPrependOptions = { base: { PATH: undefined, HOME: "/home/ci" }, platform: "other-platform" };
+      const options: PathPrependOptions.Encoded = {
+        base: { PATH: undefined, HOME: "/home/ci" },
+        platform: "other-platform",
+      };
       assert.deepStrictEqual(yield* S.decodeEffect(PathPrependOptions)(options), options);
       assert.isFalse(S.is(PathPrependOptions)({ platform: "linux" }));
       assert.isFalse(S.is(PathPrependOptions)({ base: {} }));

@@ -1,3 +1,10 @@
+/**
+ * Durable blob storage with a metadata channel, over the Actions cache or S3.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -193,47 +200,51 @@ export interface BlobStoreShape {
  * @category configuration
  * @since 0.0.0
  */
-export const S3Config = S.Struct({
-  /** The bucket name. */
-  bucket: S.String.pipe($I.annoteKey("S3Config.bucket", { description: "The bucket name." })),
-  /** The bucket's region, used for SigV4 signing and the default AWS endpoint. */
-  region: S.String.pipe(
-    $I.annoteKey("S3Config.region", {
-      description: "The bucket's region, used for SigV4 signing and the default AWS endpoint.",
-    })
-  ),
-  /**
-   * A custom endpoint, e.g. `https://<account>.r2.cloudflarestorage.com`.
-   *
-   * **Details**
-   *
-   * Omitting it targets AWS itself. Addressing is always **path-style**
-   * (`<endpoint>/<bucket>/<key>`), which is what makes the same layer work
-   * against R2, MinIO and Spaces — virtual-host addressing needs per-bucket
-   * DNS that none of them provide the same way.
-   */
-  endpoint: S.optionalKey(S.String).pipe(
-    $I.annoteKey("S3Config.endpoint", { description: "A custom path-style endpoint. Omitting it targets AWS itself." })
-  ),
-  /** The access key id. */
-  accessKeyId: S.String.pipe($I.annoteKey("S3Config.accessKeyId", { description: "The access key id." })),
-  /** The secret access key, declassified once and masked in the runner log. */
-  secretAccessKey: S.Redacted(S.String).pipe(
-    $I.annoteKey("S3Config.secretAccessKey", {
-      description: "The secret access key, declassified once and masked in the runner log.",
-    })
-  ),
-  /** For temporary credentials. */
-  sessionToken: S.String.pipe(
-    S.Redacted,
-    S.optionalKey,
-    $I.annoteKey("S3Config.sessionToken", { description: "For temporary credentials." })
-  ),
-  /** Prepended to every key, so one bucket can hold several caches. */
-  prefix: S.optionalKey(S.String).pipe(
-    $I.annoteKey("S3Config.prefix", { description: "Prepended to every key, so one bucket can hold several caches." })
-  ),
-}).pipe($I.annoteSchema("S3Config", { description: "How to reach an S3-compatible object store." }));
+export class S3Config extends S.Opaque<S3Config, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The bucket name. */
+    bucket: S.String.pipe($I.annoteKey("S3Config.bucket", { description: "The bucket name." })),
+    /** The bucket's region, used for SigV4 signing and the default AWS endpoint. */
+    region: S.String.pipe(
+      $I.annoteKey("S3Config.region", {
+        description: "The bucket's region, used for SigV4 signing and the default AWS endpoint.",
+      })
+    ),
+    /**
+     * A custom endpoint, e.g. `https://<account>.r2.cloudflarestorage.com`.
+     *
+     * **Details**
+     *
+     * Omitting it targets AWS itself. Addressing is always **path-style**
+     * (`<endpoint>/<bucket>/<key>`), which is what makes the same layer work
+     * against R2, MinIO and Spaces — virtual-host addressing needs per-bucket
+     * DNS that none of them provide the same way.
+     */
+    endpoint: S.optionalKey(S.String).pipe(
+      $I.annoteKey("S3Config.endpoint", {
+        description: "A custom path-style endpoint. Omitting it targets AWS itself.",
+      })
+    ),
+    /** The access key id. */
+    accessKeyId: S.String.pipe($I.annoteKey("S3Config.accessKeyId", { description: "The access key id." })),
+    /** The secret access key, declassified once and masked in the runner log. */
+    secretAccessKey: S.Redacted(S.String).pipe(
+      $I.annoteKey("S3Config.secretAccessKey", {
+        description: "The secret access key, declassified once and masked in the runner log.",
+      })
+    ),
+    /** For temporary credentials. */
+    sessionToken: S.String.pipe(
+      S.Redacted,
+      S.optionalKey,
+      $I.annoteKey("S3Config.sessionToken", { description: "For temporary credentials." })
+    ),
+    /** Prepended to every key, so one bucket can hold several caches. */
+    prefix: S.optionalKey(S.String).pipe(
+      $I.annoteKey("S3Config.prefix", { description: "Prepended to every key, so one bucket can hold several caches." })
+    ),
+  }).pipe($I.annoteSchema("S3Config", { description: "How to reach an S3-compatible object store." }))
+) {}
 
 /**
  * The configuration accepted by the S3-compatible backend.
@@ -242,7 +253,15 @@ export const S3Config = S.Struct({
  * @category configuration
  * @since 0.0.0
  */
-export type S3Config = typeof S3Config.Type;
+export declare namespace S3Config {
+  /**
+   * The plain object a {@link S3Config} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof S3Config.Encoded;
+}
 
 /**
  * Durable blob storage with a metadata channel.
@@ -316,8 +335,9 @@ export class BlobStore extends Context.Service<BlobStore, BlobStoreShape>()($I`B
    * @category layers
    * @since 0.0.0
    */
-  static readonly layerS3 = (config: S3Config): Layer.Layer<BlobStore, never, HttpClient.HttpClient | ActionOutputs> =>
-    Layer.effect(BlobStore, makeS3(config));
+  static readonly layerS3 = (
+    config: S3Config.Encoded
+  ): Layer.Layer<BlobStore, never, HttpClient.HttpClient | ActionOutputs> => Layer.effect(BlobStore, makeS3(config));
 
   /**
    * A test double. Unstubbed members die rather than reporting a miss.
@@ -436,7 +456,7 @@ export class BlobStore extends Context.Service<BlobStore, BlobStoreShape>()($I`B
 
 const dies = unstubbed("BlobStore.makeTest");
 
-const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
+const makeS3 = Effect.fn("makeS3")(function* (config: S3Config.Encoded) {
   const http = yield* HttpClient.HttpClient;
   const endpointResult = S.decodeResult(S.URLFromString)(
     config.endpoint ?? `https://s3.${config.region}.amazonaws.com`

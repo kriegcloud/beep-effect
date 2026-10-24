@@ -1,3 +1,10 @@
+/**
+ * SLSA provenance for the current run, built from the runner's OIDC claims.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { SlsaProvenance } from "@beep/sbom/SlsaProvenance";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";

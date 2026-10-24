@@ -22,6 +22,7 @@
  * their HTTP APIs, with no `@actions/*` dependency.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 // `WorkflowCommand` is owned by the pure `@effected/github-commands`; this entrypoint re-exports it so it stays importable from here.

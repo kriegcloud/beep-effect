@@ -1,3 +1,10 @@
+/**
+ * The rehearsal guard every mutation an action performs goes through.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as Bool from "effect/Boolean";
 import * as Config from "effect/Config";

@@ -45,27 +45,37 @@ const $I = $GithubActionsId.create("internal/spawn");
  * @category models
  * @since 0.0.0
  */
-export const SpawnOnceResult = S.Struct({
-  output: S.String.pipe(
-    $I.annoteKey("SpawnOnceResult.output", { description: "The interleaved stdout and stderr from one spawn." })
-  ),
-  code: S.Finite.pipe(
-    $I.annoteKey("SpawnOnceResult.code", {
-      description: "The same spawn's finite exit code, without applying caller policy.",
+export class SpawnOnceResult extends S.Opaque<SpawnOnceResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    output: S.String.pipe(
+      $I.annoteKey("SpawnOnceResult.output", { description: "The interleaved stdout and stderr from one spawn." })
+    ),
+    code: S.Finite.pipe(
+      $I.annoteKey("SpawnOnceResult.code", {
+        description: "The same spawn's finite exit code, without applying caller policy.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("SpawnOnceResult", {
+      description: "The plain-object output and exit code collected from one spawn handle.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("SpawnOnceResult", {
-    description: "The plain-object output and exit code collected from one spawn handle.",
-  })
-);
+  )
+) {}
 
 /**
  * The plain-object result accepted by {@link SpawnOnceResult}.
  * @category type-level
  * @since 0.0.0
  */
-export type SpawnOnceResult = typeof SpawnOnceResult.Type;
+export declare namespace SpawnOnceResult {
+  /**
+   * The plain object a {@link SpawnOnceResult} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SpawnOnceResult.Encoded;
+}
 
 /**
  * Spawn `command` once, drain `stdout`+`stderr`, then read the exit code from
@@ -109,7 +119,7 @@ export const spawnOnce: {
         const handle = yield* spawner.spawn(command);
         const output = yield* handle.all.pipe(Stream.decodeText, Stream.mkString);
         const code = yield* handle.exitCode;
-        return { output, code };
+        return SpawnOnceResult.make({ output, code });
       })
     )
 );

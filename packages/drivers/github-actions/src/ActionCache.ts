@@ -1,3 +1,10 @@
+/**
+ * The runner's own cache: archive a set of paths under a key and restore them in a later job.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { GlobPattern, GlobSet } from "@beep/glob";
 import { $GithubActionsId } from "@beep/identity/packages";

@@ -54,6 +54,7 @@ const MODULES = [
   "internal/azureBlob.ts",
   "internal/cacheService.ts",
   "internal/digest.ts",
+  "internal/durationInput.ts",
   "internal/fsProbe.ts",
   "internal/jwt.ts",
   "internal/messageText.ts",
@@ -420,6 +421,7 @@ const EXPECTED_PACKAGES: Readonly<Record<string, ReadonlyArray<string>>> = {
     "effect/Schedule",
     "effect/Schema",
     "effect/String",
+    "effect/http/HttpClient",
     "effect/http/HttpClientRequest",
   ],
   "internal/digest.ts": ["effect/Effect", "effect/Function", "effect/Stream", "effect/encoding/Hex", "node:crypto"],
@@ -433,7 +435,7 @@ const EXPECTED_PACKAGES: Readonly<Record<string, ReadonlyArray<string>>> = {
     "effect/String",
     "effect/encoding/Base64Url",
   ],
-  "internal/messageText.ts": [],
+  "internal/messageText.ts": ["@beep/identity/packages", "effect/Schema"],
   "internal/pnpmExe.ts": [
     "effect/Array",
     "effect/Function",
@@ -502,6 +504,7 @@ const EXPECTED_PACKAGES: Readonly<Record<string, ReadonlyArray<string>>> = {
     "effect/Schedule",
     "effect/Schema",
     "effect/String",
+    "effect/http/HttpClient",
     "effect/http/HttpClientRequest",
   ],
 };

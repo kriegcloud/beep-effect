@@ -1,3 +1,10 @@
+/**
+ * The runner environment an action executes inside, with fiber-local overrides.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as Bool from "effect/Boolean";
 import * as Context from "effect/Context";
@@ -282,8 +289,8 @@ export class GitHubContext extends S.Class<GitHubContext, { readonly brand: uniq
  * @category schemas
  * @since 0.0.0
  */
-export class RunnerContext extends S.Class<RunnerContext, { readonly brand: unique symbol }>($I`RunnerContext`)(
-  {
+export class RunnerContext extends S.Opaque<RunnerContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     /**
      * The runner's operating system: `Linux`, `Windows` or `macOS`.
      * @since 0.0.0
@@ -317,9 +324,28 @@ export class RunnerContext extends S.Class<RunnerContext, { readonly brand: uniq
     toolCache: S.String.pipe(
       $I.annoteKey("RunnerContext.toolCache", { description: "Where `ToolInstaller` caches toolchains." })
     ),
-  },
-  $I.annote("RunnerContext", { description: "The runner's own context, projected from the `RUNNER_*` variables." })
+  }).pipe(
+    $I.annoteSchema("RunnerContext", {
+      description: "The runner's own context, projected from the `RUNNER_*` variables.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link RunnerContext}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace RunnerContext {
+  /**
+   * The plain object a {@link RunnerContext} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RunnerContext.Encoded;
+}
 
 /**
  * Environment overrides layered on top of the seeded snapshot.

@@ -1,7 +1,9 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { ActionInput } from "@beep/github-actions";
 import { PairsOptions } from "@beep/github-actions/ActionInput";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
@@ -35,11 +37,11 @@ describe("ActionInput", () => {
   describe("PairsOptions contract", () => {
     it.effect("preserves plain objects, exact optional keys and boolean values", () =>
       Effect.gen(function* () {
-        const omitted: PairsOptions = {};
-        assert.deepStrictEqual(yield* S.decodeEffect(PairsOptions)(omitted), {});
-        assert.deepStrictEqual(yield* S.encodeEffect(PairsOptions)(omitted), {});
+        const omitted: PairsOptions.Encoded = {};
+        assert.deepStrictEqual(yield* S.decodeEffect(PairsOptions)(omitted), PairsOptions.make({}));
+        assert.deepStrictEqual(yield* S.encodeEffect(PairsOptions)(PairsOptions.make(omitted)), {});
         for (const requireValue of [false, true]) {
-          const options: PairsOptions = { requireValue };
+          const options: PairsOptions.Encoded = { requireValue };
           assert.deepStrictEqual(yield* S.decodeEffect(PairsOptions)(options), options);
         }
         assert.isFalse(S.is(PairsOptions)({ requireValue: undefined }));
@@ -576,4 +578,16 @@ describe("ActionInput", () => {
       );
     });
   });
+});
+
+describe("PairsOptions codec property", () => {
+  it.effect.prop(
+    "PairsOptions round-trips through its codec",
+    [Arbitrary.schema(PairsOptions)],
+    ([value]) =>
+      Effect.gen(function* () {
+        assert.deepStrictEqual(yield* S.decodeEffect(PairsOptions)(yield* S.encodeEffect(PairsOptions)(value)), value);
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 });

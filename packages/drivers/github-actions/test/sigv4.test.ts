@@ -149,7 +149,12 @@ describe("SigV4 normalized transport headers", () => {
 describe("SigV4 executable contracts", () => {
   it.effect("keeps plain credential construction and free-form strings and rejects an explicit undefined option", () =>
     Effect.gen(function* () {
-      const plain: SigV4Credentials = { ...credentials, service: "custom-service", region: "", accessKeyId: "" };
+      const plain: SigV4Credentials.Encoded = {
+        ...credentials,
+        service: "custom-service",
+        region: "",
+        accessKeyId: "",
+      };
       const decoded = yield* S.decodeEffect(SigV4Credentials)(plain);
       assert.deepStrictEqual(decoded, plain);
       assert.notProperty(decoded, "sessionToken");
@@ -163,7 +168,7 @@ describe("SigV4 executable contracts", () => {
 
   it.effect("keeps request fields structural without coercion or added defaults", () =>
     Effect.gen(function* () {
-      const plain: SigV4Request = { ...request, method: "custom", path: "", host: "" };
+      const plain: SigV4Request.Encoded = { ...request, method: "custom", path: "", host: "" };
       const decoded = yield* S.decodeEffect(SigV4Request)(plain);
       assert.deepStrictEqual(decoded, plain);
       assert.strictEqual(decoded.body, plain.body);

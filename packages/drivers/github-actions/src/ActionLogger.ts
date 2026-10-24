@@ -1,3 +1,11 @@
+/**
+ * Workflow-command logging: groups, buffered step transcripts, notices and the `Logger` that
+ * renders `Effect.log*` as workflow commands.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { CommandNeutralizer, WorkflowCommand } from "@beep/github-commands";
 import { $GithubActionsId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -204,40 +212,42 @@ const BufferSuccessPolicy = LiteralKit(["flush", "discard"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export const WithBufferOptions = S.Struct({
-  /**
-   * What happens to the captured transcript when the step **succeeds**.
-   *
-   * **Details**
-   *
-   * `"flush"` — the default — replays it, so a clean run still prints what it
-   * did. `"discard"` drops it, which is what keeps a green release log to one
-   * line per step: the transcript exists only as the failure report. A failure,
-   * a defect or an interruption flushes under either setting — the choice is
-   * only about what a success is worth in the log.
-   *
-   * **Example** (Discard successful transcripts)
-   *
-   * ```ts
-   * import type { WithBufferOptions } from "@beep/github-actions/ActionLogger";
-   *
-   * const options: WithBufferOptions = { onSuccess: "discard" };
-   * console.log(options.onSuccess) // discard
-   * ```
-   *
-   * @category configuration
-   * @since 0.0.0
-   */
-  onSuccess: S.optionalKey(BufferSuccessPolicy).pipe(
-    $I.annoteKey("WithBufferOptions.onSuccess", {
-      description: "Replay or discard successful transcripts; omitted means flush.",
+export class WithBufferOptions extends S.Opaque<WithBufferOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * What happens to the captured transcript when the step **succeeds**.
+     *
+     * **Details**
+     *
+     * `"flush"` — the default — replays it, so a clean run still prints what it
+     * did. `"discard"` drops it, which is what keeps a green release log to one
+     * line per step: the transcript exists only as the failure report. A failure,
+     * a defect or an interruption flushes under either setting — the choice is
+     * only about what a success is worth in the log.
+     *
+     * **Example** (Discard successful transcripts)
+     *
+     * ```ts
+     * import type { WithBufferOptions } from "@beep/github-actions/ActionLogger";
+     *
+     * const options: WithBufferOptions.Encoded = { onSuccess: "discard" };
+     * console.log(options.onSuccess) // discard
+     * ```
+     *
+     * @category configuration
+     * @since 0.0.0
+     */
+    onSuccess: S.optionalKey(BufferSuccessPolicy).pipe(
+      $I.annoteKey("WithBufferOptions.onSuccess", {
+        description: "Replay or discard successful transcripts; omitted means flush.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("WithBufferOptions", {
+      description: "Plain-object options controlling successful buffered step transcripts.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("WithBufferOptions", {
-    description: "Plain-object options controlling successful buffered step transcripts.",
-  })
-);
+  )
+) {}
 
 /**
  * The plain-object options accepted by {@link ActionLoggerShape.withBuffer}.
@@ -245,7 +255,15 @@ export const WithBufferOptions = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type WithBufferOptions = typeof WithBufferOptions.Type;
+export declare namespace WithBufferOptions {
+  /**
+   * The plain object a {@link WithBufferOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof WithBufferOptions.Encoded;
+}
 
 /**
  * Options for {@link ActionLoggerShape.withStep}.
@@ -266,37 +284,39 @@ export type WithBufferOptions = typeof WithBufferOptions.Type;
  * @category models
  * @since 0.0.0
  */
-export const WithStepOptions = S.Struct({
-  /**
-   * The info line emitted when the step **succeeds**.
-   *
-   * **Details**
-   *
-   * Defaults to `✅ <name>`. This is the line the buffered transcript is traded
-   * for: a green step reports that it happened and nothing else.
-   *
-   * **Example** (Customize the success summary)
-   *
-   * ```ts
-   * import type { WithStepOptions } from "@beep/github-actions/ActionLogger";
-   *
-   * const options: WithStepOptions = { summary: "Published" };
-   * console.log(options.summary) // Published
-   * ```
-   *
-   * @category configuration
-   * @since 0.0.0
-   */
-  summary: S.optionalKey(S.String).pipe(
-    $I.annoteKey("WithStepOptions.summary", {
-      description: "The success summary; omitted means the default check-mark line naming the step.",
+export class WithStepOptions extends S.Opaque<WithStepOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The info line emitted when the step **succeeds**.
+     *
+     * **Details**
+     *
+     * Defaults to `✅ <name>`. This is the line the buffered transcript is traded
+     * for: a green step reports that it happened and nothing else.
+     *
+     * **Example** (Customize the success summary)
+     *
+     * ```ts
+     * import type { WithStepOptions } from "@beep/github-actions/ActionLogger";
+     *
+     * const options: WithStepOptions.Encoded = { summary: "Published" };
+     * console.log(options.summary) // Published
+     * ```
+     *
+     * @category configuration
+     * @since 0.0.0
+     */
+    summary: S.optionalKey(S.String).pipe(
+      $I.annoteKey("WithStepOptions.summary", {
+        description: "The success summary; omitted means the default check-mark line naming the step.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("WithStepOptions", {
+      description: "Plain-object options customizing a successful action step's summary.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("WithStepOptions", {
-    description: "Plain-object options customizing a successful action step's summary.",
-  })
-);
+  )
+) {}
 
 /**
  * The plain-object options accepted by {@link ActionLoggerShape.withStep}.
@@ -304,7 +324,15 @@ export const WithStepOptions = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type WithStepOptions = typeof WithStepOptions.Type;
+export declare namespace WithStepOptions {
+  /**
+   * The plain object a {@link WithStepOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof WithStepOptions.Encoded;
+}
 
 /**
  * The members of the {@link ActionLogger} service: log groups, buffered steps,
@@ -425,8 +453,15 @@ export interface ActionLoggerShape {
    * @since 0.0.0
    */
   readonly withBuffer: {
-    <A, E, R>(label: string, effect: Effect.Effect<A, E, R>, options?: WithBufferOptions): Effect.Effect<A, E, R>;
-    <A, E, R>(effect: Effect.Effect<A, E, R>, options?: WithBufferOptions): (label: string) => Effect.Effect<A, E, R>;
+    <A, E, R>(
+      label: string,
+      effect: Effect.Effect<A, E, R>,
+      options?: WithBufferOptions.Encoded
+    ): Effect.Effect<A, E, R>;
+    <A, E, R>(
+      effect: Effect.Effect<A, E, R>,
+      options?: WithBufferOptions.Encoded
+    ): (label: string) => Effect.Effect<A, E, R>;
   };
   /**
    * Run a named step: quiet when it succeeds, its full transcript when it does
@@ -476,8 +511,11 @@ export interface ActionLoggerShape {
    * @since 0.0.0
    */
   readonly withStep: {
-    <A, E, R>(name: string, effect: Effect.Effect<A, E, R>, options?: WithStepOptions): Effect.Effect<A, E, R>;
-    <A, E, R>(effect: Effect.Effect<A, E, R>, options?: WithStepOptions): (name: string) => Effect.Effect<A, E, R>;
+    <A, E, R>(name: string, effect: Effect.Effect<A, E, R>, options?: WithStepOptions.Encoded): Effect.Effect<A, E, R>;
+    <A, E, R>(
+      effect: Effect.Effect<A, E, R>,
+      options?: WithStepOptions.Encoded
+    ): (name: string) => Effect.Effect<A, E, R>;
   };
 }
 
@@ -487,14 +525,21 @@ const make = Effect.gen(function* () {
   const flushActive = Effect.flatMap(ActiveBuffer, (state) => (state === null ? Effect.void : flush(state)));
 
   const withBuffer: {
-    <A, E, R>(label: string, effect: Effect.Effect<A, E, R>, options?: WithBufferOptions): Effect.Effect<A, E, R>;
-    <A, E, R>(effect: Effect.Effect<A, E, R>, options?: WithBufferOptions): (label: string) => Effect.Effect<A, E, R>;
+    <A, E, R>(
+      label: string,
+      effect: Effect.Effect<A, E, R>,
+      options?: WithBufferOptions.Encoded
+    ): Effect.Effect<A, E, R>;
+    <A, E, R>(
+      effect: Effect.Effect<A, E, R>,
+      options?: WithBufferOptions.Encoded
+    ): (label: string) => Effect.Effect<A, E, R>;
   } = dual(
     (args) => P.isString(args[0]),
     Effect.fn("withBuffer")(function* <A, E, R>(
       label: string,
       effect: Effect.Effect<A, E, R>,
-      options?: WithBufferOptions
+      options?: WithBufferOptions.Encoded
     ) {
       const minimum = yield* References.MinimumLogLevel;
       const stepDebug = yield* env.isDebug;
@@ -551,7 +596,11 @@ const make = Effect.gen(function* () {
 
     withStep: dual(
       (args) => P.isString(args[0]),
-      <A, E, R>(name: string, effect: Effect.Effect<A, E, R>, options?: WithStepOptions): Effect.Effect<A, E, R> =>
+      <A, E, R>(
+        name: string,
+        effect: Effect.Effect<A, E, R>,
+        options?: WithStepOptions.Encoded
+      ): Effect.Effect<A, E, R> =>
         withBuffer(
           name,
           // Written through `Console` rather than `Effect.logError`, so it lands
@@ -715,13 +764,19 @@ export class ActionLogger extends Context.Service<ActionLogger, ActionLoggerShap
     group: dual(2, <A, E, R>(_name: string, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> => effect),
     withBuffer: dual(
       (args) => P.isString(args[0]),
-      <A, E, R>(_label: string, effect: Effect.Effect<A, E, R>, _options?: WithBufferOptions): Effect.Effect<A, E, R> =>
-        effect
+      <A, E, R>(
+        _label: string,
+        effect: Effect.Effect<A, E, R>,
+        _options?: WithBufferOptions.Encoded
+      ): Effect.Effect<A, E, R> => effect
     ),
     withStep: dual(
       (args) => P.isString(args[0]),
-      <A, E, R>(_name: string, effect: Effect.Effect<A, E, R>, _options?: WithStepOptions): Effect.Effect<A, E, R> =>
-        effect
+      <A, E, R>(
+        _name: string,
+        effect: Effect.Effect<A, E, R>,
+        _options?: WithStepOptions.Encoded
+      ): Effect.Effect<A, E, R> => effect
     ),
     notice: dual(
       (args) => P.isString(args[0]),

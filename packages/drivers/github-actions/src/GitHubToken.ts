@@ -1,5 +1,13 @@
+/**
+ * GitHub App installation tokens minted for a job, persisted across phases and revoked at the end.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { GitHubApp, InstallationToken } from "@beep/github/GitHubApp";
 import { GitHubClient } from "@beep/github/GitHubClient";
+import { RetryPolicy } from "@beep/github/Resilience";
 import { PermissionLevel, TokenPermissions } from "@beep/github/TokenPermissions";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
@@ -9,12 +17,12 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ActionState } from "./ActionState.ts";
 import { Secret } from "./Secret.ts";
 import type { BotIdentity, GitHubAppShape } from "@beep/github/GitHubApp";
-import type { RetryPolicy } from "@beep/github/Resilience";
 import type { ActionStateError } from "./ActionState.ts";
 
 const $I = $GithubActionsId.create("GitHubToken");
@@ -102,49 +110,61 @@ const DEFAULT_KEY = "githubToken";
  * @category type-level
  * @since 0.0.0
  */
-export const ProvisionOptions = S.Struct({
-  /** The app id or client id. */
-  appId: S.String.pipe($I.annoteKey("ProvisionOptions.appId", { description: "The app id or client id." })),
-  /** The app's private key, in PEM. */
-  privateKey: S.Redacted(S.String).pipe(
-    $I.annoteKey("ProvisionOptions.privateKey", { description: "The app's private key, in PEM." })
-  ),
-  /** The installation. Discovered from `owner`, or from the app's only installation, when omitted. */
-  installationId: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("ProvisionOptions.installationId", { description: "The installation id, discovered when omitted." })
-  ),
-  /** The account whose installation to use, when `installationId` is omitted. */
-  owner: S.optionalKey(S.String).pipe(
-    $I.annoteKey("ProvisionOptions.owner", { description: "The account whose installation to discover." })
-  ),
-  /**
-   * The permissions the action needs.
-   *
-   * **Details**
-   *
-   * Verified against what GitHub actually granted, which can be narrower than
-   * what was asked for. Checked **before** the token is persisted, so a
-   * workflow with a misconfigured installation fails at `pre` with a message
-   * naming the missing permission rather than in the middle of `main` with a
-   * `403` on one request.
-   */
-  required: S.optionalKey(S.Record(S.String, PermissionLevel)).pipe(
-    $I.annoteKey("ProvisionOptions.required", { description: "The permissions to verify before persisting the token." })
-  ),
-  /** The `GITHUB_STATE` key. One default, so `pre` and `post` agree without saying so. */
-  stateKey: S.optionalKey(S.String).pipe(
-    $I.annoteKey("ProvisionOptions.stateKey", { description: "The state key; defaults to githubToken." })
-  ),
-}).pipe(
-  $I.annoteSchema("ProvisionOptions", { description: "Options for minting and persisting an installation token." })
-);
+export class ProvisionOptions extends S.Opaque<ProvisionOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The app id or client id. */
+    appId: S.String.pipe($I.annoteKey("ProvisionOptions.appId", { description: "The app id or client id." })),
+    /** The app's private key, in PEM. */
+    privateKey: S.Redacted(S.String).pipe(
+      $I.annoteKey("ProvisionOptions.privateKey", { description: "The app's private key, in PEM." })
+    ),
+    /** The installation. Discovered from `owner`, or from the app's only installation, when omitted. */
+    installationId: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("ProvisionOptions.installationId", { description: "The installation id, discovered when omitted." })
+    ),
+    /** The account whose installation to use, when `installationId` is omitted. */
+    owner: S.optionalKey(S.String).pipe(
+      $I.annoteKey("ProvisionOptions.owner", { description: "The account whose installation to discover." })
+    ),
+    /**
+     * The permissions the action needs.
+     *
+     * **Details**
+     *
+     * Verified against what GitHub actually granted, which can be narrower than
+     * what was asked for. Checked **before** the token is persisted, so a
+     * workflow with a misconfigured installation fails at `pre` with a message
+     * naming the missing permission rather than in the middle of `main` with a
+     * `403` on one request.
+     */
+    required: S.optionalKey(S.Record(S.String, PermissionLevel)).pipe(
+      $I.annoteKey("ProvisionOptions.required", {
+        description: "The permissions to verify before persisting the token.",
+      })
+    ),
+    /** The `GITHUB_STATE` key. One default, so `pre` and `post` agree without saying so. */
+    stateKey: S.optionalKey(S.String).pipe(
+      $I.annoteKey("ProvisionOptions.stateKey", { description: "The state key; defaults to githubToken." })
+    ),
+  }).pipe(
+    $I.annoteSchema("ProvisionOptions", { description: "Options for minting and persisting an installation token." })
+  )
+) {}
 /**
  * Decoded credentials, installation selection and persistence options for provisioning a token.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ProvisionOptions = typeof ProvisionOptions.Type;
+export declare namespace ProvisionOptions {
+  /**
+   * The plain object a {@link ProvisionOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ProvisionOptions.Encoded;
+}
 
 /**
  * Where to read a persisted token from.
@@ -165,30 +185,44 @@ export type ProvisionOptions = typeof ProvisionOptions.Type;
  * @category type-level
  * @since 0.0.0
  */
-export const ReadOptions = S.Struct({
-  /** The `GITHUB_STATE` key. */
-  stateKey: S.optionalKey(S.String).pipe(
-    $I.annoteKey("ReadOptions.stateKey", { description: "The state key; defaults to githubToken." })
-  ),
-  /**
-   * How long before the stated expiry to treat the token as spent.
-   *
-   * **Details**
-   *
-   * A minute by default. The window exists because the check and the request
-   * it guards are not the same instant.
-   */
-  skew: S.optionalKey(S.Duration).pipe(
-    $I.annoteKey("ReadOptions.skew", { description: "The expiry safety window; defaults to one minute." })
-  ),
-}).pipe($I.annoteSchema("ReadOptions", { description: "Options for reading a persisted installation token." }));
+export class ReadOptions extends S.Opaque<ReadOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The `GITHUB_STATE` key. */
+    stateKey: S.optionalKey(S.String).pipe(
+      $I.annoteKey("ReadOptions.stateKey", { description: "The state key; defaults to githubToken." })
+    ),
+    /**
+     * How long before the stated expiry to treat the token as spent.
+     *
+     * **Details**
+     *
+     * A minute by default. The window exists because the check and the request
+     * it guards are not the same instant.
+     */
+    skew: S.optionalKey(S.Duration).pipe(
+      $I.annoteKey("ReadOptions.skew", { description: "The expiry safety window; defaults to one minute." })
+    ),
+  }).pipe($I.annoteSchema("ReadOptions", { description: "Options for reading a persisted installation token." }))
+) {}
 /**
  * Decoded state-key and expiry-window options for reading a persisted token.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type ReadOptions = typeof ReadOptions.Type;
+export declare namespace ReadOptions {
+  /**
+   * The plain object a {@link ReadOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ReadOptions.Encoded;
+}
+
+const FetchFunction = S.declare<typeof globalThis.fetch>((input): input is typeof globalThis.fetch =>
+  P.isFunction(input)
+).pipe($I.annoteSchema("FetchFunction", { description: "A fetch implementation." }));
 
 /**
  * How to build a client from a persisted token.
@@ -197,15 +231,53 @@ export type ReadOptions = typeof ReadOptions.Type;
  * @category type-level
  * @since 0.0.0
  */
-export interface ClientLayerOptions extends ReadOptions {
-  /** A GitHub Enterprise API root. */
-  readonly baseUrl?: string | undefined;
-  /** A replacement for the global `fetch`. */
-  readonly fetch?: typeof globalThis.fetch | undefined;
-  /** Retry behavior. Defaults to the client's own policy; `"off"` disables it. */
-  readonly retry?: RetryPolicy | "off" | undefined;
-  /** Appended to octokit's own user agent. */
-  readonly userAgent?: string | undefined;
+export class ClientLayerOptions extends S.Opaque<ClientLayerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    ...ReadOptions.fields,
+    /** A GitHub Enterprise API root. */
+    baseUrl: S.optionalKey(S.String).pipe(
+      $I.annoteKey("ClientLayerOptions.baseUrl", { description: "A GitHub Enterprise API root." })
+    ),
+    /** A replacement for the global `fetch`. */
+    fetch: S.optionalKey(FetchFunction).pipe(
+      $I.annoteKey("ClientLayerOptions.fetch", { description: "A replacement for the global fetch." })
+    ),
+    /** Retry behavior. Defaults to the client's own policy; `"off"` disables it. */
+    retry: S.optionalKey(S.Union([RetryPolicy, S.Literal("off")])).pipe(
+      $I.annoteKey("ClientLayerOptions.retry", {
+        description: "Retry behavior. Defaults to the client's own policy; off disables it.",
+      })
+    ),
+    /** Appended to octokit's own user agent. */
+    userAgent: S.optionalKey(S.String).pipe(
+      $I.annoteKey("ClientLayerOptions.userAgent", { description: "Appended to octokit's own user agent." })
+    ),
+  }).pipe($I.annoteSchema("ClientLayerOptions", { description: "How to build a client from a persisted token." }))
+) {}
+
+/**
+ * Companion types for {@link ClientLayerOptions}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ClientLayerOptions {
+  /**
+   * The plain object a {@link ClientLayerOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ClientLayerOptions.Encoded;
+
+  /**
+   * The field values {@link GitHubToken.clientLayer} takes: a `retry` policy
+   * already admitted as a `RetryPolicy`, so nothing re-validates it.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Admitted = S.Struct.Type<typeof ClientLayerOptions.fields>;
 }
 
 /**
@@ -224,11 +296,18 @@ export interface ClientLayerOptions extends ReadOptions {
  * unauthenticated against GitHub's sixty-per-hour-per-IP limit.
  */
 const identified: {
-  (app: GitHubAppShape, options: ProvisionOptions, minted: InstallationToken): Effect.Effect<InstallationToken>;
-  (options: ProvisionOptions, minted: InstallationToken): (app: GitHubAppShape) => Effect.Effect<InstallationToken>;
+  (app: GitHubAppShape, options: ProvisionOptions.Encoded, minted: InstallationToken): Effect.Effect<InstallationToken>;
+  (
+    options: ProvisionOptions.Encoded,
+    minted: InstallationToken
+  ): (app: GitHubAppShape) => Effect.Effect<InstallationToken>;
 } = dual(
   3,
-  Effect.fn("identified")(function* (app: GitHubAppShape, options: ProvisionOptions, minted: InstallationToken) {
+  Effect.fn("identified")(function* (
+    app: GitHubAppShape,
+    options: ProvisionOptions.Encoded,
+    minted: InstallationToken
+  ) {
     const resolved = yield* Effect.result(
       app.identity({
         appId: options.appId,
@@ -350,7 +429,7 @@ export abstract class GitHubToken {
    *
    * @since 0.0.0
    */
-  static readonly provision = Effect.fn("GitHubToken.provision")(function* (options: ProvisionOptions) {
+  static readonly provision = Effect.fn("GitHubToken.provision")(function* (options: ProvisionOptions.Encoded) {
     const app = yield* GitHubApp;
     const state = yield* ActionState;
     const key = options.stateKey ?? DEFAULT_KEY;
@@ -406,7 +485,7 @@ export abstract class GitHubToken {
    *
    * @since 0.0.0
    */
-  static readonly read = Effect.fn("GitHubToken.read")(function* (options: ReadOptions = {}) {
+  static readonly read = Effect.fn("GitHubToken.read")(function* (options: ReadOptions.Encoded = {}) {
     const state = yield* ActionState;
     const token = yield* state.get(options.stateKey ?? DEFAULT_KEY, InstallationToken);
     const now = yield* DateTime.now;
@@ -436,7 +515,7 @@ export abstract class GitHubToken {
    *
    * @since 0.0.0
    */
-  static readonly botIdentity = Effect.fn("GitHubToken.botIdentity")(function* (options: ReadOptions = {}) {
+  static readonly botIdentity = Effect.fn("GitHubToken.botIdentity")(function* (options: ReadOptions.Encoded = {}) {
     return (yield* GitHubToken.read(options)).botIdentity() satisfies BotIdentity;
   });
 
@@ -467,7 +546,7 @@ export abstract class GitHubToken {
    * @since 0.0.0
    */
   static readonly clientLayer = (
-    options: ClientLayerOptions = {}
+    options: ClientLayerOptions.Admitted = {}
   ): Layer.Layer<GitHubClient, ActionStateError | GitHubTokenError, ActionState> =>
     Layer.unwrap(
       Effect.map(GitHubToken.read(options), (token) =>
@@ -509,7 +588,7 @@ export abstract class GitHubToken {
    *
    * @since 0.0.0
    */
-  static readonly dispose = Effect.fn("GitHubToken.dispose")(function* (options: ReadOptions = {}) {
+  static readonly dispose = Effect.fn("GitHubToken.dispose")(function* (options: ReadOptions.Encoded = {}) {
     const app = yield* GitHubApp;
     const state = yield* ActionState;
     const found = yield* state.getOptional(options.stateKey ?? DEFAULT_KEY, InstallationToken);

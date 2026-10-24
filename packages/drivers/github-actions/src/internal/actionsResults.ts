@@ -40,21 +40,31 @@ const $I = $GithubActionsId.create("internal/actionsResults");
  * @category models
  * @since 0.0.0
  */
-export const BackendIds = S.Struct({
-  workflowRunBackendId: S.String.pipe(
-    $I.annoteKey("BackendIds.workflowRunBackendId", { description: "The workflow run's backend identifier." })
-  ),
-  workflowJobRunBackendId: S.String.pipe(
-    $I.annoteKey("BackendIds.workflowJobRunBackendId", { description: "The workflow job run's backend identifier." })
-  ),
-}).pipe($I.annoteSchema("BackendIds", { description: "The run and job identifiers used by the artifact protocol." }));
+export class BackendIds extends S.Opaque<BackendIds, { readonly brand: unique symbol }>()(
+  S.Struct({
+    workflowRunBackendId: S.String.pipe(
+      $I.annoteKey("BackendIds.workflowRunBackendId", { description: "The workflow run's backend identifier." })
+    ),
+    workflowJobRunBackendId: S.String.pipe(
+      $I.annoteKey("BackendIds.workflowJobRunBackendId", { description: "The workflow job run's backend identifier." })
+    ),
+  }).pipe($I.annoteSchema("BackendIds", { description: "The run and job identifiers used by the artifact protocol." }))
+) {}
 
 /**
  * The plain-object identifiers accepted by {@link BackendIds}.
  * @category type-level
  * @since 0.0.0
  */
-export type BackendIds = typeof BackendIds.Type;
+export declare namespace BackendIds {
+  /**
+   * The plain object a {@link BackendIds} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof BackendIds.Encoded;
+}
 
 /**
  * Where the results backend is and how to talk to it.
@@ -77,52 +87,64 @@ export type BackendIds = typeof BackendIds.Type;
  * @category models
  * @since 0.0.0
  */
-export const ResultsBackend = S.Struct({
-  /** Always ends in `/`, so a caller composes paths by concatenation. */
-  baseUrl: S.String.pipe(
-    $I.annoteKey("ResultsBackend.baseUrl", {
-      description: "The results backend URL, normalized by resultsBackend to end in a slash.",
+export class ResultsBackend extends S.Opaque<ResultsBackend, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** Always ends in `/`, so a caller composes paths by concatenation. */
+    baseUrl: S.String.pipe(
+      $I.annoteKey("ResultsBackend.baseUrl", {
+        description: "The results backend URL, normalized by resultsBackend to end in a slash.",
+      })
+    ),
+    /**
+     * The runtime token.
+     *
+     * **Details**
+     *
+     * Wrapped on the way *in*, not unwrapped on the way out: it arrives from the
+     * environment as plaintext, and `HttpClientRequest.bearerToken` accepts a
+     * `Redacted` directly, so this package's declassification seam is never
+     * involved and `Redacted.value` is never called.
+     */
+    token: S.Redacted(S.String).pipe(
+      $I.annoteKey("ResultsBackend.token", {
+        description: "The runner's runtime token, preserved as a redacted value.",
+      })
+    ),
+    /**
+     * The backend ids, or why they could not be read.
+     *
+     * **Details**
+     *
+     * A `Result` rather than a failure, because only the artifact protocol needs
+     * them: a runtime token with no `Actions.Results` scope must not stop a cache
+     * save that never looks at one.
+     */
+    backendIds: S.Result(BackendIds, S.String).pipe(
+      $I.annoteKey("ResultsBackend.backendIds", {
+        description: "Artifact backend identifiers, or why they could not be read.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ResultsBackend", {
+      description: "Plain-object results backend coordinates and artifact scope resolution.",
     })
-  ),
-  /**
-   * The runtime token.
-   *
-   * **Details**
-   *
-   * Wrapped on the way *in*, not unwrapped on the way out: it arrives from the
-   * environment as plaintext, and `HttpClientRequest.bearerToken` accepts a
-   * `Redacted` directly, so this package's declassification seam is never
-   * involved and `Redacted.value` is never called.
-   */
-  token: S.Redacted(S.String).pipe(
-    $I.annoteKey("ResultsBackend.token", { description: "The runner's runtime token, preserved as a redacted value." })
-  ),
-  /**
-   * The backend ids, or why they could not be read.
-   *
-   * **Details**
-   *
-   * A `Result` rather than a failure, because only the artifact protocol needs
-   * them: a runtime token with no `Actions.Results` scope must not stop a cache
-   * save that never looks at one.
-   */
-  backendIds: S.Result(BackendIds, S.String).pipe(
-    $I.annoteKey("ResultsBackend.backendIds", {
-      description: "Artifact backend identifiers, or why they could not be read.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("ResultsBackend", {
-    description: "Plain-object results backend coordinates and artifact scope resolution.",
-  })
-);
+  )
+) {}
 
 /**
  * The plain-object coordinates accepted by {@link ResultsBackend}.
  * @category type-level
  * @since 0.0.0
  */
-export type ResultsBackend = typeof ResultsBackend.Type;
+export declare namespace ResultsBackend {
+  /**
+   * The plain object a {@link ResultsBackend} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ResultsBackend.Encoded;
+}
 
 /**
  * The variable naming the backend. Absent outside a `uses:` step.
@@ -235,7 +257,7 @@ const resultsScopeIds = (entry: string): Result.Result<BackendIds, string> => {
   const [, run, job, ...rest] = Str.split(entry, ":");
   return A.isReadonlyArrayNonEmpty(rest) || run === undefined || run === "" || job === undefined || job === ""
     ? Result.fail(`the runtime token's Actions.Results scope is malformed: "${entry}"`)
-    : Result.succeed({ workflowRunBackendId: run, workflowJobRunBackendId: job });
+    : Result.succeed(BackendIds.make({ workflowRunBackendId: run, workflowJobRunBackendId: job }));
 };
 
 /**

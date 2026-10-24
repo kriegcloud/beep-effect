@@ -1,3 +1,10 @@
+/**
+ * A GitHub Actions cache key and the restore-key ladder that goes with it.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { GlobSet } from "@beep/glob";
 import { $GithubActionsId } from "@beep/identity/packages";
 import { descend } from "@beep/walker/Descend";

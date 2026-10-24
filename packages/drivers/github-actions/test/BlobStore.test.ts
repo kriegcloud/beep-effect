@@ -41,7 +41,7 @@ const fetchStub = (
     { preconnect: () => {} }
   );
 
-const CONFIG: S3Config = {
+const CONFIG: S3Config.Encoded = {
   bucket: "cache",
   region: "auto",
   endpoint: "https://account.r2.cloudflarestorage.com",
@@ -62,7 +62,7 @@ const recordingOutputs = () => {
   return { masked, layer };
 };
 
-const s3 = (fake: typeof globalThis.fetch, config: S3Config = CONFIG, outputs = recordingOutputs()) =>
+const s3 = (fake: typeof globalThis.fetch, config: S3Config.Encoded = CONFIG, outputs = recordingOutputs()) =>
   BlobStore.layerS3(config).pipe(
     Layer.provide(
       Layer.mergeAll(

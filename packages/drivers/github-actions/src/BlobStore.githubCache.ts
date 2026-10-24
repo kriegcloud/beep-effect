@@ -1,3 +1,10 @@
+/**
+ * The GitHub Actions cache backend for `BlobStore`.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import * as Effect from "effect/Effect";
 import * as HttpClient from "effect/http/HttpClient";
 import * as Layer from "effect/Layer";

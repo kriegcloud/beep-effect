@@ -5,7 +5,6 @@ import * as Path from "effect/Path";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import { ActionEnvironment } from "../ActionEnvironment.ts";
 import { isWindowsRunner } from "./runner.ts";
-import type { ActionEnvironmentShape } from "../ActionEnvironment.ts";
 
 // The platform services the archive-backed protocols (`ActionCache` and
 // `Artifact`) resolve once, at layer construction, so every member's `R` is
@@ -28,22 +27,6 @@ export type RunnerServiceRequirements =
   | ChildProcessSpawner.ChildProcessSpawner;
 
 /**
- * The resolved services, plus whether the runner is Windows.
- *
- * @internal
- * @category type-level
- * @since 0.0.0
- */
-export interface RunnerServices {
-  readonly env: ActionEnvironmentShape;
-  readonly fs: FileSystem.FileSystem;
-  readonly http: HttpClient.HttpClient;
-  readonly path: Path.Path;
-  readonly spawner: ChildProcessSpawner.ChildProcessSpawner["Service"];
-  readonly windows: boolean;
-}
-
-/**
  * Resolve the archive-backed services' platform once.
  *
  * **Example** (Reference the resolver)
@@ -59,7 +42,7 @@ export interface RunnerServices {
  * @category constructors
  * @since 0.0.0
  */
-export const runnerServices: Effect.Effect<RunnerServices, never, RunnerServiceRequirements> = Effect.gen(function* () {
+export const runnerServices = Effect.gen(function* () {
   const env = yield* ActionEnvironment;
   return {
     env,

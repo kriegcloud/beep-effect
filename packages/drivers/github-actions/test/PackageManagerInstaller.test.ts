@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import {
   ActionEnvironment,
   AmbientPackageManager,
@@ -13,7 +14,8 @@ import { CorepackIntegrityHash, IntegrityHash } from "@beep/npm-spec/IntegrityHa
 import { PackageManagerPin } from "@beep/npm-spec/PackageManagerPin";
 import { provideScopedLayer } from "@beep/test-utils/Layer";
 import { assert, describe, it } from "@effect/vitest";
-import { assertExitFailure, assertSuccess } from "@effect/vitest/utils";
+import { assertExitFailure, assertSuccess, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -507,7 +509,6 @@ const corepack = (value: string): IntegrityHashBrand =>
 
 /** Narrow to the tool-cache variant or fail the test loudly. */
 const cachedOf = (installed: InstalledPackageManager): CachedPackageManager => {
-  assert.instanceOf(installed, CachedPackageManager);
   assert.strictEqual(installed.source, "tool-cache");
   if (!S.is(CachedPackageManager)(installed)) {
     assert.fail("expected a cached package manager");
@@ -517,14 +518,17 @@ const cachedOf = (installed: InstalledPackageManager): CachedPackageManager => {
 
 describe("PackageManagerInstaller", () => {
   it("preserves the structural install-options contract", () => {
-    const options: PackageManagerInstallOptions = {
+    const options: PackageManagerInstallOptions.Encoded = {
       integrity: corepack("sha512.deadbeef"),
       nativeIntegrity: { "@pnpm/exe.win32-x64": "sha512-3q2+7w==" },
     };
     assert.isTrue(S.is(PackageManagerInstallOptions)({}));
     assert.isTrue(S.is(PackageManagerInstallOptions)(options));
     assert.deepEqual(S.decodeResult(PackageManagerInstallOptions)(options).pipe(Result.getOrThrow), options);
-    assert.deepEqual(S.decodeResult(PackageManagerInstallOptions)({}).pipe(Result.getOrThrow), {});
+    assert.deepEqual(
+      S.decodeResult(PackageManagerInstallOptions)({}).pipe(Result.getOrThrow),
+      PackageManagerInstallOptions.make({})
+    );
     // Exact optional keys (EF-40): an optional key is omitted, never undefined.
     for (const key of ["requireIntegrity", "integrity", "registry", "nativeIntegrity", "allowAmbient"]) {
       assert.isFalse(S.is(PackageManagerInstallOptions)({ ...options, [key]: undefined }));
@@ -798,7 +802,7 @@ describe("PackageManagerInstaller", () => {
           }),
           test: Effect.gen(function* () {
             const installed = yield* install("npm@9.9.9");
-            assert.instanceOf(installed, AmbientPackageManager);
+            assertTrue(S.is(AmbientPackageManager)(installed));
             assert.strictEqual(installed.source, "ambient");
             assert.strictEqual(installed.version, "9.9.9");
             // The discriminant is structural: the ambient variant HAS no
@@ -885,7 +889,7 @@ describe("PackageManagerInstaller", () => {
           }),
           test: Effect.gen(function* () {
             const installed = yield* install("npm@9.9.9", { allowAmbient: true });
-            assert.instanceOf(installed, AmbientPackageManager);
+            assertTrue(S.is(AmbientPackageManager)(installed));
             assert.strictEqual(installed.source, "ambient");
           }),
         }))
@@ -3151,8 +3155,8 @@ describe("PackageManagerInstaller", () => {
           decode
         );
 
-        assert.instanceOf(cachedBack, CachedPackageManager);
-        assert.instanceOf(ambientBack, AmbientPackageManager);
+        assertTrue(S.is(CachedPackageManager)(cachedBack));
+        assertTrue(S.is(AmbientPackageManager)(ambientBack));
         // The discriminant narrows in the type AND at runtime: the tool-cache
         // variant carries directory + binDir, the ambient one has neither.
         if (cachedBack.source === "tool-cache") {
@@ -3211,4 +3215,19 @@ describe("PackageManagerInstaller", () => {
       it.effect("an override wins", runTest);
     });
   });
+});
+
+describe("InstalledPackageManager codec property", () => {
+  it.effect.prop(
+    "InstalledPackageManager round-trips through its codec",
+    [Arbitrary.schema(InstalledPackageManager)],
+    ([value]) =>
+      Effect.gen(function* () {
+        assert.deepStrictEqual(
+          yield* S.decodeEffect(InstalledPackageManager)(yield* S.encodeEffect(InstalledPackageManager)(value)),
+          value
+        );
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 });

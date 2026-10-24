@@ -1,6 +1,8 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { ActionEnvironment, ActionLogger } from "@beep/github-actions";
 import { WithBufferOptions, WithStepOptions } from "@beep/github-actions/ActionLogger";
 import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
@@ -34,11 +36,11 @@ describe("ActionLogger", () => {
   describe("options contracts", () => {
     it.effect("WithBufferOptions preserves plain objects and exact optional flush/discard policies", () =>
       Effect.gen(function* () {
-        const omitted: WithBufferOptions = {};
-        assert.deepStrictEqual(yield* S.decodeEffect(WithBufferOptions)(omitted), {});
-        assert.deepStrictEqual(yield* S.encodeEffect(WithBufferOptions)(omitted), {});
+        const omitted: WithBufferOptions.Encoded = {};
+        assert.deepStrictEqual(yield* S.decodeEffect(WithBufferOptions)(omitted), WithBufferOptions.make({}));
+        assert.deepStrictEqual(yield* S.encodeEffect(WithBufferOptions)(WithBufferOptions.make(omitted)), {});
         for (const onSuccess of ["flush", "discard"] as const) {
-          const options: WithBufferOptions = { onSuccess };
+          const options: WithBufferOptions.Encoded = { onSuccess };
           assert.deepStrictEqual(yield* S.decodeEffect(WithBufferOptions)(options), options);
         }
         assert.isFalse(S.is(WithBufferOptions)({ onSuccess: undefined }));
@@ -49,11 +51,11 @@ describe("ActionLogger", () => {
 
     it.effect("WithStepOptions preserves plain objects, exact optional summaries and empty strings", () =>
       Effect.gen(function* () {
-        const omitted: WithStepOptions = {};
-        assert.deepStrictEqual(yield* S.decodeEffect(WithStepOptions)(omitted), {});
-        assert.deepStrictEqual(yield* S.encodeEffect(WithStepOptions)(omitted), {});
+        const omitted: WithStepOptions.Encoded = {};
+        assert.deepStrictEqual(yield* S.decodeEffect(WithStepOptions)(omitted), WithStepOptions.make({}));
+        assert.deepStrictEqual(yield* S.encodeEffect(WithStepOptions)(WithStepOptions.make(omitted)), {});
         for (const summary of ["", "Published"]) {
-          const options: WithStepOptions = { summary };
+          const options: WithStepOptions.Encoded = { summary };
           assert.deepStrictEqual(yield* S.decodeEffect(WithStepOptions)(options), options);
         }
         assert.isFalse(S.is(WithStepOptions)({ summary: undefined }));
@@ -608,4 +610,19 @@ describe("ActionLogger", () => {
       });
     }
   });
+});
+
+describe("WithStepOptions codec property", () => {
+  it.effect.prop(
+    "WithStepOptions round-trips through its codec",
+    [Arbitrary.schema(WithStepOptions)],
+    ([value]) =>
+      Effect.gen(function* () {
+        assert.deepStrictEqual(
+          yield* S.decodeEffect(WithStepOptions)(yield* S.encodeEffect(WithStepOptions)(value)),
+          value
+        );
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 });

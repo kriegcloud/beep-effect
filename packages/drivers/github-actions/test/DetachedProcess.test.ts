@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import {
   DetachedLogUnavailableError,
   DetachedNotReadyError,
@@ -10,6 +11,7 @@ import {
 import { DetachedSpawnOptions } from "@beep/github-actions/DetachedProcess";
 import { assert, describe, it, vi } from "@effect/vitest";
 import { assertFalse, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
@@ -48,10 +50,11 @@ const scratch = () => mkdtempSync(join(hostOs.tmpdir(), "effected-detached-"));
  * clock (a real child is filling a real file), up to `attempts` more times.
  */
 const eventually = (predicate: () => boolean, attempts = 100): Effect.Effect<boolean> =>
-  Effect.sync(predicate).pipe(
-    Effect.repeat({ schedule: Schedule.spaced("20 millis"), until: identity<boolean>, times: attempts }),
-    TestClock.withLive
-  );
+  Effect.repeat(Effect.sync(predicate), {
+    schedule: Schedule.spaced("20 millis"),
+    until: identity<boolean>,
+    times: attempts,
+  }).pipe(TestClock.withLive);
 
 /** Whether a pid is still alive, asked without signalling it. */
 const alive = (pid: number): boolean => {
@@ -621,13 +624,13 @@ describe("DetachedProcess", () => {
 describe("DetachedSpawnOptions schema contract", () => {
   it.effect("keeps absent options absent and rejects explicit undefined", () =>
     Effect.gen(function* () {
-      const minimal: DetachedSpawnOptions = { command: "node", logFile: "/tmp/child.log" };
+      const minimal: DetachedSpawnOptions.Encoded = { command: "node", logFile: "/tmp/child.log" };
       assert.deepStrictEqual(yield* S.decodeEffect(DetachedSpawnOptions)(minimal), minimal);
       // Exact optional keys (EF-40): an optional key is omitted, never undefined.
       for (const key of ["args", "cwd", "base", "env"]) {
         assert.isFalse(S.is(DetachedSpawnOptions)({ ...minimal, [key]: undefined }));
       }
-      const configured: DetachedSpawnOptions = {
+      const configured: DetachedSpawnOptions.Encoded = {
         ...minimal,
         args: ["worker.js"],
         cwd: "/work",
@@ -648,5 +651,17 @@ describe("DetachedSpawnOptions schema contract", () => {
       );
       assert.isFalse(S.is(DetachedSpawnOptions)({ command: "node", logFile: "/tmp/child.log", base: { PATH: 42 } }));
     })
+  );
+});
+
+describe("ProcessId codec property", () => {
+  it.effect.prop(
+    "ProcessId round-trips through its codec",
+    [Arbitrary.schema(ProcessId)],
+    ([value]) =>
+      Effect.gen(function* () {
+        assert.deepStrictEqual(yield* S.decodeEffect(ProcessId)(yield* S.encodeEffect(ProcessId)(value)), value);
+      }),
+    { arbitrary: fcRuns(100) }
   );
 });

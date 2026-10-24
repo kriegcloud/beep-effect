@@ -1,3 +1,10 @@
+/**
+ * Child-process environments: `PATH` prepends and the platform's command-launch rules.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
@@ -24,26 +31,28 @@ const $I = $GithubActionsId.create("ChildEnv");
  * @category schemas
  * @since 0.0.0
  */
-export const PathPrependEnv = S.Struct({
-  /** The additions to hand a child, ready to merge over the parent's block. */
-  env: S.Record(S.String, S.String).pipe(
-    $I.annoteKey("PathPrependEnv.env", { description: "The additions to merge over the parent environment." })
-  ),
-  /**
-   * Always `true`, and part of the answer on purpose: `env` **without**
-   * `extendEnv: true` silently replaces the child's entire environment with
-   * this one entry. See {@link ChildEnv.prependPath}.
-   */
-  extendEnv: S.tag(true).pipe(
-    $I.annoteKey("PathPrependEnv.extendEnv", {
-      description: "Merge additions rather than replacing the child environment.",
+export class PathPrependEnv extends S.Opaque<PathPrependEnv, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The additions to hand a child, ready to merge over the parent's block. */
+    env: S.Record(S.String, S.String).pipe(
+      $I.annoteKey("PathPrependEnv.env", { description: "The additions to merge over the parent environment." })
+    ),
+    /**
+     * Always `true`, and part of the answer on purpose: `env` **without**
+     * `extendEnv: true` silently replaces the child's entire environment with
+     * this one entry. See {@link ChildEnv.prependPath}.
+     */
+    extendEnv: S.tag(true).pipe(
+      $I.annoteKey("PathPrependEnv.extendEnv", {
+        description: "Merge additions rather than replacing the child environment.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PathPrependEnv", {
+      description: "Plain-object PATH additions paired with the required environment merge flag.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("PathPrependEnv", {
-    description: "Plain-object PATH additions paired with the required environment merge flag.",
-  })
-);
+  )
+) {}
 
 /**
  * The environment additions type accepted by {@link PathPrependEnv}.
@@ -52,7 +61,15 @@ export const PathPrependEnv = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type PathPrependEnv = typeof PathPrependEnv.Type;
+export declare namespace PathPrependEnv {
+  /**
+   * The plain object a {@link PathPrependEnv} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PathPrependEnv.Encoded;
+}
 
 /**
  * What {@link ChildEnv.prependPath} derives the additions from.
@@ -70,35 +87,37 @@ export type PathPrependEnv = typeof PathPrependEnv.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const PathPrependOptions = S.Struct({
-  /**
-   * The environment the child will inherit — on a runner, `process.env`.
-   *
-   * **Details**
-   *
-   * Explicit rather than defaulted, per the package rule stated on
-   * {@link ChildEnv} — which is also what makes the Windows casing branch
-   * exercisable from a test on any host.
-   */
-  base: S.Record(S.String, S.UndefinedOr(S.String)).pipe(
-    $I.annoteKey("PathPrependOptions.base", {
-      description: "The explicitly supplied parent environment, including undefined values.",
+export class PathPrependOptions extends S.Opaque<PathPrependOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The environment the child will inherit — on a runner, `process.env`.
+     *
+     * **Details**
+     *
+     * Explicit rather than defaulted, per the package rule stated on
+     * {@link ChildEnv} — which is also what makes the Windows casing branch
+     * exercisable from a test on any host.
+     */
+    base: S.Record(S.String, S.UndefinedOr(S.String)).pipe(
+      $I.annoteKey("PathPrependOptions.base", {
+        description: "The explicitly supplied parent environment, including undefined values.",
+      })
+    ),
+    /**
+     * The platform the child runs on, `process.platform`-shaped. Decides the
+     * `PATH` entry delimiter: `;` on `win32`, `:` everywhere else.
+     */
+    platform: S.String.pipe(
+      $I.annoteKey("PathPrependOptions.platform", {
+        description: "The platform selecting PATH casing and its entry delimiter.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PathPrependOptions", {
+      description: "Plain-object inputs for constructing child PATH additions without ambient defaults.",
     })
-  ),
-  /**
-   * The platform the child runs on, `process.platform`-shaped. Decides the
-   * `PATH` entry delimiter: `;` on `win32`, `:` everywhere else.
-   */
-  platform: S.String.pipe(
-    $I.annoteKey("PathPrependOptions.platform", {
-      description: "The platform selecting PATH casing and its entry delimiter.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("PathPrependOptions", {
-    description: "Plain-object inputs for constructing child PATH additions without ambient defaults.",
-  })
-);
+  )
+) {}
 
 /**
  * The options type accepted by {@link PathPrependOptions}.
@@ -107,7 +126,15 @@ export const PathPrependOptions = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type PathPrependOptions = typeof PathPrependOptions.Type;
+export declare namespace PathPrependOptions {
+  /**
+   * The plain object a {@link PathPrependOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PathPrependOptions.Encoded;
+}
 
 /**
  * Child-process environment construction: prepending directories to `PATH`
@@ -239,15 +266,18 @@ export abstract class ChildEnv {
    * @since 0.0.0
    */
   static readonly prependPath: {
-    (dirs: readonly [string, ...ReadonlyArray<string>], options: PathPrependOptions): PathPrependEnv;
-    (options: PathPrependOptions): (dirs: readonly [string, ...ReadonlyArray<string>]) => PathPrependEnv;
-  } = dual(2, (dirs: readonly [string, ...ReadonlyArray<string>], options: PathPrependOptions): PathPrependEnv => {
-    const delimiter = options.platform === "win32" ? ";" : ":";
-    const key = options.platform === "win32" ? ChildEnv.pathKeyOf(options.base) : "PATH";
-    const inherited = O.getOrUndefined(R.get(options.base, key));
-    const entries = inherited === undefined || inherited === "" ? dirs : [...dirs, inherited];
-    return { env: { [key]: A.join(entries, delimiter) }, extendEnv: true };
-  });
+    (dirs: readonly [string, ...ReadonlyArray<string>], options: PathPrependOptions.Encoded): PathPrependEnv;
+    (options: PathPrependOptions.Encoded): (dirs: readonly [string, ...ReadonlyArray<string>]) => PathPrependEnv;
+  } = dual(
+    2,
+    (dirs: readonly [string, ...ReadonlyArray<string>], options: PathPrependOptions.Encoded): PathPrependEnv => {
+      const delimiter = options.platform === "win32" ? ";" : ":";
+      const key = options.platform === "win32" ? ChildEnv.pathKeyOf(options.base) : "PATH";
+      const inherited = O.getOrUndefined(R.get(options.base, key));
+      const entries = inherited === undefined || inherited === "" ? dirs : [...dirs, inherited];
+      return PathPrependEnv.make({ env: { [key]: A.join(entries, delimiter) }, extendEnv: true });
+    }
+  );
 
   /**
    * Whether a bare-name command must be launched through a shell on this

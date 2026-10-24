@@ -45,7 +45,7 @@ it.effect("cache RPCs reject absent upload URLs and unconfirmed finalization and
         ["fallback"],
         "version"
       )(client({ ok: true, signedDownloadUrl: "https://download", matchedKey: "fallback" })),
-      { url: "https://download", matchedKey: "fallback" }
+      CacheHit.make({ url: "https://download", matchedKey: "fallback" })
     );
   })
 );
@@ -53,9 +53,9 @@ it.effect("cache RPCs reject absent upload URLs and unconfirmed finalization and
 it.effect("cache hit schema requires matchedKey while accepting explicit undefined", () =>
   Effect.gen(function* () {
     for (const matchedKey of ["fallback", undefined]) {
-      const hit = { url: "", matchedKey } satisfies CacheHit;
+      const hit = { url: "", matchedKey } satisfies CacheHit.Encoded;
       assert.deepStrictEqual(yield* S.decodeEffect(CacheHit)(hit), hit);
-      assert.deepStrictEqual(yield* S.encodeEffect(CacheHit)(hit), hit);
+      assert.deepStrictEqual(yield* S.encodeEffect(CacheHit)(CacheHit.make(hit)), hit);
     }
     assert.isFalse(S.is(CacheHit)({ url: "https://download" }));
     assert.isFalse(S.is(CacheHit)({ url: "https://download", matchedKey: 1 }));
@@ -96,10 +96,7 @@ it.effect("upload outcome matching constructs refusal only for rejected response
     assert.strictEqual(refusals, 3);
     assertSome(
       yield* lookupDownload(client({ ok: true, signedDownloadUrl: "https://download" }), "key", [], "version"),
-      {
-        url: "https://download",
-        matchedKey: undefined,
-      }
+      CacheHit.make({ url: "https://download", matchedKey: undefined })
     );
   })
 );

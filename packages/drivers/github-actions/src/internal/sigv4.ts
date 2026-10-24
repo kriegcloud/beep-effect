@@ -88,31 +88,43 @@ export const uriEncode = (value: string): string =>
  * @category models
  * @since 0.0.0
  */
-export const SigV4Credentials = S.Struct({
-  accessKeyId: S.String.pipe(
-    $I.annoteKey("SigV4Credentials.accessKeyId", { description: "The public access key identifier." })
-  ),
-  secretAccessKey: S.String.pipe(
-    $I.annoteKey("SigV4Credentials.secretAccessKey", { description: "The already declassified signing secret." })
-  ),
-  sessionToken: S.optionalKey(S.String).pipe(
-    $I.annoteKey("SigV4Credentials.sessionToken", { description: "A temporary session token, absent otherwise." })
-  ),
-  region: S.String.pipe($I.annoteKey("SigV4Credentials.region", { description: "The signing region." })),
-  /** Almost always `"s3"` here, but the algorithm is not S3-specific. */
-  service: S.String.pipe($I.annoteKey("SigV4Credentials.service", { description: "The signing service, usually s3." })),
-}).pipe(
-  $I.annoteSchema("SigV4Credentials", {
-    description: "Plain-object credentials and coordinates used to sign a request.",
-  })
-);
+export class SigV4Credentials extends S.Opaque<SigV4Credentials, { readonly brand: unique symbol }>()(
+  S.Struct({
+    accessKeyId: S.String.pipe(
+      $I.annoteKey("SigV4Credentials.accessKeyId", { description: "The public access key identifier." })
+    ),
+    secretAccessKey: S.String.pipe(
+      $I.annoteKey("SigV4Credentials.secretAccessKey", { description: "The already declassified signing secret." })
+    ),
+    sessionToken: S.optionalKey(S.String).pipe(
+      $I.annoteKey("SigV4Credentials.sessionToken", { description: "A temporary session token, absent otherwise." })
+    ),
+    region: S.String.pipe($I.annoteKey("SigV4Credentials.region", { description: "The signing region." })),
+    /** Almost always `"s3"` here, but the algorithm is not S3-specific. */
+    service: S.String.pipe(
+      $I.annoteKey("SigV4Credentials.service", { description: "The signing service, usually s3." })
+    ),
+  }).pipe(
+    $I.annoteSchema("SigV4Credentials", {
+      description: "Plain-object credentials and coordinates used to sign a request.",
+    })
+  )
+) {}
 
 /**
  * The credential type derived from the executable contract.
  * @category models
  * @since 0.0.0
  */
-export type SigV4Credentials = typeof SigV4Credentials.Type;
+export declare namespace SigV4Credentials {
+  /**
+   * The plain object a {@link SigV4Credentials} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SigV4Credentials.Encoded;
+}
 
 /**
  * One request to sign.
@@ -132,42 +144,52 @@ export type SigV4Credentials = typeof SigV4Credentials.Type;
  * @category models
  * @since 0.0.0
  */
-export const SigV4Request = S.Struct({
-  method: S.String.pipe($I.annoteKey("SigV4Request.method", { description: "The HTTP method, preserved verbatim." })),
-  /** The raw path; every segment is encoded here, preserving empty segments. */
-  path: S.String.pipe(
-    $I.annoteKey("SigV4Request.path", { description: "The raw object path, including empty segments." })
-  ),
-  /** An already encoded endpoint pathname, without a trailing slash. */
-  encodedPathPrefix: S.optionalKey(S.String).pipe(
-    $I.annoteKey("SigV4Request.encodedPathPrefix", {
-      description: "An already encoded endpoint path prefix; omitted requests retain raw-path signing.",
+export class SigV4Request extends S.Opaque<SigV4Request, { readonly brand: unique symbol }>()(
+  S.Struct({
+    method: S.String.pipe($I.annoteKey("SigV4Request.method", { description: "The HTTP method, preserved verbatim." })),
+    /** The raw path; every segment is encoded here, preserving empty segments. */
+    path: S.String.pipe(
+      $I.annoteKey("SigV4Request.path", { description: "The raw object path, including empty segments." })
+    ),
+    /** An already encoded endpoint pathname, without a trailing slash. */
+    encodedPathPrefix: S.optionalKey(S.String).pipe(
+      $I.annoteKey("SigV4Request.encodedPathPrefix", {
+        description: "An already encoded endpoint path prefix; omitted requests retain raw-path signing.",
+      })
+    ),
+    host: S.String.pipe(
+      $I.annoteKey("SigV4Request.host", { description: "The host and optional port sent to the server." })
+    ),
+    /** Headers to sign, in any case and any order. */
+    headers: S.Record(S.String, S.String).pipe(
+      $I.annoteKey("SigV4Request.headers", { description: "String-valued headers in any case and order." })
+    ),
+    body: S.Uint8Array.pipe($I.annoteKey("SigV4Request.body", { description: "The exact payload bytes." })),
+    /** The signing instant. Explicit so a signature is reproducible in a test. */
+    now: S.instanceOf(Date).pipe(
+      $I.annoteKey("SigV4Request.now", { description: "The explicit JavaScript Date signing instant." })
+    ),
+  }).pipe(
+    $I.annoteSchema("SigV4Request", {
+      description: "A plain-object request with the exact payload and reproducible signing instant.",
     })
-  ),
-  host: S.String.pipe(
-    $I.annoteKey("SigV4Request.host", { description: "The host and optional port sent to the server." })
-  ),
-  /** Headers to sign, in any case and any order. */
-  headers: S.Record(S.String, S.String).pipe(
-    $I.annoteKey("SigV4Request.headers", { description: "String-valued headers in any case and order." })
-  ),
-  body: S.Uint8Array.pipe($I.annoteKey("SigV4Request.body", { description: "The exact payload bytes." })),
-  /** The signing instant. Explicit so a signature is reproducible in a test. */
-  now: S.instanceOf(Date).pipe(
-    $I.annoteKey("SigV4Request.now", { description: "The explicit JavaScript Date signing instant." })
-  ),
-}).pipe(
-  $I.annoteSchema("SigV4Request", {
-    description: "A plain-object request with the exact payload and reproducible signing instant.",
-  })
-);
+  )
+) {}
 
 /**
  * The request type derived from the executable contract.
  * @category models
  * @since 0.0.0
  */
-export type SigV4Request = typeof SigV4Request.Type;
+export declare namespace SigV4Request {
+  /**
+   * The plain object a {@link SigV4Request} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SigV4Request.Encoded;
+}
 
 /** `20130524T000000Z` and `20130524`, the two forms the algorithm uses. */
 const timestamps = (now: Date): { readonly amzDate: string; readonly dateStamp: string } => {
@@ -212,8 +234,8 @@ const timestamps = (now: Date): { readonly amzDate: string; readonly dateStamp: 
  */
 export const canonicalize: {
   (
-    request: SigV4Request,
-    credentials: SigV4Credentials
+    request: SigV4Request.Encoded,
+    credentials: SigV4Credentials.Encoded
   ): {
     readonly headers: Record<string, string>;
     readonly canonicalRequest: string;
@@ -222,8 +244,8 @@ export const canonicalize: {
     readonly dateStamp: string;
   };
   (
-    credentials: SigV4Credentials
-  ): (request: SigV4Request) => {
+    credentials: SigV4Credentials.Encoded
+  ): (request: SigV4Request.Encoded) => {
     readonly headers: Record<string, string>;
     readonly canonicalRequest: string;
     readonly signedHeaders: string;
@@ -233,8 +255,8 @@ export const canonicalize: {
 } = Function.dual(
   2,
   (
-    request: SigV4Request,
-    credentials: SigV4Credentials
+    request: SigV4Request.Encoded,
+    credentials: SigV4Credentials.Encoded
   ): {
     readonly headers: Record<string, string>;
     readonly canonicalRequest: string;
@@ -359,9 +381,9 @@ export const signingKey: {
  * @since 0.0.0
  */
 export const sign: {
-  (request: SigV4Request, credentials: SigV4Credentials): Record<string, string>;
-  (credentials: SigV4Credentials): (request: SigV4Request) => Record<string, string>;
-} = Function.dual(2, (request: SigV4Request, credentials: SigV4Credentials): Record<string, string> => {
+  (request: SigV4Request.Encoded, credentials: SigV4Credentials.Encoded): Record<string, string>;
+  (credentials: SigV4Credentials.Encoded): (request: SigV4Request.Encoded) => Record<string, string>;
+} = Function.dual(2, (request: SigV4Request.Encoded, credentials: SigV4Credentials.Encoded): Record<string, string> => {
   const { headers, canonicalRequest, signedHeaders, amzDate, dateStamp } = canonicalize(request, credentials);
   const scope = `${dateStamp}/${credentials.region}/${credentials.service}/aws4_request`;
   const stringToSign = A.join([ALGORITHM, amzDate, scope, sha256Hex(canonicalRequest)], "\n");

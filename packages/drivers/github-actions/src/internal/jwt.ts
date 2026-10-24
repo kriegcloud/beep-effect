@@ -29,31 +29,64 @@ const PayloadFailureDetail = S.String.pipe(
 );
 
 /**
- * Why a token's payload could not be read.
+ * A token whose framing is wrong: not three segments, or an empty payload.
  *
- * **Example** (Validate JwtPayloadFailure input)
+ * **Example** (Admit a framing failure)
  *
  * ```ts
- * import * as S from "effect/Schema";
- * import * as Console from "effect/Console";
- * import * as Effect from "effect/Effect";
- * import { JwtPayloadFailure } from "@beep/github-actions/internal/jwt";
+ * import { JwtSegmentsFailure } from "@beep/github-actions/internal/jwt";
  *
- * const input = { kind: "segments", detail: "expected three JWT segments" };
- * Effect.runSync(Console.log(S.is(JwtPayloadFailure)(input))) // true
+ * const failure = JwtSegmentsFailure.make({ kind: "segments", detail: "expected three segments, got 1" });
+ * console.log(failure.kind) // segments
  * ```
  *
  * @internal
- * @category type-level
+ * @category models
  * @since 0.0.0
  */
-export const JwtPayloadFailure = S.Union([
+export class JwtSegmentsFailure extends S.Opaque<JwtSegmentsFailure, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: JwtPayloadFailureKind.members[0].pipe(
       $I.annoteKey("JwtPayloadFailure.segments.kind", { description: "Invalid token framing." })
     ),
     detail: PayloadFailureDetail,
-  }),
+  }).pipe($I.annoteSchema("JwtSegmentsFailure", { description: "A JWT whose segment framing is invalid." }))
+) {}
+
+/**
+ * Companion types for {@link JwtSegmentsFailure}.
+ *
+ * @internal
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace JwtSegmentsFailure {
+  /**
+   * The plain object a {@link JwtSegmentsFailure} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof JwtSegmentsFailure.Encoded;
+}
+
+/**
+ * A token whose payload segment is not base64url JSON, with the codec failure.
+ *
+ * **Example** (Admit a payload failure)
+ *
+ * ```ts
+ * import { JwtCodecFailure } from "@beep/github-actions/internal/jwt";
+ *
+ * const failure = JwtCodecFailure.make({ kind: "payload", detail: "the payload is not base64url JSON", cause: "bad" });
+ * console.log(failure.kind) // payload
+ * ```
+ *
+ * @internal
+ * @category models
+ * @since 0.0.0
+ */
+export class JwtCodecFailure extends S.Opaque<JwtCodecFailure, { readonly brand: unique symbol }>()(
   S.Struct({
     kind: JwtPayloadFailureKind.members[1].pipe(
       $I.annoteKey("JwtPayloadFailure.payload.kind", { description: "Invalid base64url or JSON payload." })
@@ -64,20 +97,61 @@ export const JwtPayloadFailure = S.Union([
         description: "The underlying codec failure, including explicit undefined.",
       })
     ),
-  }),
-]).pipe(
+  }).pipe($I.annoteSchema("JwtCodecFailure", { description: "A JWT whose payload is not base64url JSON." }))
+) {}
+
+/**
+ * Companion types for {@link JwtCodecFailure}.
+ *
+ * @internal
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace JwtCodecFailure {
+  /**
+   * The plain object a {@link JwtCodecFailure} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof JwtCodecFailure.Encoded;
+}
+
+/**
+ * Why a token's payload could not be read: its framing, or its payload codec.
+ *
+ * **Example** (Validate JwtPayloadFailure input)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { JwtPayloadFailure } from "@beep/github-actions/internal/jwt";
+ *
+ * const input = { kind: "segments", detail: "expected three JWT segments" };
+ * console.log(S.is(JwtPayloadFailure)(input)) // true
+ * ```
+ *
+ * @internal
+ * @category schemas
+ * @since 0.0.0
+ */
+export const JwtPayloadFailure = S.Union([JwtSegmentsFailure, JwtCodecFailure]).pipe(
   S.toTaggedUnion("kind"),
   $I.annoteSchema("JwtPayloadFailure", {
-    description: "A plain-object JWT failure with a cause required only for payload failures.",
+    description: "A JWT failure with a cause required only for payload failures.",
   })
 );
 
 /**
- * The failure variants accepted by {@link JwtPayloadFailure}.
+ * The failure variants accepted by {@link (JwtPayloadFailure:variable)}.
+ *
+ * @internal
  * @category type-level
  * @since 0.0.0
  */
 export type JwtPayloadFailure = typeof JwtPayloadFailure.Type;
+
+const codecFailure = (cause: unknown): JwtPayloadFailure =>
+  JwtCodecFailure.make({ kind: "payload", detail: "the payload is not base64url JSON", cause });
 
 /**
  * The decoded payload of `token` — the middle segment, base64url JSON —
@@ -101,20 +175,15 @@ export const payloadOf = (token: string): Result.Result<unknown, JwtPayloadFailu
   const segments = Str.split(token, ".");
   const payload = segments[1];
   if (segments.length !== 3 || payload === undefined || payload === "") {
-    return Result.fail({ kind: "segments", detail: `expected three segments, got ${segments.length}` });
+    return Result.fail(
+      JwtSegmentsFailure.make({ kind: "segments", detail: `expected three segments, got ${segments.length}` })
+    );
   }
   const json = Base64Url.decodeString(payload);
   if (Result.isFailure(json)) {
-    return Result.fail({ kind: "payload", detail: "the payload is not base64url JSON", cause: json.failure });
+    return json.failure.pipe(codecFailure, Result.fail);
   }
-  return Result.mapError(
-    S.decodeResult(Json)(json.success),
-    (cause): JwtPayloadFailure => ({
-      kind: "payload",
-      detail: "the payload is not base64url JSON",
-      cause,
-    })
-  );
+  return Result.mapError(S.decodeResult(Json)(json.success), codecFailure);
 };
 
 /**

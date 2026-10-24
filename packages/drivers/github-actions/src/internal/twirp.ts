@@ -11,13 +11,12 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";
 import * as Function from "effect/Function";
+import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as P from "effect/Predicate";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type * as HttpClient from "effect/http/HttpClient";
-import type * as Redacted from "effect/Redacted";
 
 const $I = $GithubActionsId.create("internal/twirp");
 const TwirpFailureKind = LiteralKit(["transport", "status", "malformed"]).pipe(
@@ -198,6 +197,62 @@ export const isRetryable = (failure: TwirpFailure): boolean => {
 const RETRIES = 4;
 
 /**
+ * One Twirp request: the client that sends it, where, as whom, and the body.
+ *
+ * **Example** (Check a request's fields)
+ *
+ * ```ts
+ * import { TwirpCall } from "@beep/github-actions/internal/twirp";
+ *
+ * console.log(Object.keys(TwirpCall.fields)) // ["http","baseUrl","service","token","method","body"]
+ * ```
+ *
+ * @internal
+ * @category models
+ * @since 0.0.0
+ */
+export class TwirpCall extends S.Opaque<TwirpCall, { readonly brand: unique symbol }>()(
+  S.Struct({
+    http: S.declare<HttpClient.HttpClient>(HttpClient.isHttpClient).pipe(
+      $I.annoteKey("TwirpCall.http", { description: "The HTTP client that sends the request." })
+    ),
+    baseUrl: S.String.pipe(
+      $I.annoteKey("TwirpCall.baseUrl", { description: "The results backend root, with its trailing slash." })
+    ),
+    service: S.String.pipe($I.annoteKey("TwirpCall.service", { description: "The fully qualified Twirp service." })),
+    token: S.Redacted(S.String).pipe($I.annoteKey("TwirpCall.token", { description: "The runtime bearer token." })),
+    method: S.String.pipe($I.annoteKey("TwirpCall.method", { description: "The RPC method name." })),
+    body: S.Record(S.String, S.Unknown).pipe($I.annoteKey("TwirpCall.body", { description: "The JSON request body." })),
+  }).pipe($I.annoteSchema("TwirpCall", { description: "One Twirp request to the results backend." }))
+) {}
+
+/**
+ * Companion types for {@link TwirpCall}.
+ *
+ * @internal
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace TwirpCall {
+  /**
+   * The plain object a {@link TwirpCall} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TwirpCall.Encoded;
+
+  /**
+   * The field values {@link twirpCall} takes: a live client and an already
+   * redacted token, so nothing is re-validated per request.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Admitted = S.Struct.Type<typeof TwirpCall.fields>;
+}
+
+/**
  * A Twirp RPC: `POST <baseUrl>twirp/<service>/<method>` with a JSON body.
  *
  * **Details**
@@ -228,14 +283,7 @@ const RETRIES = 4;
  * @category clients
  * @since 0.0.0
  */
-export const twirpCall = (options: {
-  readonly http: HttpClient.HttpClient;
-  readonly baseUrl: string;
-  readonly service: string;
-  readonly token: Redacted.Redacted<string>;
-  readonly method: string;
-  readonly body: Record<string, unknown>;
-}): Effect.Effect<TwirpResult<unknown>, TwirpFailure> => {
+export const twirpCall = (options: TwirpCall.Admitted): Effect.Effect<TwirpResult<unknown>, TwirpFailure> => {
   const { baseUrl, body, http, method, service, token } = options;
   const attempt = Effect.gen(function* () {
     const request = HttpClientRequest.post(`${baseUrl}twirp/${service}/${method}`).pipe(

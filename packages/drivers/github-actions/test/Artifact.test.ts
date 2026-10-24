@@ -1,7 +1,15 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import * as Arbitrary from "effect/Arbitrary";
 // Real archive bytes, subprocess extraction, and spawn-time manifest IO need the Node platform.
 
 import { Artifact, ArtifactError, BlobTransferError } from "@beep/github-actions";
-import { DownloadOptions, DownloadResult, UploadOptions } from "@beep/github-actions/Artifact";
+import {
+  ArtifactRef,
+  DownloadOptions,
+  DownloadResult,
+  UploadOptions,
+  UploadResult,
+} from "@beep/github-actions/Artifact";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertNone, assertSome } from "@effect/vitest/utils";
@@ -135,8 +143,10 @@ const MALFORMED_ID_CASES = A.flatMap(["artifactId", "artifact_id"], (idField) =>
 
 /** The call that reaches each answering method. */
 const MALFORMED_ID_CALL = {
-  FinalizeArtifact: (artifacts: Artifact["Service"]) => artifacts.upload("logs", ["/work/a.txt"], "/work"),
-  DeleteArtifact: (artifacts: Artifact["Service"]) => artifacts.delete("logs"),
+  FinalizeArtifact: (artifacts: Artifact["Service"]): Effect.Effect<void, ArtifactError> =>
+    Effect.asVoid(artifacts.upload("logs", ["/work/a.txt"], "/work")),
+  DeleteArtifact: (artifacts: Artifact["Service"]): Effect.Effect<void, ArtifactError> =>
+    Effect.asVoid(artifacts.delete("logs")),
 };
 
 /** The RPCs each call makes before the malformed id stops it. */
@@ -153,7 +163,7 @@ describe("Artifact", () => {
         { retentionDays: 7, compressionLevel: 4.9 },
         { retentionDays: -1, compressionLevel: 12 },
       ]) {
-        const plain: UploadOptions = options;
+        const plain: UploadOptions.Encoded = options;
         assert.deepStrictEqual(yield* S.decodeEffect(UploadOptions)(plain), plain);
       }
       // Exact optional keys (EF-40): an optional key is omitted, never undefined.
@@ -161,10 +171,10 @@ describe("Artifact", () => {
       assert.isFalse(S.is(UploadOptions)({ compressionLevel: undefined }));
       assert.isFalse(S.is(DownloadOptions)({ path: undefined }));
       for (const options of [{}, { path: "/out" }]) {
-        const plain: DownloadOptions = options;
+        const plain: DownloadOptions.Encoded = options;
         assert.deepStrictEqual(yield* S.decodeEffect(DownloadOptions)(plain), plain);
       }
-      const result: DownloadResult = { downloadPath: "/out" };
+      const result: DownloadResult.Encoded = { downloadPath: "/out" };
       assert.deepStrictEqual(yield* S.decodeEffect(DownloadResult)(result), result);
       assert.isFalse(S.is(UploadOptions)({ retentionDays: Number.POSITIVE_INFINITY }));
       assert.isFalse(S.is(UploadOptions)({ compressionLevel: Number.NaN }));
@@ -309,8 +319,11 @@ describe("Artifact", () => {
       it.effect("preserves missing-id defaults at finalize and delete boundaries", () =>
         Effect.gen(function* () {
           const artifacts = yield* Artifact;
-          assert.deepStrictEqual(yield* artifacts.upload("logs", ["/work/a.txt"], "/work"), { id: 0, size: 13 });
-          assert.deepStrictEqual(yield* artifacts.delete("logs"), { id: 11 });
+          assert.deepStrictEqual(
+            yield* artifacts.upload("logs", ["/work/a.txt"], "/work"),
+            UploadResult.make({ id: 0, size: 13 })
+          );
+          assert.deepStrictEqual(yield* artifacts.delete("logs"), ArtifactRef.make({ id: 11 }));
         })
       );
     });
@@ -787,4 +800,19 @@ describe("Artifact", () => {
       })
     );
   });
+});
+
+describe("DownloadResult codec property", () => {
+  it.effect.prop(
+    "DownloadResult round-trips through its codec",
+    [Arbitrary.schema(DownloadResult)],
+    ([value]) =>
+      Effect.gen(function* () {
+        assert.deepStrictEqual(
+          yield* S.decodeEffect(DownloadResult)(yield* S.encodeEffect(DownloadResult)(value)),
+          value
+        );
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 });

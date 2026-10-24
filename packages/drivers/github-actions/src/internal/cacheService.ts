@@ -225,24 +225,34 @@ export const finalizeUpload: {
  * @category models
  * @since 0.0.0
  */
-export const CacheHit = S.Struct({
-  url: S.String.pipe($I.annoteKey("CacheHit.url", { description: "The signed download URL." })),
-  /** Absent when the backend did not say; a caller treats that as the primary key. */
-  matchedKey: S.UndefinedOr(S.String).pipe(
-    $I.annoteKey("CacheHit.matchedKey", {
-      description: "The matched cache key; explicitly undefined when the backend did not say.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("CacheHit", { description: "A plain-object cache download location and the key that matched." })
-);
+export class CacheHit extends S.Opaque<CacheHit, { readonly brand: unique symbol }>()(
+  S.Struct({
+    url: S.String.pipe($I.annoteKey("CacheHit.url", { description: "The signed download URL." })),
+    /** Absent when the backend did not say; a caller treats that as the primary key. */
+    matchedKey: S.UndefinedOr(S.String).pipe(
+      $I.annoteKey("CacheHit.matchedKey", {
+        description: "The matched cache key; explicitly undefined when the backend did not say.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("CacheHit", { description: "A plain-object cache download location and the key that matched." })
+  )
+) {}
 
 /**
  * The plain-object hit accepted by {@link CacheHit}.
  * @category type-level
  * @since 0.0.0
  */
-export type CacheHit = typeof CacheHit.Type;
+export declare namespace CacheHit {
+  /**
+   * The plain object a {@link CacheHit} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CacheHit.Encoded;
+}
 
 /**
  * The signed download url for a key, walking the restore-key ladder.
@@ -293,6 +303,8 @@ export const lookupDownload: {
         return O.none();
       }
       const url = stringField(found, "signedDownloadUrl");
-      return url === undefined ? O.none() : O.some({ url, matchedKey: stringField(found, "matchedKey") });
+      return url === undefined
+        ? O.none()
+        : O.some(CacheHit.make({ url, matchedKey: stringField(found, "matchedKey") }));
     })
 );

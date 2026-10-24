@@ -1,3 +1,10 @@
+/**
+ * Detached children that outlive the step that started them: spawn, readiness probes and reaping.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import { IeeeNumber } from "@beep/schema/IeeeNumber";
@@ -10,8 +17,8 @@ import * as P from "effect/Predicate";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
+import { DurationInput } from "./internal/durationInput.ts";
 import { isErrno } from "./internal/fsProbe.ts";
-import type * as Duration from "effect/Duration";
 
 const $I = $GithubActionsId.create("DetachedProcess");
 
@@ -463,92 +470,94 @@ export type ProcessId = typeof ProcessId.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const DetachedSpawnOptions = S.Struct({
-  /**
-   * The executable.
-   *
-   * @since 0.0.0
-   */
-  command: S.String.pipe($I.annoteKey("DetachedSpawnOptions.command", { description: "The executable to start." })),
-  /**
-   * Its arguments.
-   *
-   * @since 0.0.0
-   */
-  args: S.String.pipe(
-    S.Array,
-    S.optionalKey,
-    $I.annoteKey("DetachedSpawnOptions.args", { description: "The executable arguments, omitted for none." })
-  ),
-  /**
-   * Where the child's stdout and stderr go, opened for append.
-   *
-   * **Gotchas**
-   *
-   * A file **descriptor**, not a pipe. An in-process pipe would keep the parent
-   * attached to the child and defeat the detachment, which is the upstream
-   * limitation this module exists to work around — core's `CommandOptions.stdout`
-   * maps to a pipe, and so do its additional fds. If core grows fd routing this
-   * becomes a thin adapter over it.
-   *
-   * @since 0.0.0
-   */
-  logFile: S.String.pipe(
-    $I.annoteKey("DetachedSpawnOptions.logFile", { description: "The file opened for append for stdout and stderr." })
-  ),
-  /**
-   * The working directory.
-   *
-   * @since 0.0.0
-   */
-  cwd: S.optionalKey(S.String).pipe(
-    $I.annoteKey("DetachedSpawnOptions.cwd", { description: "The child working directory, omitted to inherit it." })
-  ),
-  /**
-   * The environment the child inherits, before `env` is merged over it.
-   *
-   * **Details**
-   *
-   * Defaults to the parent's `process.env` — **the one sanctioned ambient
-   * fallback in this module**, the same class of default as
-   * `ActionInput.provider`'s `env = process.env`, and an exception to the
-   * package rule stated on `ChildEnv` (ambient process state is never read
-   * behind a caller's back) precisely because passing a value here is how a
-   * caller opts out of it. Supply it to give the child a controlled block —
-   * a test proving exactly what a worker sees, or a worker that must not
-   * inherit the action's secrets — remembering that a base without `PATH`
-   * costs the child its runtime. An `undefined` value is dropped by Node's
-   * spawn, never stringified.
-   *
-   * @since 0.0.0
-   */
-  base: S.optionalKey(S.Record(S.String, S.UndefinedOr(S.String))).pipe(
-    $I.annoteKey("DetachedSpawnOptions.base", {
-      description: "The base environment; omitted uses process.env at spawn time.",
+export class DetachedSpawnOptions extends S.Opaque<DetachedSpawnOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The executable.
+     *
+     * @since 0.0.0
+     */
+    command: S.String.pipe($I.annoteKey("DetachedSpawnOptions.command", { description: "The executable to start." })),
+    /**
+     * Its arguments.
+     *
+     * @since 0.0.0
+     */
+    args: S.String.pipe(
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("DetachedSpawnOptions.args", { description: "The executable arguments, omitted for none." })
+    ),
+    /**
+     * Where the child's stdout and stderr go, opened for append.
+     *
+     * **Gotchas**
+     *
+     * A file **descriptor**, not a pipe. An in-process pipe would keep the parent
+     * attached to the child and defeat the detachment, which is the upstream
+     * limitation this module exists to work around — core's `CommandOptions.stdout`
+     * maps to a pipe, and so do its additional fds. If core grows fd routing this
+     * becomes a thin adapter over it.
+     *
+     * @since 0.0.0
+     */
+    logFile: S.String.pipe(
+      $I.annoteKey("DetachedSpawnOptions.logFile", { description: "The file opened for append for stdout and stderr." })
+    ),
+    /**
+     * The working directory.
+     *
+     * @since 0.0.0
+     */
+    cwd: S.optionalKey(S.String).pipe(
+      $I.annoteKey("DetachedSpawnOptions.cwd", { description: "The child working directory, omitted to inherit it." })
+    ),
+    /**
+     * The environment the child inherits, before `env` is merged over it.
+     *
+     * **Details**
+     *
+     * Defaults to the parent's `process.env` — **the one sanctioned ambient
+     * fallback in this module**, the same class of default as
+     * `ActionInput.provider`'s `env = process.env`, and an exception to the
+     * package rule stated on `ChildEnv` (ambient process state is never read
+     * behind a caller's back) precisely because passing a value here is how a
+     * caller opts out of it. Supply it to give the child a controlled block —
+     * a test proving exactly what a worker sees, or a worker that must not
+     * inherit the action's secrets — remembering that a base without `PATH`
+     * costs the child its runtime. An `undefined` value is dropped by Node's
+     * spawn, never stringified.
+     *
+     * @since 0.0.0
+     */
+    base: S.optionalKey(S.Record(S.String, S.UndefinedOr(S.String))).pipe(
+      $I.annoteKey("DetachedSpawnOptions.base", {
+        description: "The base environment; omitted uses process.env at spawn time.",
+      })
+    ),
+    /**
+     * Environment additions.
+     *
+     * **Gotchas**
+     *
+     * **Merged over `base` (the parent's environment by default), not
+     * substituted for it.** A bare environment costs the child `PATH`, which
+     * usually means it cannot find its own runtime and dies before writing a
+     * word to the log — a failure that looks like a spawn bug and is not.
+     * Secrets belong here only via `Secret.forChildEnv`, which masks them on
+     * the way out.
+     *
+     * @since 0.0.0
+     */
+    env: S.optionalKey(S.Record(S.String, S.String)).pipe(
+      $I.annoteKey("DetachedSpawnOptions.env", { description: "Environment additions merged over the base." })
+    ),
+  }).pipe(
+    $I.annoteSchema("DetachedSpawnOptions", {
+      description: "Plain-object detached child launch options retaining optional and explicit-undefined inputs.",
     })
-  ),
-  /**
-   * Environment additions.
-   *
-   * **Gotchas**
-   *
-   * **Merged over `base` (the parent's environment by default), not
-   * substituted for it.** A bare environment costs the child `PATH`, which
-   * usually means it cannot find its own runtime and dies before writing a
-   * word to the log — a failure that looks like a spawn bug and is not.
-   * Secrets belong here only via `Secret.forChildEnv`, which masks them on
-   * the way out.
-   *
-   * @since 0.0.0
-   */
-  env: S.optionalKey(S.Record(S.String, S.String)).pipe(
-    $I.annoteKey("DetachedSpawnOptions.env", { description: "Environment additions merged over the base." })
-  ),
-}).pipe(
-  $I.annoteSchema("DetachedSpawnOptions", {
-    description: "Plain-object detached child launch options retaining optional and explicit-undefined inputs.",
-  })
-);
+  )
+) {}
 
 /**
  * The launch options type accepted by {@link DetachedSpawnOptions}.
@@ -557,7 +566,15 @@ export const DetachedSpawnOptions = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type DetachedSpawnOptions = typeof DetachedSpawnOptions.Type;
+export declare namespace DetachedSpawnOptions {
+  /**
+   * The plain object a {@link DetachedSpawnOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DetachedSpawnOptions.Encoded;
+}
 
 /**
  * How long to wait for a child to become ready.
@@ -566,19 +583,37 @@ export type DetachedSpawnOptions = typeof DetachedSpawnOptions.Type;
  * @category models
  * @since 0.0.0
  */
-export interface ReadinessOptions {
+export class ReadinessOptions extends S.Opaque<ReadinessOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** How many times to retry after the first probe. Defaults to 40. */
+    attempts: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("ReadinessOptions.attempts", {
+        description: "How many times to retry after the first probe. Defaults to 40.",
+      })
+    ),
+    /** Time between probes. Defaults to 150 milliseconds. */
+    interval: S.optionalKey(DurationInput).pipe(
+      $I.annoteKey("ReadinessOptions.interval", { description: "Time between probes. Defaults to 150 milliseconds." })
+    ),
+  }).pipe(
+    $I.annoteSchema("ReadinessOptions", { description: "How long to wait for a detached child to become ready." })
+  )
+) {}
+
+/**
+ * Companion types for {@link ReadinessOptions}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ReadinessOptions {
   /**
-   * How many times to retry after the first probe. Defaults to 40.
+   * The plain object a {@link ReadinessOptions} decodes from and encodes to.
    *
+   * @category type-level
    * @since 0.0.0
    */
-  readonly attempts?: number | undefined;
-  /**
-   * Time between probes. Defaults to 150 milliseconds.
-   *
-   * @since 0.0.0
-   */
-  readonly interval?: Duration.Input | undefined;
+  export type Encoded = typeof ReadinessOptions.Encoded;
 }
 
 /**
@@ -615,10 +650,10 @@ export interface DetachedProcessOps {
   readonly awaitReady: {
     <E, R>(
       probe: Effect.Effect<boolean, E, R>,
-      options?: ReadinessOptions
+      options?: ReadinessOptions.Encoded
     ): Effect.Effect<void, E | DetachedProcessError, R>;
     (
-      options?: ReadinessOptions
+      options?: ReadinessOptions.Encoded
     ): <E, R>(probe: Effect.Effect<boolean, E, R>) => Effect.Effect<void, E | DetachedProcessError, R>;
   };
   /**
@@ -635,7 +670,9 @@ export interface DetachedProcessOps {
    *
    * @since 0.0.0
    */
-  readonly spawn: (options: DetachedSpawnOptions) => Effect.Effect<ChildProcessSpawner.ProcessId, DetachedProcessError>;
+  readonly spawn: (
+    options: DetachedSpawnOptions.Encoded
+  ) => Effect.Effect<ChildProcessSpawner.ProcessId, DetachedProcessError>;
 }
 
 /** See {@link DetachedProcess.makeTestOps}: an unstubbed member dies naming itself. */
@@ -704,7 +741,7 @@ export abstract class DetachedProcess {
    * @category processes
    * @since 0.0.0
    */
-  static readonly spawn = Effect.fn("DetachedProcess.spawn")(function* (options: DetachedSpawnOptions) {
+  static readonly spawn = Effect.fn("DetachedProcess.spawn")(function* (options: DetachedSpawnOptions.Encoded) {
     const descriptor = yield* Effect.try({
       try: () => openSync(options.logFile, "a"),
       catch: (cause) =>
@@ -778,16 +815,16 @@ export abstract class DetachedProcess {
   static readonly awaitReady: {
     <E, R>(
       probe: Effect.Effect<boolean, E, R>,
-      options?: ReadinessOptions
+      options?: ReadinessOptions.Encoded
     ): Effect.Effect<void, E | DetachedNotReadyError, R>;
     (
-      options?: ReadinessOptions
+      options?: ReadinessOptions.Encoded
     ): <E, R>(probe: Effect.Effect<boolean, E, R>) => Effect.Effect<void, E | DetachedNotReadyError, R>;
   } = dual(
     (args) => Effect.isEffect(args[0]),
     Effect.fn("DetachedProcess.awaitReady")(function* <E, R>(
       probe: Effect.Effect<boolean, E, R>,
-      options?: ReadinessOptions
+      options?: ReadinessOptions.Encoded
     ) {
       // One initial probe plus `attempts` spaced retries, stopping early the
       // moment one answers ready; the last answer is what remains when the
@@ -972,7 +1009,7 @@ export abstract class DetachedProcess {
       (args) => Effect.isEffect(args[0]),
       <E, R>(
         _probe: Effect.Effect<boolean, E, R>,
-        _options?: ReadinessOptions
+        _options?: ReadinessOptions.Encoded
       ): Effect.Effect<void, E | DetachedProcessError, R> => dies("awaitReady")
     ),
     reap: dual(

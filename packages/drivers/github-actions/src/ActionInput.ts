@@ -1,3 +1,10 @@
+/**
+ * Action inputs, read as `Config` values.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
@@ -96,33 +103,35 @@ const FALSE = HashSet.fromIterable<string>(["false", "False", "FALSE"]);
  * @category models
  * @since 0.0.0
  */
-export const PairsOptions = S.Struct({
-  /**
-   * Reject a pair whose value is empty (`key=`).
-   *
-   * **Example** (Reject empty pair values)
-   *
-   * ```ts
-   * import type { PairsOptions } from "@beep/github-actions/ActionInput";
-   *
-   * const options: PairsOptions = { requireValue: true };
-   * console.log(options.requireValue) // true
-   * ```
-   *
-   * @defaultValue `false` — an empty value is a legitimate empty string.
-   * @category configuration
-   * @since 0.0.0
-   */
-  requireValue: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("PairsOptions.requireValue", {
-      description: "Reject pairs with empty values; omitted means empty values are accepted.",
+export class PairsOptions extends S.Opaque<PairsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * Reject a pair whose value is empty (`key=`).
+     *
+     * **Example** (Reject empty pair values)
+     *
+     * ```ts
+     * import type { PairsOptions } from "@beep/github-actions/ActionInput";
+     *
+     * const options: PairsOptions.Encoded = { requireValue: true };
+     * console.log(options.requireValue) // true
+     * ```
+     *
+     * @defaultValue `false` — an empty value is a legitimate empty string.
+     * @category configuration
+     * @since 0.0.0
+     */
+    requireValue: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("PairsOptions.requireValue", {
+        description: "Reject pairs with empty values; omitted means empty values are accepted.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PairsOptions", {
+      description: "Options controlling empty-value acceptance when reading action input pairs.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("PairsOptions", {
-    description: "Options controlling empty-value acceptance when reading action input pairs.",
-  })
-);
+  )
+) {}
 
 /**
  * The plain-object options accepted by {@link ActionInput.pairs}.
@@ -130,7 +139,15 @@ export const PairsOptions = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type PairsOptions = typeof PairsOptions.Type;
+export declare namespace PairsOptions {
+  /**
+   * The plain object a {@link PairsOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PairsOptions.Encoded;
+}
 
 /** Strip a trailing `#` comment and surrounding whitespace from one line. */
 const stripComment = (line: string): string => {
@@ -620,11 +637,11 @@ export class ActionInput {
    * @since 0.0.0
    */
   static readonly pairs: {
-    (name: string, options?: PairsOptions): Config.Config<Record<string, string>>;
-    (options?: PairsOptions): (name: string) => Config.Config<Record<string, string>>;
+    (name: string, options?: PairsOptions.Encoded): Config.Config<Record<string, string>>;
+    (options?: PairsOptions.Encoded): (name: string) => Config.Config<Record<string, string>>;
   } = dual(
     (args) => P.isString(args[0]),
-    (name: string, options?: PairsOptions): Config.Config<Record<string, string>> => {
+    (name: string, options?: PairsOptions.Encoded): Config.Config<Record<string, string>> => {
       const pair = pairLine(name, options?.requireValue ?? false);
       return Config.String(inputVariable(name)).pipe(
         Config.mapEffect((raw) =>

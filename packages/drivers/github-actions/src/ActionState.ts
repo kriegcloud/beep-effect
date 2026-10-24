@@ -1,3 +1,10 @@
+/**
+ * State that survives the `pre` → `main` → `post` phase boundary.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as Bool from "effect/Boolean";

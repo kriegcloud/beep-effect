@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import {
   TarExtractCommandOptions,
   tarExtractCommand,
@@ -8,6 +9,7 @@ import {
   zipManifest,
 } from "@beep/github-actions/internal/archiveCommands";
 import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -26,7 +28,7 @@ import * as S from "effect/Schema";
 describe("archiveCommands", () => {
   it.effect("option schemas preserve plain objects and required fields and reject explicit undefined flags", () =>
     Effect.gen(function* () {
-      const zip: ZipCommandOptions = {
+      const zip: ZipCommandOptions.Encoded = {
         windows: false,
         root: "/r",
         files: ["a"],
@@ -34,7 +36,7 @@ describe("archiveCommands", () => {
         destination: "/d",
         level: 4.9,
       };
-      const unzip: UnzipCommandOptions = { windows: true, source: "a.zip", destination: "out" };
+      const unzip: UnzipCommandOptions.Encoded = { windows: true, source: "a.zip", destination: "out" };
       assert.deepStrictEqual(yield* S.decodeEffect(ZipCommandOptions)(zip), zip);
       assert.deepStrictEqual(yield* S.decodeEffect(UnzipCommandOptions)(unzip), unzip);
       // Exact optional keys (EF-40): an optional key is omitted, never undefined.
@@ -43,7 +45,7 @@ describe("archiveCommands", () => {
         { archive: "a.tgz", destination: "out" },
         { archive: "a.tgz", destination: "out", flags: [] },
       ]) {
-        const plain: TarExtractCommandOptions = options;
+        const plain: TarExtractCommandOptions.Encoded = options;
         assert.deepStrictEqual(yield* S.decodeEffect(TarExtractCommandOptions)(plain), plain);
         assert.deepStrictEqual([...tarExtractCommand(plain).args], ["xzf", "a.tgz", "-C", "out"]);
       }
@@ -307,4 +309,19 @@ describe("archiveCommands", () => {
       assert.deepStrictEqual([...command.args], ["xJf", "--strip-components=1", "a.tar.xz", "-C", "out"]);
     });
   });
+});
+
+describe("UnzipCommandOptions codec property", () => {
+  it.effect.prop(
+    "UnzipCommandOptions round-trips through its codec",
+    [Arbitrary.schema(UnzipCommandOptions)],
+    ([value]) =>
+      Effect.gen(function* () {
+        assert.deepStrictEqual(
+          yield* S.decodeEffect(UnzipCommandOptions)(yield* S.encodeEffect(UnzipCommandOptions)(value)),
+          value
+        );
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 });

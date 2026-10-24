@@ -1,3 +1,10 @@
+/**
+ * The `@beep/sbom` `IdentityToken` contract served from the runner's OIDC token service.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { IdentityToken, IdentityTokenError } from "@beep/sbom/IdentityToken";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

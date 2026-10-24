@@ -1,9 +1,11 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { ActionEnvironment, ToolInstaller, ToolInstallerError } from "@beep/github-actions";
 import { ExtractOptions, ProvisionedFile, ProvisionFileOptions } from "@beep/github-actions/ToolInstaller";
 import { UnstubbedMemberError } from "@beep/github-reporting/internal/unstubbed";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, describe, it } from "@effect/vitest";
 import { assertExitFailure, assertExitSuccess, assertNone, assertSome } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
@@ -223,16 +225,16 @@ const liveWithSpawner = (root: string, spawner: Layer.Layer<ChildProcessSpawner.
 
 describe("ToolInstaller", () => {
   it("preserves the structural extraction and provisioning contracts", () => {
-    const extraction: ExtractOptions = { destination: "/out", flags: ["xz"] };
-    const options: ProvisionFileOptions = { tool: "tool", version: "1", url: "url", binary: "cli" };
-    const provisioned: ProvisionedFile = { directory: "/cache/tool/1/x64", binDir: "/cache/tool/1/x64" };
+    const extraction: ExtractOptions.Encoded = { destination: "/out", flags: ["xz"] };
+    const options: ProvisionFileOptions.Encoded = { tool: "tool", version: "1", url: "url", binary: "cli" };
+    const provisioned: ProvisionedFile.Encoded = { directory: "/cache/tool/1/x64", binDir: "/cache/tool/1/x64" };
     assert.isTrue(S.is(ExtractOptions)({}));
     assert.isTrue(S.is(ExtractOptions)(extraction));
     assert.deepEqual(S.decodeResult(ExtractOptions)(extraction).pipe(Result.getOrThrow), extraction);
     // Exact optional keys (EF-40): an optional key is omitted, never undefined.
     assert.isFalse(S.is(ExtractOptions)({ destination: undefined }));
     assert.isFalse(S.is(ExtractOptions)({ flags: undefined }));
-    assert.deepEqual(S.decodeResult(ExtractOptions)({}).pipe(Result.getOrThrow), {});
+    assert.deepEqual(S.decodeResult(ExtractOptions)({}).pipe(Result.getOrThrow), ExtractOptions.make({}));
     assert.isTrue(S.is(ExtractOptions)({ flags: [] }));
     assert.isTrue(S.is(ExtractOptions)({ destination: "", flags: ["xz", "-f"] }));
     assert.isFalse(S.is(ExtractOptions)({ flags: [1] }));
@@ -1156,4 +1158,19 @@ describe("ToolInstaller", () => {
         })
     );
   });
+});
+
+describe("ProvisionedFile codec property", () => {
+  it.effect.prop(
+    "ProvisionedFile round-trips through its codec",
+    [Arbitrary.schema(ProvisionedFile)],
+    ([value]) =>
+      Effect.gen(function* () {
+        assert.deepStrictEqual(
+          yield* S.decodeEffect(ProvisionedFile)(yield* S.encodeEffect(ProvisionedFile)(value)),
+          value
+        );
+      }),
+    { arbitrary: fcRuns(100) }
+  );
 });

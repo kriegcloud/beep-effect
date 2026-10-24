@@ -2,6 +2,7 @@
  * Makes secret declassification explicit while registering runner log masks.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";

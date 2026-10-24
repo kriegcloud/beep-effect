@@ -1,6 +1,11 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
-import { backendIdsFrom, misconfiguredDetail, resultsBackend } from "@beep/github-actions/internal/actionsResults";
+import {
+  BackendIds,
+  backendIdsFrom,
+  misconfiguredDetail,
+  resultsBackend,
+} from "@beep/github-actions/internal/actionsResults";
 import { MemoryFileSystem } from "@beep/memfs";
 import { assert, it } from "@effect/vitest";
 import { assertSuccess } from "@effect/vitest/utils";
@@ -24,7 +29,7 @@ it.effect.prop(
   ([run, job]) =>
     Effect.gen(function* () {
       const parsed = backendIdsFrom(yield* tokenFor(run, job));
-      assertSuccess(parsed, { workflowRunBackendId: run, workflowJobRunBackendId: job });
+      assertSuccess(parsed, BackendIds.make({ workflowRunBackendId: run, workflowJobRunBackendId: job }));
       const ids = Result.getOrThrow(parsed);
       assertSuccess(backendIdsFrom(yield* tokenFor(ids.workflowRunBackendId, ids.workflowJobRunBackendId)), ids);
     }),
@@ -46,7 +51,7 @@ it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
         const second = yield* read(first.baseUrl);
         assert.strictEqual(first.baseUrl, `https://example/${run}/`);
         assert.strictEqual(second.baseUrl, first.baseUrl);
-        assertSuccess(second.backendIds, { workflowRunBackendId: run, workflowJobRunBackendId: job });
+        assertSuccess(second.backendIds, BackendIds.make({ workflowRunBackendId: run, workflowJobRunBackendId: job }));
       }),
     runs
   );

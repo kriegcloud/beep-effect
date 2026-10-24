@@ -1,3 +1,10 @@
+/**
+ * Upload, list, download and delete GitHub Actions artifacts.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as O from "@beep/utils/Option";
@@ -161,20 +168,26 @@ export class ArtifactError extends S.TaggedError<ArtifactError, { readonly brand
  * @since 0.0.0
  */
 // A boundary struct preserves the backend's plain-record public representation.
-export const ArtifactItem = S.Struct({
-  /** The database id, which is what `download` takes. */
-  id: S.Finite.pipe($I.annoteKey("ArtifactItem.id", { description: "The database id, which is what download takes." })),
-  /** The name the artifact was uploaded under. */
-  name: S.String.pipe($I.annoteKey("ArtifactItem.name", { description: "The name the artifact was uploaded under." })),
-  /** The size of the stored zip, in bytes. */
-  size: S.Finite.pipe($I.annoteKey("ArtifactItem.size", { description: "The size of the stored zip, in bytes." })),
-  /** When it was created, ISO-8601, when the backend says. */
-  createdAt: S.String.pipe(
-    S.UndefinedOr,
-    S.optionalKey,
-    $I.annoteKey("ArtifactItem.createdAt", { description: "When it was created, ISO-8601, when the backend says." })
-  ),
-}).pipe($I.annoteSchema("ArtifactItem", { description: "One artifact, as the backend describes it." }));
+export class ArtifactItem extends S.Opaque<ArtifactItem, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The database id, which is what `download` takes. */
+    id: S.Finite.pipe(
+      $I.annoteKey("ArtifactItem.id", { description: "The database id, which is what download takes." })
+    ),
+    /** The name the artifact was uploaded under. */
+    name: S.String.pipe(
+      $I.annoteKey("ArtifactItem.name", { description: "The name the artifact was uploaded under." })
+    ),
+    /** The size of the stored zip, in bytes. */
+    size: S.Finite.pipe($I.annoteKey("ArtifactItem.size", { description: "The size of the stored zip, in bytes." })),
+    /** When it was created, ISO-8601, when the backend says. */
+    createdAt: S.String.pipe(
+      S.UndefinedOr,
+      S.optionalKey,
+      $I.annoteKey("ArtifactItem.createdAt", { description: "When it was created, ISO-8601, when the backend says." })
+    ),
+  }).pipe($I.annoteSchema("ArtifactItem", { description: "One artifact, as the backend describes it." }))
+) {}
 
 /**
  * The decoded plain-record representation of an artifact listing row.
@@ -183,7 +196,15 @@ export const ArtifactItem = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type ArtifactItem = typeof ArtifactItem.Type;
+export declare namespace ArtifactItem {
+  /**
+   * The plain object a {@link ArtifactItem} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ArtifactItem.Encoded;
+}
 
 /**
  * How to pack an upload.
@@ -208,55 +229,67 @@ export type ArtifactItem = typeof ArtifactItem.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const UploadOptions = S.Struct({
-  /**
-   * How long to keep it, in days.
-   *
-   * **Details**
-   *
-   * Bounded by the repository's own retention setting; omitted means the
-   * repository default. Zero or negative fails as `invalidOptions` rather than
-   * being silently corrected, because "delete it immediately" and "keep it for
-   * the default period" are too far apart to guess between.
-   */
-  retentionDays: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("UploadOptions.retentionDays", {
-      description: "Positive finite retention in days; omitted uses the repository default.",
-    })
-  ),
-  /**
-   * The zlib level, 0–9, defaulting to 6 as `@actions/artifact` does.
-   *
-   * **Details**
-   *
-   * Out-of-range values are clamped. On Windows the level maps onto .NET's
-   * `CompressionLevel`: `0` is `NoCompression`, `1..3` `Fastest`, `4..8`
-   * `Optimal`, `9` `SmallestSize`.
-   */
-  compressionLevel: S.optionalKey(S.Finite).pipe(
-    $I.annoteKey("UploadOptions.compressionLevel", {
-      description: "The zlib level, clamped to 0–9; omitted defaults to 6.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("UploadOptions", { description: "Plain-object options for artifact retention and compression." })
-);
+export class UploadOptions extends S.Opaque<UploadOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * How long to keep it, in days.
+     *
+     * **Details**
+     *
+     * Bounded by the repository's own retention setting; omitted means the
+     * repository default. Zero or negative fails as `invalidOptions` rather than
+     * being silently corrected, because "delete it immediately" and "keep it for
+     * the default period" are too far apart to guess between.
+     */
+    retentionDays: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("UploadOptions.retentionDays", {
+        description: "Positive finite retention in days; omitted uses the repository default.",
+      })
+    ),
+    /**
+     * The zlib level, 0–9, defaulting to 6 as `@actions/artifact` does.
+     *
+     * **Details**
+     *
+     * Out-of-range values are clamped. On Windows the level maps onto .NET's
+     * `CompressionLevel`: `0` is `NoCompression`, `1..3` `Fastest`, `4..8`
+     * `Optimal`, `9` `SmallestSize`.
+     */
+    compressionLevel: S.optionalKey(S.Finite).pipe(
+      $I.annoteKey("UploadOptions.compressionLevel", {
+        description: "The zlib level, clamped to 0–9; omitted defaults to 6.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("UploadOptions", { description: "Plain-object options for artifact retention and compression." })
+  )
+) {}
 
 /** The plain-object upload options validated by {@link UploadOptions}.
  * @category type-level
  * @since 0.0.0
  */
-export type UploadOptions = typeof UploadOptions.Type;
+export declare namespace UploadOptions {
+  /**
+   * The plain object a {@link UploadOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof UploadOptions.Encoded;
+}
 
 // A boundary struct keeps the upload's plain-record public representation.
-const UploadResult = S.Struct({
-  /** The new artifact's database id, which `download` takes. */
-  id: S.Finite.pipe(
-    $I.annoteKey("UploadResult.id", { description: "The new artifact's database id, which download takes." })
-  ),
-  /** The size of the uploaded zip, in bytes. */
-  size: S.Finite.pipe($I.annoteKey("UploadResult.size", { description: "The size of the uploaded zip, in bytes." })),
-}).pipe($I.annoteSchema("UploadResult", { description: "What an upload produced." }));
+export class UploadResult extends S.Opaque<UploadResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The new artifact's database id, which `download` takes. */
+    id: S.Finite.pipe(
+      $I.annoteKey("UploadResult.id", { description: "The new artifact's database id, which download takes." })
+    ),
+    /** The size of the uploaded zip, in bytes. */
+    size: S.Finite.pipe($I.annoteKey("UploadResult.size", { description: "The size of the uploaded zip, in bytes." })),
+  }).pipe($I.annoteSchema("UploadResult", { description: "What an upload produced." }))
+) {}
 
 /**
  * What an upload produced, decoded as a plain record with a finite database id.
@@ -265,7 +298,15 @@ const UploadResult = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type UploadResult = typeof UploadResult.Type;
+export declare namespace UploadResult {
+  /**
+   * The plain object a {@link UploadResult} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof UploadResult.Encoded;
+}
 
 /**
  * Where a download should land.
@@ -283,24 +324,34 @@ export type UploadResult = typeof UploadResult.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const DownloadOptions = S.Struct({
-  /** The destination directory. A fresh temporary directory when omitted. */
-  path: S.optionalKey(S.String).pipe(
-    $I.annoteKey("DownloadOptions.path", {
-      description: "Destination directory; omitted creates a fresh temporary directory.",
+export class DownloadOptions extends S.Opaque<DownloadOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The destination directory. A fresh temporary directory when omitted. */
+    path: S.optionalKey(S.String).pipe(
+      $I.annoteKey("DownloadOptions.path", {
+        description: "Destination directory; omitted creates a fresh temporary directory.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("DownloadOptions", {
+      description: "Plain-object options specifying where an artifact download lands.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("DownloadOptions", {
-    description: "Plain-object options specifying where an artifact download lands.",
-  })
-);
+  )
+) {}
 
 /** The plain-object download options validated by {@link DownloadOptions}.
  * @category type-level
  * @since 0.0.0
  */
-export type DownloadOptions = typeof DownloadOptions.Type;
+export declare namespace DownloadOptions {
+  /**
+   * The plain object a {@link DownloadOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DownloadOptions.Encoded;
+}
 
 /**
  * What a download produced.
@@ -318,30 +369,42 @@ export type DownloadOptions = typeof DownloadOptions.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const DownloadResult = S.Struct({
-  /** The directory the artifact's contents were extracted into. */
-  downloadPath: S.String.pipe(
-    $I.annoteKey("DownloadResult.downloadPath", {
-      description: "The directory the artifact's contents were extracted into.",
+export class DownloadResult extends S.Opaque<DownloadResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The directory the artifact's contents were extracted into. */
+    downloadPath: S.String.pipe(
+      $I.annoteKey("DownloadResult.downloadPath", {
+        description: "The directory the artifact's contents were extracted into.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("DownloadResult", {
+      description: "The plain-object result naming an artifact's extraction directory.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("DownloadResult", {
-    description: "The plain-object result naming an artifact's extraction directory.",
-  })
-);
+  )
+) {}
 
 /** The plain-object download result validated by {@link DownloadResult}.
  * @category type-level
  * @since 0.0.0
  */
-export type DownloadResult = typeof DownloadResult.Type;
+export declare namespace DownloadResult {
+  /**
+   * The plain object a {@link DownloadResult} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DownloadResult.Encoded;
+}
 
 // A boundary struct keeps the deletion's plain-record public representation.
-const ArtifactRef = S.Struct({
-  /** The deleted artifact's database id. */
-  id: S.Finite.pipe($I.annoteKey("ArtifactRef.id", { description: "The deleted artifact's database id." })),
-}).pipe($I.annoteSchema("ArtifactRef", { description: "The id of an artifact that delete removed." }));
+export class ArtifactRef extends S.Opaque<ArtifactRef, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The deleted artifact's database id. */
+    id: S.Finite.pipe($I.annoteKey("ArtifactRef.id", { description: "The deleted artifact's database id." })),
+  }).pipe($I.annoteSchema("ArtifactRef", { description: "The id of an artifact that delete removed." }))
+) {}
 
 /**
  * The finite database id of an artifact that `delete` removed, decoded as a plain record.
@@ -350,7 +413,15 @@ const ArtifactRef = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type ArtifactRef = typeof ArtifactRef.Type;
+export declare namespace ArtifactRef {
+  /**
+   * The plain object a {@link ArtifactRef} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ArtifactRef.Encoded;
+}
 
 /**
  * The members of the {@link Artifact} service: upload, list, get, download and
@@ -365,8 +436,8 @@ export interface ArtifactShape {
   readonly delete: (name: string) => Effect.Effect<ArtifactRef, ArtifactError>;
   /** Download an artifact by id and unzip it. Answers with where it landed. */
   readonly download: {
-    (artifactId: number, options?: DownloadOptions): Effect.Effect<DownloadResult, ArtifactError>;
-    (options?: DownloadOptions): (artifactId: number) => Effect.Effect<DownloadResult, ArtifactError>;
+    (artifactId: number, options?: DownloadOptions.Encoded): Effect.Effect<DownloadResult, ArtifactError>;
+    (options?: DownloadOptions.Encoded): (artifactId: number) => Effect.Effect<DownloadResult, ArtifactError>;
   };
   /** One artifact by name, or nothing — absent is not a failure. */
   readonly get: (name: string) => Effect.Effect<O.Option<ArtifactItem>, ArtifactError>;
@@ -387,12 +458,12 @@ export interface ArtifactShape {
       name: string,
       files: ReadonlyArray<string>,
       rootDirectory: string,
-      options?: UploadOptions
+      options?: UploadOptions.Encoded
     ): Effect.Effect<UploadResult, ArtifactError>;
     (
       files: ReadonlyArray<string>,
       rootDirectory: string,
-      options?: UploadOptions
+      options?: UploadOptions.Encoded
     ): (name: string) => Effect.Effect<UploadResult, ArtifactError>;
   };
 }
@@ -658,7 +729,7 @@ const make = Effect.fn("make")(function* (
   const uploadExpiry = Effect.fnUntraced(function* (
     name: string,
     files: ReadonlyArray<string>,
-    options: UploadOptions | undefined
+    options: UploadOptions.Encoded | undefined
   ): Effect.fn.Return<O.Option<DateTime.Utc>, ArtifactError> {
     if (!A.isReadonlyArrayNonEmpty(files)) {
       return yield* invalidUpload(name, "no files were given to upload");
@@ -735,7 +806,7 @@ const make = Effect.fn("make")(function* (
         name: string,
         files: ReadonlyArray<string>,
         rootDirectory: string,
-        options?: UploadOptions
+        options?: UploadOptions.Encoded
       ) {
         yield* Effect.annotateCurrentSpan({ name });
         const expiresAt = yield* uploadExpiry(name, files, options);
@@ -764,7 +835,7 @@ const make = Effect.fn("make")(function* (
 
     download: dual(
       (args) => P.isNumber(args[0]),
-      Effect.fn("Artifact.download")(function* (artifactId: number, options?: DownloadOptions) {
+      Effect.fn("Artifact.download")(function* (artifactId: number, options?: DownloadOptions.Encoded) {
         const label = String(artifactId);
         yield* Effect.annotateCurrentSpan({ artifactId });
         // The signed-url RPC takes a NAME, and a caller holds an id — so the
@@ -804,7 +875,7 @@ const make = Effect.fn("make")(function* (
             yield* unzip(packed, downloadPath, label);
           })
         );
-        return { downloadPath } satisfies DownloadResult;
+        return DownloadResult.make({ downloadPath });
       })
     ),
 
@@ -969,14 +1040,14 @@ export class Artifact extends Context.Service<Artifact, ArtifactShape>()($I`Arti
         _name: string,
         _files: ReadonlyArray<string>,
         _rootDirectory: string,
-        _options?: UploadOptions
+        _options?: UploadOptions.Encoded
       ): Effect.Effect<UploadResult, ArtifactError> => dies("upload")
     ),
     list: Effect.suspend(() => dies("list")),
     get: () => dies("get"),
     download: dual(
       (args) => P.isNumber(args[0]),
-      (_artifactId: number, _options?: DownloadOptions): Effect.Effect<DownloadResult, ArtifactError> =>
+      (_artifactId: number, _options?: DownloadOptions.Encoded): Effect.Effect<DownloadResult, ArtifactError> =>
         dies("download")
     ),
     delete: () => dies("delete"),

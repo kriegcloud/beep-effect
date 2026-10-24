@@ -37,7 +37,7 @@ describe("BlobStore property floor", () => {
           accessKeyId: value.accessKeyId,
           secretAccessKey: value.secretAccessKey,
         };
-        const encoded = yield* S.encodeEffect(S3Config)(required);
+        const encoded = yield* S.encodeEffect(S3Config)(S3Config.make(required));
         const decoded = yield* S.decodeEffect(S3Config)(encoded);
         assert.deepStrictEqual(encoded, required);
         assert.deepStrictEqual(decoded, required);

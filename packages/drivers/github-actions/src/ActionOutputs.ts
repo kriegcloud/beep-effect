@@ -1,3 +1,11 @@
+/**
+ * Everything an action publishes: step outputs, exported variables, `PATH` additions, the job
+ * summary, log masks and failure annotations.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { CommandNeutralizer, WorkflowCommand } from "@beep/github-commands";
 import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
@@ -429,8 +437,8 @@ const encodeJson: {
  * @category models
  * @since 0.0.0
  */
-export class RecordedOutput extends S.Class<RecordedOutput, { readonly brand: unique symbol }>($I`RecordedOutput`)(
-  {
+export class RecordedOutput extends S.Opaque<RecordedOutput, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Which {@link ActionOutputsShape} member was called. */
     member: S.Literals(["set", "setJson", "summary", "exportVariable", "addPath", "setFailed", "setSecret"]).pipe(
       $I.annoteKey("RecordedOutput.member", { description: "Which ActionOutputsShape member was called." })
@@ -447,9 +455,24 @@ export class RecordedOutput extends S.Class<RecordedOutput, { readonly brand: un
         description: "What was published — value, message, path, content or secret — as the runner would have read it.",
       })
     ),
-  },
-  $I.annote("RecordedOutput", { description: "One call an ActionOutputs.recording double observed." })
+  }).pipe($I.annoteSchema("RecordedOutput", { description: "One call an ActionOutputs.recording double observed." }))
 ) {}
+
+/**
+ * Companion types for {@link RecordedOutput}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace RecordedOutput {
+  /**
+   * The plain object a {@link RecordedOutput} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RecordedOutput.Encoded;
+}
 
 /**
  * The member names a {@link RecordedOutput} can carry.

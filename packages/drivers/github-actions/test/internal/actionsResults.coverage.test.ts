@@ -1,3 +1,4 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { ActionEnvironment } from "@beep/github-actions/ActionEnvironment";
 import {
   BackendIds,
@@ -9,8 +10,9 @@ import {
   resultsBackend,
 } from "@beep/github-actions/internal/actionsResults";
 import { MemoryFileSystem } from "@beep/memfs";
-import { assert, it } from "@effect/vitest";
+import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Base64Url from "effect/encoding/Base64Url";
 import * as Redacted from "effect/Redacted";
@@ -38,7 +40,10 @@ it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
       const absent = `e30.${Base64Url.encode(yield* S.encodeEffect(json)({ scp: "unrelated" }))}.sig`;
       assertFailure(backendIdsFrom(absent), "the runtime token carries no `Actions.Results` scope");
       const token = `e30.${Base64Url.encode(yield* S.encodeEffect(json)({ scp: "unrelated Actions.Results:run:job trailing" }))}.sig`;
-      assertSuccess(backendIdsFrom(token), { workflowRunBackendId: "run", workflowJobRunBackendId: "job" });
+      assertSuccess(
+        backendIdsFrom(token),
+        BackendIds.make({ workflowRunBackendId: "run", workflowJobRunBackendId: "job" })
+      );
     })
   );
   it.effect("reads missing variables independently and normalizes an existing trailing slash", () =>
@@ -60,17 +65,17 @@ it.layer(MemoryFileSystem.layer, { timeout: "30 seconds" })((it) => {
 
 it.effect("backend schemas preserve plain objects, redacted tokens, and both scope outcomes", () =>
   Effect.gen(function* () {
-    const ids = { workflowRunBackendId: "", workflowJobRunBackendId: "job" } satisfies BackendIds;
+    const ids = BackendIds.make({ workflowRunBackendId: "", workflowJobRunBackendId: "job" });
     assert.deepStrictEqual(yield* S.decodeEffect(BackendIds)(ids), ids);
     assert.deepStrictEqual(yield* S.encodeEffect(BackendIds)(ids), ids);
     assert.isFalse(S.is(BackendIds)({ workflowRunBackendId: "run" }));
     assert.isFalse(S.is(BackendIds)({ workflowRunBackendId: 1, workflowJobRunBackendId: "job" }));
     for (const backendIds of [Result.succeed(ids), Result.fail("no scope")]) {
-      const backend = { baseUrl: "", token: Redacted.make("token"), backendIds } satisfies ResultsBackend;
+      const backend = { baseUrl: "", token: Redacted.make("token"), backendIds } satisfies ResultsBackend.Encoded;
       const decoded = yield* S.decodeEffect(ResultsBackend)(backend);
-      assert.deepStrictEqual(decoded, backend);
+      assert.deepStrictEqual(decoded, ResultsBackend.make(backend));
       assert.strictEqual(Redacted.value(decoded.token), "token");
-      assert.isTrue(S.is(ResultsBackend)(yield* S.encodeEffect(ResultsBackend)(decoded)));
+      assert.isTrue(S.is(ResultsBackend)(yield* S.encodeEffect(ResultsBackend)(ResultsBackend.make(decoded))));
     }
     assert.isFalse(
       S.is(ResultsBackend)({ baseUrl: "https://example/", token: "token", backendIds: Result.succeed(ids) })
@@ -78,3 +83,15 @@ it.effect("backend schemas preserve plain objects, redacted tokens, and both sco
     assert.isFalse(S.is(ResultsBackend)({ baseUrl: "https://example/", token: Redacted.make("token") }));
   })
 );
+
+describe("BackendIds codec property", () => {
+  it.effect.prop(
+    "BackendIds round-trips through its codec",
+    [Arbitrary.schema(BackendIds)],
+    ([value]) =>
+      Effect.gen(function* () {
+        assert.deepStrictEqual(yield* S.decodeEffect(BackendIds)(yield* S.encodeEffect(BackendIds)(value)), value);
+      }),
+    { arbitrary: fcRuns(100) }
+  );
+});

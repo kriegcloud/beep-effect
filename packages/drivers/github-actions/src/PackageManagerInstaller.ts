@@ -2,6 +2,7 @@
  * Provisions exact package-manager versions through the runner's tool cache.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
@@ -239,130 +240,135 @@ export class PackageManagerInstallerError extends S.TaggedError<
  * @category type-level
  * @since 0.0.0
  */
-export const PackageManagerInstallOptions = S.Struct({
-  /**
-   * Fail with `integrityMissing` when neither the pin nor the `integrity`
-   * option carries an integrity hash, instead of proceeding with a logged
-   * warning. Off by default, because in-the-wild `devEngines` pins routinely
-   * carry no integrity.
-   *
-   * @since 0.0.0
-   */
-  requireIntegrity: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("PackageManagerInstallOptions.requireIntegrity", {
-      description: "Require an integrity authority before provisioning.",
+export class PackageManagerInstallOptions extends S.Opaque<
+  PackageManagerInstallOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    /**
+     * Fail with `integrityMissing` when neither the pin nor the `integrity`
+     * option carries an integrity hash, instead of proceeding with a logged
+     * warning. Off by default, because in-the-wild `devEngines` pins routinely
+     * carry no integrity.
+     *
+     * @since 0.0.0
+     */
+    requireIntegrity: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("PackageManagerInstallOptions.requireIntegrity", {
+        description: "Require an integrity authority before provisioning.",
+      })
+    ),
+    /**
+     * The expected integrity of the manager's own artifact, supplied beside
+     * the pin rather than through its `+<integrity>` tail — for a caller whose
+     * digest comes from somewhere other than the pin (a lockfile, or the
+     * registry's `dist.integrity`) and that should not have to rewrite the pin
+     * to carry it.
+     *
+     * **Details**
+     *
+     * Corepack form only (`<algo>.<hex>`), the same brand the pin's own
+     * `integrity` carries; convert a registry or lockfile SRI string with
+     * `CorepackIntegrityHash.fromSri` from `@effected/npm`. It verifies
+     * exactly what a pin integrity verifies — the registry tarball for npm,
+     * pnpm and yarn 1.x, the standalone `yarn.js` for yarn 2+, the platform zip
+     * for bun — and stands in for the pin's in every rule: it silences the
+     * "carries no integrity hash" warning, satisfies `requireIntegrity`, and a
+     * tool-cache hit is answered without re-verifying, exactly as it is for an
+     * integrity-carrying pin.
+     *
+     * Fail-closed, before any cache lookup or download: a value not in corepack
+     * form (an SRI or yarn hash) fails with `integrityMismatch` on its
+     * could-not-verify arm (no `expected`, no `actual`, `subject` naming the
+     * option); and when the pin also carries an integrity and the two differ,
+     * the install fails with `integrityMismatch` (`expected` is this option,
+     * `subject` names the pin's value) — neither is chosen silently. Equal
+     * values verify once. It governs the wrapper only; pnpm 12's native
+     * binary is `nativeIntegrity`'s business.
+     *
+     * @since 0.0.0
+     */
+    integrity: S.optionalKey(IntegrityHash).pipe(
+      $I.annoteKey("PackageManagerInstallOptions.integrity", {
+        description: "The existing branded integrity hash supplied alongside the pin.",
+      })
+    ),
+    /**
+     * The npm registry host the npm, pnpm and yarn tarballs download from.
+     * Defaults to `https://registry.npmjs.org`. A corporate mirror qualifies
+     * when it serves the standard `/<name>/-/<basename>-<version>.tgz` tarball
+     * route and — for pnpm 12 and later, whose native binary is a second
+     * artifact verified against the registry's own integrity — the
+     * `/<name>/<version>` packument route as JSON carrying `dist.integrity`.
+     * A tarball-only proxy fails a pnpm 12 pin with `downloadFailed` naming
+     * that packument url — unless `nativeIntegrity` vouches for the host's
+     * native package, which skips the packument. bun does not ship through a
+     * registry — its per-platform zip always comes from GitHub releases.
+     *
+     * @since 0.0.0
+     */
+    registry: S.optionalKey(S.String).pipe(
+      $I.annoteKey("PackageManagerInstallOptions.registry", {
+        description: "The optional registry override; the install operation supplies its default.",
+      })
+    ),
+    /**
+     * The expected Subresource Integrity of each pnpm native-binary package,
+     * keyed by bare package name with no version (`"@pnpm/exe.linux-x64"`) —
+     * usually read straight from the lockfile, which records every platform's
+     * entry.
+     *
+     * **Details**
+     *
+     * Consulted only for a pin whose wrapper overlays a native binary (pnpm 12
+     * and later); every other pin ignores it. When supplied, the installer
+     * verifies the host's `@pnpm/exe.<target>` tarball against this map's entry
+     * (its strongest listed algorithm) INSTEAD of the registry's packument, so
+     * the packument route is never requested and a tarball-only mirror
+     * suffices. Fail-closed throughout: a map with no entry for the host's
+     * package fails with `integrityMissing` naming that package, an entry
+     * carrying no parseable SRI fails with `integrityMismatch` (the
+     * could-not-verify arm), and a tarball that hashes to anything else fails
+     * with `integrityMismatch` naming the tarball url. Absent, the registry's
+     * own `dist.integrity` is the authority. A tool-cache hit is
+     * answered without re-verifying, exactly as the pin's own integrity is.
+     *
+     * @since 0.0.0
+     */
+    nativeIntegrity: S.optionalKey(S.Record(S.String, S.String)).pipe(
+      $I.annoteKey("PackageManagerInstallOptions.nativeIntegrity", {
+        description: "Native package names mapped to caller-supplied SRI strings.",
+      })
+    ),
+    /**
+     * Whether an npm pin may be answered by the runner's own ambient npm.
+     * Defaults to `true`.
+     *
+     * **Gotchas**
+     *
+     * Set `false` when the run REPLACES node: a consumer that installs a pinned
+     * node in the same run puts that node's bundled npm ahead of the runner's on
+     * every path that matters afterward (the install child's `PATH`, and every
+     * later workflow step via `GITHUB_PATH`). The ambient probe interrogates the
+     * RUNNER's npm, so its exact-version match can diverge from the npm that
+     * actually executes once the pinned node shadows it. Suppressing the probe
+     * skips it entirely — no `npm --version` is ever spawned — and the install
+     * goes straight to the tool-cache/dist path, answering
+     * `source: "tool-cache"` with its own `binDir` as usual.
+     *
+     * @since 0.0.0
+     */
+    allowAmbient: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("PackageManagerInstallOptions.allowAmbient", {
+        description: "Whether the install operation may use the runner ambient npm.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("PackageManagerInstallOptions", {
+      description: "Structural provisioning options; absent fields stay absent and an explicit undefined is rejected.",
     })
-  ),
-  /**
-   * The expected integrity of the manager's own artifact, supplied beside
-   * the pin rather than through its `+<integrity>` tail — for a caller whose
-   * digest comes from somewhere other than the pin (a lockfile, or the
-   * registry's `dist.integrity`) and that should not have to rewrite the pin
-   * to carry it.
-   *
-   * **Details**
-   *
-   * Corepack form only (`<algo>.<hex>`), the same brand the pin's own
-   * `integrity` carries; convert a registry or lockfile SRI string with
-   * `CorepackIntegrityHash.fromSri` from `@effected/npm`. It verifies
-   * exactly what a pin integrity verifies — the registry tarball for npm,
-   * pnpm and yarn 1.x, the standalone `yarn.js` for yarn 2+, the platform zip
-   * for bun — and stands in for the pin's in every rule: it silences the
-   * "carries no integrity hash" warning, satisfies `requireIntegrity`, and a
-   * tool-cache hit is answered without re-verifying, exactly as it is for an
-   * integrity-carrying pin.
-   *
-   * Fail-closed, before any cache lookup or download: a value not in corepack
-   * form (an SRI or yarn hash) fails with `integrityMismatch` on its
-   * could-not-verify arm (no `expected`, no `actual`, `subject` naming the
-   * option); and when the pin also carries an integrity and the two differ,
-   * the install fails with `integrityMismatch` (`expected` is this option,
-   * `subject` names the pin's value) — neither is chosen silently. Equal
-   * values verify once. It governs the wrapper only; pnpm 12's native
-   * binary is `nativeIntegrity`'s business.
-   *
-   * @since 0.0.0
-   */
-  integrity: S.optionalKey(IntegrityHash).pipe(
-    $I.annoteKey("PackageManagerInstallOptions.integrity", {
-      description: "The existing branded integrity hash supplied alongside the pin.",
-    })
-  ),
-  /**
-   * The npm registry host the npm, pnpm and yarn tarballs download from.
-   * Defaults to `https://registry.npmjs.org`. A corporate mirror qualifies
-   * when it serves the standard `/<name>/-/<basename>-<version>.tgz` tarball
-   * route and — for pnpm 12 and later, whose native binary is a second
-   * artifact verified against the registry's own integrity — the
-   * `/<name>/<version>` packument route as JSON carrying `dist.integrity`.
-   * A tarball-only proxy fails a pnpm 12 pin with `downloadFailed` naming
-   * that packument url — unless `nativeIntegrity` vouches for the host's
-   * native package, which skips the packument. bun does not ship through a
-   * registry — its per-platform zip always comes from GitHub releases.
-   *
-   * @since 0.0.0
-   */
-  registry: S.optionalKey(S.String).pipe(
-    $I.annoteKey("PackageManagerInstallOptions.registry", {
-      description: "The optional registry override; the install operation supplies its default.",
-    })
-  ),
-  /**
-   * The expected Subresource Integrity of each pnpm native-binary package,
-   * keyed by bare package name with no version (`"@pnpm/exe.linux-x64"`) —
-   * usually read straight from the lockfile, which records every platform's
-   * entry.
-   *
-   * **Details**
-   *
-   * Consulted only for a pin whose wrapper overlays a native binary (pnpm 12
-   * and later); every other pin ignores it. When supplied, the installer
-   * verifies the host's `@pnpm/exe.<target>` tarball against this map's entry
-   * (its strongest listed algorithm) INSTEAD of the registry's packument, so
-   * the packument route is never requested and a tarball-only mirror
-   * suffices. Fail-closed throughout: a map with no entry for the host's
-   * package fails with `integrityMissing` naming that package, an entry
-   * carrying no parseable SRI fails with `integrityMismatch` (the
-   * could-not-verify arm), and a tarball that hashes to anything else fails
-   * with `integrityMismatch` naming the tarball url. Absent, the registry's
-   * own `dist.integrity` is the authority. A tool-cache hit is
-   * answered without re-verifying, exactly as the pin's own integrity is.
-   *
-   * @since 0.0.0
-   */
-  nativeIntegrity: S.optionalKey(S.Record(S.String, S.String)).pipe(
-    $I.annoteKey("PackageManagerInstallOptions.nativeIntegrity", {
-      description: "Native package names mapped to caller-supplied SRI strings.",
-    })
-  ),
-  /**
-   * Whether an npm pin may be answered by the runner's own ambient npm.
-   * Defaults to `true`.
-   *
-   * **Gotchas**
-   *
-   * Set `false` when the run REPLACES node: a consumer that installs a pinned
-   * node in the same run puts that node's bundled npm ahead of the runner's on
-   * every path that matters afterward (the install child's `PATH`, and every
-   * later workflow step via `GITHUB_PATH`). The ambient probe interrogates the
-   * RUNNER's npm, so its exact-version match can diverge from the npm that
-   * actually executes once the pinned node shadows it. Suppressing the probe
-   * skips it entirely — no `npm --version` is ever spawned — and the install
-   * goes straight to the tool-cache/dist path, answering
-   * `source: "tool-cache"` with its own `binDir` as usual.
-   *
-   * @since 0.0.0
-   */
-  allowAmbient: S.optionalKey(S.Boolean).pipe(
-    $I.annoteKey("PackageManagerInstallOptions.allowAmbient", {
-      description: "Whether the install operation may use the runner ambient npm.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("PackageManagerInstallOptions", {
-    description: "Structural provisioning options; absent fields stay absent and an explicit undefined is rejected.",
-  })
-);
+  )
+) {}
 
 /**
  * The plain-object input accepted by {@link PackageManagerInstallOptions}.
@@ -370,7 +376,25 @@ export const PackageManagerInstallOptions = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type PackageManagerInstallOptions = typeof PackageManagerInstallOptions.Type;
+export declare namespace PackageManagerInstallOptions {
+  /**
+   * The plain object a {@link PackageManagerInstallOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PackageManagerInstallOptions.Encoded;
+
+  /**
+   * The field values {@link PackageManagerInstaller} takes: the `integrity`
+   * option already an admitted `IntegrityHash` (decoded, or built by its
+   * schema), so nothing re-validates it.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Admitted = S.Struct.Type<typeof PackageManagerInstallOptions.fields>;
+}
 
 /**
  * A package manager the runner's own toolchain already had: nothing was
@@ -396,10 +420,8 @@ export type PackageManagerInstallOptions = typeof PackageManagerInstallOptions.T
  * @category models
  * @since 0.0.0
  */
-export class AmbientPackageManager extends S.Class<AmbientPackageManager, { readonly brand: unique symbol }>(
-  $I`AmbientPackageManager`
-)(
-  {
+export class AmbientPackageManager extends S.Opaque<AmbientPackageManager, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The discriminant: the runner's own toolchain answered. */
     source: S.tag("ambient").pipe(
       $I.annoteKey("AmbientPackageManager.source", {
@@ -422,12 +444,29 @@ export class AmbientPackageManager extends S.Class<AmbientPackageManager, { read
         description: "Bin name → the ambient command name that invokes it.",
       })
     ),
-  },
-  $I.annote("AmbientPackageManager", {
-    description:
-      "A package manager the runner's own toolchain already had: nothing was downloaded and nothing was cached, so there is no directory to publish.",
-  })
+  }).pipe(
+    $I.annoteSchema("AmbientPackageManager", {
+      description:
+        "A package manager the runner's own toolchain already had: nothing was downloaded and nothing was cached, so there is no directory to publish.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link AmbientPackageManager}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace AmbientPackageManager {
+  /**
+   * The plain object a {@link AmbientPackageManager} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof AmbientPackageManager.Encoded;
+}
 
 /**
  * A package manager living in the runner's tool cache — found there, or
@@ -468,10 +507,8 @@ export class AmbientPackageManager extends S.Class<AmbientPackageManager, { read
  * @category models
  * @since 0.0.0
  */
-export class CachedPackageManager extends S.Class<CachedPackageManager, { readonly brand: unique symbol }>(
-  $I`CachedPackageManager`
-)(
-  {
+export class CachedPackageManager extends S.Opaque<CachedPackageManager, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The discriminant: the manager lives in the tool cache. */
     source: S.tag("tool-cache").pipe(
       $I.annoteKey("CachedPackageManager.source", {
@@ -506,12 +543,29 @@ export class CachedPackageManager extends S.Class<CachedPackageManager, { readon
         description: "Bin name → the absolute path of the underlying entry point.",
       })
     ),
-  },
-  $I.annote("CachedPackageManager", {
-    description:
-      "A package manager living in the runner's tool cache — found there, or installed into it by this call.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachedPackageManager", {
+      description:
+        "A package manager living in the runner's tool cache — found there, or installed into it by this call.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link CachedPackageManager}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace CachedPackageManager {
+  /**
+   * The plain object a {@link CachedPackageManager} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CachedPackageManager.Encoded;
+}
 
 /**
  * An installed package manager, discriminated by `source`: `ambient` carries
@@ -581,10 +635,10 @@ export interface PackageManagerInstallerShape {
   readonly install: {
     (
       pin: PackageManagerPin,
-      options?: PackageManagerInstallOptions
+      options?: PackageManagerInstallOptions.Admitted
     ): Effect.Effect<InstalledPackageManager, PackageManagerInstallerError>;
     (
-      options?: PackageManagerInstallOptions
+      options?: PackageManagerInstallOptions.Admitted
     ): (pin: PackageManagerPin) => Effect.Effect<InstalledPackageManager, PackageManagerInstallerError>;
   };
 }
@@ -654,8 +708,8 @@ const PNPM_NATIVE_BIN_NAMES: ReadonlyArray<string> = ["pnpm", "pn", "pnpx", "pnx
  *
  * **Details**
  *
- * Asset names verified against the `bun-v1.3.14` release: `bun-{linux,darwin,
- * windows}-{x64,aarch64}.zip`, with the runner's `RUNNER_OS` values mapped to
+ * Asset names verified against the `bun-v1.3.14` release:
+ * `bun-{linux,darwin,windows}-{x64,aarch64}.zip`, with the runner's `RUNNER_OS` values mapped to
  * bun's spelling (`macOS` → `darwin`) and the Node arch spelling to bun's
  * (`arm64` → `aarch64`).
  */
@@ -1691,7 +1745,7 @@ const make = Effect.gen(function* () {
   );
 
   /** Neither the cache nor the ambient probe answered: install from the manager's own dist. */
-  const fromDist = (effective: PackageManagerPin, options: PackageManagerInstallOptions | undefined) =>
+  const fromDist = (effective: PackageManagerPin, options: PackageManagerInstallOptions.Admitted | undefined) =>
     effective.name === "bun"
       ? installBun(effective)
       : installFromRegistry(effective, {
@@ -1703,7 +1757,7 @@ const make = Effect.gen(function* () {
     (args) => S.is(PackageManagerPin)(args[0]),
     Effect.fn("PackageManagerInstaller.install")(function* (
       pin: PackageManagerPin,
-      options?: PackageManagerInstallOptions
+      options?: PackageManagerInstallOptions.Admitted
     ) {
       const version = pin.version.toString();
       yield* Effect.annotateCurrentSpan({ name: pin.name, version });
@@ -1852,7 +1906,7 @@ export class PackageManagerInstaller extends Context.Service<PackageManagerInsta
       (args) => S.is(PackageManagerPin)(args[0]),
       (
         _pin: PackageManagerPin,
-        _options?: PackageManagerInstallOptions
+        _options?: PackageManagerInstallOptions.Admitted
       ): Effect.Effect<InstalledPackageManager, PackageManagerInstallerError> => dies("install")
     ),
     ...overrides,

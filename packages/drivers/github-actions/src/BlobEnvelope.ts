@@ -1,3 +1,10 @@
+/**
+ * The schema-versioned frame that gives a stored blob a metadata channel.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GithubActionsId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import * as Result from "effect/Result";

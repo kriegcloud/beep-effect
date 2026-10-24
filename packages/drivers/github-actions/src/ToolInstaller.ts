@@ -1,3 +1,10 @@
+/**
+ * Download, extract and cache a toolchain in the runner's tool cache.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as Config from "effect/Config";
@@ -19,6 +26,7 @@ import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
 import { tarExtractCommand, unzipCommand } from "./internal/archiveCommands.ts";
+import { DurationInput } from "./internal/durationInput.ts";
 import { escapesRoot, isErrno, realDestination, typeAt } from "./internal/fsProbe.ts";
 import { detailText, framed } from "./internal/messageText.ts";
 import { isWindowsRunner, toolCacheRoot } from "./internal/runner.ts";
@@ -166,37 +174,39 @@ export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { read
  * @category models
  * @since 0.0.0
  */
-export const ExtractOptions = S.Struct({
-  /** The destination. A fresh temporary directory when omitted. */
-  destination: S.optionalKey(S.String).pipe(
-    $I.annoteKey("ExtractOptions.destination", {
-      description: "Requested extraction destination; omission allocates a temporary directory.",
+export class ExtractOptions extends S.Opaque<ExtractOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The destination. A fresh temporary directory when omitted. */
+    destination: S.optionalKey(S.String).pipe(
+      $I.annoteKey("ExtractOptions.destination", {
+        description: "Requested extraction destination; omission allocates a temporary directory.",
+      })
+    ),
+    /**
+     * Flags for `tar`. Defaults to `["xzf"]`, i.e. a gzipped tarball.
+     *
+     * **Gotchas**
+     *
+     * The argv is assembled as `[...flags, archive, "-C", destination]` — the
+     * archive path is appended directly AFTER the flags, so the LAST flag must
+     * be the one that consumes the archive operand. `["xzf"]` works because `f`
+     * is last inside the cluster; a custom set like `["xz", "--strip=1", "-f"]`
+     * must end the same way, deliberately rather than by ordering luck.
+     */
+    flags: S.String.pipe(
+      S.Array,
+      S.optionalKey,
+      $I.annoteKey("ExtractOptions.flags", {
+        description: "Custom tar flags in argv order; omission retains the extraction default.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ExtractOptions", {
+      description:
+        "Structural archive extraction options; absent fields stay absent and an explicit undefined is rejected.",
     })
-  ),
-  /**
-   * Flags for `tar`. Defaults to `["xzf"]`, i.e. a gzipped tarball.
-   *
-   * **Gotchas**
-   *
-   * The argv is assembled as `[...flags, archive, "-C", destination]` — the
-   * archive path is appended directly AFTER the flags, so the LAST flag must
-   * be the one that consumes the archive operand. `["xzf"]` works because `f`
-   * is last inside the cluster; a custom set like `["xz", "--strip=1", "-f"]`
-   * must end the same way, deliberately rather than by ordering luck.
-   */
-  flags: S.String.pipe(
-    S.Array,
-    S.optionalKey,
-    $I.annoteKey("ExtractOptions.flags", {
-      description: "Custom tar flags in argv order; omission retains the extraction default.",
-    })
-  ),
-}).pipe(
-  $I.annoteSchema("ExtractOptions", {
-    description:
-      "Structural archive extraction options; absent fields stay absent and an explicit undefined is rejected.",
-  })
-);
+  )
+) {}
 
 /**
  * The plain-object contract represented by {@link ExtractOptions}.
@@ -204,7 +214,15 @@ export const ExtractOptions = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type ExtractOptions = typeof ExtractOptions.Type;
+export declare namespace ExtractOptions {
+  /**
+   * The plain object a {@link ExtractOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ExtractOptions.Encoded;
+}
 
 /**
  * How a {@link ToolInstallerShape.download} should behave.
@@ -212,23 +230,43 @@ export type ExtractOptions = typeof ExtractOptions.Type;
  * @category models
  * @since 0.0.0
  */
-export interface ToolDownloadOptions {
+export class ToolDownloadOptions extends S.Opaque<ToolDownloadOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /**
+     * The overall time budget for ONE download attempt (request plus streaming
+     * the body to disk). Defaults to five minutes.
+     *
+     * The default is deliberately generous: toolchain archives run to hundreds
+     * of megabytes, and a healthy runner connection moves tens of megabytes a
+     * second — even a 500 MB archive on a degraded 2 MB/s link fits in five
+     * minutes. What the budget exists for is the connection that stops moving
+     * entirely: without it, a dead connection is a silent CI hang until the job
+     * timeout; with it, the attempt fails typed as `downloadFailed` with no
+     * status — which `retryable` classifies as a transport fault — and the
+     * download's own retry policy tries again.
+     */
+    timeout: S.optionalKey(DurationInput).pipe(
+      $I.annoteKey("ToolDownloadOptions.timeout", {
+        description: "The time budget for one download attempt, request plus body. Defaults to five minutes.",
+      })
+    ),
+  }).pipe($I.annoteSchema("ToolDownloadOptions", { description: "How to bound one tool download attempt." }))
+) {}
+
+/**
+ * Companion types for {@link ToolDownloadOptions}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace ToolDownloadOptions {
   /**
-   * The overall time budget for ONE download attempt (request plus streaming
-   * the body to disk). Defaults to five minutes.
+   * The plain object a {@link ToolDownloadOptions} decodes from and encodes to.
    *
-   * **Details**
-   *
-   * The default is deliberately generous: toolchain archives run to hundreds
-   * of megabytes, and a healthy runner connection moves tens of megabytes a
-   * second — even a 500 MB archive on a degraded 2 MB/s link fits in five
-   * minutes. What the budget exists for is the connection that stops moving
-   * entirely: without it, a dead connection is a silent CI hang until the job
-   * timeout; with it, the attempt fails typed as `downloadFailed` with no
-   * status — which `retryable` classifies as a transport fault — and the
-   * download's own retry policy tries again.
+   * @category type-level
+   * @since 0.0.0
    */
-  readonly timeout?: Duration.Input | undefined;
+  export type Encoded = typeof ToolDownloadOptions.Encoded;
 }
 
 /**
@@ -250,31 +288,33 @@ export interface ToolDownloadOptions {
  * @category models
  * @since 0.0.0
  */
-export const ProvisionFileOptions = S.Struct({
-  /** The tool-cache name the binary is provisioned under, e.g. `"biome"`. */
-  tool: S.String.pipe(
-    $I.annoteKey("ProvisionFileOptions.tool", { description: "The name under which the binary is cached." })
-  ),
-  /** The exact version — a tool-cache path segment, so spell it canonically. */
-  version: S.String.pipe(
-    $I.annoteKey("ProvisionFileOptions.version", { description: "The exact version used in the cache path." })
-  ),
-  /** The url the binary downloads from on a cache miss. */
-  url: S.String.pipe(
-    $I.annoteKey("ProvisionFileOptions.url", { description: "The binary download URL used on a cache miss." })
-  ),
-  /**
-   * The cached file's name — what the tool is invoked as once its directory
-   * is on the `PATH` (e.g. `"biome"`, or `"biome.exe"` on Windows).
-   */
-  binary: S.String.pipe(
-    $I.annoteKey("ProvisionFileOptions.binary", { description: "The filename of the binary inside the cache entry." })
-  ),
-}).pipe(
-  $I.annoteSchema("ProvisionFileOptions", {
-    description: "The tool, exact version, download URL and binary filename for single-file provisioning.",
-  })
-);
+export class ProvisionFileOptions extends S.Opaque<ProvisionFileOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The tool-cache name the binary is provisioned under, e.g. `"biome"`. */
+    tool: S.String.pipe(
+      $I.annoteKey("ProvisionFileOptions.tool", { description: "The name under which the binary is cached." })
+    ),
+    /** The exact version — a tool-cache path segment, so spell it canonically. */
+    version: S.String.pipe(
+      $I.annoteKey("ProvisionFileOptions.version", { description: "The exact version used in the cache path." })
+    ),
+    /** The url the binary downloads from on a cache miss. */
+    url: S.String.pipe(
+      $I.annoteKey("ProvisionFileOptions.url", { description: "The binary download URL used on a cache miss." })
+    ),
+    /**
+     * The cached file's name — what the tool is invoked as once its directory
+     * is on the `PATH` (e.g. `"biome"`, or `"biome.exe"` on Windows).
+     */
+    binary: S.String.pipe(
+      $I.annoteKey("ProvisionFileOptions.binary", { description: "The filename of the binary inside the cache entry." })
+    ),
+  }).pipe(
+    $I.annoteSchema("ProvisionFileOptions", {
+      description: "The tool, exact version, download URL and binary filename for single-file provisioning.",
+    })
+  )
+) {}
 
 /**
  * The plain-object contract represented by {@link ProvisionFileOptions}.
@@ -282,7 +322,15 @@ export const ProvisionFileOptions = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type ProvisionFileOptions = typeof ProvisionFileOptions.Type;
+export declare namespace ProvisionFileOptions {
+  /**
+   * The plain object a {@link ProvisionFileOptions} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ProvisionFileOptions.Encoded;
+}
 
 /**
  * Where {@link ToolInstallerShape.provisionFile} put a single-binary tool.
@@ -310,22 +358,24 @@ export type ProvisionFileOptions = typeof ProvisionFileOptions.Type;
  * @category models
  * @since 0.0.0
  */
-export const ProvisionedFile = S.Struct({
-  /** The cached entry: `<tool-cache>/<tool>/<version>/<arch>`. */
-  directory: S.String.pipe(
-    $I.annoteKey("ProvisionedFile.directory", { description: "The published tool-cache entry directory." })
-  ),
-  /** The directory to `addPath` — for a single binary, the cached directory itself. */
-  binDir: S.String.pipe(
-    $I.annoteKey("ProvisionedFile.binDir", {
-      description: "The directory to publish on PATH for the provisioned tool.",
+export class ProvisionedFile extends S.Opaque<ProvisionedFile, { readonly brand: unique symbol }>()(
+  S.Struct({
+    /** The cached entry: `<tool-cache>/<tool>/<version>/<arch>`. */
+    directory: S.String.pipe(
+      $I.annoteKey("ProvisionedFile.directory", { description: "The published tool-cache entry directory." })
+    ),
+    /** The directory to `addPath` — for a single binary, the cached directory itself. */
+    binDir: S.String.pipe(
+      $I.annoteKey("ProvisionedFile.binDir", {
+        description: "The directory to publish on PATH for the provisioned tool.",
+      })
+    ),
+  }).pipe(
+    $I.annoteSchema("ProvisionedFile", {
+      description: "Structural paths to the published single-file tool entry and its executable directory.",
     })
-  ),
-}).pipe(
-  $I.annoteSchema("ProvisionedFile", {
-    description: "Structural paths to the published single-file tool entry and its executable directory.",
-  })
-);
+  )
+) {}
 
 /**
  * The plain-object contract represented by {@link ProvisionedFile}.
@@ -333,7 +383,15 @@ export const ProvisionedFile = S.Struct({
  * @category type-level
  * @since 0.0.0
  */
-export type ProvisionedFile = typeof ProvisionedFile.Type;
+export declare namespace ProvisionedFile {
+  /**
+   * The plain object a {@link ProvisionedFile} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ProvisionedFile.Encoded;
+}
 
 /**
  * The members of the {@link ToolInstaller} service: find, download, extract and
@@ -386,18 +444,18 @@ export interface ToolInstallerShape {
   };
   /** Download a url to a temporary file, retrying what is worth retrying. */
   readonly download: {
-    (url: string, options?: ToolDownloadOptions): Effect.Effect<string, ToolInstallerError>;
-    (options?: ToolDownloadOptions): (url: string) => Effect.Effect<string, ToolInstallerError>;
+    (url: string, options?: ToolDownloadOptions.Encoded): Effect.Effect<string, ToolInstallerError>;
+    (options?: ToolDownloadOptions.Encoded): (url: string) => Effect.Effect<string, ToolInstallerError>;
   };
   /** Extract a tarball. Returns the directory its contents landed in. */
   readonly extractTar: {
-    (archive: string, options?: ExtractOptions): Effect.Effect<string, ToolInstallerError>;
-    (options?: ExtractOptions): (archive: string) => Effect.Effect<string, ToolInstallerError>;
+    (archive: string, options?: ExtractOptions.Encoded): Effect.Effect<string, ToolInstallerError>;
+    (options?: ExtractOptions.Encoded): (archive: string) => Effect.Effect<string, ToolInstallerError>;
   };
   /** Extract a zip. Returns the directory its contents landed in. */
   readonly extractZip: {
-    (archive: string, options?: ExtractOptions): Effect.Effect<string, ToolInstallerError>;
-    (options?: ExtractOptions): (archive: string) => Effect.Effect<string, ToolInstallerError>;
+    (archive: string, options?: ExtractOptions.Encoded): Effect.Effect<string, ToolInstallerError>;
+    (options?: ExtractOptions.Encoded): (archive: string) => Effect.Effect<string, ToolInstallerError>;
   };
   /**
    * A cached tool, if this runner already has it.
@@ -440,7 +498,7 @@ export interface ToolInstallerShape {
    * ever contains a runnable tool; a chmod failure is `cacheFailed` with the
    * file as its subject.
    */
-  readonly provisionFile: (options: ProvisionFileOptions) => Effect.Effect<ProvisionedFile, ToolInstallerError>;
+  readonly provisionFile: (options: ProvisionFileOptions.Encoded) => Effect.Effect<ProvisionedFile, ToolInstallerError>;
 }
 
 /** How many times a retryable download is retried before giving up. */
@@ -464,7 +522,7 @@ const make = Effect.gen(function* () {
     ToolInstaller.cachePath({ root, tool, version, arch: process.arch })
   );
 
-  const destinationFor = (options: ExtractOptions | undefined): Effect.Effect<string, ToolInstallerError> => {
+  const destinationFor = (options: ExtractOptions.Encoded | undefined): Effect.Effect<string, ToolInstallerError> => {
     const requested = options?.destination;
     if (requested === undefined) {
       return fs
@@ -612,7 +670,7 @@ const make = Effect.gen(function* () {
 
   const download: ToolInstallerShape["download"] = dual(
     (args) => P.isString(args[0]),
-    Effect.fn("ToolInstaller.download")(function* (url: string, options?: ToolDownloadOptions) {
+    Effect.fn("ToolInstaller.download")(function* (url: string, options?: ToolDownloadOptions.Encoded) {
       const attempt = Effect.gen(function* () {
         const response = yield* http
           .get(url)
@@ -728,7 +786,7 @@ const make = Effect.gen(function* () {
 
     extractTar: dual(
       (args) => P.isString(args[0]),
-      Effect.fn("ToolInstaller.extractTar")(function* (archive: string, options?: ExtractOptions) {
+      Effect.fn("ToolInstaller.extractTar")(function* (archive: string, options?: ExtractOptions.Encoded) {
         const destination = yield* destinationFor(options);
         yield* extractWith(
           tarExtractCommand({
@@ -744,7 +802,7 @@ const make = Effect.gen(function* () {
 
     extractZip: dual(
       (args) => P.isString(args[0]),
-      Effect.fn("ToolInstaller.extractZip")(function* (archive: string, options?: ExtractOptions) {
+      Effect.fn("ToolInstaller.extractZip")(function* (archive: string, options?: ExtractOptions.Encoded) {
         const destination = yield* destinationFor(options);
         // The platform comes from `RUNNER_OS` rather than `process.platform`,
         // which is both the runner's own answer and the only version of this
@@ -765,7 +823,7 @@ const make = Effect.gen(function* () {
 
     cacheFile,
 
-    provisionFile: Effect.fn("ToolInstaller.provisionFile")(function* (options: ProvisionFileOptions) {
+    provisionFile: Effect.fn("ToolInstaller.provisionFile")(function* (options: ProvisionFileOptions.Encoded) {
       yield* Effect.annotateCurrentSpan({ tool: options.tool, version: options.version });
       yield* binaryDestination(cachePath(options.tool, options.version), options.binary);
       const cached = yield* find(options.tool, options.version);
@@ -777,7 +835,7 @@ const make = Effect.gen(function* () {
         // failing — the install path is the only recovery a caller has anyway.
         const destination = yield* containedBinaryDestination(cached.value, options.binary);
         if ((yield* typeAt(fs, destination)) === "File") {
-          return { directory: cached.value, binDir: cached.value };
+          return ProvisionedFile.make({ directory: cached.value, binDir: cached.value });
         }
       }
       const file = yield* download(options.url);
@@ -791,7 +849,7 @@ const make = Effect.gen(function* () {
           .pipe(Effect.mapError((cause) => ToolInstallerError.make({ reason: "cacheFailed", subject: file, cause })));
       }
       const directory = yield* cacheFile(file, options.binary, options.tool, options.version);
-      return { directory, binDir: directory };
+      return ProvisionedFile.make({ directory, binDir: directory });
     }),
   } satisfies ToolInstallerShape;
 });
@@ -950,15 +1008,18 @@ export class ToolInstaller extends Context.Service<ToolInstaller, ToolInstallerS
     ),
     download: dual(
       (args) => P.isString(args[0]),
-      (_url: string, _options?: ToolDownloadOptions): Effect.Effect<string, ToolInstallerError> => dies("download")
+      (_url: string, _options?: ToolDownloadOptions.Encoded): Effect.Effect<string, ToolInstallerError> =>
+        dies("download")
     ),
     extractTar: dual(
       (args) => P.isString(args[0]),
-      (_archive: string, _options?: ExtractOptions): Effect.Effect<string, ToolInstallerError> => dies("extractTar")
+      (_archive: string, _options?: ExtractOptions.Encoded): Effect.Effect<string, ToolInstallerError> =>
+        dies("extractTar")
     ),
     extractZip: dual(
       (args) => P.isString(args[0]),
-      (_archive: string, _options?: ExtractOptions): Effect.Effect<string, ToolInstallerError> => dies("extractZip")
+      (_archive: string, _options?: ExtractOptions.Encoded): Effect.Effect<string, ToolInstallerError> =>
+        dies("extractZip")
     ),
     cacheDir: dual(
       3,

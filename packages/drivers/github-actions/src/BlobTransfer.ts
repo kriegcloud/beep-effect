@@ -1,3 +1,10 @@
+/**
+ * The blob transfer contracts the archive-backed services upload and download through.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $GithubActionsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import type * as Effect from "effect/Effect";

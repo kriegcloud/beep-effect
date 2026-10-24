@@ -2,6 +2,7 @@
  * Issues runner OIDC tokens and exposes workflow claims for provenance.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 import { unstubbed } from "@beep/github-reporting/internal/unstubbed";
@@ -46,8 +47,8 @@ export class OidcTokenError extends S.TaggedError<OidcTokenError, { readonly bra
   {
     /**
      * `unavailable` — the runner did not publish the token-service variables,
-     * which almost always means the workflow is missing `permissions: id-token:
-     * write`. `requestFailed` — the token service could not be reached or refused
+     * which almost always means the workflow is missing
+     * `permissions: id-token: write`. `requestFailed` — the token service could not be reached or refused
      * the request. `malformedResponse` — it answered with something that is not a
      * token envelope. `malformedToken` — the token is not a decodable JWT.
      * `missingClaims` — it decoded, but without the claims a provenance statement
@@ -142,8 +143,8 @@ export class OidcTokenError extends S.TaggedError<OidcTokenError, { readonly bra
  * @category models
  * @since 0.0.0
  */
-export class OidcClaims extends S.Class<OidcClaims, { readonly brand: unique symbol }>($I`OidcClaims`)(
-  {
+export class OidcClaims extends S.Opaque<OidcClaims, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** The issuer, e.g. `https://token.actions.githubusercontent.com`. */
     iss: S.String.pipe(
       $I.annoteKey("OidcClaims.iss", { description: "The issuer, e.g. `https://token.actions.githubusercontent.com`." })
@@ -186,11 +187,28 @@ export class OidcClaims extends S.Class<OidcClaims, { readonly brand: unique sym
     run_attempt: S.String.pipe(
       $I.annoteKey("OidcClaims.run_attempt", { description: "The run attempt, as a string." })
     ),
-  },
-  $I.annote("OidcClaims", {
-    description: "The claims a GitHub Actions OIDC token carries about the workflow that ran.",
-  })
+  }).pipe(
+    $I.annoteSchema("OidcClaims", {
+      description: "The claims a GitHub Actions OIDC token carries about the workflow that ran.",
+    })
+  )
 ) {}
+
+/**
+ * Companion types for {@link OidcClaims}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export declare namespace OidcClaims {
+  /**
+   * The plain object a {@link OidcClaims} decodes from and encodes to.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = typeof OidcClaims.Encoded;
+}
 
 /** The token envelope the runner's token service answers with. */
 const TokenEnvelope = S.Struct({
