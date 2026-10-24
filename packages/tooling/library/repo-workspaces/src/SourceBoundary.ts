@@ -1,5 +1,5 @@
 import { GlobSet } from "@beep/glob";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -28,7 +28,7 @@ import {
   specifierLiterals,
 } from "./internal/sourceText.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/SourceBoundary");
+const $I = $RepoWorkspacesId.create("SourceBoundary");
 
 /**
  * One rule a source file must keep.
@@ -73,7 +73,7 @@ const $I = $ScratchpadId.create("effected/workspaces/SourceBoundary");
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { BoundaryRule } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+ * import { BoundaryRule } from "@beep/repo-workspaces/SourceBoundary";
  *
  * console.log(S.is(BoundaryRule)("process")) // true
  * ```
@@ -110,7 +110,7 @@ export type BoundaryRule = typeof BoundaryRule.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { ReferenceOptions } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+ * import { ReferenceOptions } from "@beep/repo-workspaces/SourceBoundary";
  *
  * console.log(S.is(ReferenceOptions)({ ignoreTokens: [] })) // true
  * ```
@@ -154,7 +154,7 @@ export type ReferenceOptions = typeof ReferenceOptions.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { BoundaryFixture } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+ * import { BoundaryFixture } from "@beep/repo-workspaces/SourceBoundary";
  *
  * console.log(S.is(BoundaryFixture)({ name: "read", source: "process.cwd()", rule: "process", flagged: true })) // true
  * ```
@@ -187,7 +187,7 @@ export type BoundaryFixture = typeof BoundaryFixture.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { OffenceRule } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+ * import { OffenceRule } from "@beep/repo-workspaces/SourceBoundary";
  *
  * console.log(S.is(OffenceRule)("forbidTokens")) // true
  * ```
@@ -221,7 +221,7 @@ export type OffenceRule = typeof OffenceRule.Type;
  * **Example** (Format a boundary offence)
  *
  * ```ts
- * import { Offence } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+ * import { Offence } from "@beep/repo-workspaces/SourceBoundary";
  *
  * const offence = Offence.make({ file: "a.ts", line: 1, column: 1, rule: "process", detail: "process" });
  * console.log(offence.label) // a.ts:1:1 process process
@@ -258,7 +258,7 @@ export class Offence extends S.Class<Offence, { readonly brand: unique symbol }>
    * **Example** (Read an assertion label)
    *
    * ```ts
-   * import { Offence } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+   * import { Offence } from "@beep/repo-workspaces/SourceBoundary";
    *
    * const offence = Offence.make({ file: "a.ts", line: 2, column: 3, rule: "console", detail: "console" });
    * console.log(offence.label) // a.ts:2:3 console console
@@ -278,7 +278,7 @@ export class Offence extends S.Class<Offence, { readonly brand: unique symbol }>
  * **Example** (Inspect a clean scan)
  *
  * ```ts
- * import { SourceScan } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+ * import { SourceScan } from "@beep/repo-workspaces/SourceBoundary";
  *
  * const scan = SourceScan.make({ files: ["a.ts"], allowed: [], offences: [], waived: [] });
  * console.log(scan.violations.length) // 0
@@ -325,7 +325,7 @@ export class SourceScan extends S.Class<SourceScan, { readonly brand: unique sym
    * **Example** (Read formatted violations)
    *
    * ```ts
-   * import { SourceScan, Offence } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+   * import { SourceScan, Offence } from "@beep/repo-workspaces/SourceBoundary";
    *
    * const offence = Offence.make({ file: "a.ts", line: 1, column: 1, rule: "process", detail: "process" });
    * const scan = SourceScan.make({ files: ["a.ts"], allowed: [], offences: [offence], waived: [] });
@@ -347,7 +347,7 @@ export class SourceScan extends S.Class<SourceScan, { readonly brand: unique sym
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { ScanOptions } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+ * import { ScanOptions } from "@beep/repo-workspaces/SourceBoundary";
  *
  * console.log(S.is(ScanOptions)({ root: "/repo/src", rules: ["process"], allowRules: { process: undefined } })) // true
  * ```
@@ -826,7 +826,7 @@ const FIXTURES: ReadonlyArray<BoundaryFixture> = [
  * **Example** (Detect a process reference and verify scanner fixtures)
  *
  * ```ts
- * import { SourceBoundary } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+ * import { SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
  *
  * const offences = SourceBoundary.check("src/a.ts", "const { env } = process;", ["process"]);
  * const clean = SourceBoundary.verifyFixtures().length === 0;
@@ -846,7 +846,7 @@ export class SourceBoundary {
    * **Example** (Blank a trailing comment)
    *
    * ```ts
-   * import { SourceBoundary } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+   * import { SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
    *
    * console.log(SourceBoundary.stripComments("x//hi") === "x    ") // true
    * ```
@@ -862,7 +862,7 @@ export class SourceBoundary {
    * **Example** (Detect a global process read)
    *
    * ```ts
-   * import { SourceBoundary } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+   * import { SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
    *
    * console.log(SourceBoundary.referencesProcess("process.cwd()")) // true
    * ```
@@ -885,7 +885,7 @@ export class SourceBoundary {
    * **Example** (Extract a Node import specifier)
    *
    * ```ts
-   * import { SourceBoundary } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+   * import { SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
    *
    * console.log(SourceBoundary.importSpecifiers('import "node:fs";').join(",")) // node:fs
    * ```
@@ -902,7 +902,7 @@ export class SourceBoundary {
    * **Example** (Recognize a bare Node built-in import)
    *
    * ```ts
-   * import { SourceBoundary } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+   * import { SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
    *
    * console.log(SourceBoundary.importsNode('import "fs";', "fs")) // true
    * ```
@@ -937,7 +937,7 @@ export class SourceBoundary {
    * **Example** (Count a process offence)
    *
    * ```ts
-   * import { SourceBoundary } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+   * import { SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
    *
    * console.log(SourceBoundary.check("a.ts", "process.cwd()", ["process"]).length) // 1
    * ```
@@ -1030,7 +1030,7 @@ export class SourceBoundary {
    *
    * ```ts
    * import { NodeServices } from "@effect/platform-node";
-   * import { SourceBoundary } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+   * import { SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
    * import * as Effect from "effect/Effect";
    *
    * const scan = SourceBoundary.scan({
@@ -1122,7 +1122,7 @@ export class SourceBoundary {
    * **Example** (Inspect the first control rule)
    *
    * ```ts
-   * import { SourceBoundary } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+   * import { SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
    *
    * console.log(SourceBoundary.fixtures[0]?.rule) // node:process
    * ```
@@ -1138,7 +1138,7 @@ export class SourceBoundary {
    * **Example** (Verify all shipped scanner controls)
    *
    * ```ts
-   * import { SourceBoundary } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
+   * import { SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
    *
    * console.log(SourceBoundary.verifyFixtures().length) // 0
    * ```

@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { InstalledConsumer, PackedInstallError, PackedInstallResult } from "@beep/repo-workspaces/PackedInstall";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { InstalledConsumer, PackedInstallError, PackedInstallResult } from "../../effected/workspaces/PackedInstall.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 
@@ -29,7 +29,7 @@ describe("PackedInstall property floor", () => {
   roundTrips("PackedInstallResult", PackedInstallResult);
 });
 
-import { PackedInstall } from "../../effected/workspaces/PackedInstall.ts";
+import { PackedInstall } from "@beep/repo-workspaces/PackedInstall";
 
 it.effect.prop(
   "scrubEnv is idempotent and preserves caller values outside manager context",

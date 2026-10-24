@@ -1,9 +1,9 @@
+import { LayerPolicy } from "@beep/repo-workspaces/LayerPolicy";
+import { LayerEdge, LayeringReport, WorkspaceLayering } from "@beep/repo-workspaces/WorkspaceLayering";
 import { assert, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import { LayerPolicy } from "../../effected/workspaces/LayerPolicy.ts";
-import { LayerEdge, LayeringReport, WorkspaceLayering } from "../../effected/workspaces/WorkspaceLayering.ts";
 
 it.effect("renders missing declarations and required edges in report order", () =>
   Effect.gen(function* () {

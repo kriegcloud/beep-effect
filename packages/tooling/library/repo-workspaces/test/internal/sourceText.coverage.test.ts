@@ -1,5 +1,3 @@
-import { assert, it } from "@effect/vitest";
-import * as Effect from "effect/Effect";
 import {
   codePointAt,
   codePointBefore,
@@ -8,7 +6,9 @@ import {
   locate,
   references,
   specifierLiterals,
-} from "../../../effected/workspaces/internal/sourceText.ts";
+} from "@beep/repo-workspaces/internal/sourceText";
+import { assert, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
 
 it.effect("code point helpers preserve paired and isolated surrogates at boundaries", () =>
   Effect.sync(() => {

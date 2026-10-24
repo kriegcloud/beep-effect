@@ -20,7 +20,7 @@ const roundTrip = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   );
 };
 
-import { LayerEdge, LayeringGraph, LayeringReport } from "../../effected/workspaces/WorkspaceLayering.ts";
+import { LayerEdge, LayeringGraph, LayeringReport } from "@beep/repo-workspaces/WorkspaceLayering";
 
 describe("WorkspaceLayering property floor", () => {
   roundTrip("LayerEdge", LayerEdge);

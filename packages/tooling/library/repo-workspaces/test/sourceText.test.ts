@@ -1,4 +1,3 @@
-import { assert, describe, it } from "@effect/vitest";
 import {
   cookIdentifier,
   identifierAt,
@@ -7,7 +6,8 @@ import {
   locate,
   references,
   specifierLiterals,
-} from "../../effected/workspaces/internal/sourceText.ts";
+} from "@beep/repo-workspaces/internal/sourceText";
+import { assert, describe, it } from "@effect/vitest";
 
 /** A `/` that opens a regex blanks the body in the code view; one that divides leaves the code view untouched. */
 const divides = (text: string): boolean => lex(text).code === text;

@@ -1,11 +1,11 @@
 import { MemoryFileSystem } from "@beep/memfs";
+import { Offence, SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
 import { assert, describe, it, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
-import { Offence, SourceBoundary } from "../../effected/workspaces/SourceBoundary.ts";
 
 describe("SourceBoundary coverage controls", () => {
   it.effect("the namespace constructor preserves the static scanner surface", () =>

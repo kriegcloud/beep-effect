@@ -1,12 +1,4 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { assert, it } from "@effect/vitest";
-import { assertDefined, assertSuccess } from "@effect/vitest/utils";
-import * as Arbitrary from "effect/Arbitrary";
-import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
-import * as R from "effect/Record";
-import * as Result from "effect/Result";
-import * as S from "effect/Schema";
 import {
   binTargetOf,
   consumerFiles,
@@ -16,7 +8,15 @@ import {
   scrubEnv,
   unresolvedSpecifiers,
   versionOf,
-} from "../../../effected/workspaces/internal/packedInstallPlan.ts";
+} from "@beep/repo-workspaces/internal/packedInstallPlan";
+import { assert, it } from "@effect/vitest";
+import { assertDefined, assertSuccess } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
+import * as Effect from "effect/Effect";
+import * as R from "effect/Record";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 
 const ConsumerDocument = S.Struct({ dependencies: S.Record(S.String, S.String) });
 

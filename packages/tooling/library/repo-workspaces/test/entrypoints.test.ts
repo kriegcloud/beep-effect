@@ -3,16 +3,12 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { WorkspaceEnumerationDepthError } from "@beep/repo-workspaces";
+import { SourceBoundary } from "@beep/repo-workspaces/testing";
 import { WorkspaceEnumerationDepthError as SyncDepthError } from "@beep/repo-workspaces/WorkspacesSync";
 import { assert, describe, it } from "@effect/vitest";
-import { SourceBoundary } from "../../effected/workspaces/testing.ts";
 
-// Wave 4-W-a: the main entry lives in @beep/repo-workspaces; ./testing stays in the lab until 4-W-b.
-const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "../../effected/workspaces");
-const PACKAGE_SRC = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../../packages/tooling/library/repo-workspaces/src"
-);
+const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "../src");
+const PACKAGE_SRC = SRC;
 
 /** Every relative import of a module, resolved to its source path. */
 const importsOf = (file: string): ReadonlyArray<string> =>
@@ -34,7 +30,7 @@ const reachableFrom = (entry: string): ReadonlySet<string> => {
 };
 
 const TESTING_ONLY =
-  /(?:effected\/workspaces|repo-workspaces\/src)\/(testing|SourceBoundary|LayerPolicy|WorkspaceLayering|PackedInstall|internal\/sourceText|internal\/packedInstallPlan)\.ts$/;
+  /repo-workspaces\/src\/(testing|SourceBoundary|LayerPolicy|WorkspaceLayering|PackedInstall|internal\/sourceText|internal\/packedInstallPlan)\.ts$/;
 
 describe("entrypoint boundary", () => {
   it("exports the synchronous enumeration depth error from the main entrypoint", () => {
@@ -65,7 +61,7 @@ describe("entrypoint boundary", () => {
       "internal/packedInstallPlan",
     ]) {
       assert.isTrue(
-        reachable.some((file) => file.endsWith(`effected/workspaces/${module}.ts`)),
+        reachable.some((file) => file.endsWith(`repo-workspaces/src/${module}.ts`)),
         module
       );
     }

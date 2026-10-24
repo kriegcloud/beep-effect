@@ -1,12 +1,12 @@
 import { DependencyGraph, WorkspaceDiscovery, WorkspacePackage } from "@beep/repo-workspaces";
+import { LayerEdge, LayerPolicy, WorkspaceLayering } from "@beep/repo-workspaces/testing";
 import { assert, describe, it, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
-import { LayerEdge, LayerPolicy, WorkspaceLayering } from "../../effected/workspaces/testing.ts";
 import type { DependencyField } from "@beep/npm-spec/DependencySection";
-import type { LayeringGraph } from "../../effected/workspaces/testing.ts";
+import type { LayeringGraph } from "@beep/repo-workspaces/testing";
 
 const edge = (from: string, to: string, field: DependencyField = "dependencies"): LayerEdge =>
   LayerEdge.make({ from, to, field });

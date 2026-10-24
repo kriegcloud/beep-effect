@@ -1,9 +1,9 @@
 import { MemoryFileSystem } from "@beep/memfs";
+import { LayerPolicy, LayerPolicyError } from "@beep/repo-workspaces/testing";
 import { assert, describe, it, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { LayerPolicy, LayerPolicyError } from "../../effected/workspaces/testing.ts";
 
 const VALID = { layers: [["app"], ["core"]], tooling: [], unconstrained: ["@e2e/*"] };
 
@@ -101,7 +101,7 @@ describe("LayerPolicy JSON Schema export", () => {
   it("each required edge exports its pattern", () => {
     assert.nestedPropertyVal(
       S.toJsonSchemaDocument(LayerPolicy),
-      "definitions.@beep/scratchpad/effected/workspaces/LayerPolicy/LayerPolicyEncoded.properties.requiredEdges.items.pattern",
+      "definitions.@beep/repo-workspaces/LayerPolicy/LayerPolicyEncoded.properties.requiredEdges.items.pattern",
       String.raw`^\S+ -> \S+$`
     );
   });

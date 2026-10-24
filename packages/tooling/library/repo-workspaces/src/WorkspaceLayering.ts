@@ -1,7 +1,6 @@
 import { GlobSet } from "@beep/glob";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { DependencyField } from "@beep/npm-spec/DependencySection";
-import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -15,10 +14,11 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ALL_DEPENDENCY_FIELDS } from "./internal/dependencyFields.ts";
-import type { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
+import { WorkspaceDiscovery } from "./WorkspaceDiscovery.ts";
 import type { LayerPolicy } from "./LayerPolicy.ts";
+import type { WorkspacePackage } from "./WorkspacePackage.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/WorkspaceLayering");
+const $I = $RepoWorkspacesId.create("WorkspaceLayering");
 
 /**
  * One dependency edge between two workspace packages, in one field.
@@ -26,7 +26,7 @@ const $I = $ScratchpadId.create("effected/workspaces/WorkspaceLayering");
  * **Example** (Describe a workspace dependency edge)
  *
  * ```ts
- * import { LayerEdge } from "@beep/scratchpad/effected/workspaces/WorkspaceLayering";
+ * import { LayerEdge } from "@beep/repo-workspaces/WorkspaceLayering";
  *
  * const edge = LayerEdge.make({ from: "@app/web", to: "@app/core", field: "dependencies" });
  * console.log(edge.label) // @app/web -> @app/core (dependencies)
@@ -53,7 +53,7 @@ export class LayerEdge extends S.Class<LayerEdge, { readonly brand: unique symbo
    * **Example** (Render the declaring field of an edge)
    *
    * ```ts
-   * import { LayerEdge } from "@beep/scratchpad/effected/workspaces/WorkspaceLayering";
+   * import { LayerEdge } from "@beep/repo-workspaces/WorkspaceLayering";
    *
    * const edge = LayerEdge.make({ from: "@app/web", to: "@app/core", field: "dependencies" });
    * console.log(edge.label) // @app/web -> @app/core (dependencies)
@@ -73,7 +73,7 @@ export class LayerEdge extends S.Class<LayerEdge, { readonly brand: unique symbo
  * **Example** (Read an empty layering graph)
  *
  * ```ts
- * import { LayeringGraph } from "@beep/scratchpad/effected/workspaces/WorkspaceLayering";
+ * import { LayeringGraph } from "@beep/repo-workspaces/WorkspaceLayering";
  * import * as S from "effect/Schema";
 import * as P from "effect/Predicate";
  *
@@ -120,7 +120,7 @@ type OffenceReason = typeof OffenceReason.Type;
  * **Example** (Detect a vacuous layering check)
  *
  * ```ts
- * import { LayeringReport } from "@beep/scratchpad/effected/workspaces/WorkspaceLayering";
+ * import { LayeringReport } from "@beep/repo-workspaces/WorkspaceLayering";
  * import * as O from "effect/Option";
  *
  * const report = LayeringReport.make({
@@ -189,7 +189,7 @@ export class LayeringReport extends S.Class<LayeringReport, { readonly brand: un
    * **Example** (Render the vacuity violation)
    *
    * ```ts
-   * import { LayeringReport } from "@beep/scratchpad/effected/workspaces/WorkspaceLayering";
+   * import { LayeringReport } from "@beep/repo-workspaces/WorkspaceLayering";
    * import * as O from "effect/Option";
    *
    * const report = LayeringReport.make({
@@ -287,8 +287,8 @@ const cycleOf: {
  * **Example** (Check workspace dependencies against a layer policy)
  *
  * ```ts
- * import { WorkspaceLayering } from "@beep/scratchpad/effected/workspaces/WorkspaceLayering";
- * import { LayerPolicy } from "@beep/scratchpad/effected/workspaces/LayerPolicy";
+ * import { WorkspaceLayering } from "@beep/repo-workspaces/WorkspaceLayering";
+ * import { LayerPolicy } from "@beep/repo-workspaces/LayerPolicy";
  * import * as Effect from "effect/Effect";
  *
  * const violations = Effect.gen(function* () {
@@ -310,8 +310,8 @@ export abstract class WorkspaceLayering {
    * **Example** (Check a downward dependency)
    *
    * ```ts
-   * import { LayerEdge, WorkspaceLayering } from "@beep/scratchpad/effected/workspaces/WorkspaceLayering";
-   * import { LayerPolicy } from "@beep/scratchpad/effected/workspaces/LayerPolicy";
+   * import { LayerEdge, WorkspaceLayering } from "@beep/repo-workspaces/WorkspaceLayering";
+   * import { LayerPolicy } from "@beep/repo-workspaces/LayerPolicy";
    *
    * const policy = LayerPolicy.make({
    *   layers: [["@app/web"], ["@app/core"]], tooling: [], unconstrained: [],
@@ -389,7 +389,7 @@ export abstract class WorkspaceLayering {
    * **Example** (Enumerate a dependency between workspace members)
    *
    * ```ts
-   * import { WorkspaceLayering } from "@beep/scratchpad/effected/workspaces/WorkspaceLayering";
+   * import { WorkspaceLayering } from "@beep/repo-workspaces/WorkspaceLayering";
    * import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
    *
    * const web = WorkspacePackage.make({
@@ -428,8 +428,8 @@ export abstract class WorkspaceLayering {
    * **Example** (Construct a workspace policy check)
    *
    * ```ts
-   * import { WorkspaceLayering } from "@beep/scratchpad/effected/workspaces/WorkspaceLayering";
-   * import { LayerPolicy } from "@beep/scratchpad/effected/workspaces/LayerPolicy";
+   * import { WorkspaceLayering } from "@beep/repo-workspaces/WorkspaceLayering";
+   * import { LayerPolicy } from "@beep/repo-workspaces/LayerPolicy";
    * import * as Effect from "effect/Effect";
    *
    * const policy = LayerPolicy.make({ layers: [], tooling: [], unconstrained: ["*"] });

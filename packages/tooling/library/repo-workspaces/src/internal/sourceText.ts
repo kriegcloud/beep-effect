@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -27,7 +27,7 @@ import * as Str from "effect/String";
 // as keywords — right in module and strict code, where they are reserved,
 // wrong only for a sloppy-mode script that names a variable either word.
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/sourceText");
+const $I = $RepoWorkspacesId.create("internal/sourceText");
 
 /**
  * Describes a string literal, or a template literal with no substitutions, as written in the source.
@@ -36,7 +36,7 @@ const $I = $ScratchpadId.create("effected/workspaces/internal/sourceText");
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { SourceLiteral } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { SourceLiteral } from "@beep/repo-workspaces/internal/sourceText";
  *
  * console.log(S.is(SourceLiteral)({ start: 7, value: "node:fs" })) // true
  * ```
@@ -79,7 +79,7 @@ export type SourceLiteral = typeof SourceLiteral.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { LexedSource, lex } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { LexedSource, lex } from "@beep/repo-workspaces/internal/sourceText";
  *
  * console.log(S.is(LexedSource)(lex("process.pid"))) // true
  * ```
@@ -160,7 +160,7 @@ const GLOBAL_OBJECTS = MutableHashSet.fromIterable(["globalThis", "global", "win
  * **Example** (Retain an escaped token's raw width)
  *
  * ```ts
- * import { identifierTokens } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { identifierTokens } from "@beep/repo-workspaces/internal/sourceText";
  *
  * for (const token of identifierTokens("stdout.wr\\u0069te")) console.log(token.index, token[0]);
  * ```
@@ -176,7 +176,7 @@ export const identifierTokens = (code: string): IterableIterator<RegExpExecArray
  * **Example** (Read an escaped identifier)
  *
  * ```ts
- * import { identifierAt } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { identifierAt } from "@beep/repo-workspaces/internal/sourceText";
  *
  * console.log(identifierAt("x.stdout", 2)) // stdout
  * console.log(identifierAt(1)("x.stdout")) // undefined
@@ -199,7 +199,7 @@ export const identifierAt: {
  * **Example** (Recognize identifier continuations)
  *
  * ```ts
- * import { isIdentifierChar } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { isIdentifierChar } from "@beep/repo-workspaces/internal/sourceText";
  *
  * console.log(isIdentifierChar("$")) // true
  * console.log(isIdentifierChar(undefined)) // false
@@ -216,7 +216,7 @@ export const isIdentifierChar = (char: string | undefined): boolean => char !== 
  * **Example** (Read a surrogate pair from text and a lexer buffer)
  *
  * ```ts
- * import { codePointAt } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { codePointAt } from "@beep/repo-workspaces/internal/sourceText";
  *
  * console.log(codePointAt("a😀", 1)) // 😀
  * console.log(codePointAt(1)(["a", "\uD83D", "\uDE00"])) // 😀
@@ -245,7 +245,7 @@ export const codePointAt: {
  * **Example** (Read the code point before a boundary)
  *
  * ```ts
- * import { codePointBefore } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { codePointBefore } from "@beep/repo-workspaces/internal/sourceText";
  *
  * console.log(codePointBefore("a😀", 3)) // 😀
  * console.log(codePointBefore(0)("a😀")) // undefined
@@ -275,7 +275,7 @@ const isLineTerminator = (char: string | undefined): boolean =>
  * **Example** (Inspect aligned views and raw literals)
  *
  * ```ts
- * import { lex } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { lex } from "@beep/repo-workspaces/internal/sourceText";
  *
  * const text = 'const x = "hi"; // note';
  * const lexed = lex(text);
@@ -591,7 +591,7 @@ const isPropertyKey: {
  * **Example** (Select free and global references)
  *
  * ```ts
- * import { lex, references } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { lex, references } from "@beep/repo-workspaces/internal/sourceText";
  *
  * const code = lex("process; child.process; globalThis.process").code;
  * console.log(references(code, "process").join(",")) // 0,35
@@ -691,7 +691,7 @@ const wordEndingAt: {
  * **Example** (Cook a Unicode member spelling)
  *
  * ```ts
- * import { cookIdentifier } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { cookIdentifier } from "@beep/repo-workspaces/internal/sourceText";
  *
  * console.log(cookIdentifier("wr\\u0069te")) // write
  * console.log(cookIdentifier("\\u0020")) // undefined
@@ -748,7 +748,7 @@ const cookSpecifier = (raw: string): string =>
  * **Example** (Extract a cooked module specifier)
  *
  * ```ts
- * import { lex, specifierLiterals } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { lex, specifierLiterals } from "@beep/repo-workspaces/internal/sourceText";
  *
  * const lexed = lex('import "node:\\u0066s"; import("./x" + name);');
  * const specifiers = specifierLiterals(lexed);
@@ -788,7 +788,7 @@ export const specifierLiterals = (lexed: LexedSource): ReadonlyArray<SourceLiter
  * **Example** (Locate text after a CRLF line break)
  *
  * ```ts
- * import { locate } from "@beep/scratchpad/effected/workspaces/internal/sourceText";
+ * import { locate } from "@beep/repo-workspaces/internal/sourceText";
  *
  * const position = locate("a\r\n😀x")(5);
  * console.log(position.line) // 2

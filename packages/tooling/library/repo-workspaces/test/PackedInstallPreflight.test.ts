@@ -1,6 +1,7 @@
 import { ScriptedSpawner } from "@beep/commands";
 import { MemoryFileSystem } from "@beep/memfs";
 import { WorkspaceDiscovery, WorkspacePackage } from "@beep/repo-workspaces";
+import { InstalledConsumer, PackedInstall } from "@beep/repo-workspaces/testing";
 import { assert, describe, it, layer } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
@@ -10,7 +11,6 @@ import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
-import { InstalledConsumer, PackedInstall } from "../../effected/workspaces/testing.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 

@@ -2,18 +2,18 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { assert, describe, it } from "@effect/vitest";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
 import {
   BoundaryFixture,
   BoundaryRule as BoundaryRuleModel,
   OffenceRule as OffenceRuleModel,
   ReferenceOptions,
   ScanOptions,
-} from "../../effected/workspaces/SourceBoundary.ts";
-import { SourceBoundary } from "../../effected/workspaces/testing.ts";
-import type { BoundaryRule, OffenceRule } from "../../effected/workspaces/testing.ts";
+} from "@beep/repo-workspaces/SourceBoundary";
+import { SourceBoundary } from "@beep/repo-workspaces/testing";
+import { assert, describe, it } from "@effect/vitest";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import type { BoundaryRule, OffenceRule } from "@beep/repo-workspaces/testing";
 
 const lines = (text: string, rule: BoundaryRule): ReadonlyArray<number> =>
   SourceBoundary.check("fixture.ts", text, [rule]).map((offence) => offence.line);
@@ -484,10 +484,7 @@ describe("SourceBoundary on the real tree", () => {
   // ConfigDependencyHooks.ts embeds a node program (REPLAY_SCRIPT) as template
   // text: it reads process.argv, writes process.stdout and calls import(url),
   // all as TEXT that this module never executes.
-  const file = resolve(
-    dirname(fileURLToPath(import.meta.url)),
-    "../../../packages/tooling/library/repo-workspaces/src/ConfigDependencyHooks.ts"
-  );
+  const file = resolve(dirname(fileURLToPath(import.meta.url)), "../src/ConfigDependencyHooks.ts");
   const text = readFileSync(file, "utf8");
   const open = text.indexOf("const REPLAY_SCRIPT = `");
   const script = text.slice(text.indexOf("`", open) + 1, text.indexOf("\n`;", open));

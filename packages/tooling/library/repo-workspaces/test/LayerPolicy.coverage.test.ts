@@ -1,7 +1,7 @@
 import { MemoryFileSystem } from "@beep/memfs";
+import { LayerPolicy, LayerPolicyError } from "@beep/repo-workspaces/LayerPolicy";
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { LayerPolicy, LayerPolicyError } from "../../effected/workspaces/LayerPolicy.ts";
 
 describe("LayerPolicy diagnostics coverage", () => {
   it.effect("rejects non-object policies with a typed decode failure", () =>

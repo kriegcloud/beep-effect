@@ -1,16 +1,16 @@
-import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
-import { assert, it } from "@effect/vitest";
-import { assertSuccess } from "@effect/vitest/utils";
-import * as Effect from "effect/Effect";
-import * as Result from "effect/Result";
-import * as S from "effect/Schema";
 import {
   binTargetOf,
   closureOf,
   consumerFiles,
   readPackedManifest,
   versionOf,
-} from "../../../effected/workspaces/internal/packedInstallPlan.ts";
+} from "@beep/repo-workspaces/internal/packedInstallPlan";
+import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
+import { assert, it } from "@effect/vitest";
+import { assertSuccess } from "@effect/vitest/utils";
+import * as Effect from "effect/Effect";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 
 it.effect("accepts version lines amid noise and handles a Yarn version lacking a minor component", () =>
   Effect.sync(() => {

@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual, flow, identity, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -12,16 +12,16 @@ import * as O from "effect/Option";
 // project looks like, and how each spells "skip lifecycle scripts". Pure, so
 // every per-manager trap is pinned without spawning one.
 
-import { PackageManagerName } from "@beep/repo-workspaces/PackageManagerName";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { PackageManagerName } from "../PackageManagerName.ts";
 import { RUNTIME_DEPENDENCY_FIELDS } from "./dependencyFields.ts";
-import type { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
+import type { WorkspacePackage } from "../WorkspacePackage.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/internal/packedInstallPlan");
+const $I = $RepoWorkspacesId.create("internal/packedInstallPlan");
 
 const JsonValue = S.fromJsonString(S.Unknown).pipe(
   $I.annoteSchema("JsonValue", { description: "A JSON value inspected with tolerant packed-manifest checks." })
@@ -84,7 +84,7 @@ const TRAP_PREFIXES = /^(npm_|pnpm_config_|yarn_)/i;
  * **Example** (Keep user configuration while removing parent context)
  *
  * ```ts
- * import { scrubEnv } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { scrubEnv } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * const env = scrubEnv({ HOME: "/home/consumer", CI: "true", npm_config_user_agent: "pnpm", EMPTY: undefined });
  * console.log(env) // { HOME: "/home/consumer" }
@@ -108,7 +108,7 @@ export const scrubEnv = (env: Readonly<Record<string, string | undefined>>): Rec
  * **Example** (Read the final version line)
  *
  * ```ts
- * import { versionOf } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { versionOf } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * console.log(versionOf("startup notice\nv4.10.0\n")) // 4.10.0
  * ```
@@ -130,7 +130,7 @@ export const versionOf = (stdout: string): string | undefined => {
  * **Example** (Report a missing carrier)
  *
  * ```ts
- * import { closureOf } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { closureOf } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * import * as Result from "effect/Result";
  *
@@ -191,7 +191,7 @@ export const closureOf: {
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { ConsumerInput } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { ConsumerInput } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * console.log(S.is(ConsumerInput)({ manager: "pnpm", version: "10.0.0", carrier: { name: "@x/cli", tarball: "/packs/cli.tgz" }, overrides: {}, dependencies: {} })) // true
  * console.log(S.is(ConsumerInput)(null)) // false
@@ -288,7 +288,7 @@ const pnpmWorkspaceYaml = (specs: Readonly<Record<string, string>>): string => {
  * **Example** (List the pnpm consumer files)
  *
  * ```ts
- * import { consumerFiles } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { consumerFiles } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * const files = consumerFiles({
  *   manager: "pnpm",
@@ -346,7 +346,7 @@ export const consumerFiles = (
  * **Example** (Skip lifecycle scripts with pnpm)
  *
  * ```ts
- * import { installArgs } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { installArgs } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * console.log(installArgs("pnpm", "12.0.0").join(" ")) // install --config.ignore-scripts=true
  * ```
@@ -387,7 +387,7 @@ const UNRESOLVABLE = /^(?:workspace:|catalog:|link:|file:(?!\/))/;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PackedManifest } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { PackedManifest } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * console.log(S.is(PackedManifest)({ name: "@x/cli", unresolved: ["dependencies.member: workspace:*"], bins: ["cli"] })) // true
  * console.log(S.is(PackedManifest)(null)) // false
@@ -430,7 +430,7 @@ export type PackedManifest = typeof PackedManifest.Type;
  * **Example** (Distinguish a manifest from a scalar)
  *
  * ```ts
- * import { readPackedManifest } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { readPackedManifest } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * import * as Result from "effect/Result";
  *
@@ -476,7 +476,7 @@ export const readPackedManifest = (manifestJson: string): Result.Result<PackedMa
  * **Example** (Resolve a scoped package executable)
  *
  * ```ts
- * import { binTargetOf } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { binTargetOf } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * console.log(binTargetOf('{"name":"@demo/carrier","bin":"cli.js"}', "carrier")) // cli.js
  * ```
@@ -507,7 +507,7 @@ export const binTargetOf: {
  * **Example** (Check whether manifest inspection succeeds)
  *
  * ```ts
- * import { unresolvedSpecifiers } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { unresolvedSpecifiers } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * import * as Result from "effect/Result";
  *
@@ -535,7 +535,7 @@ export const unresolvedSpecifiers = (manifestJson: string): Result.Result<Readon
  * **Example** (Identify the package sharing an executable)
  *
  * ```ts
- * import { binConflict } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { binConflict } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * const conflict = binConflict(
  *   { name: "@demo/carrier", bins: ["demo"] },
@@ -591,7 +591,7 @@ const BARE_NAME = /^(?:@[^/@\s>]+\/)?[^/@\s>]+$/;
  * **Example** (Extract tarball paths from plain override keys)
  *
  * ```ts
- * import { fileOverridesOf } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { fileOverridesOf } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * const overrides = fileOverridesOf({ overrides: {
  *   "@demo/core": "file:./core.tgz",
@@ -626,7 +626,7 @@ export const fileOverridesOf = (document: unknown): Record<string, string> => {
  * **Example** (Remove a tarball specifier prefix)
  *
  * ```ts
- * import { overridePath } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ * import { overridePath } from "@beep/repo-workspaces/internal/packedInstallPlan";
  *
  * console.log(overridePath("file:./core.tgz")) // ./core.tgz
  * ```

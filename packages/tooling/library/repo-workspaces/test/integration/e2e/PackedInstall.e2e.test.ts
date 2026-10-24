@@ -26,6 +26,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { Run } from "@beep/commands";
 import { Workspaces } from "@beep/repo-workspaces";
+import { PackedInstall } from "@beep/repo-workspaces/testing";
 import { NodeServices } from "@effect/platform-node";
 import { afterAll, assert, describe, layer } from "@effect/vitest";
 import * as Duration from "effect/Duration";
@@ -33,9 +34,8 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { PackedInstall } from "../../../effected/workspaces/testing.ts";
 import type { PackageManagerName } from "@beep/repo-workspaces";
-import type { InstalledConsumer, PackedInstallBudget } from "../../../effected/workspaces/testing.ts";
+import type { InstalledConsumer, PackedInstallBudget } from "@beep/repo-workspaces/testing";
 
 const JsonValue = S.fromJsonString(S.Record(S.String, S.Unknown));
 

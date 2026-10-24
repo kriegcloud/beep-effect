@@ -6,7 +6,7 @@ import type { DependencyField } from "@beep/npm-spec/DependencySection";
  * **Example** (Inspect manifest dependency field order)
  *
  * ```ts
- * import { ALL_DEPENDENCY_FIELDS } from "@beep/scratchpad/effected/workspaces/internal/dependencyFields"
+ * import { ALL_DEPENDENCY_FIELDS } from "@beep/repo-workspaces/internal/dependencyFields"
  *
  * console.log(ALL_DEPENDENCY_FIELDS.join(", ")) // dependencies, devDependencies, peerDependencies, optionalDependencies
  * ```
@@ -27,7 +27,7 @@ export const ALL_DEPENDENCY_FIELDS: ReadonlyArray<DependencyField> = [
  * **Example** (Inspect runtime dependency field order)
  *
  * ```ts
- * import { RUNTIME_DEPENDENCY_FIELDS } from "@beep/scratchpad/effected/workspaces/internal/dependencyFields"
+ * import { RUNTIME_DEPENDENCY_FIELDS } from "@beep/repo-workspaces/internal/dependencyFields"
  *
  * console.log(RUNTIME_DEPENDENCY_FIELDS.join(", ")) // dependencies, optionalDependencies, peerDependencies
  * ```

@@ -14,30 +14,6 @@
  * @packageDocumentation
  */
 
-export { PackageManagerName } from "@beep/repo-workspaces/PackageManagerName";
-export {
-  PackageNotFoundError,
-  WorkspaceDiscovery,
-  WorkspaceDiscoveryError,
-  type WorkspaceDiscoveryFailure,
-  type WorkspaceDiscoveryOptions,
-  type WorkspaceDiscoveryShape,
-  WorkspaceInfo,
-  type WorkspaceLookupFailure,
-  WorkspacePatternError,
-} from "@beep/repo-workspaces/WorkspaceDiscovery";
-export {
-  type DependencyDiff,
-  PublishConfig,
-  WorkspaceManifestError,
-  WorkspacePackage,
-} from "@beep/repo-workspaces/WorkspacePackage";
-export {
-  type FindWorkspaceRootOptions,
-  WorkspaceRoot,
-  WorkspaceRootNotFoundError,
-  type WorkspaceRootShape,
-} from "@beep/repo-workspaces/WorkspaceRoot";
 // This module is an ENTRY POINT: api-extractor models it as its own surface,
 // so every kit type its signatures name is re-exported here. That includes
 // the discovery closure WorkspaceLayering's signatures reach (edgesOf's
@@ -45,6 +21,7 @@ export {
 // WorkspaceDiscovery service's shape, options and failures, the WorkspaceRoot
 // service its layer requires, and WorkspacePackage's field and method types.
 export { LayerPolicy, LayerPolicyError } from "./LayerPolicy.ts";
+export { PackageManagerName } from "./PackageManagerName.ts";
 export {
   type BinCommandOptions,
   type BinProvenance,
@@ -71,4 +48,27 @@ export {
   SourceBoundary,
   SourceScan,
 } from "./SourceBoundary.ts";
+export {
+  PackageNotFoundError,
+  WorkspaceDiscovery,
+  WorkspaceDiscoveryError,
+  type WorkspaceDiscoveryFailure,
+  type WorkspaceDiscoveryOptions,
+  type WorkspaceDiscoveryShape,
+  WorkspaceInfo,
+  type WorkspaceLookupFailure,
+  WorkspacePatternError,
+} from "./WorkspaceDiscovery.ts";
 export { LayerEdge, type LayeringGraph, LayeringReport, WorkspaceLayering } from "./WorkspaceLayering.ts";
+export {
+  type DependencyDiff,
+  PublishConfig,
+  WorkspaceManifestError,
+  WorkspacePackage,
+} from "./WorkspacePackage.ts";
+export {
+  type FindWorkspaceRootOptions,
+  WorkspaceRoot,
+  WorkspaceRootNotFoundError,
+  type WorkspaceRootShape,
+} from "./WorkspaceRoot.ts";

@@ -16,8 +16,10 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import { DependencyGraph, WorkspaceDiscovery, Workspaces } from "@beep/repo-workspaces";
-import type { LayeringGraph } from "../../../effected/workspaces/testing.ts";
-import { LayerEdge, LayerPolicy, SourceBoundary, WorkspaceLayering } from "../../../effected/workspaces/testing.ts";
+import { LayerPolicy } from "@beep/repo-workspaces/LayerPolicy";
+import { SourceBoundary } from "@beep/repo-workspaces/SourceBoundary";
+import type { LayeringGraph } from "@beep/repo-workspaces/WorkspaceLayering";
+import { LayerEdge, WorkspaceLayering } from "@beep/repo-workspaces/WorkspaceLayering";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
 const BunLive = Workspaces.layer({ cwd: REPO }).pipe(
@@ -43,9 +45,10 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // the `tsconfig-json` IO half as `@beep/repo-tsconfig`, which folds into `tsconfig-json`
 // beside `@beep/tsconfig`. Wave 3-3 promoted `config-file` whole as `@beep/config-file`,
 // and wave 4-X promoted `xdg` whole as `@beep/xdg`.
-// Wave 4-W-a split `workspaces`: its core and config-deps half is `@beep/repo-workspaces`
-// and the `./testing` cluster stays a lab directory without an `index.ts`, so a promoted
-// module's remaining lab directory counts as that module even without its barrel.
+// Wave 4-W-a promoted the `workspaces` core and config-deps half as `@beep/repo-workspaces`,
+// and wave 4-W-b moved its `./testing` cluster into the same package, so no lab
+// `workspaces` source directory remains. A promoted module's remaining lab directory
+// still counts as that module even without its barrel (the `sbom` signer below).
 // Wave 4-S split `sbom` the same way: its pure models are `@beep/sbom` and the Sigstore
 // signer stays a lab directory, so the package folds into the `sbom` lab module.
 // Every other kit module is still a lab directory reached relatively.

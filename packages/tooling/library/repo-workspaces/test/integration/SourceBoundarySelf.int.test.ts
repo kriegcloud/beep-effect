@@ -5,28 +5,14 @@
 // other modules really do read process.
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { SourceBoundary } from "@beep/repo-workspaces/testing";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import { assert, describe, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { SourceBoundary } from "../../../effected/workspaces/testing.ts";
-import type { BoundaryRule } from "../../../effected/workspaces/testing.ts";
+import type { BoundaryRule } from "@beep/repo-workspaces/testing";
 
-// Wave 4-W-a: the core and config-deps modules live in @beep/repo-workspaces; the
-// ./testing cluster stays in the lab directory until 4-W-b.
-const SRC = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-  "..",
-  "..",
-  "packages",
-  "tooling",
-  "library",
-  "repo-workspaces",
-  "src"
-);
-const LAB = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "effected", "workspaces");
+const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "src");
 const Platform = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TESTING_MODULES = new Set([
   "testing.ts",
@@ -101,10 +87,12 @@ describe("@effected/workspaces, scanned by SourceBoundary", () => {
             "console",
             { forbidImports: ["node:*", "@effect/platform*"] },
           ];
-          const scan = yield* SourceBoundary.scan({ root: LAB, rules });
+          const scan = yield* SourceBoundary.scan({ root: SRC, rules });
           assert.isTrue(scan.files.includes("SourceBoundary.ts"), "the testing modules were read");
-          const core = yield* SourceBoundary.scan({ root: SRC, rules });
-          assert.isNotEmpty(core.offences, "the same rules do flag the modules outside ./testing");
+          assert.isNotEmpty(
+            scan.offences.filter((offence) => !TESTING_MODULES.has(offence.file)),
+            "the same rules do flag the modules outside ./testing"
+          );
           assert.deepStrictEqual(
             scan.offences.filter((offence) => TESTING_MODULES.has(offence.file)).map((offence) => offence.label),
             []

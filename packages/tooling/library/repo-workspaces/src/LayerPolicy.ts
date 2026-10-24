@@ -1,7 +1,6 @@
 import { GlobSet } from "@beep/glob";
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { DependencyField } from "@beep/npm-spec/DependencySection";
-import { isPlainObject } from "@beep/repo-workspaces/PackageManagerName";
 import * as O from "@beep/utils/Option";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -13,8 +12,9 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ALL_DEPENDENCY_FIELDS } from "./internal/dependencyFields.ts";
+import { isPlainObject } from "./PackageManagerName.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/LayerPolicy");
+const $I = $RepoWorkspacesId.create("LayerPolicy");
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
@@ -35,7 +35,7 @@ const withoutKeys: {
  * **Example** (Describe invalid policy JSON)
  *
  * ```ts
- * import { LayerPolicyError } from "@beep/scratchpad/effected/workspaces/LayerPolicy";
+ * import { LayerPolicyError } from "@beep/repo-workspaces/LayerPolicy";
  *
  * const error = LayerPolicyError.make({ reason: "json", path: "/repo/layers.json", cause: new Error("Unexpected token") });
  * console.log(error.message) // The layer policy at /repo/layers.json is not valid JSON
@@ -75,7 +75,7 @@ export class LayerPolicyError extends S.TaggedError<LayerPolicyError, { readonly
    * **Example** (Render a policy failure with its path)
    *
    * ```ts
-   * import { LayerPolicyError } from "@beep/scratchpad/effected/workspaces/LayerPolicy";
+   * import { LayerPolicyError } from "@beep/repo-workspaces/LayerPolicy";
    *
    * const error = LayerPolicyError.make({ reason: "json", path: "/repo/layers.json", cause: new Error("Unexpected token") });
    * console.log(error.message) // The layer policy at /repo/layers.json is not valid JSON
@@ -128,7 +128,7 @@ export class LayerPolicyError extends S.TaggedError<LayerPolicyError, { readonly
  *
  * ```ts
  * import { NodeServices } from "@effect/platform-node";
- * import { LayerPolicy } from "@beep/scratchpad/effected/workspaces/LayerPolicy";
+ * import { LayerPolicy } from "@beep/repo-workspaces/LayerPolicy";
  * import * as Effect from "effect/Effect";
  *
  * const policy = LayerPolicy.load("/repo/layers.json").pipe(Effect.provide(NodeServices.layer));
@@ -193,7 +193,7 @@ export class LayerPolicy extends S.Class<LayerPolicy, { readonly brand: unique s
    * **Example** (Read all dependency fields by default)
    *
    * ```ts
-   * import { LayerPolicy } from "@beep/scratchpad/effected/workspaces/LayerPolicy";
+   * import { LayerPolicy } from "@beep/repo-workspaces/LayerPolicy";
    *
    * const policy = LayerPolicy.make({ layers: [], tooling: [], unconstrained: [] });
    * console.log(policy.effectiveFields.length) // 4
@@ -218,7 +218,7 @@ export class LayerPolicy extends S.Class<LayerPolicy, { readonly brand: unique s
    * **Example** (Decode a policy with schema metadata)
    *
    * ```ts
-   * import { LayerPolicy } from "@beep/scratchpad/effected/workspaces/LayerPolicy";
+   * import { LayerPolicy } from "@beep/repo-workspaces/LayerPolicy";
    * import * as Effect from "effect/Effect";
    *
    * const policy = Effect.runSync(LayerPolicy.decode({
@@ -253,7 +253,7 @@ export class LayerPolicy extends S.Class<LayerPolicy, { readonly brand: unique s
    * **Example** (Construct a policy read allowing harness metadata)
    *
    * ```ts
-   * import { LayerPolicy } from "@beep/scratchpad/effected/workspaces/LayerPolicy";
+   * import { LayerPolicy } from "@beep/repo-workspaces/LayerPolicy";
    * import * as Effect from "effect/Effect";
    *
    * const program = LayerPolicy.load("/repo/layers.json", { allowKeys: ["harness"] });

@@ -1,6 +1,8 @@
 import { ScriptedSpawner } from "@beep/commands";
 import { MemoryFileSystem } from "@beep/memfs";
 import { WorkspaceDiscovery, WorkspaceInfo, WorkspacePackage } from "@beep/repo-workspaces";
+import { PackedInstallError } from "@beep/repo-workspaces/PackedInstall";
+import { InstalledConsumer, PackedInstall } from "@beep/repo-workspaces/testing";
 import { assert, describe, it, layer } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -13,8 +15,6 @@ import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { PackedInstallError } from "../../effected/workspaces/PackedInstall.ts";
-import { InstalledConsumer, PackedInstall } from "../../effected/workspaces/testing.ts";
 import type { SpawnScript } from "@beep/commands";
 import type { MemoryFileSystemSeed } from "@beep/memfs";
 

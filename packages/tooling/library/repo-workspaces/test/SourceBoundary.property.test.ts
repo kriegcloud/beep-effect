@@ -1,9 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { assert, describe, it } from "@effect/vitest";
-import * as Arbitrary from "effect/Arbitrary";
-import * as Effect from "effect/Effect";
-import * as S from "effect/Schema";
-import { LexedSource, SourceLiteral } from "../../effected/workspaces/internal/sourceText.ts";
+import { LexedSource, SourceLiteral } from "@beep/repo-workspaces/internal/sourceText";
 import {
   BoundaryFixture,
   BoundaryRule,
@@ -13,7 +9,11 @@ import {
   ScanOptions,
   SourceBoundary,
   SourceScan,
-} from "../../effected/workspaces/SourceBoundary.ts";
+} from "@beep/repo-workspaces/SourceBoundary";
+import { assert, describe, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
 
 const QuotedString = S.String.pipe(S.fromJsonString);
 

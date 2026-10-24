@@ -1,11 +1,11 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { lex, locate, references, specifierLiterals } from "@beep/repo-workspaces/internal/sourceText";
 import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { lex, locate, references, specifierLiterals } from "../../../effected/workspaces/internal/sourceText.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const stringCodec = S.fromJsonString(S.String);

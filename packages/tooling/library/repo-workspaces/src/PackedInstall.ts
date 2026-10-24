@@ -1,8 +1,5 @@
 import { Run } from "@beep/commands";
-import { $ScratchpadId } from "@beep/identity/packages";
-import { PackageManagerName } from "@beep/repo-workspaces/PackageManagerName";
-import { WorkspaceDiscovery } from "@beep/repo-workspaces/WorkspaceDiscovery";
-import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
+import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import { Yaml } from "@beep/yaml";
@@ -35,12 +32,15 @@ import {
   scrubEnv,
   versionOf,
 } from "./internal/packedInstallPlan.ts";
+import { PackageManagerName } from "./PackageManagerName.ts";
+import { WorkspaceDiscovery } from "./WorkspaceDiscovery.ts";
+import { WorkspacePackage } from "./WorkspacePackage.ts";
 import type { CommandOutput } from "@beep/commands";
 import type * as PlatformError from "effect/PlatformError";
 import type * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import type { PackedManifest } from "./internal/packedInstallPlan.ts";
 
-const $I = $ScratchpadId.create("effected/workspaces/PackedInstall");
+const $I = $RepoWorkspacesId.create("PackedInstall");
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
@@ -68,7 +68,7 @@ const JsonValue = S.fromJsonString(S.Unknown);
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PackSource } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { PackSource } from "@beep/repo-workspaces/PackedInstall";
  *
  * console.log(S.is(PackSource)({ directory: "dist/prod/npm/pkg" })) // true
  * console.log(S.is(PackSource)(null)) // false
@@ -109,7 +109,7 @@ export type PackSource = typeof PackSource.Type;
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PackedInstallClosureOptions } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { PackedInstallClosureOptions } from "@beep/repo-workspaces/PackedInstall";
  *
  * console.log(S.is(PackedInstallClosureOptions)({ closure: ["@x/member"], workspaceOverrides: false })) // true
  * console.log(S.is(PackedInstallClosureOptions)(null)) // false
@@ -300,7 +300,7 @@ export interface PackedInstallOptions extends PackedInstallClosureOptions {
  * **Example** (Inspect a missing-bin failure)
  *
  * ```ts
- * import { PackedInstallError } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { PackedInstallError } from "@beep/repo-workspaces/PackedInstall";
  *
  * const error = PackedInstallError.make({
  *  reason: "MissingBin",
@@ -369,7 +369,7 @@ export class PackedInstallError extends S.TaggedError<PackedInstallError, { read
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { BinCommandOptions } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { BinCommandOptions } from "@beep/repo-workspaces/PackedInstall";
  *
  * console.log(S.is(BinCommandOptions)({ cwd: "/consumer", env: { CI: "true", DEBUG: undefined } })) // true
  * console.log(S.is(BinCommandOptions)(null)) // false
@@ -461,7 +461,7 @@ const isNotALink = (error: PlatformError.PlatformError): boolean =>
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { BinProvenance } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { BinProvenance } from "@beep/repo-workspaces/PackedInstall";
  *
  * console.log(S.is(BinProvenance)({ package: "@x/cli", target: "/consumer/node_modules/@x/cli/bin.js" })) // true
  * console.log(S.is(BinProvenance)(null)) // false
@@ -496,7 +496,7 @@ export type BinProvenance = typeof BinProvenance.Type;
  * **Example** (Locate an installed consumer bin)
  *
  * ```ts
- * import { InstalledConsumer } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { InstalledConsumer } from "@beep/repo-workspaces/PackedInstall";
  *
  * const consumer = InstalledConsumer.make({
  *  manager: "npm",
@@ -562,7 +562,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * **Example** (Resolve the POSIX bin path)
    *
    * ```ts
-   * import { InstalledConsumer } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { InstalledConsumer } from "@beep/repo-workspaces/PackedInstall";
    *
    * const consumer = InstalledConsumer.make({
    *   manager: "npm",
@@ -609,7 +609,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * **Example** (Construct a bin provenance check)
    *
    * ```ts
-   * import { InstalledConsumer } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { InstalledConsumer } from "@beep/repo-workspaces/PackedInstall";
    * import * as Effect from "effect/Effect";
    *
    * const consumer = InstalledConsumer.make({
@@ -655,7 +655,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * **Example** (Build a command for a probe)
    *
    * ```ts
-   * import { InstalledConsumer } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { InstalledConsumer } from "@beep/repo-workspaces/PackedInstall";
    *
    * const consumer = InstalledConsumer.make({
    *  manager: "npm",
@@ -708,7 +708,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * **Example** (Construct a bin execution)
    *
    * ```ts
-   * import { InstalledConsumer } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { InstalledConsumer } from "@beep/repo-workspaces/PackedInstall";
    * import * as Effect from "effect/Effect";
    *
    * const consumer = InstalledConsumer.make({
@@ -767,7 +767,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * **Example** (Construct a carrier command)
    *
    * ```ts
-   * import { InstalledConsumer } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { InstalledConsumer } from "@beep/repo-workspaces/PackedInstall";
    * import * as Effect from "effect/Effect";
    *
    * const consumer = InstalledConsumer.make({
@@ -815,7 +815,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * **Example** (Construct a carrier bin execution)
    *
    * ```ts
-   * import { InstalledConsumer } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { InstalledConsumer } from "@beep/repo-workspaces/PackedInstall";
    * import * as Effect from "effect/Effect";
    *
    * const consumer = InstalledConsumer.make({
@@ -917,7 +917,7 @@ const collectBin: {
  * **Example** (Inspect packed tarball locations)
  *
  * ```ts
- * import { PackedInstallResult } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { PackedInstallResult } from "@beep/repo-workspaces/PackedInstall";
  *
  * const result = PackedInstallResult.make({
  *  consumers: [],
@@ -1008,7 +1008,7 @@ export interface PackedInstallBudget {
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PackedInstallPreflightOptions } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { PackedInstallPreflightOptions } from "@beep/repo-workspaces/PackedInstall";
  *
  * console.log(S.is(PackedInstallPreflightOptions)({ carrier: "@x/cli", packFrom: "source" })) // true
  * console.log(S.is(PackedInstallPreflightOptions)(null)) // false
@@ -1051,7 +1051,7 @@ export type PackedInstallPreflightOptions = typeof PackedInstallPreflightOptions
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PackedInstallPreflight } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { PackedInstallPreflight } from "@beep/repo-workspaces/PackedInstall";
  *
  * console.log(S.is(PackedInstallPreflight)({ ready: false, missing: ["/repo/packages/cli/dist/package.json"] })) // true
  * console.log(S.is(PackedInstallPreflight)(null)) // false
@@ -1095,7 +1095,7 @@ const PackedInstallGateAction = LiteralKit(["run", "skip", "fail"]).pipe(
  *
  * ```ts
  * import * as S from "effect/Schema";
- * import { PackedInstallGate } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { PackedInstallGate } from "@beep/repo-workspaces/PackedInstall";
  *
  * console.log(S.is(PackedInstallGate)({ action: "skip", message: "Build the missing pack source before running." })) // true
  * console.log(S.is(PackedInstallGate)(null)) // false
@@ -1341,7 +1341,7 @@ const planClosure: {
  * **Example** (Install packed packages and run each consumer bin)
  *
  * ```ts
- * import { PackedInstall } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+ * import { PackedInstall } from "@beep/repo-workspaces/PackedInstall";
  * import * as Effect from "effect/Effect";
  *
  * // Use the consumers INSIDE the scope: closing it removes the scratch
@@ -1378,7 +1378,7 @@ export class PackedInstall {
    * **Example** (Remove inherited manager context)
    *
    * ```ts
-   * import { PackedInstall } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { PackedInstall } from "@beep/repo-workspaces/PackedInstall";
    *
    * const env = PackedInstall.scrubEnv({
    *   PATH: "/usr/bin",
@@ -1417,7 +1417,7 @@ export class PackedInstall {
    * **Example** (Calculate a packed-install timeout budget)
    *
    * ```ts
-   * import { PackedInstall } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { PackedInstall } from "@beep/repo-workspaces/PackedInstall";
    * import * as Duration from "effect/Duration";
    *
    * const budget = PackedInstall.timeoutBudget({
@@ -1471,7 +1471,7 @@ export class PackedInstall {
    * **Example** (Plan the package closure to size a timeout budget)
    *
    * ```ts
-   * import { PackedInstall } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { PackedInstall } from "@beep/repo-workspaces/PackedInstall";
    * import * as Effect from "effect/Effect";
    *
    * const program = PackedInstall.closure("my-tool").pipe(
@@ -1528,8 +1528,8 @@ export class PackedInstall {
    * **Example** (Derive a test timeout from packed-install options)
    *
    * ```ts
-   * import type { PackedInstallOptions } from "@beep/scratchpad/effected/workspaces/PackedInstall";
-   * import { PackedInstall } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import type { PackedInstallOptions } from "@beep/repo-workspaces/PackedInstall";
+   * import { PackedInstall } from "@beep/repo-workspaces/PackedInstall";
    * import * as Duration from "effect/Duration";
    * import * as Effect from "effect/Effect";
    *
@@ -1602,7 +1602,7 @@ export class PackedInstall {
    * **Example** (Check whether production pack sources exist)
    *
    * ```ts
-   * import { PackedInstall } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { PackedInstall } from "@beep/repo-workspaces/PackedInstall";
    * import * as Effect from "effect/Effect";
    *
    * const program = PackedInstall.preflight({ carrier: "my-tool", closure: "auto" });
@@ -1657,7 +1657,7 @@ export class PackedInstall {
    *
    * ```ts
    * import { assert, describe, it } from "@effect/vitest";
-   * import { PackedInstall } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { PackedInstall } from "@beep/repo-workspaces/PackedInstall";
    * import * as Effect from "effect/Effect";
    *
    * const preflight = { ready: true, missing: [] };
@@ -1694,7 +1694,7 @@ export class PackedInstall {
    * **Example** (Construct a scoped packed-install proof)
    *
    * ```ts
-   * import { PackedInstall } from "@beep/scratchpad/effected/workspaces/PackedInstall";
+   * import { PackedInstall } from "@beep/repo-workspaces/PackedInstall";
    * import * as Effect from "effect/Effect";
    *
    * const program = PackedInstall.run({

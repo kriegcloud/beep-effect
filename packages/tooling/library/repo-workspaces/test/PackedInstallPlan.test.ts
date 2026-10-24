@@ -1,10 +1,4 @@
 import { WorkspacePackage } from "@beep/repo-workspaces";
-import { assert, describe, it } from "@effect/vitest";
-import { assertFailure, assertSuccess } from "@effect/vitest/utils";
-import * as O from "effect/Option";
-import * as R from "effect/Record";
-import * as Result from "effect/Result";
-import * as S from "effect/Schema";
 import {
   binConflict,
   binTargetOf,
@@ -17,7 +11,13 @@ import {
   scrubEnv,
   unresolvedSpecifiers,
   versionOf,
-} from "../../effected/workspaces/internal/packedInstallPlan.ts";
+} from "@beep/repo-workspaces/internal/packedInstallPlan";
+import { assert, describe, it } from "@effect/vitest";
+import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 
 const JsonObject = S.fromJsonString(S.Record(S.String, S.Unknown));
 

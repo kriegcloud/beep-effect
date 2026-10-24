@@ -1,5 +1,6 @@
 import { ScriptedSpawner } from "@beep/commands";
 import { MemoryFileSystem } from "@beep/memfs";
+import { InstalledConsumer, PackedInstall } from "@beep/repo-workspaces/PackedInstall";
 import { WorkspaceDiscovery, WorkspaceDiscoveryError } from "@beep/repo-workspaces/WorkspaceDiscovery";
 import { WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 import { assert, describe, it } from "@effect/vitest";
@@ -7,7 +8,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
-import { InstalledConsumer, PackedInstall } from "../../effected/workspaces/PackedInstall.ts";
 
 const denied = (method: string) =>
   Effect.fail(PlatformError.systemError({ _tag: "PermissionDenied", module: "FileSystem", method }));

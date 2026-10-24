@@ -1,9 +1,9 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { LayerPolicy, LayerPolicyError } from "@beep/repo-workspaces/LayerPolicy";
 import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { LayerPolicy, LayerPolicyError } from "../../effected/workspaces/LayerPolicy.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
