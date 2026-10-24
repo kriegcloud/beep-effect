@@ -1,10 +1,13 @@
 import { ConfigFile } from "@beep/config-file/ConfigFile";
-import { ConfigResolver } from "@beep/config-file/ConfigResolver";
+import { ConfigProbe, ConfigResolver } from "@beep/config-file/ConfigResolver";
 import { JsonCodec } from "@beep/config-file/JsonCodec";
 import { MergeStrategy } from "@beep/config-file/MergeStrategy";
 import { assert, describe, it } from "@effect/vitest";
 import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { expectTypeOf } from "vitest";
 import type { ConfigFileShape } from "@beep/config-file/ConfigFile";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Layer from "effect/Layer";
@@ -78,5 +81,50 @@ describe("ConfigFile key typing", () => {
         resolvers: [],
       });
     assert.isFunction(build);
+  });
+});
+
+describe("ConfigFile resolver requirements", () => {
+  const first: ConfigResolver<SettingsFile> = {
+    name: "first",
+    resolve: SettingsFile.pipe(Effect.as(O.none<string>())),
+  };
+  const second: ConfigResolver<OptionalFile> = {
+    name: "second",
+    resolve: OptionalFile.pipe(Effect.as(O.none<string>())),
+  };
+
+  it("infers every resolver requirement in both call forms", () => {
+    const direct = ConfigFile.layer(SettingsFile, { ...options, resolvers: [first, second] });
+    const curried = ConfigFile.layer({ ...options, resolvers: [first, second] })(SettingsFile);
+    type Required = FileSystem.FileSystem | Path.Path | SettingsFile | OptionalFile;
+    expectTypeOf<Layer.Services<typeof direct>>().toEqualTypeOf<Required>();
+    expectTypeOf<Layer.Services<typeof curried>>().toEqualTypeOf<Required>();
+  });
+
+  it("infers a prebuilt array and independent defaultPath requirements", () => {
+    const resolvers = [first, second];
+    const layer = ConfigFile.layer(SettingsFile, {
+      ...options,
+      resolvers,
+      defaultPath: WiderFile.pipe(Effect.as("/settings.json")),
+    });
+    expectTypeOf<Layer.Services<typeof layer>>().toEqualTypeOf<
+      FileSystem.FileSystem | Path.Path | SettingsFile | OptionalFile | WiderFile
+    >();
+  });
+
+  it("infers independent match and probe requirements in both call forms", () => {
+    const resolver = {
+      name: "independent-probe",
+      resolve: first.resolve,
+      resolveMatch: OptionalFile.pipe(Effect.as(O.none())),
+      resolveProbe: WiderFile.pipe(Effect.as(ConfigProbe.make({ match: O.none(), probed: [] }))),
+    };
+    const direct = ConfigFile.layer(SettingsFile, { ...options, resolvers: [resolver] });
+    const curried = ConfigFile.layer({ ...options, resolvers: [resolver] })(SettingsFile);
+    type Required = FileSystem.FileSystem | Path.Path | SettingsFile | OptionalFile | WiderFile;
+    expectTypeOf<Layer.Services<typeof direct>>().toEqualTypeOf<Required>();
+    expectTypeOf<Layer.Services<typeof curried>>().toEqualTypeOf<Required>();
   });
 });

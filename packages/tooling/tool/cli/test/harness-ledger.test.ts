@@ -320,7 +320,7 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
       expect(decoded.disposition).toBe("proposed");
       expect(decoded.fingerprint.modelId).toBe("unknown");
       expect(HashSet.size(decoded.touched)).toBe(0);
-      expect(O.isNone(decoded.previousRowId)).toBe(true);
+      assertNone(decoded.previousRowId);
     })
   );
 
@@ -338,7 +338,7 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
           touched: [{ kind: "skill", name: "alpha" }],
         })
       );
-      expect(accepted.previousRowId).toStrictEqual(O.some(proposed.rowId));
+      assertSome(accepted.previousRowId, proposed.rowId);
       expect(accepted.disposition).toBe("accepted");
       expect(HashSet.has(accepted.touched, yield* contextSurfaceId("skill", "alpha"))).toBe(true);
       expect(accepted.fingerprint.fingerprintId).toBe(proposed.fingerprint.fingerprintId);
@@ -763,7 +763,7 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
         })
       );
       expect(rejected.fingerprint).toStrictEqual(notion.row.fingerprint);
-      expect(rejected.decidedUnder).toStrictEqual(O.some(decidedUnder));
+      assertSome(rejected.decidedUnder, decidedUnder);
 
       // A full window under the decision's harness: the rejection stands.
       yield* writeShard(stateDir, "2026-09-26", sessionB, [
@@ -808,7 +808,7 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
         dispositionEvidence: O.some("human call"),
         previousRowId: O.some(notion.row.rowId),
       });
-      expect(legacy.decidedUnder).toStrictEqual(O.none());
+      assertNone(legacy.decidedUnder);
       const line = yield* HarnessLedgerRow.encodeJsonEffect(legacy);
       expect(line).not.toContain("decidedUnder");
       // Same createdAt as the proposal, so the same (only) month file.
