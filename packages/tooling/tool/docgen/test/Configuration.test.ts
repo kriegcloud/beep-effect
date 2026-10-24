@@ -3,6 +3,7 @@ import * as Domain from "@beep/repo-docgen/Domain";
 import { it } from "@beep/test-runner";
 import { Str } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
+import { assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
@@ -39,7 +40,9 @@ interface DocgenConfigFile {
   readonly text: O.Option<string>;
 }
 
-const makeDocgenFileLayer = (configFile: string, file: DocgenConfigFile) =>
+const defaultPackageJson = encodeJson({ name: "name", homepage: "homepage" });
+
+const makeDocgenFileLayer = (configFile: string, file: DocgenConfigFile, packageJson = defaultPackageJson) =>
   Layer.effect(
     FileSystem.FileSystem,
     Effect.gen(function* () {
@@ -48,7 +51,7 @@ const makeDocgenFileLayer = (configFile: string, file: DocgenConfigFile) =>
       const readFileString: FileSystem.FileSystem["readFileString"] = (filePath, _encoding) => {
         const fileName = path.basename(filePath);
         if (fileName === "package.json") {
-          return Effect.succeed(encodeJson({ name: "name", homepage: "homepage" }));
+          return Effect.succeed(packageJson);
         }
         if (fileName === configFile && O.isSome(file.text)) {
           return Effect.succeed(file.text.value);
@@ -79,8 +82,8 @@ const makeDocgenJsonLayer = (config: unknown | undefined, configFile = "docgen.j
     text: O.map(O.fromUndefinedOr(config), encodeJson),
   });
 
-const makeTextLayer = (file: DocgenConfigFile) =>
-  Layer.mergeAll(Path.layer, Domain.Process.layer, makeDocgenFileLayer("docgen.json", file));
+const makeTextLayer = (file: DocgenConfigFile, packageJson?: string) =>
+  Layer.mergeAll(Path.layer, Domain.Process.layer, makeDocgenFileLayer("docgen.json", file, packageJson));
 
 const makeTestLayer = (config?: unknown, configFile?: string) =>
   Layer.mergeAll(Path.layer, Domain.Process.layer, makeDocgenJsonLayer(config, configFile));
@@ -224,6 +227,26 @@ describe("Configuration", () => {
       Effect.fnUntraced(function* () {
         const config = yield* Configuration.load(makeLoadArgs());
         expect(config.srcDir).toBe("lib");
+      })
+    )
+  );
+
+  // package.json is JSON, not JSONC: npm and Node read it with JSON.parse. The
+  // retired reader shared docgen.json's JSONC codec and accepted comments; the
+  // `PackageJsonFile` read (3-A4) rejects them.
+  it.layer(
+    makeTextLayer(
+      { exists: false, text: O.none() },
+      '{\n  // a comment\n  "name": "name",\n  "homepage": "homepage",\n}\n'
+    ),
+    { timeout: "30 seconds" }
+  )((it) =>
+    it.effect(
+      "rejects comments and trailing commas in package.json",
+      Effect.fnUntraced(function* () {
+        const error = yield* Configuration.load(makeLoadArgs()).pipe(Effect.flip);
+        assertTrue(isDomainDocgenError(error));
+        assertTrue(Str.includes("[Configuration.readPackageJson] Failed to parse")(error.message));
       })
     )
   );

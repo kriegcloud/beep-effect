@@ -8,6 +8,7 @@
 import { ConfigFile } from "@beep/config-file/ConfigFile";
 import { JsoncCodec } from "@beep/config-file/JsoncCodec";
 import { $RepoDocgenId } from "@beep/identity/packages";
+import { PackageJsonFile } from "@beep/package-json/PackageJsonFile";
 import { decodeTSConfigFromJsoncTextEffect, TSConfigCompilerOptions } from "@beep/repo-utils";
 import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A } from "@beep/utils";
@@ -389,13 +390,6 @@ export const defaultCompilerOptions = {
   target: "es2022",
 } as const satisfies typeof CompilerOptionsShape.Type;
 
-class PackageJsonSchema extends S.Opaque<PackageJsonSchema, { readonly brand: unique symbol }>()(
-  S.Struct({
-    homepage: S.String,
-    name: S.String,
-  }).pipe($I.annoteSchema("PackageJsonSchema"))
-) {}
-
 const readJsoncFile = Effect.fn("readJsonCFile")(function* <A, I>(
   filePath: string,
   schema: ConfigReadSchema<A, I>
@@ -423,7 +417,34 @@ const readJsoncFile = Effect.fn("readJsonCFile")(function* <A, I>(
   );
 });
 
-const readPackageJson = (filePath: string) => readJsoncFile(filePath, PackageJsonSchema);
+// The package's own manifest through the presence-lenient `PackageManifest`
+// tier: every present field must satisfy its codec, and docgen needs `name`
+// and `homepage` on top of that.
+const readPackageJson = Effect.fn("Configuration.readPackageJson")(function* (
+  filePath: string
+): Effect.fn.Return<
+  { readonly name: string; readonly homepage: string },
+  Domain.DocgenError,
+  FileSystem.FileSystem | Path.Path
+> {
+  const fail = (step: string, detail: string) =>
+    Domain.DocgenError.make({
+      message: `[Configuration.readPackageJson] Failed to ${step} '${filePath}'\n${detail}`,
+    });
+  const files = yield* PackageJsonFile.make;
+  const manifest = yield* files.readManifest(filePath).pipe(
+    Effect.catchTags({
+      PackageJsonNotFoundError: () => Effect.fail(fail("read", "The file does not exist.")),
+      PackageJsonReadError: (error) => Effect.fail(fail("read", String(error.cause))),
+      PackageJsonParseError: (error) => Effect.fail(fail("parse", String(error.cause))),
+      PackageDecodeError: (error) => Effect.fail(fail("decode", String(error.cause))),
+    })
+  );
+  if (P.isUndefined(manifest.name) || P.isUndefined(manifest.homepage)) {
+    return yield* fail("decode", "package.json must declare both `name` and `homepage`.");
+  }
+  return { name: manifest.name, homepage: manifest.homepage };
+});
 
 const readDocgenConfig = Effect.fn("Configuration.readDocgenConfig")(function* (
   filePath: string

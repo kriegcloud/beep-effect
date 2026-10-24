@@ -4,23 +4,11 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { $RepoDocgenId } from "@beep/identity/packages";
+import { PackageJsonFile } from "@beep/package-json/PackageJsonFile";
 import * as Effect from "effect/Effect";
 import * as Path from "effect/Path";
-import * as S from "effect/Schema";
 import * as Domain from "./Domain.ts";
-import { readDecodedJsonFile } from "./internal/JsonFile.ts";
 import type * as FileSystem from "effect/FileSystem";
-
-const $I = $RepoDocgenId.create("Version");
-
-const PackageManifestVersion = S.Struct({ version: S.String }).pipe(
-  $I.annoteSchema("PackageManifestVersion", {
-    description: "Required package manifest fields used to identify the running docgen version.",
-  })
-);
-
-const decodePackageManifestVersion = S.decodeUnknownEffect(S.fromJsonString(PackageManifestVersion));
 
 /**
  * Reads the runtime package version shown in the CLI banner and proof manifests.
@@ -52,11 +40,18 @@ export const readModuleVersion = Effect.fn("Version.readModuleVersion")(function
   const manifestPath = yield* path.fromFileUrl(manifestUrl).pipe(
     Effect.mapError((cause) =>
       Domain.DocgenError.make({
-        message: `[Version.readModuleVersion] Failed to resolve manifest path '${manifestUrl.pathname}'\n${String(cause)}`,
+        message: `[Version.readModuleVersion] Failed to resolve manifest path '${manifestUrl.href}'\n${String(cause)}`,
       })
     )
   );
-  const manifest = yield* readDecodedJsonFile("Version.readModuleVersion", manifestPath, decodePackageManifestVersion);
+  const files = yield* PackageJsonFile.make;
+  const manifest = yield* files.read(manifestPath).pipe(
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[Version.readModuleVersion] Failed to read '${manifestPath}'\n${String(cause)}`,
+      })
+    )
+  );
 
-  return manifest.version;
+  return manifest.version.toString();
 });

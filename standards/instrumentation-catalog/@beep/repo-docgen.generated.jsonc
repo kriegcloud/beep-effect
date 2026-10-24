@@ -7,6 +7,7 @@
   "instruments": [],
   "spans": [
     {"name":"Configuration.readDocgenConfig","owner":"@beep/repo-docgen","family":"tooling","conforms":true},
+    {"name":"Configuration.readPackageJson","owner":"@beep/repo-docgen","family":"tooling","conforms":true},
     {"name":"Configuration.readTSConfig","owner":"@beep/repo-docgen","family":"tooling","conforms":true},
     {"name":"DocgenProofManifest.collectFileDigests","owner":"@beep/repo-docgen","family":"tooling","conforms":true},
     {"name":"DocgenProofManifest.computeDocgenProofPayload","owner":"@beep/repo-docgen","family":"tooling","conforms":true},
