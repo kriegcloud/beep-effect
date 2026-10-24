@@ -211,6 +211,7 @@
     "sql-formatter": "^15.9.0",
     "storybook": "^10.6.3",
     "statelyai": "0.14.3",
+    "string-width": "8.3.0",
     "syncpack": "15.3.3",
     "tailwind-merge": "^3.7.0",
     "tailwindcss": "^4",

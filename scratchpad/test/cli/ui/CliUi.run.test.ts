@@ -22,7 +22,7 @@ import * as S from "effect/Schema";
 import { Text, useApp } from "ink";
 import type { ReactElement } from "react";
 import { createElement, useEffect, useState } from "react";
-import { Cancelled, CliInteractive, CliTheme, NotInteractive } from "../../../effected/cli/index.ts";
+import { Cancelled, CliInteractive, CliTheme, NotInteractive } from "@beep/cli-kit";
 import { inkModules } from "../../../effected/cli/ui/internal/ink.ts";
 import type { ChalkLevel, InkChalk } from "../../../effected/cli/ui/internal/inkChalk.ts";
 import { inkChalk } from "../../../effected/cli/ui/internal/inkChalk.ts";
