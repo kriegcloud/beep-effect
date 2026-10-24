@@ -47,8 +47,8 @@ the sub-wave order, dependencies and parallel lanes, and its decisions are recor
 | 3-A5 (queued) | CheckCensus onto `TsconfigLoader.compilerOptions` | repo-cli `Quality/CheckCensus.ts`. After 3-2. |
 | 3-A6 (queued) | `TsconfigValidator` + docgen `readTSConfig` | Deletes repo-utils `schemas/TSConfig.ts`; the `@beep/tsconfig` closed-view export. After 3-2, 3-3, 3-A3, 3-A4. |
 | 3-A7 (queued) | `TsconfigSync.schemas` onto `@beep/tsconfig` | repo-cli `TsconfigSync.schemas.ts`, with byte parity of tsconfig-sync output. After 3-2. |
-| 3-A8 (queued, optional) | `GitHubMarkdown.table` adoption | repo-cli `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts`. After 3-1. |
-| 3-A9 (in review, this PR) | `ScopedPackageName` | observability `catalog/Catalog.names.ts`: `PackageName` is `ScopedPackageName` re-annotated, and observability depends on `@beep/package-json` (leaf import only). Parity over the 2,407 distinct repo names (196 tracked manifests, 3,348 `bun.lock` packages): 0 disagreements (`ops/observability-package-name-parity.ts`, `research/observability-package-name-parity-3-a9.json`). Intended divergences pinned by inverted tests: a leading `-` in the scope or name is accepted, and names over 214 characters are rejected. Cache review `research/cache-baseline-review-3-a9.md`. |
+| 3-A8 (merged, #2202) | `GitHubMarkdown.table` adoption | repo-cli `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts`. After 3-1. |
+| 3-A9 (merged, #2190) | `ScopedPackageName` | observability `catalog/Catalog.names.ts`: `PackageName` is `ScopedPackageName` re-annotated, and observability depends on `@beep/package-json` (leaf import only). Parity over the 2,407 distinct repo names (196 tracked manifests, 3,348 `bun.lock` packages): 0 disagreements (`ops/observability-package-name-parity.ts`, `research/observability-package-name-parity-3-a9.json`). Intended divergences pinned by inverted tests: a leading `-` in the scope or name is accepted, and names over 214 characters are rejected. Cache review `research/cache-baseline-review-3-a9.md`. |
 | 4-X (merged, #2184) | `@beep/xdg` | W4-c, W4-h (4-X part). Root `Xdg`, `AppDirs`, `NativeDirs` and the new `XdgBase` leaf; `./XdgConfig` subpath-only (root-closure test). Absolute values only; HOME-optional `XdgBase`; the platform through `HostProcessPlatform`; branded Opaque records. Adopters: m365-mcp `OutboxConfig` roots, repo-cli `WorkstationState` (env-matrix parity committed against the old bodies). Frozen `systemd-path` goldens (900 cases) and `ops/xdg-systemd-differential.ts` (0 undocumented differences); the lab xdg directories are gone; coverage 100/100/100/100. Cut after 3-3 merged. |
 | 4-C (merged, #2200) | `@beep/cli-kit` | W4-d, W4-g (4-C), W4-h (4-C), W4-j (4-C), W4-s (4-C). Root and `./testing` of the lab `cli` (`ui/**` stays in the lab until C, W4-m). Named importers migrated in the PR: `@beep/repo-cli` (`MonitorComments` and `Accounts.view`) and `@beep/repo-ai-metrics` (`agent-effectiveness`), all through `Fmt`. New `Fmt.stripControls` (single-line strict) with `ops/cli-kit-sanitize-differential.ts` at 0 differences against both private copies; `CliMessage.status` predicate dispatch; the #1928 option fields keep `S.optionalKey` under EF-40 (#2145) with the explicit-undefined tests inverted to pin rejection; operation-count bench `ops/cli-kit-bench.ts`; a raw-glob boundary test. Lab `./ui` retargeted to the package. |
 | 4 (queued) | `@beep/sbom` (4-S), `@beep/xdg` (4-X), `@beep/cli-kit` (4-C), `@beep/repo-workspaces` (4-W-a, 4-W-b) | W4-a..W4-g; order and adoptions in "Wave 4 and the closing roadmap" below. `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
@@ -73,13 +73,13 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | 3-3 (#2134, merged) | `@beep/config-file`; docgen `readJsoncFile`, repo-cli Models `load`; lab xdg and cli retargets | 3-Y (merged) |
 | 3-5 (#2159, merged) | `@beep/lockfiles`; lab workspaces retargets | main |
 | 2d-3 (#2141, merged) | `@beep/md` `Md.render` `&`/`$` escaping, evidence-gated | 2d-2 (merged) |
-| R0 | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
+| R0 (merged, #2156) | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
 | 3-A2 | package-json field growth (`DevEngine.onFail` gains `download`, verified against npm docs) | 3-4 (merged) |
 | 3-A5 | CheckCensus onto `TsconfigLoader.compilerOptions` | 3-2 (merged) |
 | 3-A7 | `TsconfigSync.schemas` onto `@beep/tsconfig`, byte parity | 3-2 (merged) |
-| 3-A8 | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |
-| 3-A9 | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
-| 4-CI | one CI rule through `@beep/runtime-env` (W4-e) | main |
+| 3-A8 (merged, #2202) | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |
+| 3-A9 (merged, #2190) | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
+| 4-CI (merged, #2179) | one CI rule through `@beep/runtime-env` (W4-e) | main |
 | R1 (merged, #2195) | delete `@beep/schema/Semver`; BunResolver and DockerResolver onto `@beep/semver`; `Cache.policy.ts:245` pin | main |
 | R2a | `vitest.setup.ts`: `toml` shim out, `GlobShim` matcher on `@beep/glob`; `toml`, `picomatch`, `@types/picomatch` out of the root | main |
 | R2b | repo-cli `internal/GlobPattern.ts` onto `@beep/glob`; `tinyglobby` out of `EffectImports.ts`; closes "Duplicate glob matching" | main (after 4-CI on `Tasks.ts`) |
@@ -87,7 +87,7 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | R9 | exiftool, pdf-tools, obs, tailscale onto `@beep/commands` `Run.collect`; retire the D-03 "Driver-local output folds" row | main (after #2145 if it is close to merging) |
 | R10 | `@beep/git` for `Skills/internal/MergeBase.ts`, `repo-run/GitWorktree.ts`, `Yeet/internal/ProvenanceFooter.ts`, dead `GitExec.ts` collectors | main |
 | 4-S | `@beep/sbom` (W4-b); lab signer, github-actions, PROMOTED maps | main |
-| 4-X | `@beep/xdg` (W4-c); m365-mcp `OutboxConfig`, repo-cli `WorkstationState` | 3-3 |
+| 4-X (merged, #2184) | `@beep/xdg` (W4-c); m365-mcp `OutboxConfig`, repo-cli `WorkstationState` | 3-3 |
 | 4-C (merged, #2200) | `@beep/cli-kit` (W4-d); repo-cli MonitorComments + Accounts.view, ai-metrics agent-effectiveness; lab ui retargets | 3-3 |
 | 3-A1 (merged, #2187) | lockfiles adoption + `ResolvedPackage.installName`; `CatalogUsage.ts`, `RootCatalog.ts` (bun.lock half) | 3-5 |
 | 3-A3 | repo-utils re-base on `@beep/package-json` (`schemas/PackageJson.ts` 2,111 → ~450, HashMap moves) | 3-A2 |
