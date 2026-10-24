@@ -38,6 +38,7 @@
  *
  * @since 0.0.0
  */
+import { GitHubMarkdown } from "@beep/github-reporting/GitHubMarkdown";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
@@ -838,8 +839,14 @@ const lostJobAction = (report: RunnerLossRerunReport, job: RunnerLossFailedJob):
   return decision.rerun ? "waits for the next attempt" : "not re-run";
 };
 
-const jobRow = (job: RunnerLossFailedJob, action: string): string =>
-  `| ${job.name} | \`${job.id}\` | ${job.runnerName ?? "unknown"} | ${job.runnerLoss ? "runner lost" : "failed"} | ${job.reruns} | ${action} |`;
+const jobRow = (job: RunnerLossFailedJob, action: string): ReadonlyArray<string> => [
+  job.name,
+  `\`${job.id}\``,
+  job.runnerName ?? "unknown",
+  job.runnerLoss ? "runner lost" : "failed",
+  `${job.reruns}`,
+  action,
+];
 
 const namesLine = (label: string, jobs: ReadonlyArray<RunnerLossFailedJob>): O.Option<string> =>
   A.isReadonlyArrayNonEmpty(jobs)
@@ -908,7 +915,7 @@ export const renderRunnerLossRerunSummary = (report: RunnerLossRerunReport): str
     ...A.map(decision.otherFailedJobs, (job) => jobRow(job, "left red: not runner loss")),
   ];
   const table = A.isReadonlyArrayNonEmpty(rows)
-    ? ["", "| Job | Id | Runner | Failure | Reruns | Action |", "| --- | --- | --- | --- | --- | --- |", ...rows]
+    ? ["", GitHubMarkdown.table(["Job", "Id", "Runner", "Failure", "Reruns", "Action"], rows)]
     : A.empty<string>();
   const lines = [
     "## Runner-loss rerun",
