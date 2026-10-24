@@ -32,11 +32,11 @@ import {
 import { $ScratchpadId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import type { GraphContact } from "@beep/m365/M365.schemas";
-import * as A from "effect/Array";
+import * as A from "@beep/utils/Array";
 import { pipe } from "effect/Function";
-import * as O from "effect/Option";
+import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
+import * as Str from "@beep/utils/Str";
 import type { SourceAssertion } from "../Claim.ts";
 import {
   ActivityId,
@@ -80,13 +80,14 @@ const clientContactRole = ConceptIri.make("urn:beep:party-role:client-contact");
 export const toE164 = (raw: string): O.Option<string> => {
   const plus = Str.startsWith("+")(Str.trim(raw));
   const digits = Str.replace(/\D/g, "")(raw);
-  return plus && /^[1-9]\d{7,14}$/.test(digits)
-    ? O.some(`+${digits}`)
-    : /^\d{10}$/.test(digits)
-      ? O.some(`+1${digits}`)
-      : /^1\d{10}$/.test(digits)
-        ? O.some(`+${digits}`)
-        : O.none();
+  return pipe(
+    digits,
+    Str.match(/^[1-9]\d{7,14}$/),
+    O.filter(() => plus),
+    O.map(() => `+${digits}`),
+    O.orElse(() => pipe(digits, Str.match(/^\d{10}$/), O.map(() => `+1${digits}`))),
+    O.orElse(() => pipe(digits, Str.match(/^1\d{10}$/), O.map(() => `+${digits}`))),
+  );
 };
 
 const emailIdentifier = (raw: string): O.Option<Identifier> => {
@@ -101,8 +102,7 @@ const emailIdentifier = (raw: string): O.Option<Identifier> => {
 };
 
 const phoneIdentifier = (raw: string): O.Option<Identifier> =>
-  O.map(toE164(raw), (e164) => Identifier.cases.PhoneNumber.make({
-
+  O.flatMap(toE164(raw), (e164) => Identifier.cases.PhoneNumber.makeOption({
     id: IdentifierId.make(`ident:tel:${e164}`),
     e164,
     raw,
@@ -120,15 +120,16 @@ interface CardFacts {
   readonly clientNumbers: ReadonlyArray<string>;
 }
 
-const assemble = ({
-                    facts,
-                    producedBy,
-                    recordedAt,
-                  }: {
-  readonly facts: CardFacts;
-  readonly producedBy: ActivityId;
-  readonly recordedAt: UtcInstant;
-}): ContactIngest => {
+const assemble = (
+  {
+    facts,
+    producedBy,
+    recordedAt,
+  }: {
+    readonly facts: CardFacts;
+    readonly producedBy: ActivityId;
+    readonly recordedAt: UtcInstant;
+  }): ContactIngest => {
   const occurrence = OccurrenceId.make(`occ:contacts:${facts.source}`);
   const anchor = {
     _tag: "RecordRow" as const,

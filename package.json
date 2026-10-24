@@ -89,7 +89,7 @@
     "@pulumi/aws": "^7.51.1",
     "@pulumi/cloudflare": "^6.23.1",
     "@pulumi/command": "^4.5.0",
-    "@pulumi/pulumi": "3.271.0",
+    "@pulumi/pulumi": "3.272.0",
     "@pulumiverse/vercel": "^5.21.1",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
@@ -244,7 +244,7 @@
     "are-docs-informative": "0.1.1",
     "@microsoft/tsdoc": "0.17.1",
     "@microsoft/tsdoc-config": "0.18.3",
-    "oxlint-tsgolint": "7.0.2004"
+    "oxlint-tsgolint": "7.0.2005"
   },
   "devDependencies": {
     "@babel/cli": "catalog:",
