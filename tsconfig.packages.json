@@ -508,6 +508,9 @@
       "path": "packages/tooling/library/repo-utils"
     },
     {
+      "path": "packages/tooling/library/repo-workspaces"
+    },
+    {
       "path": "packages/tooling/policy-pack/lint-rules"
     },
     {

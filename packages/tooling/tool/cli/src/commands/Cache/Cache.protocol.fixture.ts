@@ -4,19 +4,23 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $RepoCliId } from "@beep/identity/packages";
 import { Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { O } from "@beep/utils";
-import { BunHttpServer } from "@effect/platform-bun";
+import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Headers from "effect/http/Headers";
 import * as HttpServer from "effect/http/HttpServer";
+import * as HttpServerError from "effect/http/HttpServerError";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
+import * as Num from "effect/Number";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { CacheFixtureArtifactKey, CacheFixtureEvent, CacheFixtureScenario } from "./Cache.protocol.fixture.schemas.ts";
@@ -82,6 +86,45 @@ const readFaultTag = (stored: StoredArtifact, fault: CacheFixtureScenario["fault
         );
   return tag;
 };
+
+const fixtureHost = "127.0.0.1";
+const AddressInUse = S.Struct({ code: S.tag("EADDRINUSE") }).pipe(
+  $I.annoteSchema("AddressInUse", { description: "Socket bind failure eligible for a fresh ephemeral-port attempt." })
+);
+const bindFailure = (cause: unknown) => Effect.fail(new HttpServerError.ServeError({ cause }));
+
+// Let the Node test shim deliver listen/error events without consulting Clock.
+const awaitBindEvents = Effect.callback<void>((resume) => {
+  const handle = setImmediate(() => resume(Effect.void));
+  return Effect.sync(() => clearImmediate(handle));
+});
+
+const startFixtureServer = Effect.fn("CacheFixture.startServer")(function* <E>(
+  app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, HttpServerRequest.HttpServerRequest>
+) {
+  const server = yield* BunHttpServer.make({ port: 0, hostname: fixtureHost, maxRequestBodySize: bodyLimit });
+  // Node's Bun.serve test shim reports asynchronous listen errors at reload.
+  yield* awaitBindEvents;
+  yield* server.serve(app);
+  return server;
+});
+
+const makeFixtureServer = Effect.fn("CacheFixture.makeServer")(
+  <E>(app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, HttpServerRequest.HttpServerRequest>) =>
+    startFixtureServer(app).pipe(
+      Effect.catchDefect(bindFailure),
+      Effect.retry({ times: 8, while: (error) => S.is(AddressInUse)(error.cause) })
+    )
+);
+
+const readFixtureBody = Effect.fn("CacheFixture.readBody")(function* (request: HttpServerRequest.HttpServerRequest) {
+  const contentLength = Headers.get(request.headers, "content-length").pipe(O.flatMap(Num.parse));
+  if (O.exists(contentLength, Num.isGreaterThan(bodyLimit))) return Result.fail(413);
+  const body = yield* request.arrayBuffer.pipe(Effect.result);
+  if (Result.isFailure(body)) return Result.fail(400);
+  const bytes = new Uint8Array(body.success);
+  return bytes.byteLength > bodyLimit ? Result.fail(413) : Result.succeed(bytes);
+});
 
 /**
  * Start a bounded local fixture whose lifetime is owned by the caller's scope.
@@ -157,13 +200,10 @@ export const makeCacheProtocolFixture = Effect.fn("Cache.makeProtocolFixture")(f
       return yield* reply(415, "put", O.some(key));
     const tag = Headers.get(request.headers, "x-artifact-tag");
     if (O.isNone(tag) || !S.is(Tag)(tag.value)) return yield* reply(400, "put", O.some(key));
-    const body = yield* request.arrayBuffer.pipe(
-      Effect.map((buffer) => O.some(new Uint8Array(buffer))),
-      Effect.catchTag("HttpServerError", () => Effect.succeedNone)
-    );
-    if (O.isNone(body)) return yield* reply(400, "put", O.some(key));
-    if (body.value.byteLength > bodyLimit) return yield* reply(413, "put", O.some(key));
-    const stored = StoredArtifact.make({ body: body.value, digest: yield* hashBytes(body.value), tag: tag.value });
+    const body = yield* readFixtureBody(request);
+    if (Result.isFailure(body)) return yield* reply(body.failure, "put", O.some(key));
+    const bytes = body.success;
+    const stored = StoredArtifact.make({ body: bytes, digest: yield* hashBytes(bytes), tag: tag.value });
     const status = yield* Ref.modify(artifacts, (all) => {
       const prior = HashMap.get(all, key);
       if (O.isSome(prior))
@@ -221,8 +261,7 @@ export const makeCacheProtocolFixture = Effect.fn("Cache.makeProtocolFixture")(f
     if (role === "unknown") return yield* reply(401, "rejected");
     return yield* routeRequest(request, role, current, reply);
   });
-  const server = yield* BunHttpServer.make({ hostname: "127.0.0.1", port: 0, maxRequestBodySize: bodyLimit });
-  yield* server.serve(app);
+  const server = yield* makeFixtureServer(app);
   return {
     url: HttpServer.formatAddress(server.address),
     events: Ref.get(events),

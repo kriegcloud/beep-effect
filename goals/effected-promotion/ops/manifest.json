@@ -33,7 +33,8 @@
   ],
   "researchReports": [
     "research/SOURCES.md",
-    "research/promotion-map-2026-10-20.md"
+    "research/promotion-map-2026-10-20.md",
+    "research/repo-workspaces-differential-w4.json"
   ],
   "agentLaunchers": [
     {

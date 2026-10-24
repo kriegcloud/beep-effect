@@ -4,11 +4,12 @@ import {
   CacheFixtureScenario,
   makeCacheProtocolFixture,
 } from "@beep/repo-cli/commands/Cache";
-import { NodeCrypto } from "@effect/platform-node";
+import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect, it, vi } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue, notDeepStrictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import * as Fiber from "effect/Fiber";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Headers from "effect/http/Headers";
 import * as HttpClient from "effect/http/HttpClient";
@@ -19,6 +20,7 @@ import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 
 const FixtureEventsJson = CacheFixtureEvent.pipe(S.Array, S.fromJsonString);
@@ -44,9 +46,92 @@ const put = (url: string, body = bytes, capability = writer, signature = tag) =>
     HttpClient.execute
   );
 
+it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "10 seconds" })(
+  "native protocol fixture with TestClock",
+  (it) => {
+    it.effect("starts and serves requests without advancing TestClock", () =>
+      Effect.gen(function* () {
+        const fixture = yield* makeCacheProtocolFixture(credentials);
+        expect(new URL(fixture.url).hostname).toBe("127.0.0.1");
+        const response = yield* get(`${fixture.url}/v8/artifacts/status?teamId=${credentials.namespace}`);
+        expect(response.status).toBe(200);
+        yield* response.text;
+      })
+    );
+  }
+);
+
 it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20 seconds", excludeTestServices: true })(
   "native protocol fixture server",
   (it) => {
+    it.effect("assigns distinct live loopback sockets to concurrent fixtures", () =>
+      Effect.gen(function* () {
+        const fixtures = yield* Effect.forEach(A.range(1, 16), () => makeCacheProtocolFixture(credentials), {
+          concurrency: 16,
+        });
+        const urls = A.map(fixtures, (fixture) => fixture.url);
+        expect(A.dedupe(urls)).toHaveLength(fixtures.length);
+        for (const url of urls) {
+          expect(new URL(url).hostname).toBe("127.0.0.1");
+          expect(new URL(url).port).not.toBe("0");
+        }
+        const responses = yield* Effect.forEach(
+          urls,
+          (url) => get(`${url}/v8/artifacts/status?teamId=${credentials.namespace}`),
+          {
+            concurrency: 16,
+          }
+        );
+        expect(A.map(responses, (response) => response.status)).toEqual(A.replicate(200, 16));
+      })
+    );
+
+    it.effect("cancels the bind handoff when fixture acquisition is interrupted", () =>
+      Effect.gen(function* () {
+        const clear = vi.spyOn(globalThis, "clearImmediate");
+        yield* Effect.gen(function* () {
+          const fiber = yield* makeCacheProtocolFixture(credentials).pipe(Effect.forkChild({ startImmediately: true }));
+          yield* Fiber.interrupt(fiber);
+          expect(clear).toHaveBeenCalledTimes(1);
+        }).pipe(Effect.ensuring(Effect.sync(() => clear.mockRestore())));
+      })
+    );
+
+    it.effect("enforces body bounds even if the transport accepts larger uploads", () =>
+      Effect.gen(function* () {
+        const original = Bun.serve;
+        const serve = vi
+          .spyOn(Bun, "serve")
+          .mockImplementation((options) => original({ ...options, maxRequestBodySize: 4 * 1024 * 1024 }));
+        yield* Effect.gen(function* () {
+          const fixture = yield* makeCacheProtocolFixture(credentials);
+          const oversized = new Uint8Array(2 * 1024 * 1024 + 1);
+          expect((yield* put(endpoint(fixture.url), oversized)).status).toBe(413);
+          const chunked = yield* HttpClientRequest.put(endpoint(fixture.url)).pipe(
+            HttpClientRequest.setHeaders({ authorization: `Bearer ${writer}`, "x-artifact-tag": tag }),
+            HttpClientRequest.bodyStream(Stream.make(oversized), "application/octet-stream"),
+            HttpClient.execute
+          );
+          expect(chunked.status).toBe(413);
+          (yield* fixture.artifactBytes(artifactHash).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
+          expect(A.map(yield* fixture.events, (event) => event.status)).toEqual([413, 413]);
+        }).pipe(Effect.ensuring(Effect.sync(() => serve.mockRestore())));
+      })
+    );
+
+    it.effect("rejects unreadable request bodies without storing an artifact", () =>
+      Effect.gen(function* () {
+        const fixture = yield* makeCacheProtocolFixture(credentials);
+        const read = vi.spyOn(Request.prototype, "arrayBuffer").mockRejectedValueOnce(new Error("interrupted body"));
+        yield* Effect.gen(function* () {
+          expect((yield* put(endpoint(fixture.url))).status).toBe(400);
+          expect(read).toHaveBeenCalledTimes(1);
+          (yield* fixture.artifactBytes(artifactHash).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
+          expect(A.map(yield* fixture.events, (event) => event.status)).toEqual([400]);
+        }).pipe(Effect.ensuring(Effect.sync(() => read.mockRestore())));
+      })
+    );
+
     it.effect("returns supervisor copies without mutating stored bytes or adding wire events", () =>
       Effect.gen(function* () {
         const fixture = yield* makeCacheProtocolFixture(credentials);
@@ -132,19 +217,56 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
       })
     );
 
-    it.effect("rejects transport-level body read failures without installing partial artifacts", () =>
+    it.effect("retries address-in-use bind failures with fresh server attempts", () =>
       Effect.gen(function* () {
-        const fixture = yield* makeCacheProtocolFixture(credentials);
-        const read = vi
-          .spyOn(Request.prototype, "arrayBuffer")
-          .mockRejectedValueOnce(new Error("request body read failed"));
+        const failBind = () => {
+          throw Object.assign(new Error("occupied socket"), { code: "EADDRINUSE" });
+        };
+        const serve = vi.spyOn(Bun, "serve").mockImplementationOnce(failBind).mockImplementationOnce(failBind);
         yield* Effect.gen(function* () {
-          const response = yield* put(endpoint(fixture.url));
-          expect(response.status).toBe(400);
-          yield* response.arrayBuffer;
-          expect(A.map(yield* fixture.events, (event) => event.status)).toEqual([400]);
-          (yield* fixture.artifactBytes(artifactHash).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
-        }).pipe(Effect.ensuring(Effect.sync(() => read.mockRestore())));
+          const fixture = yield* makeCacheProtocolFixture(credentials);
+          expect(serve).toHaveBeenCalledTimes(3);
+          expect(serve).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              hostname: "127.0.0.1",
+              port: 0,
+              maxRequestBodySize: 2 * 1024 * 1024,
+            })
+          );
+          expect((yield* get(`${fixture.url}/v8/artifacts/status?teamId=${credentials.namespace}`)).status).toBe(200);
+        }).pipe(Effect.ensuring(Effect.sync(() => serve.mockRestore())));
+      })
+    );
+
+    it.effect("recovers from a real occupied loopback port", () =>
+      Effect.gen(function* () {
+        const occupied = yield* makeCacheProtocolFixture(credentials);
+        const port = Number(new URL(occupied.url).port);
+        const original = Bun.serve;
+        const serve = vi.spyOn(Bun, "serve").mockImplementationOnce((options) => original({ ...options, port }));
+        yield* Effect.gen(function* () {
+          const fixture = yield* makeCacheProtocolFixture(credentials);
+          expect(serve).toHaveBeenCalledTimes(2);
+          expect(fixture.url).not.toBe(occupied.url);
+          expect((yield* get(`${fixture.url}/v8/artifacts/status?teamId=${credentials.namespace}`)).status).toBe(200);
+        }).pipe(Effect.ensuring(Effect.sync(() => serve.mockRestore())));
+      })
+    );
+
+    it.effect("bounds bind retries and leaves other failures unretried", () =>
+      Effect.gen(function* () {
+        for (const [code, attempts] of [
+          ["EADDRINUSE", 9],
+          ["EACCES", 1],
+        ] as const) {
+          const serve = vi.spyOn(Bun, "serve").mockImplementation(() => {
+            throw Object.assign(new Error("bind failed"), { code });
+          });
+          yield* Effect.gen(function* () {
+            (yield* makeCacheProtocolFixture(credentials).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
+            expect(serve).toHaveBeenCalledTimes(attempts);
+          }).pipe(Effect.ensuring(Effect.sync(() => serve.mockRestore())));
+        }
       })
     );
 
@@ -293,6 +415,25 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
         expect(rejected.status).toBe(413);
         const restored = yield* get(endpoint(fixture.url));
         expect(new Uint8Array(yield* restored.arrayBuffer)).toEqual(bytes);
+      })
+    );
+
+    it.effect("caps chunked uploads before the sender finishes the body", () =>
+      Effect.gen(function* () {
+        const fixture = yield* makeCacheProtocolFixture(credentials);
+        const response = yield* HttpClientRequest.put(endpoint(fixture.url)).pipe(
+          HttpClientRequest.setHeaders({ authorization: `Bearer ${writer}`, "x-artifact-tag": tag }),
+          HttpClientRequest.bodyStream(
+            Stream.concat(Stream.make(new Uint8Array(2 * 1024 * 1024 + 1)), Stream.never),
+            "application/octet-stream"
+          ),
+          HttpClient.execute,
+          Effect.result,
+          Effect.timeout("5 seconds")
+        );
+        // Node destroys the incoming socket at the cap, so fetch may report a transport failure.
+        if (Result.isSuccess(response)) expect(response.success.status).toBe(413);
+        (yield* fixture.artifactBytes(artifactHash).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
       })
     );
 
