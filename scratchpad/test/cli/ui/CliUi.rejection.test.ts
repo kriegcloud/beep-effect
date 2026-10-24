@@ -4,7 +4,7 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { identity } from "effect/Function";
-import { CliTheme } from "../../../effected/cli/CliTheme.ts";
+import { CliTheme } from "@beep/cli-kit/CliTheme";
 
 // Ink whose waitUntilExit rejects at once, as it does when the app crashes outside any boundary.
 // Ink is a third-party renderer without an Effect service seam; the subject imports it after this mock is installed.
@@ -25,7 +25,7 @@ describe("CliUi.run when Ink's exit rejects", () => {
 			Effect.gen(function* () {
 				const { createElement } = yield* Effect.promise(() => import("react"));
 				const { Text } = yield* Effect.promise(() => import("ink"));
-				const { CliInteractive } = yield* Effect.promise(() => import("../../../effected/cli/index.ts"));
+				const { CliInteractive } = yield* Effect.promise(() => import("@beep/cli-kit"));
 				const { CliUi, UiStreams } = yield* Effect.promise(() => import("../../../effected/cli/ui.ts"));
 				const { makeFakeStreams } = yield* Effect.promise(() => import("../../../effected/cli/ui/testing/fakeStreams.ts"));
 				const fake = makeFakeStreams();

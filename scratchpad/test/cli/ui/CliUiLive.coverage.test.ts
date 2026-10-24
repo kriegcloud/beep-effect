@@ -10,7 +10,7 @@ import * as O from "effect/Option";
 import * as TestClock from "effect/testing/TestClock";
 import { createElement } from "react";
 import { Text } from "ink";
-import { Doc } from "../../../effected/cli/Doc.ts";
+import { Doc } from "@beep/cli-kit/Doc";
 import { CurrentRuntimeEnv } from "@beep/runtime-env";
 import { makeFakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";
 import type { Ev } from "../helpers/live.ts";

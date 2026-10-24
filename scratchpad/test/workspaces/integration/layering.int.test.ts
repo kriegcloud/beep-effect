@@ -44,6 +44,7 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // and wave 4-X promoted `xdg` whole as `@beep/xdg`.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
+	"@beep/cli-kit": "cli",
 	"@beep/commands": "commands",
 	"@beep/config-file": "config-file",
 	"@beep/git": "git",
