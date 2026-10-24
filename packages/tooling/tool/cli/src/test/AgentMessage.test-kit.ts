@@ -10,6 +10,7 @@ export * from "../commands/AgentMessage/AgentMessage.attached.service.ts";
 export * from "../commands/AgentMessage/AgentMessage.layer.ts";
 export * from "../commands/AgentMessage/AgentMessage.models.ts";
 export { callAgentMessagePeer } from "../commands/AgentMessage/AgentMessage.peer.command.ts";
+export { isMailboxLockTimeout } from "../commands/AgentMessage/AgentMessage.runtime.ts";
 export * from "../commands/AgentMessage/AgentMessage.service.ts";
 export * from "../commands/AgentMessage/AgentMessage.store.ts";
 export * from "../commands/AgentMessage/AgentMessage.tools.ts";
