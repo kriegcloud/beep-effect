@@ -9,6 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A, Str, thunkFalse } from "@beep/utils";
 import * as Bool from "effect/Boolean";
 import * as Effect from "effect/Effect";
@@ -129,10 +130,7 @@ const decodeDockerComposeDocument = decodeYamlTextWith(S.decodeUnknownEffect(Doc
  */
 export class DockerImageState extends S.Opaque<DockerImageState, { readonly brand: unique symbol }>()(
   S.Struct({
-    images: S.Array(DockerImageElement).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<DockerImageElement>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<DockerImageElement>()))
-    ),
+    images: ArrayKeyDefaultEmpty(DockerImageElement),
   }).pipe(
     $I.annoteSchema("DockerImageState", {
       description: "Resolved Docker image state",

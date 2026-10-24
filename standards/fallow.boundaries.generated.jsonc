@@ -1098,6 +1098,12 @@
         ]
       },
       {
+        "name": "@beep/xdg",
+        "patterns": [
+          "packages/foundation/capability/xdg/src/**"
+        ]
+      },
+      {
         "name": "@beep/xstate",
         "patterns": [
           "packages/drivers/xstate/src/**"
@@ -3020,7 +3026,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/xdg"
         ],
         "allowTypeOnly": [
           "@beep/data",
@@ -3031,7 +3038,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/xdg"
         ]
       },
       {
@@ -4302,6 +4310,7 @@
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runpod",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/skill-contract",
           "@beep/spdx",
@@ -4313,7 +4322,8 @@
           "@beep/tika",
           "@beep/uspto",
           "@beep/utils",
-          "@beep/walker"
+          "@beep/walker",
+          "@beep/xdg"
         ],
         "allowTypeOnly": [
           "@beep/ai-provider-cli",
@@ -4351,6 +4361,7 @@
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runpod",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/skill-contract",
           "@beep/spdx",
@@ -4362,7 +4373,8 @@
           "@beep/tika",
           "@beep/uspto",
           "@beep/utils",
-          "@beep/walker"
+          "@beep/walker",
+          "@beep/xdg"
         ]
       },
       {
@@ -5307,6 +5319,29 @@
           "@beep/test-utils",
           "@beep/workspace-domain",
           "@beep/workspace-use-cases"
+        ]
+      },
+      {
+        "from": "@beep/xdg",
+        "allow": [
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/xdg"
+        ],
+        "allowTypeOnly": [
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/xdg"
         ]
       },
       {

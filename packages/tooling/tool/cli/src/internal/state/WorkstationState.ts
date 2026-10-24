@@ -8,6 +8,7 @@
  * @since 0.0.0
  */
 import { $RepoCliId } from "@beep/identity/packages";
+import { XdgBase } from "@beep/xdg/XdgBase";
 import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
@@ -49,6 +50,12 @@ export type StateRepository = typeof StateRepository.Type;
  * Resolve a store's directory: an explicit override variable first, then
  * `$XDG_STATE_HOME/beep/<store>`, then `$HOME/.local/state/beep/<store>`.
  *
+ * **Details**
+ *
+ * The state home resolves through `@beep/xdg` `XdgBase.require("state")`:
+ * `$XDG_STATE_HOME` and `$HOME` count only when they hold an absolute path,
+ * and without either the effect fails with a `ConfigError` naming `HOME`.
+ *
  * **Example** (Build the resolver effect)
  *
  * ```ts
@@ -69,10 +76,8 @@ export const resolveWorkstationStateDir = Effect.fn("WorkstationState.resolveDir
 }) {
   const configured = yield* Config.option(Config.String(options.override));
   if (O.isSome(configured) && Str.isNonEmpty(Str.trim(configured.value))) return configured.value;
-  const xdg = yield* Config.option(Config.String("XDG_STATE_HOME"));
-  if (O.isSome(xdg) && Str.isNonEmpty(Str.trim(xdg.value))) return `${xdg.value}/beep/${options.store}`;
-  const home = yield* Config.String("HOME");
-  return `${home}/.local/state/beep/${options.store}`;
+  const stateHome = yield* XdgBase.require("state");
+  return `${stateHome}/beep/${options.store}`;
 });
 
 /**

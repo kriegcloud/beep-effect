@@ -14,6 +14,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { GitObjectId } from "@beep/schema/Conformance";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { IsoDateTimeString } from "@beep/skill-contract";
 import { A, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
@@ -700,14 +701,8 @@ export class WorktreeRemovalReceipt extends S.Opaque<WorktreeRemovalReceipt, { r
       S.withConstructorDefault(Effect.succeedNone),
       S.withDecodingDefaultKey(Effect.succeed(null))
     ),
-    idleTerminalShells: S.Array(ProcessPid).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<ProcessPid>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<ProcessPid>()))
-    ),
-    inotifyWatchers: S.Array(WorktreeInotifyWatcher).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<WorktreeInotifyWatcher>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty()))
-    ),
+    idleTerminalShells: ArrayKeyDefaultEmpty(ProcessPid),
+    inotifyWatchers: ArrayKeyDefaultEmpty(WorktreeInotifyWatcher),
   }).pipe(
     $I.annoteSchema("WorktreeRemovalReceipt", {
       description: "Completed worktree removal receipt with optional preserved residue manifest.",
