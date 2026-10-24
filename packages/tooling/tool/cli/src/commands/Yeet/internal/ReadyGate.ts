@@ -373,9 +373,11 @@ const readyGateCriterionHolds = (
 const blockerDetail = (blocker: YeetReadyGateCriterion, remote: YeetStatusRemote): string =>
   Match.value(blocker).pipe(
     Match.when("pr-open", () =>
-      remote.available && remote.state !== undefined
-        ? `pull request #${remote.number ?? "?"} is ${remote.state}`
-        : "no open pull request was found for this branch"
+      O.isSome(remote.readFailure) || !remote.checked || (remote.available && remote.state === undefined)
+        ? `could not read the pull request: ${O.match(remote.readFailure, { onNone: () => remote.detail, onSome: (error) => error.message })}; retry after the GitHub rate limit resets or restore GitHub access`
+        : remote.available
+          ? `pull request #${remote.number ?? "?"} is ${remote.state}`
+          : "no open pull request was found for this branch"
     ),
     Match.when("no-required-red", () => {
       const names = A.map(failingRequiredChecks(remote), (check) => check.name);

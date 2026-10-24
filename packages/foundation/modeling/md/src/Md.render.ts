@@ -84,6 +84,13 @@ const mathOpenerPattern = /\$(?=[^ \t]|$)/g;
 // The scheme colon of an `http://` or `https://` URL in text, which GFM's
 // autolink-literal extension would turn into a link; `http\://` stays text.
 const autolinkSchemePattern = /(?<![A-Za-z0-9])(https?):(?=\/\/)/gi;
+// GFM email literals use [A-Za-z0-9.+_-] before `@`, a dotted domain
+// of alphanumerics, `-` and `_`, and an alphabetic final character.
+// Match after escapeMarkdownLiteral: dots, hyphens and underscores already
+// carry backslashes. A domain dot must be followed by an alphanumeric, as
+// in markdown/internal/inlines/autolinkLiteral.ts (EmailCandidate).
+const autolinkEmailAtPattern =
+  /(?<=[A-Za-z0-9.+_-])@(?=(?:[A-Za-z0-9]|\\[-_])*(?:\\\.[A-Za-z0-9](?:[A-Za-z0-9]|\\[-_])*)+(?<=[A-Za-z])(?![A-Za-z0-9]|\\[-_]|\\\.[A-Za-z0-9]))/g;
 const tableCellPipePattern = /(?<!\\)((?:\\\\)*)\|/g;
 const leadingBlockWhitespacePattern = /^[ \t]+/g;
 const trailingBlockWhitespacePattern = /[ \t]+$/g;
@@ -102,7 +109,7 @@ const escapeMarkdownPhrasingMarkers = flow(
   escapeMarkdownLiteral,
   Str.replace(mathOpenerPattern, "\\$"),
   Str.replace(autolinkSchemePattern, "$1\\:"),
-  Str.replaceAll("@", "\\@")
+  Str.replace(autolinkEmailAtPattern, "\\@")
 );
 
 const escapeMarkdownTablePhrasing = flow(

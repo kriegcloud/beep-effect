@@ -120,9 +120,9 @@ describe("LenientManifest.decodeResult", () => {
 
   it("keeps unknown top-level fields in rest without reporting issues", () => {
     const manifest = unwrap(
-      LenientManifest.decodeResult({ name: "pkg", types: "./index.d.ts", "//": "junk comment field" })
+      LenientManifest.decodeResult({ name: "pkg", "x-tool": { enabled: true }, "//": "junk comment field" })
     );
-    assert.strictEqual(manifest.rest?.types, "./index.d.ts");
+    assert.deepStrictEqual(manifest.rest?.["x-tool"], { enabled: true });
     assert.strictEqual(manifest.rest?.["//"], "junk comment field");
     assert.deepStrictEqual(manifest.issues, []);
   });
