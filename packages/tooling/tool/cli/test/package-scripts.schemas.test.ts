@@ -1,5 +1,9 @@
 import {
+  CheckerEngineExemption,
+  CheckerScriptName,
+  checkerEngineExemptions,
   implScriptDefaults,
+  NonCanonicalChecker,
   PackageKind,
   PackageScriptsReportFromWire,
   ScriptsBlock,
@@ -143,4 +147,24 @@ describe("canonical package scripts schemas", () => {
       expect(yield* encodeReport(report)).toEqual({ ...legacy, implDrift: {} });
     })
   );
+  it("models checker scripts, non-canonical checkers and reviewed exemptions", () => {
+    const isCheckerScript = S.is(CheckerScriptName);
+    expect(A.map(["beep:build", "beep:check", "beep:check:tests", "beep:check:a:b"], isCheckerScript)).toEqual([
+      true,
+      true,
+      true,
+      true,
+    ]);
+    expect(A.map(["beep:build:x", "beep:checks", "check", "beep:lint"], isCheckerScript)).toEqual([
+      false,
+      false,
+      false,
+      false,
+    ]);
+    expect(NonCanonicalChecker.literals).toEqual(["tsgo", "tsc"]);
+    const row = { manifest: "packages/a/package.json", script: "beep:check", engine: "tsgo", reason: "tsc-rs defect" };
+    const rows = [row, { ...row, engine: "tsc-rs" }, { ...row, reason: "" }, { ...row, script: "beep:lint" }];
+    expect(A.map(rows, S.is(CheckerEngineExemption))).toEqual([true, false, false, false]);
+    expect(checkerEngineExemptions).toEqual([]);
+  });
 });

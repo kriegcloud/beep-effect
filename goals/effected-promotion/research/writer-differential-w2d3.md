@@ -148,3 +148,31 @@ HTML newlines through Markdown writing and re-parsing remains open: the default
 `softBreak: "space"` folds the writer's literal newlines. The escaped-email,
 literal URL backslash and inline-math-before-digit gaps also remain open in
 #2137. This follow-up closes only the adjacent-run part of that issue.
+
+## S44 remainder (#2137)
+
+The writer now spells text line endings as character references. The bridge
+folds source soft breaks and preserves newlines decoded from references, so
+escaped HTML retains its newlines through writing and re-parsing. Inline math
+before a digit writes that digit as a reference; the recognizer decodes text
+outside math while preserving the raw TeX inside it.
+
+The GFM email postprocess retains backslash-escape provenance and rejects an
+address spanning an escaped piece. Both writers escape text `@` characters.
+Literal URL destinations decode punctuation escapes while their labels and
+source positions retain the original source spelling.
+
+Regenerating the 731-row ledger resolves all 37 remaining newline rows. Writer
+totals are 1 byte-equal, 710 reparse-equal and 20 divergent. No row becomes
+newly divergent, and all other columns are unchanged. The 20 divergences are
+the 19 intended destination normalizations and the mixed-list model case.
+
+The historical 20,000-source GFM digest included the two autolink defects.
+A source-by-source comparison with the committed pre-fix engine found exactly
+203 changed sources: 180 URL destination corrections and 23 escaped-email
+corrections. Applying only those two corrections to the old trees, merging
+adjacent text after removing an email link, reproduced every new tree with
+no unexplained difference. The existing digest expectation now records these
+corrected trees; the CommonMark digest is unchanged. No exclusion or known-gap
+entry was added. CommonMark example 606 now agrees across dialects because its
+escaped email stays text, so its obsolete dialect-divergence entry is removed.

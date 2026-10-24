@@ -718,7 +718,11 @@ if [ "${raw_hook_event}" = "SessionStart" ]; then
       *[!0-9:]*|:*|*:) remaining_ms=0 ;;
       *) remaining_ms=$((2200 - (stamp_now_ms - writer_started_ms))) ;;
     esac
-    if [ "${remaining_ms}" -gt 0 ]; then
+    # An explicit stamp cap replaces the default budget, including its elapsed
+    # startup gate. Conformance tests lift both caps under hosted runner load;
+    # applying the default 2200ms gate first made that override ineffective.
+    # The outer writer timeout still bounds the entire attempt.
+    if [ -n "${BEEP_HOOK_PULSE_STAMP_CAP:-}" ] || [ "${remaining_ms}" -gt 0 ]; then
       [ "${remaining_ms}" -le 2000 ] || remaining_ms=2000
       printf -v stamp_cap '%d.%03ds' "$((remaining_ms / 1000))" "$((remaining_ms % 1000))"
       harness_hash="$(timeout --kill-after=0.2s "${BEEP_HOOK_PULSE_STAMP_CAP:-${stamp_cap}}" bash -c 'harness_config_hash "$1"' _ "${found_repo_root}")" || { harness_hash=""; refuse stamp-failed; }

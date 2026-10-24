@@ -26,8 +26,8 @@
     },
     "writer": {
       "byteEqual": 1,
-      "divergent": 57,
-      "reparseEqual": 673
+      "divergent": 20,
+      "reparseEqual": 710
     }
   },
   "roundTripGaps": [
@@ -1673,7 +1673,7 @@
       "safety": [],
       "kitNodes": 8,
       "mdNodes": 9,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1684,7 +1684,7 @@
       "safety": [],
       "kitNodes": 4,
       "mdNodes": 5,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1695,7 +1695,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1706,7 +1706,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1728,7 +1728,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1739,7 +1739,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1750,7 +1750,7 @@
       "safety": [],
       "kitNodes": 5,
       "mdNodes": 6,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1761,7 +1761,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1772,7 +1772,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1783,7 +1783,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1805,7 +1805,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1816,7 +1816,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1827,7 +1827,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1838,7 +1838,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1849,7 +1849,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1860,7 +1860,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1871,7 +1871,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1904,7 +1904,7 @@
       "safety": [],
       "kitNodes": 4,
       "mdNodes": 5,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1915,7 +1915,7 @@
       "safety": [],
       "kitNodes": 4,
       "mdNodes": 5,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1926,7 +1926,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1937,7 +1937,7 @@
       "safety": [],
       "kitNodes": 4,
       "mdNodes": 5,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1948,7 +1948,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -1959,7 +1959,7 @@
       "safety": [],
       "kitNodes": 5,
       "mdNodes": 6,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -2003,7 +2003,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -2025,7 +2025,7 @@
       "safety": [],
       "kitNodes": 4,
       "mdNodes": 5,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -2047,7 +2047,7 @@
       "safety": [],
       "kitNodes": 4,
       "mdNodes": 5,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -2080,7 +2080,7 @@
       "safety": [],
       "kitNodes": 4,
       "mdNodes": 5,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -2091,7 +2091,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -2124,7 +2124,7 @@
       "safety": [],
       "kitNodes": 2,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -2141,7 +2141,7 @@
       "safety": [],
       "kitNodes": 6,
       "mdNodes": 11,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -5457,7 +5457,7 @@
       "safety": [],
       "kitNodes": 5,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -6825,7 +6825,7 @@
       "safety": [],
       "kitNodes": 4,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -6836,7 +6836,7 @@
       "safety": [],
       "kitNodes": 3,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -7122,7 +7122,7 @@
       "safety": [],
       "kitNodes": 3,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -7133,7 +7133,7 @@
       "safety": [],
       "kitNodes": 3,
       "mdNodes": 3,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "commonmark",
@@ -7480,7 +7480,7 @@
       "safety": [],
       "kitNodes": 10,
       "mdNodes": 5,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "gfm-extensions",
@@ -8024,7 +8024,7 @@
       "safety": [],
       "kitNodes": 8,
       "mdNodes": 13,
-      "writer": "divergent"
+      "writer": "reparseEqual"
     },
     {
       "corpus": "mdast",
