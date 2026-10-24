@@ -1096,6 +1096,71 @@ it.layer(platform, { timeout: "30 seconds" })((it) =>
   )
 );
 
+// A pull request view and a review-thread page whose cursor names itself as its successor.
+const SELF_LOOP_PR_VIEW = JSON.stringify({
+  id: "PR_loop",
+  number: 1,
+  url: "https://github.com/beep/repo/pull/1",
+  state: "OPEN",
+  mergeable: "MERGEABLE",
+  mergeStateStatus: "CLEAN",
+  isDraft: false,
+  reviewDecision: null,
+  headRefOid: "aaa111",
+  labels: [],
+});
+
+// Every page claims a successor at the cursor that was just requested:
+// a loop that trusted it would re-read this page forever.
+const SELF_SUCCESSOR_THREAD_PAGE = JSON.stringify({
+  data: {
+    node: {
+      author: { login: "octocat" },
+      reviewThreads: {
+        nodes: [
+          {
+            id: "PRRT_loop",
+            isResolved: false,
+            isOutdated: false,
+            path: "src/a.ts",
+            line: 1,
+            resolvedBy: null,
+            comments: {
+              nodes: [{ author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 }],
+            },
+            latest: {
+              nodes: [{ author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 }],
+            },
+          },
+        ],
+        pageInfo: { hasNextPage: true, endCursor: "same-cursor" },
+      },
+    },
+  },
+});
+
+const selfLoopStaticReply = (command: string, first: string | undefined, second: string | undefined) => {
+  if (command === "git") return O.some(handle(0, ""));
+  if (first === "pr" && second === "view") return O.some(handle(0, SELF_LOOP_PR_VIEW));
+  if (first === "pr" && second === "checks") return O.some(handle(0, "[]"));
+  return first === "api" ? O.none() : O.some(handle(0, "[]"));
+};
+
+const selfLoopRunner = (restRecoveryAvailable: boolean, pageReads: Ref.Ref<number>, restReads: Ref.Ref<number>) =>
+  ChildProcessSpawner.make((command) => {
+    if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+    const [first, second] = command.args;
+    return O.match(selfLoopStaticReply(command.command, first, second), {
+      onSome: Effect.succeed,
+      onNone: () =>
+        second === "graphql"
+          ? Ref.update(pageReads, (n) => n + 1).pipe(Effect.as(handle(0, SELF_SUCCESSOR_THREAD_PAGE)))
+          : Ref.update(restReads, (n) => n + 1).pipe(
+              Effect.as(handle(restRecoveryAvailable ? 0 : 1, restRecoveryAvailable ? "[]" : "REST unavailable"))
+            ),
+    });
+  });
+
 for (const restRecoveryAvailable of [false, true]) {
   it.effect(
     `status refuses a review-thread page that names itself as its own successor (REST recovery: ${restRecoveryAvailable})`,
@@ -1104,76 +1169,7 @@ for (const restRecoveryAvailable of [false, true]) {
         Effect.gen(function* () {
           const pageReads = yield* Ref.make(0);
           const restReads = yield* Ref.make(0);
-          const runner = ChildProcessSpawner.make((command) => {
-            if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
-            const [first, second] = command.args;
-            if (command.command === "git") return Effect.succeed(handle(0, ""));
-            if (first === "pr" && second === "view")
-              return Effect.succeed(
-                handle(
-                  0,
-                  JSON.stringify({
-                    id: "PR_loop",
-                    number: 1,
-                    url: "https://github.com/beep/repo/pull/1",
-                    state: "OPEN",
-                    mergeable: "MERGEABLE",
-                    mergeStateStatus: "CLEAN",
-                    isDraft: false,
-                    reviewDecision: null,
-                    headRefOid: "aaa111",
-                    labels: [],
-                  })
-                )
-              );
-            if (first === "pr" && second === "checks") return Effect.succeed(handle(0, "[]"));
-            if (first === "api" && second !== "graphql") {
-              return Ref.update(restReads, (n) => n + 1).pipe(
-                Effect.as(handle(restRecoveryAvailable ? 0 : 1, restRecoveryAvailable ? "[]" : "REST unavailable"))
-              );
-            }
-            // Every page claims a successor at the cursor that was just requested:
-            // a loop that trusted it would re-read this page forever.
-            if (first === "api")
-              return Ref.update(pageReads, (n) => n + 1).pipe(
-                Effect.as(
-                  handle(
-                    0,
-                    JSON.stringify({
-                      data: {
-                        node: {
-                          author: { login: "octocat" },
-                          reviewThreads: {
-                            nodes: [
-                              {
-                                id: "PRRT_loop",
-                                isResolved: false,
-                                isOutdated: false,
-                                path: "src/a.ts",
-                                line: 1,
-                                resolvedBy: null,
-                                comments: {
-                                  nodes: [
-                                    { author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 },
-                                  ],
-                                },
-                                latest: {
-                                  nodes: [
-                                    { author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 },
-                                  ],
-                                },
-                              },
-                            ],
-                            pageInfo: { hasNextPage: true, endCursor: "same-cursor" },
-                          },
-                        },
-                      },
-                    })
-                  )
-                )
-              );
-            return Effect.succeed(handle(0, "[]"));
-          });
+          const runner = selfLoopRunner(restRecoveryAvailable, pageReads, restReads);
           const failure = yield* collectYeetStatus(contextFor(root), true).pipe(
             Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
             Effect.flip
