@@ -4,6 +4,7 @@
 // these two members.
 
 import { Lockfile } from "@beep/lockfiles/Lockfile";
+import { PnpmExtension } from "@beep/lockfiles/PnpmExtension";
 import { ResolvedPackage } from "@beep/lockfiles/ResolvedPackage";
 import { describe, it } from "@effect/vitest";
 import { assertFalse, assertNone, assertSome, assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
@@ -126,6 +127,38 @@ snapshots:
 `;
 
 describe("Lockfile#rootPackage", () => {
+  it.effect("pnpm: root links resolve without optional publish-directory metadata", () =>
+    Effect.gen(function* () {
+      const parsed = yield* Lockfile.parse(LINKED_PNPM, { format: "pnpm" });
+      const fields = {
+        format: parsed.format,
+        lockfileVersion: parsed.lockfileVersion,
+        packages: parsed.packages,
+        workspaceDependencies: parsed.workspaceDependencies,
+        importers: parsed.importers,
+      };
+      for (const model of [Lockfile.make(fields), Lockfile.make({ ...fields, extension: PnpmExtension.make({}) })]) {
+        assertSome(
+          O.map(model.rootPackage("@local/lib"), (pkg) => pkg.instanceId),
+          "packages/lib"
+        );
+      }
+      const rootOnly = yield* Lockfile.parse(
+        `lockfileVersion: '9.0'
+importers:
+  .:
+    publishDirectory: dist
+    dependencies:
+      root:
+        specifier: workspace:*
+        version: link:dist
+`,
+        { format: "pnpm" }
+      );
+      assertNone(rootOnly.rootPackage("root"));
+    })
+  );
+
   it.effect("bun: the instance keyed by the bare install name, not a nested one", () =>
     Effect.gen(function* () {
       const lockfile = yield* parseFixture("bun/nested/bun.lock", "bun");

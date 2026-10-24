@@ -26,3 +26,4 @@ export {
   PersonMatchWorkerPolicyForTest,
   PersonMatchWorkerService,
 } from "../commands/Files/internal/MatchPerson.worker-service.ts";
+export { probeMediaCreationDate } from "../commands/Files/internal/MediaExec.ts";

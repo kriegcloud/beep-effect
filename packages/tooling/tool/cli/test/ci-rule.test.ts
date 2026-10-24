@@ -17,6 +17,7 @@ import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as Result from "effect/Result";
 import * as Str from "effect/String";
 
 type Env = Readonly<Record<string, string>>;
@@ -28,11 +29,12 @@ const SIGNALS = ["CI", "GITHUB_ACTIONS", "CONTINUOUS_INTEGRATION"] as const;
 const exactTrue = (env: Env): boolean => env.CI === "true";
 
 /** DeletePackage: `Config.Boolean("CI")` with a `false` default. */
-const configBoolean = (env: Env): Effect.Effect<boolean> =>
+const configBoolean = (env: Env): Effect.Effect<boolean | "decode-failure"> =>
   Config.Boolean("CI").pipe(
     Config.withDefault(false),
     (config) => config.parse(ConfigProvider.fromUnknown(env)),
-    Effect.orElseSucceed(() => false)
+    Effect.result,
+    Effect.map(Result.match({ onSuccess: (value) => value, onFailure: () => "decode-failure" as const }))
   );
 
 /** `detectQualityProfile`: `CI` is non-empty. */
@@ -43,7 +45,7 @@ type Row = {
   readonly env: Env;
   readonly ci: boolean;
   readonly exactTrue: boolean;
-  readonly configBoolean: boolean;
+  readonly configBoolean: boolean | "decode-failure";
   readonly nonEmpty: boolean;
 };
 
@@ -90,8 +92,17 @@ const rows: ReadonlyArray<Row> = [
   { name: "CI=no", env: { CI: "no" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
   { name: "CI=off", env: { CI: "off" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
   { name: "CI=n", env: { CI: "n" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
-  { name: "CI=NO", env: { CI: "NO" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
-  { name: "CI=Off", env: { CI: "Off" }, ci: false, exactTrue: false, configBoolean: false, nonEmpty: true },
+  { name: "CI=NO", env: { CI: "NO" }, ci: false, exactTrue: false, configBoolean: "decode-failure", nonEmpty: true },
+  { name: "CI=TRUE", env: { CI: "TRUE" }, ci: true, exactTrue: false, configBoolean: "decode-failure", nonEmpty: true },
+  {
+    name: "CI=banana",
+    env: { CI: "banana" },
+    ci: true,
+    exactTrue: false,
+    configBoolean: "decode-failure",
+    nonEmpty: true,
+  },
+  { name: "CI=Off", env: { CI: "Off" }, ci: false, exactTrue: false, configBoolean: "decode-failure", nonEmpty: true },
 ];
 
 describe("the one CI rule", () => {
@@ -139,7 +150,7 @@ describe("the one CI rule", () => {
       rows,
       (row) => row.name === "hosted GitHub Actions runner (CI=true, GITHUB_ACTIONS=true)"
     );
-    assertTrue(O.exists(hosted, (row) => row.ci && row.exactTrue && row.configBoolean && row.nonEmpty));
+    assertTrue(O.exists(hosted, (row) => row.ci && row.exactTrue && row.configBoolean === true && row.nonEmpty));
   });
 
   it('diverges from the exact `CI === "true"` rule only on the pinned rows', () => {
@@ -154,6 +165,8 @@ describe("the one CI rule", () => {
       "CONTINUOUS_INTEGRATION alone",
       "GITHUB_ACTIONS alone",
       "GITHUB_ACTIONS with CI=false",
+      "CI=TRUE",
+      "CI=banana",
     ]);
   });
 
