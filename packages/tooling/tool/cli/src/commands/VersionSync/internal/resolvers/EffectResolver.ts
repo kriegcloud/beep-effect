@@ -146,7 +146,7 @@ export const resolveEffectCatalog: (
 ) => Effect.Effect<EffectCatalogState, VersionSyncError, FileSystem.FileSystem | Path.Path> = Effect.fn(
   function* (repoRoot) {
     const pkgJson = yield* readRootPackageJson(repoRoot);
-    const catalog = pkgJson.catalog ?? R.empty<string, string>();
+    const catalog = O.getOrElse(O.fromUndefinedOr(pkgJson.catalog), R.empty<string, string>);
 
     const canonicalSpecifier = O.getOrElse(R.get(catalog, "effect"), thunkEmptyStr);
     const canonicalMajor = O.flatMap(splitVersionSpecifier(canonicalSpecifier), (parts) =>
