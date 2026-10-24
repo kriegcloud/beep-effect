@@ -10,32 +10,32 @@
  * seed so hook-injected catalogs land in assembly.
  *
  * This executes arbitrary code loaded from a config dependency, so it is **never**
- * wired by the default `WorkspaceCatalogs.layer`. It is loaded IN PROCESS via a
- * dynamic `import()` — no subprocess is spawned — and lives behind an opt-in,
- * Node-coupled layer, the same shape as the other Node-only overlays in this
- * package. `layerNoop` returns the seed untouched and is the safe default for
+ * wired by the default `WorkspaceCatalogs.layer`. Every replaying layer is
+ * opt-in and runtime-coupled, the same shape as the other Node-only overlays in
+ * this package. `layerLive` and `layerFrom` load each pnpmfile in process
+ * through a dynamic `import()`. `layerSubprocess` replays the same hooks in a
+ * `node` child process (`node --input-type=module -e`), which keeps computed
+ * imports out of a bundled consumer and config-dependency code out of the
+ * caller's process. `layerNoop` returns the seed untouched and is the safe
+ * default for tests and consumers who want the topology without the execution.
+ *
+ * Every replaying layer loads the pnpmfile of the version each entry DECLARES,
+ * not whatever `node_modules/.pnpm-config` holds right now: the resolution
+ * ladder in `internal/configDependencyResolution.ts` checks the installed copy
+ * first and falls back to the pnpm store, which keeps every version ever
+ * installed. That is what lets `WorkspaceSnapshots.at(ref)` replay a past
+ * ref's hooks at that ref's pinned version. `layerSubprocess` adds one more
+ * rung, a verified fetch into the store (`internal/configDependencyFetch.ts`),
+ * for the version this checkout never installed — the base side of a diff
+ * across a config-dependency bump.
+ *
+ * `internal/catalogs.ts` stays the only `@pnpm/catalogs.*` importer: the shape
+ * hooks operate on is the plain `catalog name → dependency → range` record, and
+ * the only normalization borrowed here is the prototype-safe `normalize`.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
-import * as ChildProcess from "effect/process/ChildProcess";
-import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
-
-// tests and consumers who want the topology without the execution.
-//
-// Every replaying layer loads the pnpmfile of the version each entry DECLARES,
-// not whatever `node_modules/.pnpm-config` holds right now: the resolution
-// ladder in `internal/configDependencyResolution.ts` checks the installed copy
-// first and falls back to the pnpm store, which keeps every version ever
-// installed. That is what lets `WorkspaceSnapshots.at(ref)` replay a past
-// ref's hooks at that ref's pinned version. `layerSubprocess` adds one more
-// rung, a verified fetch into the store (`internal/configDependencyFetch.ts`),
-// for the version this checkout never installed — the base side of a diff
-// across a config-dependency bump.
-//
-// `internal/catalogs.ts` stays the only `@pnpm/catalogs.*` importer: the shape
-// hooks operate on is the plain `catalog name → dependency → range` record, and
-// the only normalization borrowed here is the prototype-safe `normalize`.
 
 import { Run } from "@beep/commands";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
@@ -50,6 +50,8 @@ import { dual, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
