@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-24T02:22:16.663Z",
+  "generatedAt": "2026-10-24T02:38:30.592Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -66,7 +66,7 @@
     "packagesWithoutPublicSrcSurface": 2,
     "packagesNeedingRemediation": 79,
     "publicModules": 3564,
-    "publicExports": 25212,
+    "publicExports": 25214,
     "openModules": 484,
     "openExports": 1382,
     "missingExportExamples": 7,
@@ -447614,7 +447614,7 @@
         "srcDir": "src",
         "sourceFileCount": 467,
         "publicModuleCount": 465,
-        "publicExportCount": 4334
+        "publicExportCount": 4335
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -448244,7 +448244,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 4,
+          "exportCount": 5,
           "remediationStatus": "resolved"
         },
         {
@@ -462266,12 +462266,34 @@
           "remediationStatus": "resolved"
         },
         {
+          "symbolName": "isMailboxLockTimeout",
+          "exportKind": "const",
+          "filePath": "src/commands/AgentMessage/AgentMessage.runtime.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.runtime.ts",
+          "line": 125,
+          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-agentmessage-runtime-ts-125-ismailboxlocktimeout",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
           "symbolName": "makeAgentMessageCompletion",
           "exportKind": "const",
           "filePath": "src/commands/AgentMessage/AgentMessage.runtime.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.runtime.ts",
-          "line": 150,
-          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-agentmessage-runtime-ts-150-makeagentmessagecompletion",
+          "line": 167,
+          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-agentmessage-runtime-ts-167-makeagentmessagecompletion",
           "currentTags": [
             "@internal",
             "@category",
@@ -462293,8 +462315,8 @@
           "exportKind": "const",
           "filePath": "src/commands/AgentMessage/AgentMessage.runtime.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.runtime.ts",
-          "line": 209,
-          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-agentmessage-runtime-ts-209-runagentmessagedispatchloop",
+          "line": 226,
+          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-agentmessage-runtime-ts-226-runagentmessagedispatchloop",
           "currentTags": [
             "@internal",
             "@category",
@@ -462316,8 +462338,8 @@
           "exportKind": "const",
           "filePath": "src/commands/AgentMessage/AgentMessage.runtime.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.runtime.ts",
-          "line": 264,
-          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-agentmessage-runtime-ts-264-agentmessageservecommand",
+          "line": 281,
+          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-agentmessage-runtime-ts-281-agentmessageservecommand",
           "currentTags": [
             "@category",
             "@since"
@@ -462769,12 +462791,12 @@
           "remediationStatus": "resolved"
         },
         {
-          "symbolName": "export {\n  agentMessageServeCommand,\n  makeAgentMessageCompletion,\n  runAgentMessageDispatchLoop,\n} from \"./AgentMessage.runtime.ts\";",
+          "symbolName": "export {\n  agentMessageServeCommand,\n  isMailboxLockTimeout,\n  makeAgentMessageCompletion,\n  runAgentMessageDispatchLoop,\n} from \"./AgentMessage.runtime.ts\";",
           "exportKind": "re-export",
           "filePath": "src/commands/AgentMessage/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/AgentMessage/index.ts",
           "line": 13,
-          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-index-ts-13-export-agentmessageservecommand-makeagentmessagecompletion-runagentmessagedispatchloop-from-agentmessage-runtime-ts",
+          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-index-ts-13-export-agentmessageservecommand-ismailboxlocktimeout-makeagentmessagecompletion-runagentmessagedispatchloop-from-agentmessage-runtime-ts",
           "currentTags": [],
           "missingRequiredTags": [],
           "forbiddenTags": [],
@@ -462792,8 +462814,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/AgentMessage/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/AgentMessage/index.ts",
-          "line": 18,
-          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-index-ts-18-export-from-agentmessage-service-ts",
+          "line": 19,
+          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-index-ts-19-export-from-agentmessage-service-ts",
           "currentTags": [],
           "missingRequiredTags": [],
           "forbiddenTags": [],
@@ -462811,8 +462833,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/AgentMessage/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/AgentMessage/index.ts",
-          "line": 19,
-          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-index-ts-19-export-from-agentmessage-store-ts",
+          "line": 20,
+          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-index-ts-20-export-from-agentmessage-store-ts",
           "currentTags": [],
           "missingRequiredTags": [],
           "forbiddenTags": [],
@@ -462830,8 +462852,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/AgentMessage/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/AgentMessage/index.ts",
-          "line": 20,
-          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-index-ts-20-export-from-agentmessage-tools-ts",
+          "line": 21,
+          "anchor": "packages-tooling-tool-cli-src-commands-agentmessage-index-ts-21-export-from-agentmessage-tools-ts",
           "currentTags": [],
           "missingRequiredTags": [],
           "forbiddenTags": [],
@@ -600443,7 +600465,7 @@
         "srcDir": ".",
         "sourceFileCount": 152,
         "publicModuleCount": 149,
-        "publicExportCount": 965
+        "publicExportCount": 966
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -602503,7 +602525,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 24,
+          "exportCount": 25,
           "remediationStatus": "resolved"
         },
         {
@@ -615489,12 +615511,34 @@
           "remediationStatus": "resolved"
         },
         {
+          "symbolName": "canaryProblems",
+          "exportKind": "const",
+          "filePath": "effected/runner/Gates.ts",
+          "repoPath": "scratchpad/effected/runner/Gates.ts",
+          "line": 292,
+          "anchor": "scratchpad-effected-runner-gates-ts-292-canaryproblems",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
           "symbolName": "compareVersions",
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 314,
-          "anchor": "scratchpad-effected-runner-gates-ts-314-compareversions",
+          "line": 347,
+          "anchor": "scratchpad-effected-runner-gates-ts-347-compareversions",
           "currentTags": [
             "@category",
             "@since"
@@ -615515,8 +615559,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 393,
-          "anchor": "scratchpad-effected-runner-gates-ts-393-editortsgoverdict",
+          "line": 426,
+          "anchor": "scratchpad-effected-runner-gates-ts-426-editortsgoverdict",
           "currentTags": [
             "@category",
             "@since"
@@ -615537,8 +615581,8 @@
           "exportKind": "type",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 405,
-          "anchor": "scratchpad-effected-runner-gates-ts-405-editortsgoverdict",
+          "line": 438,
+          "anchor": "scratchpad-effected-runner-gates-ts-438-editortsgoverdict",
           "currentTags": [
             "@category",
             "@since"
@@ -615559,8 +615603,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 432,
-          "anchor": "scratchpad-effected-runner-gates-ts-432-editortsgoverdict",
+          "line": 465,
+          "anchor": "scratchpad-effected-runner-gates-ts-465-editortsgoverdict",
           "currentTags": [
             "@category",
             "@since"
@@ -615581,8 +615625,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 462,
-          "anchor": "scratchpad-effected-runner-gates-ts-462-check",
+          "line": 495,
+          "anchor": "scratchpad-effected-runner-gates-ts-495-check",
           "currentTags": [
             "@category",
             "@since"
@@ -615603,8 +615647,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 526,
-          "anchor": "scratchpad-effected-runner-gates-ts-526-law-canary",
+          "line": 559,
+          "anchor": "scratchpad-effected-runner-gates-ts-559-law-canary",
           "currentTags": [
             "@category",
             "@since"
@@ -615625,8 +615669,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 542,
-          "anchor": "scratchpad-effected-runner-gates-ts-542-path-laws",
+          "line": 575,
+          "anchor": "scratchpad-effected-runner-gates-ts-575-path-laws",
           "currentTags": [
             "@category",
             "@since"
@@ -615647,8 +615691,8 @@
           "exportKind": "interface",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 551,
-          "anchor": "scratchpad-effected-runner-gates-ts-551-reportscope",
+          "line": 584,
+          "anchor": "scratchpad-effected-runner-gates-ts-584-reportscope",
           "currentTags": [
             "@category",
             "@since"
@@ -615669,8 +615713,8 @@
           "exportKind": "interface",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 563,
-          "anchor": "scratchpad-effected-runner-gates-ts-563-reportverdict",
+          "line": 596,
+          "anchor": "scratchpad-effected-runner-gates-ts-596-reportverdict",
           "currentTags": [
             "@category",
             "@since"
@@ -615691,8 +615735,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 586,
-          "anchor": "scratchpad-effected-runner-gates-ts-586-judgereport",
+          "line": 619,
+          "anchor": "scratchpad-effected-runner-gates-ts-619-judgereport",
           "currentTags": [
             "@category",
             "@since"
@@ -615713,8 +615757,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 673,
-          "anchor": "scratchpad-effected-runner-gates-ts-673-lint",
+          "line": 706,
+          "anchor": "scratchpad-effected-runner-gates-ts-706-lint",
           "currentTags": [
             "@category",
             "@since"
@@ -615735,8 +615779,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 743,
-          "anchor": "scratchpad-effected-runner-gates-ts-743-test",
+          "line": 776,
+          "anchor": "scratchpad-effected-runner-gates-ts-776-test",
           "currentTags": [
             "@category",
             "@since"
@@ -615757,8 +615801,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 801,
-          "anchor": "scratchpad-effected-runner-gates-ts-801-docgen-canary-src",
+          "line": 834,
+          "anchor": "scratchpad-effected-runner-gates-ts-834-docgen-canary-src",
           "currentTags": [
             "@category",
             "@since"
@@ -615779,8 +615823,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 821,
-          "anchor": "scratchpad-effected-runner-gates-ts-821-writedocgenconfig",
+          "line": 854,
+          "anchor": "scratchpad-effected-runner-gates-ts-854-writedocgenconfig",
           "currentTags": [
             "@category",
             "@since"
@@ -615801,8 +615845,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 916,
-          "anchor": "scratchpad-effected-runner-gates-ts-916-docgen",
+          "line": 949,
+          "anchor": "scratchpad-effected-runner-gates-ts-949-docgen",
           "currentTags": [
             "@category",
             "@since"
@@ -615823,8 +615867,8 @@
           "exportKind": "const",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 971,
-          "anchor": "scratchpad-effected-runner-gates-ts-971-gateplan",
+          "line": 1004,
+          "anchor": "scratchpad-effected-runner-gates-ts-1004-gateplan",
           "currentTags": [
             "@category",
             "@since"
@@ -615845,8 +615889,8 @@
           "exportKind": "interface",
           "filePath": "effected/runner/Gates.ts",
           "repoPath": "scratchpad/effected/runner/Gates.ts",
-          "line": 988,
-          "anchor": "scratchpad-effected-runner-gates-ts-988-gateplan",
+          "line": 1021,
+          "anchor": "scratchpad-effected-runner-gates-ts-1021-gateplan",
           "currentTags": [
             "@category",
             "@since"
