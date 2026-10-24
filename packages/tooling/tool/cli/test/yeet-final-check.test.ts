@@ -26,6 +26,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
@@ -415,6 +416,89 @@ it.layer(Layer.mergeAll(BunCrypto.layer, Path.layer), { timeout: "30 seconds" })
           A.findFirst(diffs, Str.includes("moved.test.ts")),
           `git diff --unified=0 --no-color --find-renames=50% ${BASE} HEAD -- old/test/moved.test.ts new/test/moved.test.ts`
         );
+      })
+    );
+  }
+);
+
+// Scripted git for the listing and per-file failure paths of the collector.
+type GitScript = (line: string) => Effect.Effect<ChildProcessSpawner.ChildProcessHandle, PlatformError.PlatformError>;
+const scriptedGit = (script: GitScript) =>
+  ChildProcessSpawner.make((command) =>
+    ChildProcess.isStandardCommand(command)
+      ? script(A.join([command.command, ...command.args], " "))
+      : Effect.die("unexpected pipe")
+  );
+const collectWith = (script: GitScript) =>
+  collectExpectationRewrites("/repo", BASE).pipe(
+    Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, scriptedGit(script))
+  );
+const spawnFailure = PlatformError.systemError({
+  _tag: "NotFound",
+  module: "Command",
+  method: "spawn",
+  pathOrDescriptor: "git",
+  description: "git is not installed",
+});
+
+it.layer(Layer.mergeAll(BunCrypto.layer, Path.layer), { timeout: "30 seconds" })(
+  "collectExpectationRewrites failure paths",
+  (it) => {
+    it.effect("returns nothing when no test file was modified or renamed", () =>
+      Effect.gen(function* () {
+        expect(yield* collectWith(() => Effect.succeed(handle(0)))).toEqual([]);
+      })
+    );
+
+    it.effect("maps a snapshot overflow to its test file and keeps a non-test path as is", () =>
+      Effect.gen(function* () {
+        const rewrites = yield* collectWith((line) =>
+          Effect.succeed(
+            Str.includes("--name-only")(line)
+              ? handle(0, "pkg/test/__snapshots__/render.test.ts.snap\0pkg/notes.snap.txt\0")
+              : Str.includes("--unified=0")(line)
+                ? handle(0, WIDE_DIFF)
+                : handle(0)
+          )
+        );
+        expect(A.map(rewrites, (rewrite) => rewrite.testFile)).toEqual([
+          // Listed paths come back sorted.
+          "pkg/notes.snap.txt",
+          "pkg/test/render.test.ts",
+        ]);
+        expect(A.every(rewrites, (rewrite) => rewrite.removed === EXPECTATION_DIFF_OVERFLOW)).toBe(true);
+      })
+    );
+
+    it.effect("fails with the command when a per-file diff exits non-zero", () =>
+      Effect.gen(function* () {
+        const error = yield* collectWith((line) =>
+          Effect.succeed(
+            Str.includes("--name-only")(line)
+              ? handle(0, "pkg/test/a.test.ts\0")
+              : handle(Str.includes("--unified=0")(line) ? 128 : 0)
+          )
+        ).pipe(Effect.flip);
+        expect(error).toMatchObject({ _tag: "YeetCommandError", exitCode: 128 });
+        expect(error.message).toContain("pkg/test/a.test.ts failed with exit code 128");
+      })
+    );
+
+    it.effect("fails when the rename table cannot be read, is malformed, or exits non-zero", () =>
+      Effect.gen(function* () {
+        const listingOnly = (
+          nameStatus: Effect.Effect<ChildProcessSpawner.ChildProcessHandle, PlatformError.PlatformError>
+        ) =>
+          collectWith((line) => (Str.includes("--name-status")(line) ? nameStatus : Effect.succeed(handle(0)))).pipe(
+            Effect.flip
+          );
+        expect((yield* listingOnly(spawnFailure.pipe(Effect.fail))).message).toContain(
+          "Failed to run git diff --name-status"
+        );
+        expect((yield* listingOnly(Effect.succeed(handle(0, "R090\0only-one-path\0")))).message).toContain(
+          "malformed rename table"
+        );
+        expect((yield* listingOnly(Effect.succeed(handle(1)))).message).toContain("failed with exit code 1");
       })
     );
   }

@@ -329,16 +329,8 @@ const gitFailure = {
     }),
 };
 
-const listingAdapter: GitCommandErrorAdapter<YeetCommandError> = {
-  ...gitFailure,
-  onTruncated: O.some((commandLine) =>
-    YeetCommandError.make({
-      message: `${commandLine} output exceeded the repo-run capture limit.`,
-      command: commandLine,
-      exitCode: 1,
-    })
-  ),
-};
+// The rename table is read raw and unbounded, so truncation cannot occur there.
+const listingAdapter: GitCommandErrorAdapter<YeetCommandError> = { ...gitFailure, onTruncated: O.none() };
 
 // A single file's diff that overflows is a typed outcome, not a failure: the
 // file is replayed whole on the merge base.
