@@ -1150,19 +1150,26 @@ const makeImpl: {
 // shape wider than ConfigFileShape<A>. It cannot see through method-syntax parameter bivariance: a member
 // redeclared as a method with a wider parameter still passes.
 const layer: {
-  <Self, A, I, RR = never, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
+  <
+    Self,
+    A,
+    I,
+    RR = never,
+    S extends ConfigFileShape<A> = ConfigFileShape<A>,
+    const Rs extends ReadonlyArray<ConfigResolver<unknown>> = ReadonlyArray<ConfigResolver<RR>>,
+  >(
     tag: Context.Key<Self, S> &
       Context.Key<Self, ConfigFileShape<A>> &
       ([ConfigFileShape<NoInfer<A>>] extends [S] ? unknown : never),
-    options: ConfigFileOptions<A, I, RR>
-  ): Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path | RR>;
-  <A, I, RR = never>(
-    options: ConfigFileOptions<A, I, RR>
+    options: Omit<ConfigFileOptions<A, I, RR>, "resolvers"> & { readonly resolvers: Rs }
+  ): Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path | RR | Effect.Services<Rs[number]["resolve"]>>;
+  <A, I, RR = never, const Rs extends ReadonlyArray<ConfigResolver<unknown>> = ReadonlyArray<ConfigResolver<RR>>>(
+    options: Omit<ConfigFileOptions<A, I, RR>, "resolvers"> & { readonly resolvers: Rs }
   ): <Self, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
     tag: Context.Key<Self, S> &
       Context.Key<Self, ConfigFileShape<A>> &
       ([ConfigFileShape<NoInfer<A>>] extends [S] ? unknown : never)
-  ) => Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path | RR>;
+  ) => Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path | RR | Effect.Services<Rs[number]["resolve"]>>;
 } = dual(
   2,
   <Self, A, I, RR = never, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
