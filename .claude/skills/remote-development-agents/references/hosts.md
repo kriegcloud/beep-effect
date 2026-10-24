@@ -59,9 +59,19 @@ admission must be recorded separately; do not infer permission to erase its data
 `ssh-dankserver-yubi -tt` is the existing administrative route. It forwards a
 privileged SSH identity and the account belongs to sudo and privileged Docker
 groups. It is **not** an ordinary agent launch route. Read the
-[dankserver control repository](https://github.com/kriegcloud/dankserver), locate
-the operator's existing checkout through the project inventory, and preserve
-its uncommitted changes.
+[dankserver control repository](https://github.com/kriegcloud/dankserver).
+For local checkout discovery, use Codex Desktop's `list_projects` tool and its
+returned project paths when available. If it has no matching local project,
+or the tool is unavailable, use bounded directory discovery:
+
+```sh
+find "$HOME" -maxdepth 4 -type d -name dankserver -print
+```
+
+Verify a candidate's Git origin identifies `kriegcloud/dankserver`, then inspect
+its `git status --short` and preserve existing changes. If no matching checkout
+is found, or several match, ask the operator which existing checkout to use;
+do not create a replacement clone or modify an unverified candidate.
 
 Use `ssh-dankserver-worker` for ordinary work, without an agent forwarded.
 If the dedicated workstation SSH agent is missing after a session restart,
