@@ -828,6 +828,7 @@ describe("yeet merge readiness", () => {
     ["mergeable", { mergeable: "CONFLICTING" }],
     ["merge-state-acceptable", { mergeStateStatus: "BLOCKED" }],
     ["review-decision-acceptable", { reviewDecision: "CHANGES_REQUESTED" }],
+    ["review-decision-acceptable", { reviewDecision: "UNKNOWN" }],
   ] as const)("blocks on %s when that live pull request surface is unsatisfied", (criterion, fields) => {
     const mergeReady = deriveYeetMergeReady(
       closeoutArtifact(0, O.some("5/5")),

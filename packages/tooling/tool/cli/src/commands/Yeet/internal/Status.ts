@@ -1440,7 +1440,9 @@ const readRemotePullRequest = Effect.fn("YeetStatus.readRemotePullRequest")(func
       onFailure: (failure) => YeetCommandError.new(failure, "Failed to read PR status through GitHub REST."),
     });
     return yield* decodeGhStatusPullRequest(output).pipe(
-      Effect.asSome,
+      // REST PR metadata has no review decision. Null from the projection
+      // means unread here, whereas GraphQL null means no decision is required.
+      Effect.map((view) => O.some({ ...view, reviewDecision: "UNKNOWN" })),
       Effect.mapError(YeetCommandError.new("Failed to decode GitHub REST PR status."))
     );
   }).pipe(

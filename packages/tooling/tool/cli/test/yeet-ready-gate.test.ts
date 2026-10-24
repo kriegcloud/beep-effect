@@ -749,6 +749,25 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
     })
   );
 
+  it.effect("keeps an unread REST review decision unknown and blocks merge readiness", () =>
+    Effect.gen(function* () {
+      const snapshot = yield* collectYeetStatus(context, true).pipe(
+        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, fallbackRunner(restFound))
+      );
+      expect(snapshot.remote.available).toBe(true);
+      expect(snapshot.remote.reviewDecision).toBe("UNKNOWN");
+      const mergeReady = snapshot.mergeReady;
+      assertSome(
+        O.map(mergeReady, (value) => value.criteria.reviewDecisionAcceptable),
+        false
+      );
+      assertSome(
+        O.map(mergeReady, (value) => value.ready),
+        false
+      );
+    })
+  );
+
   it.effect("reports absence only after REST successfully confirms no branch PR", () =>
     Effect.gen(function* () {
       const snapshot = yield* collectYeetStatus(context, true).pipe(
