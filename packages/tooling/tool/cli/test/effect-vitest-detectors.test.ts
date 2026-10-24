@@ -1941,6 +1941,7 @@ it.layer(NodeServices.layer)((it) => {
         'it.effect("same effect layer", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(L.effect(StoreA, openA(dataDir)))); yield* b.pipe(Fx.provide(L.effect(StoreA, openA(dataDir)))); }));',
         'it.effect("store path binding", () => Fx.gen(function* () { const root = yield* makeDataDir; const target = path.join(root, "a"); yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir: target }))); yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir: target }))); }));',
         `${scoped} it.effect("carry", Fx.fnUntraced(function* () { const carried = yield* makeOut; yield* first.pipe(provideScopedLayer(Store.makeLayer({ dataDir: path.join(carried, "kg") }))); yield* second.pipe(provideScopedLayer(Store.makeLayer({ dataDir: path.join(carried, "kg") }))); }));`,
+        'it.effect("outer binding", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* Fx.gen(function* () { yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }); yield* Fx.gen(function* () { yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }); }));',
       ]) {
         deepStrictEqual(yield* provisions(body), []);
       }
@@ -1991,6 +1992,26 @@ it.layer(NodeServices.layer)((it) => {
         ],
         [
           'it.effect("different stores", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); yield* b.pipe(Fx.provide(Cache.makeLayer({ dataDir }))); }));',
+          2,
+        ],
+        [
+          'it.effect("nested scopes", () => Fx.gen(function* () { yield* Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }); yield* Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }); }));',
+          2,
+        ],
+        [
+          'it.effect("sibling blocks", () => Fx.gen(function* () { { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); } { const dataDir = yield* makeDataDir; yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); } }));',
+          2,
+        ],
+        [
+          'it.effect("nested derived paths", () => Fx.gen(function* () { yield* Fx.gen(function* () { const root = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir: path.join(root, "kg") }))); }); yield* Fx.gen(function* () { const root = yield* makeDataDir; yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir: path.join(root, "kg") }))); }); }));',
+          2,
+        ],
+        [
+          'it.effect("nested effect layers", () => Fx.gen(function* () { yield* Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(L.effect(StoreA, openA(dataDir)))); }); yield* Fx.gen(function* () { const dataDir = yield* makeDataDir; yield* b.pipe(Fx.provide(L.effect(StoreA, openA(dataDir)))); }); }));',
+          2,
+        ],
+        [
+          `${scoped} it.effect("nested run layers", () => Fx.gen(function* () { yield* Fx.gen(function* () { const out = yield* makeOut; const layer = makeRunLayer(manifest, out); yield* run.pipe(provideScopedLayer(layer)); }); yield* Fx.gen(function* () { const out = yield* makeOut; const layer = makeRunLayer(manifest, out); yield* replay.pipe(provideScopedLayer(layer)); }); }));`,
           2,
         ],
       ] as const) {

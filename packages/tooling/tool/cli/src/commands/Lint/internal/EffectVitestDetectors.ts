@@ -1867,7 +1867,13 @@ const storeEvidence = (
     });
   });
 
-type LifecycleKey = { readonly key: MorphNode | string; readonly evidence: ReadonlyArray<MorphNode | string> };
+// A store-reading factory argument: its normalized text plus the test-body declarations its identifiers resolve
+// to, so same-named bindings in nested or sibling scopes (two `const dataDir`) stay distinct stores (#2196).
+type ArgumentEvidence = { readonly text: string; readonly bindings: ReadonlyArray<MorphNode> };
+
+type StoreEvidence = MorphNode | ArgumentEvidence;
+
+type LifecycleKey = { readonly key: MorphNode | string; readonly evidence: ReadonlyArray<StoreEvidence> };
 
 // Generic constructors name no store themselves: `Layer.effect(StoreA, openA(dir))` and
 // `Layer.effect(StoreB, openB(dir))` are different layers, so their key is the whole normalized call.
@@ -1875,15 +1881,18 @@ const GENERIC_LAYER_CONSTRUCTORS = ["succeed", "sync", "effect", "scoped", "unwr
 
 const normalizedText = (node: MorphNode): string => Str.replace(/\s+/gu, "")(node.getText());
 
-// A factory argument names its store by its whole expression, so `path.join(root, "a")` and
-// `path.join(root, "b")` stay distinct; object arguments compare property by property.
+// A factory argument names its store by its whole expression bound to its declarations, so
+// `path.join(root, "a")` and `path.join(root, "b")` stay distinct, and so do two `dataDir` bindings declared
+// in different scopes; object arguments compare property by property.
 const argumentStoreEvidence = (
   argument: MorphNode,
   callback: EffectVitestFunctionNode,
   imports: EffectVitestImports
-): ReadonlyArray<string> =>
+): ReadonlyArray<ArgumentEvidence> =>
   A.flatMap(Node.isObjectLiteralExpression(argument) ? argument.getProperties() : [argument], (part) =>
-    A.isReadonlyArrayNonEmpty(storeEvidence(part, callback, imports, [])) ? [normalizedText(part)] : []
+    A.isReadonlyArrayNonEmpty(storeEvidence(part, callback, imports, []))
+      ? [{ text: normalizedText(part), bindings: testBodyBindings(part, callback, imports) }]
+      : []
   );
 
 // The constructors a provided layer builds: a test-body layer binding (and what it builds), a project
@@ -1929,8 +1938,18 @@ const lifecycleKeys = (
   ];
 };
 
+// Identity, not `Equal`: structural equality over ts-morph nodes walks the whole tree.
+const sameBindings = (left: ReadonlyArray<MorphNode>, right: ReadonlyArray<MorphNode>): boolean =>
+  left.length === right.length && A.every(left, (binding, index) => binding === right[index]);
+
+const sameEvidence = (left: StoreEvidence, right: StoreEvidence): boolean =>
+  Node.isNode(left) || Node.isNode(right)
+    ? left === right
+    : left.text === right.text && sameBindings(left.bindings, right.bindings);
+
 const sharesLifecycle = (left: LifecycleKey, right: LifecycleKey): boolean =>
-  left.key === right.key && A.some(left.evidence, (value) => A.some(right.evidence, (other) => other === value));
+  left.key === right.key &&
+  A.some(left.evidence, (value) => A.some(right.evidence, (other) => sameEvidence(value, other)));
 
 // `it.layer` builds one layer per block. A test that provides the same layer binding or factory twice over
 // one test-body store value (open, close, reopen one store) owns several lifecycles `it.layer` cannot express.
