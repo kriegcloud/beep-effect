@@ -243,7 +243,7 @@
         ".claude/skills/operator-handoff",
         ".agents/skills/operator-handoff"
       ],
-      "installedTreeHash": "6db40c3bcb61e3012aaaa1a1f94ea4ce1edb6b8c9900d74ffe81786fc798bde4"
+      "installedTreeHash": "a660f7653a61dcd703912169f16e6354489d8852c76a1cc654be5754839432a0"
     },
     "oracle": {
       "_tag": "vendored",
@@ -328,7 +328,7 @@
         ".claude/skills/orchestrate",
         ".agents/skills/orchestrate"
       ],
-      "installedTreeHash": "f03218e2fa297ea13980b1b81836f9567356f71ad8facd0f70e7bef82503010d"
+      "installedTreeHash": "3aff17be9207bd99a740d0ecee9d1877a68c3cb3dacbb544bf41ed5c74a86060"
     },
     "plasma-sensitive-entry": {
       "_tag": "local",

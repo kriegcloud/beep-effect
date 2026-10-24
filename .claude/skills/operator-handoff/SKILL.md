@@ -34,12 +34,15 @@ Do these in order, without asking the operator anything:
 1. Read `~/.cache/beep/orchestrator/HANDOFF.md` whole, then
    `tail -40 ~/.cache/beep/orchestrator/STATE.md`. The handoff is the brief:
    rulings in force (verbatim, dated), the gate snapshot, outstanding
-   "final" promises, pending operator decisions, ordered next actions,
+   "final" promises, pending operator decisions, operator-hands items,
+   ordered next actions,
    recipes, register rows, communication routes and broadcast text.
 2. Load the [orchestrate skill](../orchestrate/SKILL.md) and follow its
-   Take-over steps 3–8: register list, `gate.sh`, compare with the snapshot,
-   claim the role (`bun run beep session note --role orchestrator --state
-   open --next "<first action>"`), append `took over from <id>` to `STATE.md`.
+   Take-over steps 3–5: register list, `gate.sh` compared with the snapshot,
+   then claim the role (`bun run beep session note --role orchestrator
+   --state open --next "<first action>"`) and append `took over from <id>`
+   to `STATE.md`. Its steps 6–8 (broadcast, re-arm pollers, write the
+   header) are steps 5, 4 and 7 below; run them once, from here.
 3. If the gate clone's CLI fails to load a module after main moved, run
    `bun install --frozen-lockfile` there first.
 4. Re-arm what died with the predecessor. Use the commands in the handoff's
@@ -53,7 +56,8 @@ Do these in order, without asking the operator anything:
    survived; re-arm only the missing ones.
 5. Send the handoff's "Broadcast" text only to units the "Communication
    routes" table marks as authorized contacts, through the route recorded
-   there. A session id, register row or this skill's invocation does not
+   there. That column is where the holder records the operator's
+   coordination authorization for each unit. A session id, register row or this skill's invocation does not
    establish messaging permission, and a Claude Desktop attachment is a
    separate qualification: use a `local_…` Desktop route only where the table
    authorizes it. Record every other unit as unreachable in the handoff and
@@ -66,14 +70,15 @@ Do these in order, without asking the operator anything:
    episode, relay `MERGED` and retire lanes.
 7. Rewrite the `HANDOFF.md` header with this session's id and time, then
    give the operator a five-line status: role claimed, open PRs by owner,
-   anything waiting on the operator's hands, main health, first action.
+   the handoff's operator-hands items, main health, first action.
 
 ## 3. Hand-off (holding session)
 
-Run the orchestrate skill's Hand-off step 1 (convert in-process units) and
-step 5 (announce the move) as written. The list below replaces its steps 2–4
-and 6: no successor id exists yet, so the operator starts the successor and
-this session goes idle only after the successor's claim appears.
+Run the orchestrate skill's Hand-off step 1 (convert in-process units) as
+written. The list below replaces its steps 2–6: no successor id exists while
+you hand off, so the operator starts the successor, the successor broadcasts
+the move (Take-over step 5 above), and this session goes idle only after the
+successor's claim appears.
 
 1. Convert everything in-process: `Monitor` tasks and background Bash pollers
    die with the session. Record their exact commands in the handoff's
@@ -83,7 +88,7 @@ this session goes idle only after the successor's claim appears.
    [the template](../orchestrate/HANDOFF.template.md), backing up the old file
    first. Fill every template section: verbatim dated rulings, a fresh
    `gate.sh` snapshot, outstanding "final" promises (with owner addresses),
-   pending operator decisions and operator-hands items, ordered next actions,
+   pending operator decisions, operator-hands items, ordered next actions,
    recipes (gate arming, monitors, workers), the live register rows,
    communication routes with their authorized-contact column, and the
    broadcast text.
@@ -91,8 +96,10 @@ this session goes idle only after the successor's claim appears.
    --role member --state blocked --next "handing off the orchestrator role;
    successor: next session that runs /operator-handoff"`.
 4. Tell the operator: start a new session in this repository and type
-   `/operator-handoff`. That session claims the role. Go idle after its
-   claim appears in `session open`; forward anything that still reaches you.
+   `/operator-handoff`. That session claims the role and sends the
+   broadcast. Once its claim appears in `session open`, go idle: stop your
+   monitors, reply to anything that still reaches you with the successor's
+   id, and forward it there.
 
 ## Guardrails
 
