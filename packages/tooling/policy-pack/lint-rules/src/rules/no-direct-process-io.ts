@@ -11,6 +11,7 @@ import * as O from "effect/Option";
 import {
   getPropertyName,
   isIdentifier,
+  makeIdentifierShadowTracker,
   pathMatchesSuffix,
   toRepoPath,
   unwrapExpression,
@@ -60,27 +61,16 @@ export const noDirectProcessIo = defineRule({
   },
   createOnce(context) {
     const path = () => toRepoPath(context.filename, context.cwd);
-    const scopes: Array<{ process: boolean; bun: boolean }> = [{ process: false, bun: false }];
-    const currentScope = () => scopes[scopes.length - 1] ?? { process: false, bun: false };
-    const shadowed = (name: "process" | "bun"): boolean => A.some(scopes, (scope) => scope[name]);
-    const pushScope = (params: ReadonlyArray<ESTree.ParamPattern>) => {
-      scopes.push({
-        process: A.some(params, (param) => param.type === "Identifier" && param.name === "process"),
-        bun: A.some(params, (param) => param.type === "Identifier" && param.name === "Bun"),
-      });
-    };
-    const popScope = () => {
-      if (scopes.length > 1) scopes.pop();
-    };
+    const shadow = makeIdentifierShadowTracker(["process", "Bun"]);
     const member = (node: MaybeNode, name: string): O.Option<AstNode> =>
       O.flatMap(unwrapMemberExpression(node), (access) =>
         O.exists(getPropertyName(access.property), (property) => property === name) ? access.object : O.none()
       );
     const globalProcess = (node: MaybeNode): boolean =>
-      (isIdentifier("process")(unwrapExpression(node)) && !shadowed("process")) ||
+      (isIdentifier("process")(unwrapExpression(node)) && !shadow.isShadowed("process")) ||
       O.exists(member(node, "process"), (object) => isIdentifier("globalThis")(unwrapExpression(object)));
     const globalBun = (node: MaybeNode): boolean =>
-      (isIdentifier("Bun")(unwrapExpression(node)) && !shadowed("bun")) ||
+      (isIdentifier("Bun")(unwrapExpression(node)) && !shadow.isShadowed("Bun")) ||
       O.exists(member(node, "Bun"), (object) => isIdentifier("globalThis")(unwrapExpression(object)));
     const processStream = (node: MaybeNode): O.Option<string> =>
       O.flatMap(unwrapMemberExpression(node), (access) =>
@@ -106,22 +96,8 @@ export const noDirectProcessIo = defineRule({
     };
 
     return {
-      before() {
-        scopes.length = 0;
-        scopes.push({ process: false, bun: false });
-      },
-      FunctionDeclaration: (node) => pushScope(node.params),
-      "FunctionDeclaration:exit": popScope,
-      FunctionExpression: (node) => pushScope(node.params),
-      "FunctionExpression:exit": popScope,
-      ArrowFunctionExpression: (node) => pushScope(node.params),
-      "ArrowFunctionExpression:exit": popScope,
-      VariableDeclarator(node) {
-        if (node.id.type === "Identifier") {
-          if (node.id.name === "process") currentScope().process = true;
-          if (node.id.name === "Bun") currentScope().bun = true;
-        }
-      },
+      before: shadow.reset,
+      ...shadow.visitors,
       CallExpression(node) {
         if (!productionTypeScript(path())) return;
         if (O.exists(member(node.callee, "exit"), globalProcess)) report(node, "process.exit");
