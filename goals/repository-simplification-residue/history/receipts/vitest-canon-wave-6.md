@@ -156,11 +156,14 @@ No exception was added. These rows stay open, each with a counterexample.
    whole body, and `detectResourceWrapper` fires (`isWholeBodyCall`). The wrapper gives
    each test its own temp checkout or working directory, and a shared layer would break
    that isolation. The migration was reverted rather than trade EV002 rows for new EV003
-   rows (S31). Proposed repair, for wave 5's EV003 ruling: classify a whole-body wrapper
-   that acquires and releases a per-test temp root as deliberate per-test isolation. Then
-   these 16 EV002 rows can migrate. Paired fixtures: `inTempCheckout((root) => ...)` as
-   the whole body inside an `it.layer` block (no finding, or an info class), and a wrapper
-   that only provides a shareable layer (EV003, unchanged).
+   rows (S31). Proposed repair, for #1855's EV003 rules: classify a whole-body wrapper as
+   deliberate per-test isolation only when it acquires and releases its own temp root
+   without changing process state. Then the `inTempCheckout` rows can migrate. A wrapper
+   that changes and restores `process.cwd()`, as `withTempWorkingDirectory` does, stays
+   process state under #1855 wave 5's EV003 ruling and keeps its EV003 row. Paired
+   fixtures: `inTempCheckout((root) => ...)` as the whole body inside an `it.layer` block
+   (no finding, or an info class); `withTempWorkingDirectory` (EV003, unchanged); and a
+   wrapper that only provides a shareable layer (EV003, unchanged).
 3. **A detector gap (no open row).** A same-file factory that returns
    `Layer.succeed(Tag, value)` is reported as `unresolved-layer-provide`, while the same
    `Layer.succeed` written inline is accepted as a pure stub. The factory cases in
@@ -186,7 +189,7 @@ same admission. Dependency dists were built first with
 
 | Check | Result |
 | --- | --- |
-| `bun run beep lint effect-vitest` | base `introduced=1` (inherited ConfigFileKeyTyping EV011); a first migration pass `introduced=46`, all from this lane: 16 EV003 rows behind removed provides, 23 EV014 hook timeouts and 6 EV004 whole-body scopes. The EV003 tests were reverted (hand-off 2), and the EV014 and EV004 cases were fixed in place. Final `introduced=0 resolved=0` after `--write`. |
+| `bun run beep lint effect-vitest` | base `introduced=1` (inherited ConfigFileKeyTyping EV011); a first migration pass `introduced=46` in total: the same inherited EV011 plus 45 from this lane (16 EV003 rows behind removed provides, 23 EV014 hook timeouts and 6 EV004 whole-body scopes). The EV003 tests were reverted (hand-off 2), and the EV014 and EV004 cases were fixed in place. Final `introduced=0 resolved=0` after `--write`. |
 | `--write` byte stability | two consecutive writes, identical sha256 `1ee1ffcc...7a857`; 1,114 to 984 rows |
 | Exceptions | 692 before and after, reasons unchanged; 7 `#1855 wave 4 register` exceptions present |
 | `bunx turbo run build --filter=@beep/repo-cli^...` | 62/62 successful |
