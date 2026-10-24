@@ -547,3 +547,26 @@ byte-stable. The only rows that changed are 9 inherited line shifts in
 EV013 ×2). Those come from source edits already on `main` (most recently #2179), not from this change. Only `id`, `line`
 and `endLine` change; status and reasons are untouched. The check reports
 `introduced=0 resolved=0`.
+
+Coverage floors restored: `main` inherited a repo-cli coverage-ratchet red from #2186.
+`EffectVitestDetectors.ts` statements stood at 97.82% against a 97.89% floor, and
+`EffectVitestScan.ts` branches at 95.31% against a 100% floor. A scoped lcov run located
+the uncovered units. In `EffectVitestScan.ts`, the three untaken arms were the non-array
+`include`, the non-literal element, and the not-a-`StringLiteral` arm. In
+`EffectVitestDetectors.ts`, they were the `storeEvidence` / `lifecycleKeys` revisit and
+no-initializer arms. The #2196 additions were already fully covered. New tests:
+- six EV002 cases, through assigned, destructured and repeated test-body bindings: four
+  exempt reopens, and two that stay findings (a reassigned `let` layer and a
+  destructured layer);
+- browser globs: an identifier `include`, a mixed literal and computed `include`,
+  `browser: true`, and a no-substitution template literal;
+- a multi-project config where only the enabled projects contribute;
+- the data-last `retainBrowserSafeFindings` form.
+
+The ratchet (`bun run coverage -- --filter=@beep/repo-cli`, 7,603 tests) reports
+`[coverage-ratchet] ok`, with no baseline file touched:
+
+| File | Lines | Statements | Branches | Functions |
+| --- | --- | --- | --- | --- |
+| `EffectVitestDetectors.ts` | 99.51 | 98.11 | 96.42 | 98.94 |
+| `EffectVitestScan.ts` | 100 | 100 | 100 | 100 |

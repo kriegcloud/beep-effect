@@ -2020,6 +2020,42 @@ it.layer(NodeServices.layer)((it) => {
     })
   );
 
+  it.effect("keys EV002 reopens through uninitialized, destructured and repeated test-body bindings", () =>
+    Effect.gen(function* () {
+      const provisions = Effect.fnUntraced(function* (body: string) {
+        return A.filter(yield* findings(body), (row) => row.ruleId === "EV002").length;
+      });
+      for (const [body, count] of [
+        [
+          'it.effect("assigned store value", () => Fx.gen(function* () { let dataDir: string; dataDir = yield* makeDataDir; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }));',
+          0,
+        ],
+        [
+          'it.effect("destructured store value", () => Fx.gen(function* () { const { dataDir } = yield* setup; yield* a.pipe(Fx.provide(Store.makeLayer({ dataDir }))); yield* b.pipe(Fx.provide(Store.makeLayer({ dataDir }))); }));',
+          0,
+        ],
+        [
+          'it.effect("one store read twice", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; const layer = L.mergeAll(Store.makeLayer({ dataDir }), Cache.makeLayer({ dataDir })); yield* a.pipe(Fx.provide(layer)); yield* b.pipe(Fx.provide(layer)); }));',
+          0,
+        ],
+        [
+          'it.effect("one binding merged twice", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; const store = Store.makeLayer({ dataDir }); const both = L.merge(store, store); yield* a.pipe(Fx.provide(both)); yield* b.pipe(Fx.provide(both)); }));',
+          0,
+        ],
+        [
+          'it.effect("reassigned layer", () => Fx.gen(function* () { const dataDir = yield* makeDataDir; let layer: L.Layer<Store>; layer = Store.makeLayer({ dataDir }); yield* a.pipe(Fx.provide(layer)); yield* b.pipe(Fx.provide(layer)); }));',
+          2,
+        ],
+        [
+          'it.effect("destructured layer", () => Fx.gen(function* () { const { layer } = yield* setup; yield* a.pipe(Fx.provide(layer)); yield* b.pipe(Fx.provide(layer)); }));',
+          2,
+        ],
+      ] as const) {
+        deepStrictEqual(yield* provisions(body), count);
+      }
+    })
+  );
+
   it.effect("reads browser-mode include globs only from enabled vitest browser projects", () =>
     Effect.gen(function* () {
       const config = (text: string) =>
@@ -2049,9 +2085,28 @@ it.layer(NodeServices.layer)((it) => {
         'export default defineConfig({ test: { exclude: ["test/browser/**"] } });',
         "export default defineConfig({ test: { browser: { enabled: true } } });",
         'const include = ["test/**"]; export default defineConfig({ test: { include, browser: { enabled: true } } });',
+        "export default defineConfig({ test: { include: browserGlobs, browser: { enabled: true } } });",
+        'export default defineConfig({ test: { include: ["test/a.test.ts", dir + "/*.test.ts"], browser: { enabled: true } } });',
+        'export default defineConfig({ test: { include: ["test/**"], browser: true } });',
       ]) {
         deepStrictEqual(browserModeIncludeGlobs(config(text)), []);
       }
+      deepStrictEqual(
+        browserModeIncludeGlobs(
+          config(
+            "export default defineConfig({ test: { include: [`test/browser/**/*.test.ts`], browser: { enabled: true } } });"
+          )
+        ),
+        ["test/browser/**/*.test.ts"]
+      );
+      deepStrictEqual(
+        browserModeIncludeGlobs(
+          config(
+            'export default defineConfig({ test: { projects: [{ test: { include: ["a/**"], browser: { enabled: true } } }, { test: { include: ["b/**"] } }, { test: { include: ["c/**"], browser: { enabled: true } } }] } });'
+          )
+        ),
+        ["a/**", "c/**"]
+      );
     })
   );
 
@@ -2065,6 +2120,8 @@ it.layer(NodeServices.layer)((it) => {
       const browser = retainBrowserSafeFindings(rows, true);
       assertFalse(A.some(browser, (row) => row.ruleId === "EV006"));
       assertTrue(A.some(browser, (row) => row.ruleId === "EV002"));
+      deepStrictEqual(retainBrowserSafeFindings(true)(rows), browser);
+      deepStrictEqual(retainBrowserSafeFindings(false)(rows), rows);
     })
   );
 
