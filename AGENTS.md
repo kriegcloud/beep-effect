@@ -281,6 +281,13 @@ needed only for the escalation list below.
   monitor; hosted CI is the authoritative proof and `yeet verify` is
   on-demand. Never wait on a queued local full proof to publish. One push per
   fully addressed wave, never per file or comment (push-first-publish D1–D11).
+- When local compute is constrained (operator 2026-10-24), push straight to
+  hosted CI instead of queueing: if scheduler admission or a local gate has
+  waited 10 minutes, stop that local run, keep the package-scoped checks that
+  already passed (`quality package-verify`, or lint and check of the touched
+  packages), `git push`, and open the PR with
+  `gh pr create --label ready-for-heavy`. Hosted CI is the proof; record in
+  the PR body which local checks ran and which were skipped.
 - Draft means only "the owner is still pushing". Flip the PR ready with
   `bun run beep yeet ready` as soon as its content is final and cheap gates
   pass; do not wait for hosted heavy CI, which doubles as the review window.
