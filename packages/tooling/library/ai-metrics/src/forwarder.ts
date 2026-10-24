@@ -951,6 +951,52 @@ type ForwarderSourceSelection = {
 const forwarderFailure = (message: string, cause: unknown): AiMetricsForwarderError =>
   AiMetricsForwarderError.make({ cause, message });
 
+/**
+ * Resolve the agent-evidence root the forwarder reads hook pulses from.
+ *
+ * **Details**
+ *
+ * `BEEP_AGENT_EVIDENCE_ROOT` wins when it is non-empty; otherwise the root is
+ * `beep/agent-evidence` beneath the XDG state home, which is
+ * `$XDG_STATE_HOME`, else `.local/state` under `homeDir`. The same precedence
+ * as the hook writers' `${BEEP_AGENT_EVIDENCE_ROOT:-${XDG_STATE_HOME:-$HOME/.local/state}/beep/agent-evidence}`.
+ *
+ * **Example** (Resolve beneath the home directory)
+ *
+ * ```ts
+ * import { resolveForwarderEvidenceRoot } from "@beep/repo-ai-metrics"
+ * import * as ConfigProvider from "effect/ConfigProvider"
+ * import * as Effect from "effect/Effect"
+ * import * as Path from "effect/Path"
+ *
+ * const root = resolveForwarderEvidenceRoot("/home/dev").pipe(
+ *   Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({})),
+ *   Effect.provide(Path.layer)
+ * )
+ * console.log(Effect.runSync(root)) // /home/dev/.local/state/beep/agent-evidence
+ * ```
+ *
+ * @param homeDir - The home directory the forwarder run was given.
+ * @returns The agent-evidence root.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const resolveForwarderEvidenceRoot = Effect.fn("AiMetrics.resolveForwarderEvidenceRoot")(function* (
+  homeDir: string
+) {
+  const pathApi = yield* Path.Path;
+  const stateHome = yield* Config.String("XDG_STATE_HOME").pipe(
+    Config.withDefault(pathApi.join(homeDir, ".local/state")),
+    Effect.map((value) => (value === "" ? pathApi.join(homeDir, ".local/state") : value)),
+    Effect.mapError((cause) => forwarderFailure("Cannot resolve XDG state home.", cause))
+  );
+  return yield* Config.String("BEEP_AGENT_EVIDENCE_ROOT").pipe(
+    Config.withDefault(agentEvidenceRoot(stateHome)),
+    Effect.map((value) => (value === "" ? agentEvidenceRoot(stateHome) : value)),
+    Effect.mapError((cause) => forwarderFailure("Cannot resolve hook evidence root.", cause))
+  );
+});
+
 const requireForwarderHashSalt = Effect.fn("AiMetrics.forwarder.requireHashSalt")(function* (
   input: AiMetricsForwarderInput
 ) {
@@ -1457,16 +1503,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
     // Session-time stamps stay separate from the ingest-time snapshot. Unknown
     // or mixed stamps remain absent; backfill never receives today's regime.
     const fs = yield* FileSystem.FileSystem;
-    const stateHome = yield* Config.String("XDG_STATE_HOME").pipe(
-      Config.withDefault(pathApi.join(input.homeDir, ".local/state")),
-      Effect.map((value) => (value === "" ? pathApi.join(input.homeDir, ".local/state") : value)),
-      Effect.mapError((cause) => forwarderFailure("Cannot resolve XDG state home.", cause))
-    );
-    const evidenceRoot = yield* Config.String("BEEP_AGENT_EVIDENCE_ROOT").pipe(
-      Config.withDefault(agentEvidenceRoot(stateHome)),
-      Effect.map((value) => (value === "" ? agentEvidenceRoot(stateHome) : value)),
-      Effect.mapError((cause) => forwarderFailure("Cannot resolve hook evidence root.", cause))
-    );
+    const evidenceRoot = yield* resolveForwarderEvidenceRoot(input.homeDir);
     const stampGaps = yield* readStampGaps(evidenceRoot).pipe(Effect.option);
     const hookDir = hookPulseLedgerDir(evidenceRoot);
     const shardListing = yield* fs.readDirectory(hookDir).pipe(Effect.option);

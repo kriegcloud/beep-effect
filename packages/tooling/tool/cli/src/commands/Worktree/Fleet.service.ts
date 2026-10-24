@@ -1246,8 +1246,36 @@ const deriveCheckout = Effect.fn("Fleet.deriveCheckout")(function* (
 
 const homeDirectory = (): O.Option<string> => configStringOptionSync("HOME");
 
+/**
+ * The cache root the fleet scanner clone lives beneath (`beep/fleet-scanner` under it).
+ *
+ * **Details**
+ *
+ * `$XDG_CACHE_HOME` when set, else `.cache` under the home directory. `None`
+ * sends the scanner to `.beep-fleet-scanner` under the fleet root instead.
+ *
+ * **Example** (Fall back to the home cache)
+ *
+ * ```ts
+ * import { fleetScannerCacheRoot } from "@beep/repo-cli/commands/Worktree"
+ * import * as O from "effect/Option"
+ *
+ * const root = fleetScannerCacheRoot({ xdgCacheHome: O.none(), homeDir: O.some("/home/dev") })
+ * console.log(O.getOrNull(root)) // /home/dev/.cache
+ * ```
+ *
+ * @param input - The `XDG_CACHE_HOME` value and the home directory, each when known.
+ * @returns The cache root, when one resolves.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const fleetScannerCacheRoot = (input: {
+  readonly xdgCacheHome: O.Option<string>;
+  readonly homeDir: O.Option<string>;
+}): O.Option<string> => O.orElse(input.xdgCacheHome, () => O.map(input.homeDir, (home) => `${home}/.cache`));
+
 const cacheDirectory = (homeDir: O.Option<string>): O.Option<string> =>
-  O.orElse(configStringOptionSync("XDG_CACHE_HOME"), () => O.map(homeDir, (home) => `${home}/.cache`));
+  fleetScannerCacheRoot({ xdgCacheHome: configStringOptionSync("XDG_CACHE_HOME"), homeDir });
 
 type FleetScope = {
   readonly fleetRoot: string;

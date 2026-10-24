@@ -396,7 +396,28 @@ export const harnessLedgerListCommand = Command.make(
 // prune-proposals
 // ---------------------------------------------------------------------------
 
-const resolveHookPulseDir = Effect.gen(function* () {
+/**
+ * Resolve the hook-pulse ledger directory `prune-proposals` reads when no `--state-dir` is passed.
+ *
+ * **Details**
+ *
+ * `BEEP_AGENT_EVIDENCE_ROOT` wins when it is non-empty; otherwise the
+ * directory hangs beneath the XDG state home's `beep/agent-evidence`. Fails
+ * with a `HarnessLedgerInputError` naming `--state-dir` when neither resolves.
+ *
+ * **Example** (Build the resolution effect)
+ *
+ * ```ts
+ * import { resolveHookPulseDir } from "@beep/repo-cli/commands/HarnessLedger"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(resolveHookPulseDir)) // true
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const resolveHookPulseDir = Effect.gen(function* () {
   const configuredRoot = optionalNonEmpty(yield* Config.option(Config.String("BEEP_AGENT_EVIDENCE_ROOT")));
   if (O.isSome(configuredRoot)) {
     return hookPulseLedgerDir(configuredRoot.value);

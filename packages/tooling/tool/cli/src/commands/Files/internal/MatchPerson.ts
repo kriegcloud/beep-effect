@@ -481,18 +481,49 @@ const canonicalizeExistingDirectory = Effect.fn("Files.matchPersonCanonicalizeDi
   return canonical;
 });
 
-const resolveCacheRoot = Effect.fn("Files.matchPersonResolveCacheRoot")(function* (
+/**
+ * Select the person-match cache directory before it is canonicalized.
+ *
+ * **Details**
+ *
+ * `--cache-dir` (resolved against the working directory) wins; then
+ * `beep/photo-face` beneath `$XDG_CACHE_HOME`; then `.cache/beep/photo-face`
+ * beneath `$HOME`, or `%USERPROFILE%` when `HOME` is unset. Values are
+ * trimmed, and a blank one counts as unset. `None` means nothing resolves.
+ *
+ * **Example** (Build the selection effect)
+ *
+ * ```ts
+ * import { selectPersonMatchCacheRoot } from "@beep/repo-cli/test/Files"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ *
+ * console.log(Effect.isEffect(selectPersonMatchCacheRoot(O.none()))) // true
+ * ```
+ *
+ * @param configured - The `--cache-dir` value, when passed.
+ * @returns The selected cache directory, when one resolves.
+ * @category configuration
+ * @since 0.0.0
+ */
+export const selectPersonMatchCacheRoot = Effect.fn("Files.matchPersonSelectCacheRoot")(function* (
   configured: O.Option<string>
-): Effect.fn.Return<string, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+): Effect.fn.Return<O.Option<string>, never, Path.Path> {
   const path = yield* Path.Path;
   const xdgCacheHome = yield* readOptionalConfig("XDG_CACHE_HOME");
   const home = yield* readConfiguredHome();
-  const selected = pipe(
+  return pipe(
     configured,
     O.map(path.resolve),
     O.orElse(() => O.map(xdgCacheHome, (root) => path.join(root, "beep", "photo-face"))),
     O.orElse(() => O.map(home, (root) => path.join(root, ".cache", "beep", "photo-face")))
   );
+});
+
+const resolveCacheRoot = Effect.fn("Files.matchPersonResolveCacheRoot")(function* (
+  configured: O.Option<string>
+): Effect.fn.Return<string, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const selected = yield* selectPersonMatchCacheRoot(configured);
 
   if (O.isNone(selected)) {
     return yield* FilesCommandError.make({
