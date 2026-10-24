@@ -44,6 +44,40 @@
       "command": "/goal follow the instructions in goals/effected-promotion/GOAL.md"
     }
   ],
+  "opsScripts": [
+    {
+      "path": "ops/config-file-codec-differential.ts",
+      "purpose": "Wave 3-3 differential: @beep/config-file JSONC, YAML and TOML codecs against the npm parser oracles over every tracked config file."
+    },
+    {
+      "path": "ops/github-reporting-gfm-differential.ts",
+      "purpose": "Wave 3-1 oracle: GitHubMarkdown writer output rendered through micromark GFM and checked for the promised table and inline structure."
+    },
+    {
+      "path": "ops/lockfiles-bench.ts",
+      "purpose": "Wave 3-5 bench gate: Lockfile.parse and withImporterNames cost on fixed corpora, compared against a baseline report."
+    },
+    {
+      "path": "ops/lockfiles-oracle.ts",
+      "purpose": "Wave 3-5 oracle: the root bun.lock read by Lockfile.parse against bun pm ls, plus the fixture corpus."
+    },
+    {
+      "path": "ops/markdown-bench.ts",
+      "purpose": "Wave 2d bench gate: @beep/markdown parse and stringify cost on fixed corpora, compared against a baseline report."
+    },
+    {
+      "path": "ops/package-json-corpus.ts",
+      "purpose": "Wave 3-4 census: every tracked package.json through each @beep/package-json tier and npm name validation."
+    },
+    {
+      "path": "ops/repo-tsconfig-differential.ts",
+      "purpose": "Wave 3-2 differential: TsconfigLoader.resolve against tsc --showConfig, optionally three-way with get-tsconfig."
+    },
+    {
+      "path": "ops/xdg-systemd-differential.ts",
+      "purpose": "Wave 4-X differential: @beep/xdg base and search directories against systemd-path over an environment matrix."
+    }
+  ],
   "provides": [],
   "requires": [],
   "phases": [

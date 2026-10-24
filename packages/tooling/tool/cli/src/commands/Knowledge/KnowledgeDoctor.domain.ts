@@ -355,6 +355,19 @@ export const makeKnowledgeGoalPacketReader = (
         )
       );
     },
+    opsFiles: (packetPath) => {
+      const prefix = `${packetPath}/`;
+      return Effect.succeed(
+        A.sort(
+          A.getSomes(
+            A.map(oracle.trackedEntries, (entry) =>
+              pipe(O.liftPredicate(entry.path, Str.startsWith(`${prefix}ops/`)), O.map(Str.slice(Str.length(prefix))))
+            )
+          ),
+          Order.String
+        )
+      );
+    },
     readReflection: (packetPath, file) => readText(oracle, `${packetPath}/${REFLECTIONS_DIR}/${file}`),
     explorationPath: (exploration) =>
       Effect.succeed(

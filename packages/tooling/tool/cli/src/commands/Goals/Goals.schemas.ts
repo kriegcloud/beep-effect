@@ -1352,6 +1352,79 @@ const GoalProposedCloseoutCheck = S.makeFilter(
 );
 
 /**
+ * Packet-relative path of one registered goal ops script.
+ *
+ * **Details**
+ *
+ * The path starts with `ops/` and every segment starts with a letter, digit,
+ * underscore or hyphen, so `..`, hidden files and absolute spellings never
+ * decode: a registered script always lies inside the packet's `ops/` tree.
+ *
+ * **Example** (Validate an ops script path)
+ *
+ * ```ts
+ * import { GoalOpsScriptPath } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(GoalOpsScriptPath)("ops/bench.ts")) // true
+ * console.log(S.is(GoalOpsScriptPath)("ops/../SPEC.md")) // false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalOpsScriptPath = S.String.check(
+  S.isPattern(
+    /^ops(?:\/[A-Za-z0-9_-][A-Za-z0-9._-]*)+$/,
+    $I.annote("GoalOpsScriptPathPatternCheck", {
+      title: "Goal Ops Script Path Pattern",
+      description: "A packet-relative path under ops/ whose segments never start with a dot.",
+      message: "Expected a packet-relative path under ops/ with no dot-leading segment",
+    })
+  )
+).pipe(
+  $I.annoteSchema("GoalOpsScriptPath", {
+    description: "Packet-relative path of one registered goal ops script, always inside ops/.",
+  })
+);
+
+/**
+ * One registered goal ops script: its packet-relative path and purpose.
+ *
+ * **Details**
+ *
+ * `opsScripts` on {@link GoalManifest} lists every script a packet keeps under
+ * `ops/` (differentials, oracles, corpora, benches). When a manifest declares
+ * the list, `beep goals doctor` checks it both ways: every listed path exists
+ * and every `*.ts` file under `ops/` is listed.
+ *
+ * **Example** (Register an ops script)
+ *
+ * ```ts
+ * import { GoalOpsScript } from "@beep/repo-cli/commands/Goals/Goals.schemas"
+ *
+ * const script = GoalOpsScript.make({
+ *   path: "ops/markdown-bench.ts",
+ *   purpose: "Counts parser operations for the markdown promotion bench.",
+ * })
+ * console.log(script.path) // "ops/markdown-bench.ts"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GoalOpsScript extends S.Opaque<GoalOpsScript, { readonly brand: unique symbol }>()(
+  S.Struct({
+    path: GoalOpsScriptPath,
+    purpose: S.NonEmptyString,
+  }).pipe(
+    $I.annoteSchema("GoalOpsScript", {
+      description: "One registered goal ops script with its packet-relative path and one-line purpose.",
+    })
+  )
+) {}
+
+/**
  * Canonical goal-packet manifest (`initiative-manifest/v2`).
  *
  * **Details**
@@ -1404,6 +1477,7 @@ export class GoalManifest extends S.Opaque<GoalManifest, { readonly brand: uniqu
     claimedAt: S.optionalKey(S.String),
     discoveredFrom: S.optionalKey(S.String),
     phases: S.Union([S.Array(GoalPhase), S.Record(S.String, GoalPhase)]).pipe(S.optionalKey),
+    opsScripts: S.Array(GoalOpsScript).pipe(S.optionalKey),
     provides: CapabilitySlugList,
     requires: CapabilitySlugList,
   })

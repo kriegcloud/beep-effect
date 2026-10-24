@@ -781,6 +781,8 @@ const VALIDATION_REQUIREMENTS_BY_FINDING_KIND: Readonly<
   "capability-packet-id-mismatch": ["manifest-decodes", "doctor-clean"],
   "capability-reference-provides": ["doctor-clean"],
   "capability-stranded": [],
+  "ops-script-missing": ["doctor-clean"],
+  "ops-script-unregistered": ["doctor-clean"],
 };
 
 /**

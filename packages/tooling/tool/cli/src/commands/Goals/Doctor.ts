@@ -134,6 +134,8 @@ export const GoalDoctorFindingKind = LiteralKit([
   "capability-packet-id-mismatch",
   "capability-reference-provides",
   "capability-stranded",
+  "ops-script-missing",
+  "ops-script-unregistered",
 ]).pipe(
   $I.annoteSchema("GoalDoctorFindingKind", {
     description:
@@ -363,12 +365,16 @@ export type GoalExplorationPathState = typeof GoalExplorationPathState.Type;
  * the knowledge doctor reads one Git tree through its own reader, so both report the same packet
  * findings from the same {@link goalPacketFindings} core. `reflectionFiles` lists the file names
  * directly under `<packetPath>/history/reflections` (empty when the directory is absent).
+ * `opsFiles` lists every file under `<packetPath>/ops`, at any depth, as a packet-relative
+ * `ops/...` path (empty when the directory is absent); it is read only for a manifest that
+ * declares `opsScripts`.
  *
  * @category services
  * @since 0.0.0
  */
 export interface GoalPacketReader<E, R> {
   readonly explorationPath: (exploration: string) => Effect.Effect<GoalExplorationPathState, E, R>;
+  readonly opsFiles: (packetPath: string) => Effect.Effect<ReadonlyArray<string>, E, R>;
   readonly readReflection: (packetPath: string, file: string) => Effect.Effect<string, E, R>;
   readonly reflectionFiles: (packetPath: string) => Effect.Effect<ReadonlyArray<string>, E, R>;
 }
@@ -398,6 +404,23 @@ const filesystemReflectionFiles = Effect.fn("Goals.filesystemReflectionFiles")(f
   return reflectionsDirExists
     ? yield* fs.readDirectory(reflectionsDir).pipe(Effect.orElseSucceed(A.empty<string>))
     : A.empty<string>();
+});
+
+const filesystemOpsFiles = Effect.fn("Goals.filesystemOpsFiles")(function* (packetPath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const opsDir = path.join(packetPath, "ops");
+  const entries = yield* fs.readDirectory(opsDir, { recursive: true }).pipe(Effect.orElseSucceed(A.empty<string>));
+  const files = yield* Effect.filter(entries, (entry) =>
+    fs.stat(path.join(opsDir, entry)).pipe(
+      Effect.map((info) => info.type === "File"),
+      Effect.orElseSucceed(thunkFalse)
+    )
+  );
+  return A.sort(
+    A.map(files, (entry) => `ops/${pipe(entry, Str.split(path.sep), A.join("/"))}`),
+    Order.String
+  );
 });
 
 const filesystemReadReflection = Effect.fn("Goals.filesystemReadReflection")(function* (
@@ -435,6 +458,7 @@ const filesystemReadReflection = Effect.fn("Goals.filesystemReadReflection")(fun
  */
 export const makeGoalPacketFilesystemReader = () => ({
   explorationPath: filesystemExplorationPath,
+  opsFiles: filesystemOpsFiles,
   readReflection: filesystemReadReflection,
   reflectionFiles: filesystemReflectionFiles,
 });
@@ -464,6 +488,43 @@ const reflectionArtifactFindings = Effect.fn("Goals.reflectionArtifactFindings")
     }
   }
   return findings;
+});
+
+const opsScriptFindings = Effect.fn("Goals.opsScriptFindings")(function* <E, R>(
+  record: GoalPacketRecord,
+  manifest: GoalManifest,
+  reader: GoalPacketReader<E, R>
+) {
+  // Registration is opt-in: a manifest without `opsScripts` is not checked.
+  if (manifest.opsScripts === undefined) {
+    return A.empty<GoalDoctorFinding>();
+  }
+  const files = yield* reader.opsFiles(record.packetPath);
+  const present = HashSet.fromIterable(files);
+  const listed = HashSet.fromIterable(A.map(manifest.opsScripts, (script) => script.path));
+  const missing = A.map(
+    A.filter(manifest.opsScripts, (script) => !HashSet.has(present, script.path)),
+    (script) =>
+      finding(
+        record.slug,
+        "ops-script-missing",
+        "blocking",
+        `opsScripts lists ${script.path}, which does not exist.`,
+        script.path
+      )
+  );
+  const unregistered = A.map(
+    A.filter(files, (file) => Str.endsWith(".ts")(file) && !HashSet.has(listed, file)),
+    (file) =>
+      finding(
+        record.slug,
+        "ops-script-unregistered",
+        "blocking",
+        `${file} is not listed in ops/manifest.json opsScripts.`,
+        file
+      )
+  );
+  return A.appendAll(missing, unregistered);
 });
 
 const statusConsistencyFindings = (
@@ -700,6 +761,7 @@ export const goalPacketFindings = Effect.fn("Goals.packetFindings")(function* <E
 
   findings = A.appendAll(findings, decodedManifestFindings(record, decoded.value, raw));
   findings = A.appendAll(findings, yield* explorationBacklinkFindings(record, raw, reader));
+  findings = A.appendAll(findings, yield* opsScriptFindings(record, decoded.value, reader));
   return { findings, manifest: O.some(decoded.value) };
 });
 
