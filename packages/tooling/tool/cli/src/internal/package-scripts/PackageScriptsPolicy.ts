@@ -239,21 +239,18 @@ const diffBlock: PackageScriptsPolicyShape["diff"] = (actual, expected) => {
 };
 
 // `tsc-rs` is the only TypeScript checker a `beep:build`, `beep:check`, or `beep:check:*` script
-// may run. Each `&&`/`||`/`;`/`|` segment is reduced to its executable by dropping leading env
-// assignments, package runners, and runner flags; a `tsgo` or `tsc` executable fails the gate
-// unless `checkerEngineExemptions` carries a reviewed row for that manifest script.
-const COMMAND_SEPARATOR = /&&|\|\||[;|]/u;
-const isEnvAssignment = S.is(S.String.check(S.isPattern(/^[A-Za-z_]\w*=/u)));
-const isCommandRunner = S.is(S.Literals(["bun", "bunx", "npx", "pnpm", "yarn", "run", "exec", "x"]));
+// may run. Every word of the command counts, not just each segment's head, so runner flag values
+// (`bunx -p typescript tsc`), wrappers (`env … tsc`, `node node_modules/typescript/bin/tsc`) and
+// assignments (`TSC=tsgo`) cannot hide a checker: a word whose basename is `tsgo` or `tsc` fails
+// the gate unless `checkerEngineExemptions` carries a reviewed row for that manifest script.
+const COMMAND_WORD_SEPARATOR = /[\s;&|=()"'`]+/u;
 const isCheckerScriptName = S.is(CheckerScriptName);
 const isNonCanonicalChecker = S.is(NonCanonicalChecker);
-const segmentChecker = flow(
-  Str.trim,
-  Str.split(/\s+/u),
-  A.dropWhile((word: string) => isEnvAssignment(word) || isCommandRunner(word) || Str.startsWith("-")(word)),
-  A.head,
-  O.flatMap(flow(Str.split("/"), A.last)),
-  O.filter(isNonCanonicalChecker)
+const commandCheckers = flow(
+  Str.split(COMMAND_WORD_SEPARATOR),
+  A.map(flow(Str.split("/"), A.lastNonEmpty)),
+  A.filter(isNonCanonicalChecker),
+  A.dedupe
 );
 const isExempt = (
   exemptions: ReadonlyArray<CheckerEngineExemption>,
@@ -275,7 +272,7 @@ const checkerEngineDrift = (
     Order.String
   );
   return A.flatMap(scripts, ([name, value]: Entry) => {
-    const engines = A.dedupe(A.getSomes(A.map(Str.split(value, COMMAND_SEPARATOR), segmentChecker)));
+    const engines = commandCheckers(value);
     return A.map(
       A.filter(engines, (engine) => !isExempt(exemptions, manifestPath, name, engine)),
       (engine): PackageScriptsDrift => ({ _tag: "checker-engine", name, engine, actual: value })

@@ -257,6 +257,11 @@ describe("package scripts policy", () => {
       "beep:build": "NODE_ENV=production tsc -p tsconfig.json && bun run babel",
       "beep:check": "tsgo -p tsconfig.check.json && bun run beep:check:tests",
       "beep:check:tests": "bunx --bun --no-install tsgo -p tsconfig.test.json --noEmit",
+      "beep:check:cwd": "bun run --cwd . tsgo -p tsconfig.check.json",
+      "beep:check:flags":
+        "bunx -p typescript tsc -p a.json && bunx --package @typescript/native-preview tsgo -p b.json",
+      "beep:check:wrappers": "env NODE_ENV=production tsc -p a.json; node node_modules/typescript/bin/tsc -p b.json",
+      "beep:check:assigned": "TSC=tsgo bun run beep:check:tests",
     };
     const customized = {
       coverage: "owned coverage",
@@ -271,6 +276,22 @@ describe("package scripts policy", () => {
         "packages/regressed/package.json": { name: "@beep/regressed", scripts: regressed },
         "packages/customized/package.json": { name: "@beep/customized", scripts: customized },
       });
+    const row = (name: keyof typeof regressed, engine: "tsc" | "tsgo") => ({
+      _tag: "checker-engine",
+      name,
+      engine,
+      actual: regressed[name],
+    });
+    const allRows = [
+      row("beep:build", "tsc"),
+      row("beep:check", "tsgo"),
+      row("beep:check:assigned", "tsgo"),
+      row("beep:check:cwd", "tsgo"),
+      row("beep:check:flags", "tsc"),
+      row("beep:check:flags", "tsgo"),
+      row("beep:check:tests", "tsgo"),
+      row("beep:check:wrappers", "tsc"),
+    ];
     const checkerRows = (report: { readonly drift: HashMap.HashMap<string, ReadonlyArray<unknown>> }) =>
       HashMap.get(report.drift, "packages/regressed/package.json").pipe(O.getOrElse(() => []));
     it.effect(
@@ -280,16 +301,7 @@ describe("package scripts policy", () => {
         const policy = yield* PackageScriptsPolicy.make(root);
         yield* policy.write(root);
         for (const report of [yield* policy.check(root), yield* policy.write(root)]) {
-          expect(checkerRows(report)).toEqual([
-            { _tag: "checker-engine", name: "beep:build", engine: "tsc", actual: regressed["beep:build"] },
-            { _tag: "checker-engine", name: "beep:check", engine: "tsgo", actual: regressed["beep:check"] },
-            {
-              _tag: "checker-engine",
-              name: "beep:check:tests",
-              engine: "tsgo",
-              actual: regressed["beep:check:tests"],
-            },
-          ]);
+          expect(checkerRows(report)).toEqual(allRows);
           expect(HashMap.has(report.drift, "packages/customized/package.json")).toBe(false);
         }
       })
@@ -320,15 +332,9 @@ describe("package scripts policy", () => {
         ];
         const policy = yield* PackageScriptsPolicy.make(root, exemptions);
         yield* policy.write(root);
-        expect(checkerRows(yield* policy.check(root))).toEqual([
-          { _tag: "checker-engine", name: "beep:build", engine: "tsc", actual: regressed["beep:build"] },
-          {
-            _tag: "checker-engine",
-            name: "beep:check:tests",
-            engine: "tsgo",
-            actual: regressed["beep:check:tests"],
-          },
-        ]);
+        expect(checkerRows(yield* policy.check(root))).toEqual(
+          A.filter(allRows, (entry) => entry.name !== "beep:check")
+        );
       })
     );
   });
