@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-24T02:38:30.592Z
+Generated: 2026-10-24T02:54:00.457Z
 
 ## Scope
 
@@ -15,7 +15,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 79 |
 | publicModules | 3564 |
-| publicExports | 25214 |
+| publicExports | 25222 |
 | openModules | 484 |
 | openExports | 1382 |
 | missingExportExamples | 7 |
@@ -128,7 +128,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 70 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 8 | 33 | 3 | 4 |
 | 71 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 7 | 42 | 4 | 2 |
 | 72 | `@beep/box` | `packages/drivers/box` | needs-remediation | 7 | 878 | 0 | 2 |
-| 73 | `@beep/epistemic-server` | `packages/epistemic/server` | needs-remediation | 24 | 52 | 8 | 4 |
+| 73 | `@beep/epistemic-server` | `packages/epistemic/server` | needs-remediation | 24 | 56 | 8 | 4 |
 | 74 | `@beep/m365` | `packages/drivers/m365` | needs-remediation | 8 | 166 | 2 | 0 |
 | 75 | `@beep/nlp-processing` | `packages/foundation/capability/nlp-processing` | needs-remediation | 48 | 312 | 13 | 0 |
 | 76 | `@beep/xdg` | `packages/foundation/capability/xdg` | clean | 6 | 24 | 0 | 0 |
@@ -185,7 +185,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 127 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
 | 128 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
 | 129 | `@beep/github-reporting` | `packages/foundation/modeling/github-reporting` | clean | 5 | 40 | 0 | 0 |
-| 130 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4335 | 47 | 35 |
+| 130 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4336 | 47 | 35 |
 | 131 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
 | 132 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
 | 133 | `@beep/commands` | `packages/drivers/commands` | clean | 8 | 58 | 0 | 0 |
@@ -193,7 +193,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 135 | `@beep/github-references` | `packages/foundation/modeling/github-references` | clean | 4 | 28 | 0 | 0 |
 | 136 | `@beep/git` | `packages/drivers/git` | clean | 5 | 44 | 0 | 0 |
 | 137 | `@beep/brand` | `packages/foundation/ui-system/brand` | needs-remediation | 7 | 50 | 0 | 43 |
-| 138 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 11 | 39 | 2 | 0 |
+| 138 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 11 | 42 | 2 | 0 |
 | 139 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 34 | 210 | 13 | 3 |
 | 140 | `@beep/ontology-server` | `packages/ontology/server` | clean | 8 | 23 | 0 | 0 |
 | 141 | `@beep/xstate` | `packages/drivers/xstate` | clean | 6 | 26 | 0 | 0 |
@@ -785,27 +785,27 @@ Export findings:
 - `src/Md.escape.ts:717` `maxBackticks` (const) - 1 example import violation(s)
 - `src/Md.escape.ts:786` `renderFencedCode` (const) - 1 example import violation(s)
 - `src/Md.html.ts:42` `renderSafeHtml` (const) - 1 example import violation(s)
-- `src/Md.render.ts:858` `renderMarkdownInline` (function) - 1 example import violation(s)
-- `src/Md.render.ts:917` `renderHtmlInline` (function) - 1 example import violation(s)
-- `src/Md.render.ts:936` `renderMarkdownBlock` (const) - 1 example import violation(s)
-- `src/Md.render.ts:971` `renderHtmlBlock` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1006` `renderMarkdownBlocks` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1026` `renderHtmlBlocks` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1051` `renderUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1072` `renderHtmlUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1093` `renderPlainTextUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1138` `renderWithUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1173` `renderEffectWithUnsafe` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1215` `renderEffectWith` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1599` `makeMarkdownAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1627` `makeHtmlFragmentAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1653` `MarkdownAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1677` `HtmlFragmentAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1696` `PlainTextAdapter` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1723` `renderWith` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1757` `render` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1782` `renderHtml` (const) - 1 example import violation(s)
-- `src/Md.render.ts:1807` `renderPlainText` (const) - 1 example import violation(s)
+- `src/Md.render.ts:877` `renderMarkdownInline` (function) - 1 example import violation(s)
+- `src/Md.render.ts:936` `renderHtmlInline` (function) - 1 example import violation(s)
+- `src/Md.render.ts:955` `renderMarkdownBlock` (const) - 1 example import violation(s)
+- `src/Md.render.ts:990` `renderHtmlBlock` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1025` `renderMarkdownBlocks` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1045` `renderHtmlBlocks` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1070` `renderUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1091` `renderHtmlUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1112` `renderPlainTextUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1157` `renderWithUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1192` `renderEffectWithUnsafe` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1234` `renderEffectWith` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1627` `makeMarkdownAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1655` `makeHtmlFragmentAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1681` `MarkdownAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1705` `HtmlFragmentAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1724` `PlainTextAdapter` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1751` `renderWith` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1785` `render` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1810` `renderHtml` (const) - 1 example import violation(s)
+- `src/Md.render.ts:1835` `renderPlainText` (const) - 1 example import violation(s)
 - `src/Md.safe.ts:750` `documentSafetyIssues` (const) - 1 example import violation(s)
 - `src/Md.safe.ts:776` `inlineSafetyIssuesAtRoot` (const) - 1 example import violation(s)
 - `src/Md.safe.ts:968` `refineSafeDocument` (const) - 1 example import violation(s)

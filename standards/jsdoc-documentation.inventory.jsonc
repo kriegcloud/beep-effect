@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-24T02:38:30.592Z",
+  "generatedAt": "2026-10-24T02:54:00.457Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -66,7 +66,7 @@
     "packagesWithoutPublicSrcSurface": 2,
     "packagesNeedingRemediation": 79,
     "publicModules": 3564,
-    "publicExports": 25214,
+    "publicExports": 25222,
     "openModules": 484,
     "openExports": 1382,
     "missingExportExamples": 7,
@@ -89548,8 +89548,8 @@
           "exportKind": "function",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 858,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-858-rendermarkdowninline",
+          "line": 877,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-877-rendermarkdowninline",
           "currentTags": [
             "@category",
             "@since"
@@ -89576,8 +89576,8 @@
           "exportKind": "function",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 917,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-917-renderhtmlinline",
+          "line": 936,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-936-renderhtmlinline",
           "currentTags": [
             "@category",
             "@since"
@@ -89604,8 +89604,8 @@
           "exportKind": "class",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 198,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-198-rendererror",
+          "line": 211,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-211-rendererror",
           "currentTags": [
             "@category",
             "@since"
@@ -89626,8 +89626,8 @@
           "exportKind": "interface",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 228,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-228-purerenderadapter",
+          "line": 241,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-241-purerenderadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -89648,8 +89648,8 @@
           "exportKind": "interface",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 257,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-257-effectrenderadapter",
+          "line": 270,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-270-effectrenderadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -89670,8 +89670,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 936,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-936-rendermarkdownblock",
+          "line": 955,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-955-rendermarkdownblock",
           "currentTags": [
             "@category",
             "@since"
@@ -89698,8 +89698,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 971,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-971-renderhtmlblock",
+          "line": 990,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-990-renderhtmlblock",
           "currentTags": [
             "@category",
             "@since"
@@ -89726,8 +89726,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1006,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1006-rendermarkdownblocks",
+          "line": 1025,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1025-rendermarkdownblocks",
           "currentTags": [
             "@category",
             "@since"
@@ -89754,8 +89754,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1026,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1026-renderhtmlblocks",
+          "line": 1045,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1045-renderhtmlblocks",
           "currentTags": [
             "@category",
             "@since"
@@ -89782,8 +89782,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1051,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1051-renderunsafe",
+          "line": 1070,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1070-renderunsafe",
           "currentTags": [
             "@category",
             "@since"
@@ -89810,8 +89810,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1072,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1072-renderhtmlunsafe",
+          "line": 1091,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1091-renderhtmlunsafe",
           "currentTags": [
             "@category",
             "@since"
@@ -89838,8 +89838,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1093,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1093-renderplaintextunsafe",
+          "line": 1112,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1112-renderplaintextunsafe",
           "currentTags": [
             "@category",
             "@since"
@@ -89866,8 +89866,8 @@
           "exportKind": "type",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1116,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1116-renderoutputof",
+          "line": 1135,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1135-renderoutputof",
           "currentTags": [
             "@category",
             "@since"
@@ -89888,8 +89888,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1138,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1138-renderwithunsafe",
+          "line": 1157,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1157-renderwithunsafe",
           "currentTags": [
             "@category",
             "@since"
@@ -89916,8 +89916,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1173,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1173-rendereffectwithunsafe",
+          "line": 1192,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1192-rendereffectwithunsafe",
           "currentTags": [
             "@category",
             "@since"
@@ -89944,8 +89944,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1215,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1215-rendereffectwith",
+          "line": 1234,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1234-rendereffectwith",
           "currentTags": [
             "@category",
             "@since"
@@ -89972,8 +89972,8 @@
           "exportKind": "class",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1255,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1255-urlrenderoptions",
+          "line": 1274,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1274-urlrenderoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -89994,8 +89994,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1599,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1599-makemarkdownadapter",
+          "line": 1627,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1627-makemarkdownadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -90022,8 +90022,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1627,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1627-makehtmlfragmentadapter",
+          "line": 1655,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1655-makehtmlfragmentadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -90050,8 +90050,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1653,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1653-markdownadapter",
+          "line": 1681,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1681-markdownadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -90078,8 +90078,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1677,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1677-htmlfragmentadapter",
+          "line": 1705,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1705-htmlfragmentadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -90106,8 +90106,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1696,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1696-plaintextadapter",
+          "line": 1724,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1724-plaintextadapter",
           "currentTags": [
             "@category",
             "@since"
@@ -90134,8 +90134,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1723,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1723-renderwith",
+          "line": 1751,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1751-renderwith",
           "currentTags": [
             "@category",
             "@since"
@@ -90162,8 +90162,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1757,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1757-render",
+          "line": 1785,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1785-render",
           "currentTags": [
             "@category",
             "@since"
@@ -90190,8 +90190,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1782,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1782-renderhtml",
+          "line": 1810,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1810-renderhtml",
           "currentTags": [
             "@category",
             "@since"
@@ -90218,8 +90218,8 @@
           "exportKind": "const",
           "filePath": "src/Md.render.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.render.ts",
-          "line": 1807,
-          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1807-renderplaintext",
+          "line": 1835,
+          "anchor": "packages-foundation-modeling-md-src-md-render-ts-1835-renderplaintext",
           "currentTags": [
             "@category",
             "@since"
@@ -90818,8 +90818,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 95,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-95-mdlossreason",
+          "line": 97,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-97-mdlossreason",
           "currentTags": [
             "@category",
             "@since"
@@ -90840,8 +90840,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 128,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-128-mdlossreason",
+          "line": 130,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-130-mdlossreason",
           "currentTags": [
             "@category",
             "@since"
@@ -90862,8 +90862,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 146,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-146-mdlossseverity",
+          "line": 148,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-148-mdlossseverity",
           "currentTags": [
             "@category",
             "@since"
@@ -90884,8 +90884,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 158,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-158-mdlossseverity",
+          "line": 160,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-160-mdlossseverity",
           "currentTags": [
             "@category",
             "@since"
@@ -90906,8 +90906,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 218,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-218-mdloss",
+          "line": 220,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-220-mdloss",
           "currentTags": [
             "@category",
             "@since"
@@ -90928,8 +90928,8 @@
           "exportKind": "namespace",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 248,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-248-mdloss",
+          "line": 250,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-250-mdloss",
           "currentTags": [
             "@category",
             "@since"
@@ -90950,8 +90950,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 281,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-281-lossseverity",
+          "line": 283,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-283-lossseverity",
           "currentTags": [
             "@category",
             "@since"
@@ -90972,8 +90972,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 304,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-304-mdsourceorigin",
+          "line": 306,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-306-mdsourceorigin",
           "currentTags": [
             "@category",
             "@since"
@@ -90994,8 +90994,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 316,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-316-mdsourceorigin",
+          "line": 318,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-318-mdsourceorigin",
           "currentTags": [
             "@category",
             "@since"
@@ -91016,8 +91016,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 349,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-349-mdsourceentry",
+          "line": 351,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-351-mdsourceentry",
           "currentTags": [
             "@category",
             "@since"
@@ -91038,8 +91038,8 @@
           "exportKind": "namespace",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 377,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-377-mdsourceentry",
+          "line": 379,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-379-mdsourceentry",
           "currentTags": [
             "@category",
             "@since"
@@ -91060,8 +91060,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 424,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-424-mdsourcemap",
+          "line": 426,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-426-mdsourcemap",
           "currentTags": [
             "@category",
             "@since"
@@ -91082,8 +91082,8 @@
           "exportKind": "namespace",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 444,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-444-mdsourcemap",
+          "line": 446,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-446-mdsourcemap",
           "currentTags": [
             "@category",
             "@since"
@@ -91104,8 +91104,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 601,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-601-positionat",
+          "line": 603,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-603-positionat",
           "currentTags": [
             "@category",
             "@since"
@@ -91126,8 +91126,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 629,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-629-mdhtmlpolicy",
+          "line": 631,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-631-mdhtmlpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -91148,8 +91148,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 639,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-639-mdhtmlpolicy",
+          "line": 641,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-641-mdhtmlpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -91170,8 +91170,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 658,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-658-mdhtmlcommentpolicy",
+          "line": 660,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-660-mdhtmlcommentpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -91192,8 +91192,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 668,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-668-mdhtmlcommentpolicy",
+          "line": 670,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-670-mdhtmlcommentpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -91214,8 +91214,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 686,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-686-mdautolinkliteralpolicy",
+          "line": 688,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-688-mdautolinkliteralpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -91236,8 +91236,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 696,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-696-mdautolinkliteralpolicy",
+          "line": 698,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-698-mdautolinkliteralpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -91258,8 +91258,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 714,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-714-mdsoftbreak",
+          "line": 716,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-716-mdsoftbreak",
           "currentTags": [
             "@category",
             "@since"
@@ -91280,8 +91280,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 724,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-724-mdsoftbreak",
+          "line": 726,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-726-mdsoftbreak",
           "currentTags": [
             "@category",
             "@since"
@@ -91302,8 +91302,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 742,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-742-mdfrontmatterpolicy",
+          "line": 744,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-744-mdfrontmatterpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -91324,8 +91324,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 752,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-752-mdfrontmatterpolicy",
+          "line": 754,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-754-mdfrontmatterpolicy",
           "currentTags": [
             "@category",
             "@since"
@@ -91346,8 +91346,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 770,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-770-mdfrontmatterfailure",
+          "line": 772,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-772-mdfrontmatterfailure",
           "currentTags": [
             "@category",
             "@since"
@@ -91368,8 +91368,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 780,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-780-mdfrontmatterfailure",
+          "line": 782,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-782-mdfrontmatterfailure",
           "currentTags": [
             "@category",
             "@since"
@@ -91390,8 +91390,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 797,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-797-mdsyntaxoptionfields",
+          "line": 799,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-799-mdsyntaxoptionfields",
           "currentTags": [
             "@category",
             "@since"
@@ -91412,8 +91412,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 879,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-879-mdsyntaxoptions",
+          "line": 881,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-881-mdsyntaxoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -91434,8 +91434,8 @@
           "exportKind": "namespace",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 893,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-893-mdsyntaxoptions",
+          "line": 895,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-895-mdsyntaxoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -91456,8 +91456,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 926,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-926-mdfromsyntax",
+          "line": 928,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-928-mdfromsyntax",
           "currentTags": [
             "@category",
             "@since"
@@ -91478,8 +91478,8 @@
           "exportKind": "namespace",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 946,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-946-mdfromsyntax",
+          "line": 948,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-948-mdfromsyntax",
           "currentTags": [
             "@category",
             "@since"
@@ -91500,8 +91500,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 972,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-972-mdfrontmattererrorreason",
+          "line": 974,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-974-mdfrontmattererrorreason",
           "currentTags": [
             "@category",
             "@since"
@@ -91522,8 +91522,8 @@
           "exportKind": "type",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 982,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-982-mdfrontmattererrorreason",
+          "line": 984,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-984-mdfrontmattererrorreason",
           "currentTags": [
             "@category",
             "@since"
@@ -91544,8 +91544,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 1006,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1006-mdfrontmattererror",
+          "line": 1008,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1008-mdfrontmattererror",
           "currentTags": [
             "@category",
             "@since"
@@ -91566,8 +91566,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 1042,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1042-mdlocatedviolation",
+          "line": 1044,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1044-mdlocatedviolation",
           "currentTags": [
             "@category",
             "@since"
@@ -91588,8 +91588,8 @@
           "exportKind": "class",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 1076,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1076-mdunsafedocumenterror",
+          "line": 1078,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-1078-mdunsafedocumenterror",
           "currentTags": [
             "@category",
             "@since"
@@ -91610,8 +91610,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 2122,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2122-frommarkdowndocument",
+          "line": 2144,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2144-frommarkdowndocument",
           "currentTags": [
             "@category",
             "@since"
@@ -91632,8 +91632,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 2165,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2165-locateviolations",
+          "line": 2187,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2187-locateviolations",
           "currentTags": [
             "@category",
             "@since"
@@ -91654,8 +91654,8 @@
           "exportKind": "const",
           "filePath": "src/Md.syntax.ts",
           "repoPath": "packages/foundation/modeling/md/src/Md.syntax.ts",
-          "line": 2188,
-          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2188-refinesafe",
+          "line": 2210,
+          "anchor": "packages-foundation-modeling-md-src-md-syntax-ts-2210-refinesafe",
           "currentTags": [
             "@category",
             "@since"
@@ -317287,7 +317287,7 @@
         "srcDir": "src",
         "sourceFileCount": 24,
         "publicModuleCount": 24,
-        "publicExportCount": 52
+        "publicExportCount": 56
       },
       "docgenCoverage": {
         "hasDocgenConfig": false,
@@ -317828,7 +317828,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 1,
+          "exportCount": 5,
           "remediationStatus": "resolved"
         },
         {
@@ -318801,12 +318801,100 @@
           "remediationStatus": "resolved"
         },
         {
+          "symbolName": "MakeBoundedShaclViolation",
+          "exportKind": "type",
+          "filePath": "src/ShaclValidation/BoundedShaclValidator.layer.ts",
+          "repoPath": "packages/epistemic/server/src/ShaclValidation/BoundedShaclValidator.layer.ts",
+          "line": 58,
+          "anchor": "packages-epistemic-server-src-shaclvalidation-boundedshaclvalidator-layer-ts-58-makeboundedshaclviolation",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "BoundedShaclViolationFactory",
+          "exportKind": "class",
+          "filePath": "src/ShaclValidation/BoundedShaclValidator.layer.ts",
+          "repoPath": "packages/epistemic/server/src/ShaclValidation/BoundedShaclValidator.layer.ts",
+          "line": 102,
+          "anchor": "packages-epistemic-server-src-shaclvalidation-boundedshaclvalidator-layer-ts-102-boundedshaclviolationfactory",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "BoundedShaclViolationFactoryLive",
+          "exportKind": "const",
+          "filePath": "src/ShaclValidation/BoundedShaclValidator.layer.ts",
+          "repoPath": "packages/epistemic/server/src/ShaclValidation/BoundedShaclValidator.layer.ts",
+          "line": 121,
+          "anchor": "packages-epistemic-server-src-shaclvalidation-boundedshaclvalidator-layer-ts-121-boundedshaclviolationfactorylive",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "BoundedShaclValidationServiceFromFactory",
+          "exportKind": "const",
+          "filePath": "src/ShaclValidation/BoundedShaclValidator.layer.ts",
+          "repoPath": "packages/epistemic/server/src/ShaclValidation/BoundedShaclValidator.layer.ts",
+          "line": 346,
+          "anchor": "packages-epistemic-server-src-shaclvalidation-boundedshaclvalidator-layer-ts-346-boundedshaclvalidationservicefromfactory",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
           "symbolName": "BoundedShaclValidationServiceLive",
           "exportKind": "const",
           "filePath": "src/ShaclValidation/BoundedShaclValidator.layer.ts",
           "repoPath": "packages/epistemic/server/src/ShaclValidation/BoundedShaclValidator.layer.ts",
-          "line": 265,
-          "anchor": "packages-epistemic-server-src-shaclvalidation-boundedshaclvalidator-layer-ts-265-boundedshaclvalidationservicelive",
+          "line": 403,
+          "anchor": "packages-epistemic-server-src-shaclvalidation-boundedshaclvalidator-layer-ts-403-boundedshaclvalidationservicelive",
           "currentTags": [
             "@category",
             "@since"
@@ -447614,7 +447702,7 @@
         "srcDir": "src",
         "sourceFileCount": 467,
         "publicModuleCount": 465,
-        "publicExportCount": 4335
+        "publicExportCount": 4336
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -449908,7 +449996,7 @@
               "rule": "multiple-description-paragraphs"
             }
           ],
-          "exportCount": 1,
+          "exportCount": 2,
           "remediationStatus": "open"
         },
         {
@@ -475334,12 +475422,34 @@
           "remediationStatus": "resolved"
         },
         {
+          "symbolName": "CodexTriageLedgerEncoder",
+          "exportKind": "const",
+          "filePath": "src/commands/Codex/Findings.packet.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Codex/Findings.packet.ts",
+          "line": 71,
+          "anchor": "packages-tooling-tool-cli-src-commands-codex-findings-packet-ts-71-codextriageledgerencoder",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
           "symbolName": "renderPacketDocuments",
           "exportKind": "const",
           "filePath": "src/commands/Codex/Findings.packet.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Codex/Findings.packet.ts",
-          "line": 856,
-          "anchor": "packages-tooling-tool-cli-src-commands-codex-findings-packet-ts-856-renderpacketdocuments",
+          "line": 894,
+          "anchor": "packages-tooling-tool-cli-src-commands-codex-findings-packet-ts-894-renderpacketdocuments",
           "currentTags": [
             "@param",
             "@returns",
@@ -562972,7 +563082,7 @@
         "srcDir": "src",
         "sourceFileCount": 11,
         "publicModuleCount": 11,
-        "publicExportCount": 39
+        "publicExportCount": 42
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -563060,7 +563170,7 @@
               "rule": "multiple-description-paragraphs"
             }
           ],
-          "exportCount": 1,
+          "exportCount": 4,
           "remediationStatus": "open"
         },
         {
@@ -563355,12 +563465,78 @@
           "remediationStatus": "resolved"
         },
         {
+          "symbolName": "AnthropicTurnProvider",
+          "exportKind": "class",
+          "filePath": "src/AssistantTurn/AnthropicTurnKernel.ts",
+          "repoPath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
+          "line": 93,
+          "anchor": "packages-agents-server-src-assistantturn-anthropicturnkernel-ts-93-anthropicturnprovider",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "AnthropicTurnProviderLive",
+          "exportKind": "const",
+          "filePath": "src/AssistantTurn/AnthropicTurnKernel.ts",
+          "repoPath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
+          "line": 120,
+          "anchor": "packages-agents-server-src-assistantturn-anthropicturnkernel-ts-120-anthropicturnproviderlive",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "AnthropicTurnKernelFromProvider",
+          "exportKind": "const",
+          "filePath": "src/AssistantTurn/AnthropicTurnKernel.ts",
+          "repoPath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
+          "line": 352,
+          "anchor": "packages-agents-server-src-assistantturn-anthropicturnkernel-ts-352-anthropicturnkernelfromprovider",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
           "symbolName": "AnthropicTurnKernel",
           "exportKind": "const",
           "filePath": "src/AssistantTurn/AnthropicTurnKernel.ts",
           "repoPath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
-          "line": 293,
-          "anchor": "packages-agents-server-src-assistantturn-anthropicturnkernel-ts-293-anthropicturnkernel",
+          "line": 391,
+          "anchor": "packages-agents-server-src-assistantturn-anthropicturnkernel-ts-391-anthropicturnkernel",
           "currentTags": [
             "@category",
             "@since"
