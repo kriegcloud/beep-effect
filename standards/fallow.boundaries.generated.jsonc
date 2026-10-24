@@ -372,6 +372,12 @@
         ]
       },
       {
+        "name": "@beep/github-actions",
+        "patterns": [
+          "packages/drivers/github-actions/src/**"
+        ]
+      },
+      {
         "name": "@beep/github-commands",
         "patterns": [
           "packages/foundation/modeling/github-commands/src/**"
@@ -2496,6 +2502,15 @@
           "@beep/schema",
           "@beep/semver",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/github-actions",
+        "allow": [
+          "@beep/github-actions"
+        ],
+        "allowTypeOnly": [
+          "@beep/github-actions"
         ]
       },
       {

@@ -573,6 +573,7 @@
     "apps/practice-review-hub",
     "packages/drivers/commands",
     "packages/drivers/git",
-    "packages/drivers/github"
+    "packages/drivers/github",
+    "packages/drivers/github-actions"
   ]
 }
