@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "tool": "goals/effected-promotion/ops/sbom-corpus.ts",
   "scope": "git ls-files '*package.json' excluding **/test/fixtures/**",
-  "commit": "576ac233f961ede35050585fd7ffbc8e4488ef65",
+  "commit": "e73457653a2e5cf4cfdb442728ae26a5b151ffce",
   "timestamp": "2026-10-23T00:00:00.000Z",
   "totals": {
     "manifests": 192,
@@ -11,7 +11,7 @@
     "schemaFailures": 0,
     "unstable": 0,
     "ntiaCompliant": 0,
-    "dependencyComponents": 1465
+    "dependencyComponents": 1467
   },
   "ntiaMissing": [
     {
@@ -1459,7 +1459,7 @@
     {
       "path": "packages/tooling/policy-pack/repo-configs/package.json",
       "verdict": "valid",
-      "components": 6,
+      "components": 7,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true
@@ -1499,7 +1499,7 @@
     {
       "path": "packages/tooling/tool/cli/package.json",
       "verdict": "valid",
-      "components": 70,
+      "components": 71,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true
