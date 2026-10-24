@@ -162,17 +162,20 @@ describe("Sbom.generate construction path", () => {
   });
 
   it("the scan flags a direct make in code and ignores one in a doc comment", () => {
-    const fixture = [
-      "/**",
-      ' * const root = Component.make({ type: "application", name: "app" })',
-      " */",
-      "const generate = (input) =>",
-      "  admission.admit(SbomDocument, {",
-      "    components: A.map(input.components, Component.make),",
-      "    metadata: SbomMetadata.make({ component: input.root }),",
-      "  });",
-      "const order = Order.make(compare);",
-    ].join("\n");
+    const fixture = A.join(
+      [
+        "/**",
+        ' * const root = Component.make({ type: "application", name: "app" })',
+        " */",
+        "const generate = (input) =>",
+        "  admission.admit(SbomDocument, {",
+        "    components: A.map(input.components, Component.make),",
+        "    metadata: SbomMetadata.make({ component: input.root }),",
+        "  });",
+        "const order = Order.make(compare);",
+      ],
+      "\n"
+    );
     const { directMakes, seamCalls } = constructionsOf(fixture);
     assert.deepStrictEqual(directMakes, ["Component", "SbomMetadata"]);
     assert.strictEqual(seamCalls, 1);

@@ -209,9 +209,13 @@ const generate = (input: SbomInput.Admitted): SbomDocument =>
     components: A.sort(input.components, byName),
   });
 
-/** Components sorted by name, so two runs over the same inputs produce the same bytes. */
+/**
+ * Components sorted by name in UTF-16 code-unit order, so two runs over the
+ * same inputs produce the same bytes on any host. A locale collation would
+ * vary with the runtime's locale and ICU data; CycloneDX requires no order.
+ */
 const byName: Order.Order<Component.Encoded> = Order.mapInput(
-  Order.make<string>((a, b) => Str.localeCompare(b)(a)),
+  Str.Order,
   (component: Component.Encoded) => component.name
 );
 
@@ -302,8 +306,8 @@ export class Sbom {
    * the root and components are admitted values (`Component.make` or a
    * decode), so every invariant the document checks already holds. Plain
    * records do not type-check; admit them first.
-   * Components are sorted by name so two runs over the same inputs produce the
-   * same bytes: an SBOM's digest becomes an attestation subject, and a document
+   * Components are sorted by name, in code-unit order rather than a locale
+   * collation, so two runs over the same inputs produce the same bytes on any host: an SBOM's digest becomes an attestation subject, and a document
    * that reordered itself between runs would change that digest for no reason.
    *
    * **Example** (Generate a document with sorted dependencies)

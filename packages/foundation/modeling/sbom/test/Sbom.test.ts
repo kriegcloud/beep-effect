@@ -80,6 +80,19 @@ describe("Sbom.generate", () => {
     );
   });
 
+  it("sorts by code unit, not by locale collation", () => {
+    // A locale collation puts "a" before "B" and "é" beside "e"; code-unit
+    // order is the same on every host, whatever its locale or ICU data.
+    const document = Sbom.generate({
+      root,
+      components: [dep("a", "1.0.0"), dep("é", "1.0.0"), dep("f", "1.0.0"), dep("B", "1.0.0")],
+    });
+    assert.deepStrictEqual(
+      A.map(document.components, (c) => c.name),
+      ["B", "a", "f", "é"]
+    );
+  });
+
   it("is deterministic across calls", () => {
     const once = Sbom.toJson(Sbom.generate({ root, components: [dep("a", "1.0.0")] }));
     const twice = Sbom.toJson(Sbom.generate({ root, components: [dep("a", "1.0.0")] }));

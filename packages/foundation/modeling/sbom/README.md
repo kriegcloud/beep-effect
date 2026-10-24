@@ -39,7 +39,7 @@ console.log(Effect.runSync(program));
 // same inputs produce identical bytes
 ```
 
-Components are sorted by name so the document's digest — which becomes an attestation subject — does not change between runs over the same inputs. The models are branded `S.Opaque` records: `Sbom.generate` takes admitted components (from `Component.make`, `SbomMetadataSource` or a decode), assembles the document around them and admits it with one `SbomDocument.make`, which copies, so the returned components are never the caller's objects. Because its inputs are already valid, that `make` cannot throw; an invalid component, such as one with an empty `bomRef`, fails where it is built. The option functions take each input's `Encoded` shape, so object literals work there.
+Components are sorted by name, in code-unit order rather than a locale collation, so the document's digest — which becomes an attestation subject — does not change between runs over the same inputs. The models are branded `S.Opaque` records: `Sbom.generate` takes admitted components (from `Component.make`, `SbomMetadataSource` or a decode), assembles the document around them and admits it with one `SbomDocument.make`, which copies, so the returned components are never the caller's objects. Because its inputs are already valid, that `make` cannot throw; an invalid component, such as one with an empty `bomRef`, fails where it is built. The option functions take each input's `Encoded` shape, so object literals work there.
 
 `fromPackage` and `rootComponent` take a `Package` from `@beep/package-json`. A manifest never says which organization supplied the software, who assembled the BOM, or when, so `supplier`, `authors` and `timestamp` are explicit options, never derived.
 

@@ -2,21 +2,21 @@
   "schemaVersion": 1,
   "tool": "goals/effected-promotion/ops/sbom-corpus.ts",
   "scope": "git ls-files '*package.json' excluding **/test/fixtures/**",
-  "commit": "74bde4e276e3426647626b4aa04584f2b04d60b5",
+  "commit": "576ac233f961ede35050585fd7ffbc8e4488ef65",
   "timestamp": "2026-10-23T00:00:00.000Z",
   "totals": {
-    "manifests": 191,
+    "manifests": 192,
     "packageRejected": 1,
-    "generated": 190,
+    "generated": 191,
     "schemaFailures": 0,
     "unstable": 0,
     "ntiaCompliant": 0,
-    "dependencyComponents": 1455
+    "dependencyComponents": 1465
   },
   "ntiaMissing": [
     {
       "element": "supplierName",
-      "manifests": 190
+      "manifests": 191
     },
     {
       "element": "componentName",
@@ -36,7 +36,7 @@
     },
     {
       "element": "sbomAuthor",
-      "manifests": 188
+      "manifests": 189
     },
     {
       "element": "timestamp",
@@ -865,6 +865,14 @@
       "stable": true
     },
     {
+      "path": "packages/foundation/capability/cli-kit/package.json",
+      "verdict": "valid",
+      "components": 7,
+      "ntiaCompliant": false,
+      "ntiaMissing": ["supplierName", "sbomAuthor"],
+      "stable": true
+    },
+    {
       "path": "packages/foundation/capability/colors/package.json",
       "verdict": "valid",
       "components": 5,
@@ -1379,7 +1387,7 @@
     {
       "path": "packages/tooling/library/ai-metrics/package.json",
       "verdict": "valid",
-      "components": 14,
+      "components": 15,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true
@@ -1491,7 +1499,7 @@
     {
       "path": "packages/tooling/tool/cli/package.json",
       "verdict": "valid",
-      "components": 69,
+      "components": 70,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true
@@ -1555,7 +1563,7 @@
     {
       "path": "scratchpad/package.json",
       "verdict": "valid",
-      "components": 69,
+      "components": 70,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true
