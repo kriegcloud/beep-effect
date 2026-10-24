@@ -283,7 +283,7 @@ export const unzipCommand = (options: UnzipCommandOptions): ChildProcess.Standar
  * import { TarExtractCommandOptions } from "@beep/scratchpad/effected/github-actions/internal/archiveCommands";
  * import * as S from "effect/Schema";
  *
- * console.log(S.is(TarExtractCommandOptions)({ archive: "/a.tgz", destination: "/out", flags: undefined })) // true
+ * console.log(S.is(TarExtractCommandOptions)({ archive: "/a.tgz", destination: "/out" })) // true
  * ```
  *
  * @category schemas

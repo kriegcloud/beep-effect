@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Console from "effect/Console";
@@ -135,10 +136,7 @@ export class YeetAttemptJournalCompacted extends S.Opaque<
 
     recordedAt: S.String,
     evictedCount: S.Natural,
-    evictedAttemptIds: S.Array(UUIDSchema).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<UUID>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<UUID>()))
-    ),
+    evictedAttemptIds: ArrayKeyDefaultEmpty(UUIDSchema),
     oldestEvictedRecordedAt: S.String,
     terminalEvictionCutoffRecordedAt: S.String.pipe(
       S.OptionFromOptionalKey,

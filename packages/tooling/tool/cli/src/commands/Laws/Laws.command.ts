@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { BoolKeyDefaultFalse } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { Text } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
@@ -36,8 +37,16 @@ import { formatRetiredIriAuthorityFinding, runRetiredIriAuthorities } from "./Re
 import { SchemaTagIdiomsOptions } from "./SchemaTagIdioms.model.ts";
 import { formatSchemaTagIdiomFinding, runSchemaTagIdioms } from "./SchemaTagIdioms.ts";
 import { runTerseEffectRules, TerseEffectRulesOptions } from "./TerseEffect.ts";
+import type { EffectFnRulesSummary } from "./EffectFn.ts";
+import type { FrozenGrantSetRulesSummary } from "./FrozenGrantSet.ts";
 
 const $I = $RepoCliId.create("commands/Laws/Laws.command");
+
+const lawSelectionFields = {
+  check: BoolKeyDefaultFalse,
+  exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
+  include: S.String.pipe(S.withConstructorDefault(Effect.succeed("*")), S.withDecodingDefaultKey(Effect.succeed("*"))),
+};
 
 /**
  * CLI options for effect import governance command.
@@ -53,35 +62,15 @@ const $I = $RepoCliId.create("commands/Laws/Laws.command");
  */
 class EffectImportsCommandOptions extends S.Opaque<EffectImportsCommandOptions, { readonly brand: unique symbol }>()(
   S.Struct({
-    write: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    check: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    candidate: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
+    ...lawSelectionFields,
+    write: BoolKeyDefaultFalse,
+    candidate: BoolKeyDefaultFalse,
     mode: EffectImportCorpusMode.pipe(
       S.withConstructorDefault(Effect.succeed("code" as const)),
       S.withDecodingDefaultKey(Effect.succeed("code" as const))
     ),
-    enforceDocumentation: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    json: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
-    include: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed("*")),
-      S.withDecodingDefaultKey(Effect.succeed("*"))
-    ),
+    enforceDocumentation: BoolKeyDefaultFalse,
+    json: BoolKeyDefaultFalse,
     includePrefix: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefaultKey(Effect.succeed(""))
@@ -107,23 +96,9 @@ class EffectImportsCommandOptions extends S.Opaque<EffectImportsCommandOptions, 
  */
 class TerseEffectCommandOptions extends S.Opaque<TerseEffectCommandOptions, { readonly brand: unique symbol }>()(
   S.Struct({
-    write: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    check: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
-    include: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed("*")),
-      S.withDecodingDefaultKey(Effect.succeed("*"))
-    ),
-    advisory: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
+    ...lawSelectionFields,
+    write: BoolKeyDefaultFalse,
+    advisory: BoolKeyDefaultFalse,
   }).pipe(
     $I.annoteSchema("TerseEffectCommandOptions", {
       description: "CLI options for terse Effect style command.",
@@ -145,15 +120,7 @@ class TerseEffectCommandOptions extends S.Opaque<TerseEffectCommandOptions, { re
  */
 class EffectFnCommandOptions extends S.Opaque<EffectFnCommandOptions, { readonly brand: unique symbol }>()(
   S.Struct({
-    check: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
-    include: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed("*")),
-      S.withDecodingDefaultKey(Effect.succeed("*"))
-    ),
+    ...lawSelectionFields,
   }).pipe(
     $I.annoteSchema("EffectFnCommandOptions", {
       description: "CLI options for the Effect.fn supplemental law.",
@@ -175,15 +142,7 @@ class EffectFnCommandOptions extends S.Opaque<EffectFnCommandOptions, { readonly
  */
 class FrozenGrantSetCommandOptions extends S.Opaque<FrozenGrantSetCommandOptions, { readonly brand: unique symbol }>()(
   S.Struct({
-    check: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
-    include: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed("*")),
-      S.withDecodingDefaultKey(Effect.succeed("*"))
-    ),
+    ...lawSelectionFields,
   }).pipe(
     $I.annoteSchema("FrozenGrantSetCommandOptions", {
       description: "CLI options for the FrozenGrantSet construction law.",
@@ -208,15 +167,7 @@ class NoNativeRuntimeCommandOptions extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    check: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultKey(Effect.succeed(""))),
-    include: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed("*")),
-      S.withDecodingDefaultKey(Effect.succeed("*"))
-    ),
+    ...lawSelectionFields,
     includePrefix: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefaultKey(Effect.succeed(""))
@@ -243,6 +194,36 @@ const includeFlag = Flag.String("include").pipe(
   Flag.withDescription("Comma-separated repo-relative source files to scan; defaults to the full source scope"),
   Flag.withDefault("*")
 );
+
+const excludeFlag = Flag.String("exclude").pipe(
+  Flag.withDescription("Comma-separated list of file paths to exclude"),
+  Flag.withDefault("")
+);
+
+const reportDiagnosticLaw = Effect.fn("Laws.reportDiagnosticLaw")(function* (
+  name: string,
+  check: boolean,
+  summary: Pick<
+    EffectFnRulesSummary | FrozenGrantSetRulesSummary,
+    "scannedFiles" | "touchedFiles" | "violationCount" | "diagnostics" | "strictFailure"
+  >
+) {
+  const prefix = `effect-governance-${name}`;
+  yield* printLines([
+    `[${prefix}] mode=${check ? "check" : "report"}`,
+    `[${prefix}] scanned_files=${summary.scannedFiles}`,
+    `[${prefix}] touched_files=${summary.touchedFiles}`,
+    `[${prefix}] violations=${summary.violationCount}`,
+    ...A.map(
+      summary.diagnostics,
+      (diagnostic) =>
+        `- ${diagnostic.file}:${diagnostic.line}:${diagnostic.column} [${diagnostic.ruleId}] ${diagnostic.message}`
+    ),
+  ]);
+  if (summary.strictFailure) {
+    return yield* failWithReportedExit(`${prefix}: check failed.`);
+  }
+});
 
 const includePrefixFlag = Flag.String("include-prefix").pipe(
   Flag.withDescription("Comma-separated repo-relative directory prefixes to scan"),
@@ -299,10 +280,7 @@ const lawsEffectImportsCommand = Command.make(
       Flag.withDefault(false),
       Flag.withDescription("Emit the complete migration summary as schema-shaped JSON")
     ),
-    exclude: Flag.String("exclude").pipe(
-      Flag.withDescription("Comma-separated list of file paths to exclude"),
-      Flag.withDefault("")
-    ),
+    exclude: excludeFlag,
     include: includeFlag,
     includePrefix: includePrefixFlag,
   },
@@ -426,10 +404,7 @@ const lawsTerseEffectCommand = Command.make(
       Flag.withDefault(false),
       Flag.withDescription("Fail when terse Effect rewrites are required")
     ),
-    exclude: Flag.String("exclude").pipe(
-      Flag.withDescription("Comma-separated list of file paths to exclude"),
-      Flag.withDefault("")
-    ),
+    exclude: excludeFlag,
     include: includeFlag,
     advisory: Flag.Boolean("advisory").pipe(
       Flag.withDefault(false),
@@ -510,10 +485,7 @@ const lawsEffectFnCommand = Command.make(
       Flag.withDefault(false),
       Flag.withDescription("Fail when reusable functions directly return Effect.gen")
     ),
-    exclude: Flag.String("exclude").pipe(
-      Flag.withDescription("Comma-separated list of file paths to exclude"),
-      Flag.withDefault("")
-    ),
+    exclude: excludeFlag,
     include: includeFlag,
   },
   Effect.fn(function* ({ check, exclude, include }) {
@@ -526,20 +498,7 @@ const lawsEffectFnCommand = Command.make(
       })
     );
 
-    yield* Console.log(`[effect-governance-effect-fn] mode=${options.check ? "check" : "report"}`);
-    yield* Console.log(`[effect-governance-effect-fn] scanned_files=${summary.scannedFiles}`);
-    yield* Console.log(`[effect-governance-effect-fn] touched_files=${summary.touchedFiles}`);
-    yield* Console.log(`[effect-governance-effect-fn] violations=${summary.violationCount}`);
-
-    for (const diagnostic of summary.diagnostics) {
-      yield* Console.log(
-        `- ${diagnostic.file}:${diagnostic.line}:${diagnostic.column} [${diagnostic.ruleId}] ${diagnostic.message}`
-      );
-    }
-
-    if (summary.strictFailure) {
-      return yield* failWithReportedExit("effect-governance-effect-fn: check failed.");
-    }
+    yield* reportDiagnosticLaw("effect-fn", options.check, summary);
   })
 ).pipe(Command.withDescription("Check reusable Effect.gen-returning functions use Effect.fn or Effect.fnUntraced"));
 
@@ -562,10 +521,7 @@ const lawsFrozenGrantSetCommand = Command.make(
       Flag.withDefault(false),
       Flag.withDescription("Fail when FrozenGrantSet.make is called outside its defining module")
     ),
-    exclude: Flag.String("exclude").pipe(
-      Flag.withDescription("Comma-separated list of file paths to exclude"),
-      Flag.withDefault("")
-    ),
+    exclude: excludeFlag,
     include: includeFlag,
   },
   Effect.fn(function* ({ check, exclude, include }) {
@@ -578,20 +534,7 @@ const lawsFrozenGrantSetCommand = Command.make(
       })
     );
 
-    yield* Console.log(`[effect-governance-frozen-grant-set] mode=${options.check ? "check" : "report"}`);
-    yield* Console.log(`[effect-governance-frozen-grant-set] scanned_files=${summary.scannedFiles}`);
-    yield* Console.log(`[effect-governance-frozen-grant-set] touched_files=${summary.touchedFiles}`);
-    yield* Console.log(`[effect-governance-frozen-grant-set] violations=${summary.violationCount}`);
-
-    for (const diagnostic of summary.diagnostics) {
-      yield* Console.log(
-        `- ${diagnostic.file}:${diagnostic.line}:${diagnostic.column} [${diagnostic.ruleId}] ${diagnostic.message}`
-      );
-    }
-
-    if (summary.strictFailure) {
-      return yield* failWithReportedExit("effect-governance-frozen-grant-set: check failed.");
-    }
+    yield* reportDiagnosticLaw("frozen-grant-set", options.check, summary);
   })
 ).pipe(Command.withDescription("Check FrozenGrantSet.make stays inside its defining module"));
 
@@ -818,10 +761,7 @@ const lawsNativeRuntimeCommand = Command.make(
       Flag.withDefault(false),
       Flag.withDescription("Fail when hotspot-scope native-runtime violations remain")
     ),
-    exclude: Flag.String("exclude").pipe(
-      Flag.withDescription("Comma-separated list of file paths to exclude"),
-      Flag.withDefault("")
-    ),
+    exclude: excludeFlag,
     include: includeFlag,
     includePrefix: includePrefixFlag,
   },

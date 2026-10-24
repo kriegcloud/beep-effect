@@ -6,7 +6,7 @@
  */
 
 import * as NodeOS from "node:os";
-import { Str } from "@beep/utils";
+import { isCiSync } from "../../internal/cli/EnvConfig.ts";
 import {
   QualityHardwareProfile,
   QualityProfileConfig,
@@ -120,7 +120,7 @@ export const detectQualityProfileForTesting = (input: QualityProfileDetectionInp
 export const detectQualityProfile = (): QualityProfileDetection =>
   detectQualityProfileForTesting(
     QualityProfileDetectionInput.make({
-      ci: Str.isNonEmpty(Bun.env.CI ?? ""),
+      ci: isCiSync(),
       cpuCount: NodeOS.cpus().length,
       totalMemoryBytes: NodeOS.totalmem(),
     })
