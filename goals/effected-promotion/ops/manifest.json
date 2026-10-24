@@ -91,6 +91,10 @@
       "purpose": "Wave 3-2 differential: TsconfigLoader.resolve against tsc --showConfig, optionally three-way with get-tsconfig."
     },
     {
+      "path": "ops/repo-workspaces-differential.ts",
+      "purpose": "Wave 4-W-a differential: @beep/repo-workspaces member set, edge set and topological order against bun.lock and raw package.json oracles."
+    },
+    {
       "path": "ops/semver-owner-switch-differential.ts",
       "purpose": "R1 differential: the deleted @beep/schema/Semver and hand-rolled VersionSync and CacheClientPin version code compared with @beep/semver over bun.lock and every tracked package.json."
     },
