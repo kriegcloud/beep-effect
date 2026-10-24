@@ -73,6 +73,21 @@ describe("@beep/md/Md.render writer escapes", () => {
     expectWriter([p(link([text("a")], O.some("&#38;")))], '[a](https://example.com "\\&#38;")');
   });
 
+  it("preserves text newlines as references, including escaped HTML", () => {
+    expectWriter([p(text("a\nb"))], "a&#10;b");
+    const original = Result.getOrThrow(parseResult('before <span\nclass="x">after</span> end')).document;
+    expect(reparsed(renderUnsafe(original))).toStrictEqual(encode(original));
+  });
+
+  it("closes inline math before a digit through both adapters", () => {
+    expectWriter([p(InlineMath.make({ value: "x" }), text("123"))], "$x$&#49;23");
+    expectWriter([p(link([InlineMath.make({ value: "x" }), text("1")]))], "[$x$&#49;](https://example.com)");
+  });
+
+  it("keeps an email address in text from becoming an autolink", () => {
+    expectWriter([p(text("a@b.co"))], "a\\@b\\.co");
+  });
+
   it("escapes a `$` only where it could open inline math", () => {
     expectWriter([p(text("cost $5, $ 6 and a$b$"))], "cost \\$5, $ 6 and a\\$b\\$");
     expectWriter([p(text("pay $5 for "), InlineMath.make({ value: "x^2" }))], "pay \\$5 for $x^2$");

@@ -710,11 +710,11 @@ ${Md.h3("Inside")}
     expect(
       renderMarkdownBlock(Md.taskListFromItems([Md.taskItem([Md.p("Parent"), Md.ul(["Child"])], { checked: true })]))
     ).toBe("- [x] Parent\n\n  - Child");
-    expect(renderMarkdownBlock(Md.ul(["one\n\ntwo"]))).toBe("- one\n\n  two");
-    expect(renderMarkdownBlock(Md.ul(["one\r\rtwo"]))).toBe("- one\n\n  two");
-    expect(renderMarkdownBlock(Md.ol(["one\ntwo"]))).toBe("1. one\n   two");
-    expect(renderMarkdownBlock(Md.taskListFromItems([Md.taskItem("one\ntwo")]))).toBe("- [ ] one\n  two");
-    expect(renderMarkdownBlock(Md.blockquote`one\rtwo`)).toBe("> one\n> two");
+    expect(renderMarkdownBlock(Md.ul(["one\n\ntwo"]))).toBe("- one&#10;&#10;two");
+    expect(renderMarkdownBlock(Md.ul(["one\r\rtwo"]))).toBe("- one&#13;&#13;two");
+    expect(renderMarkdownBlock(Md.ol(["one\ntwo"]))).toBe("1. one&#10;two");
+    expect(renderMarkdownBlock(Md.taskListFromItems([Md.taskItem("one\ntwo")]))).toBe("- [ ] one&#10;two");
+    expect(renderMarkdownBlock(Md.blockquote`one\rtwo`)).toBe("> one&#13;two");
     expect(renderMarkdownBlock(Md.pre("plain"))).toBe("```\nplain\n```");
     expect(renderMarkdownBlock(Md.pre("plain", { language: "ts bad" }))).toBe("```\nplain\n```");
     expect(renderFencedCode("plain", "ts bad")).toBe("```\nplain\n```");
@@ -1180,7 +1180,7 @@ Demo video`);
     expect(renderMarkdownBlock(Md.table([["A"], ["B", "C"]], { headerRow: true }))).toBe(
       "| A |  |\n| --- | --- |\n| B | C |"
     );
-    expect(renderMarkdownBlock(Md.table([["a\nb\rc"]], { headerRow: true }))).toBe("| a<br/>b<br/>c |\n| --- |");
+    expect(renderMarkdownBlock(Md.table([["a\nb\rc"]], { headerRow: true }))).toBe("| a&#10;b&#13;c |\n| --- |");
   });
 
   it("falls back to a closed heading tag for forged heading levels", () => {

@@ -268,7 +268,7 @@ const appendLiteralLink: {
 } = dual(4, (scanner: InlineScanner, start: number, end: number, url: string): void => {
   const text = Str.slice(start, end)(scanner.subject);
   const node = makeInlineNode("link", start, end);
-  node.data.url = url;
+  node.data.url = Str.replace(/\\([!-/:-@[-`{-~])/g, "$1")(url);
   appendChild(node, makeInlineNode("text", start, end, text));
   scanner.append(node);
   scanner.pos = end;
@@ -601,7 +601,18 @@ const linkifyRun = (pieces: ReadonlyArray<RunPiece>): void => {
     A.map((piece) => piece.node.value),
     A.join("")
   );
-  const matches = scanEmails(merged);
+  // Count escaped source pieces once, so rejecting a candidate that crosses
+  // an escape stays linear even when one run holds many email addresses.
+  const escapes = [0];
+  let count = 0;
+  for (const piece of pieces) {
+    const length = piece.node.value.length;
+    for (let index = 0; index < length; index += 1) {
+      count += piece.node.data.escaped === true ? 1 : 0;
+      escapes.push(count);
+    }
+  }
+  const matches = A.filter(scanEmails(merged), (match) => escapes[match.from] === escapes[match.to]);
   if (matches.length === 0) {
     return;
   }

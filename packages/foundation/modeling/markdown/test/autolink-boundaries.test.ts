@@ -8,6 +8,23 @@ import * as Str from "effect/String";
 import { childOfType } from "./support/tree.ts";
 
 describe("email autolink source boundaries", () => {
+  it.each(["a\\@b.co", "a@b\\.co", "a\\@b\\.co", "a\\_b@c.de", "a@b.co\\.uk"])(
+    "keeps an escaped email literal: %s",
+    (source) => {
+      const paragraph = childOfType(parseBlocks(source, { dialect: "gfm" }).root.children, 0, "paragraph");
+      assert.isFalse(A.some(paragraph.children, (node) => node.type === "link"));
+    }
+  );
+
+  it.each(["http://x\\.y", "https://x.y/a\\_b", "www.x\\.y"])("decodes a URL escape: %s", (source) => {
+    const paragraph = childOfType(parseBlocks(source, { dialect: "gfm" }).root.children, 0, "paragraph");
+    const link = childOfType(paragraph.children, 0, "link");
+    const decoded = Str.replace(/\\([!-/:-@[-`{-~])/g, "$1")(source);
+    assert.strictEqual(link.url, Str.startsWith("www.")(source) ? `http://${decoded}` : decoded);
+    assert.strictEqual(childOfType(link.children, 0, "text").value, source);
+    assert.strictEqual(link.position.end.offset, source.length);
+  });
+
   it.each([
     ["&amp;", "&"],
     ["\\!", "!"],

@@ -100,7 +100,10 @@ const escapeMarkdownLiteral = flow(escapeMarkdownText, Str.replace(characterRefe
 const escapeMarkdownPhrasing = flow(
   escapeMarkdownLiteral,
   Str.replace(mathOpenerPattern, "\\$"),
-  Str.replace(autolinkSchemePattern, "$1\\:")
+  Str.replace(autolinkSchemePattern, "$1\\:"),
+  Str.replaceAll("@", "\\@"),
+  Str.replaceAll("\n", "&#10;"),
+  Str.replaceAll("\r", "&#13;")
 );
 
 const characterReferenceOf = (char: string): string => `&#${pipe(char, Str.charCodeAt(0), O.getOrElse(constant(0)))};`;
@@ -301,9 +304,15 @@ const renderInlineSequence = (
 ): string => {
   const rendered = A.map(children, renderInline);
   return joinEmpty(
-    A.map(children, (inline, index) =>
-      guardImageBang(fitEmphasisDelimiters(inline, rendered, index, renderChildren), inline, A.get(children, index + 1))
-    )
+    A.map(children, (inline, index) => {
+      const own = fitEmphasisDelimiters(inline, rendered, index, renderChildren);
+      // A literal digit prevents pandoc's `$` closer from closing. A
+      // reference keeps the digit's value while allowing the raw closer.
+      const guarded = O.exists(A.get(children, index - 1), (previous) => previous._tag === "inlineMath")
+        ? replaceAllWith(/^[0-9]/g, characterReferenceOf)(own)
+        : own;
+      return guardImageBang(guarded, inline, A.get(children, index + 1));
+    })
   );
 };
 
