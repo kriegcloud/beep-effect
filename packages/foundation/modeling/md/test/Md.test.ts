@@ -1180,7 +1180,7 @@ Demo video`);
     expect(renderMarkdownBlock(Md.table([["A"], ["B", "C"]], { headerRow: true }))).toBe(
       "| A |  |\n| --- | --- |\n| B | C |"
     );
-    expect(renderMarkdownBlock(Md.table([["a\nb\rc"]], { headerRow: true }))).toBe("| a&#10;b&#13;c |\n| --- |");
+    expect(renderMarkdownBlock(Md.table([["a\nb\rc"]], { headerRow: true }))).toBe("| a<br/>b<br/>c |\n| --- |");
   });
 
   it("falls back to a closed heading tag for forged heading levels", () => {

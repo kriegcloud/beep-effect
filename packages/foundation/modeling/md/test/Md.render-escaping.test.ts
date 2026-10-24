@@ -79,6 +79,35 @@ describe("@beep/md/Md.render writer escapes", () => {
     expect(reparsed(renderUnsafe(original))).toStrictEqual(encode(original));
   });
 
+  it("escapes dollars before encoded newlines without a skipped math recognizer", () => {
+    for (const value of ["$\nb$ c", "$\rb$ c", "$\r\nb$ c"]) {
+      const document = Document.make({ children: [p(text(value))] });
+      for (const markdown of [renderUnsafe(document), renderWithUnsafe(policyAdapter, document)]) {
+        const result = Result.getOrThrow(parseResult(markdown, { math: true }));
+        expect(encode(result.document)).toStrictEqual(encode(document));
+        expect(result.losses).toStrictEqual([]);
+      }
+    }
+  });
+
+  it("keeps multiline table values as visible breaks through both adapters", () => {
+    const table = Md.table([["Canonical Patch"], ['{\n  "count": 1\r\n}']], { headerRow: true });
+    const document = Md.make([table]);
+    const expected = '| Canonical Patch |\n| --- |\n| \\{<br/>  "count": 1<br/>\\} |';
+    expect(renderMarkdownBlock(table)).toBe(expected);
+    expect(renderWithUnsafe(policyAdapter, document)).toBe(expected);
+  });
+
+  it("keeps cell breaks nested in markup without rewriting references or titles", () => {
+    const table = Md.table([[Md.strong("a\nb"), link([text("c\rd")], O.some("title\nline")), "literal &#10;"]], {
+      headerRow: true,
+    });
+    const expected =
+      '| **a<br/>b** | [c<br/>d](https://example.com "title&#10;line") | literal &\\#10; |\n| --- | --- | --- |';
+    expect(renderMarkdownBlock(table)).toBe(expected);
+    expect(renderWithUnsafe(policyAdapter, Md.make([table]))).toBe(expected);
+  });
+
   it("closes inline math before a digit through both adapters", () => {
     expectWriter([p(InlineMath.make({ value: "x" }), text("123"))], "$x$&#49;23");
     expectWriter([p(link([InlineMath.make({ value: "x" }), text("1")]))], "[$x$&#49;](https://example.com)");
