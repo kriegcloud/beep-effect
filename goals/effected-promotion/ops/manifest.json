@@ -62,6 +62,10 @@
       "purpose": "Wave 3-1 oracle: GitHubMarkdown writer output rendered through micromark GFM and checked for the promised table and inline structure."
     },
     {
+      "path": "ops/lockfiles-adoption-parity.ts",
+      "purpose": "3-A1 parity: frozen copies of the legacy repo-cli bun.lock readers compared with the adopted @beep/lockfiles Lockfile.parse expression over the live lockfile."
+    },
+    {
       "path": "ops/lockfiles-bench.ts",
       "purpose": "Wave 3-5 bench gate: Lockfile.parse and withImporterNames cost on fixed corpora, compared against a baseline report."
     },
@@ -80,6 +84,10 @@
     {
       "path": "ops/repo-tsconfig-differential.ts",
       "purpose": "Wave 3-2 differential: TsconfigLoader.resolve against tsc --showConfig, optionally three-way with get-tsconfig."
+    },
+    {
+      "path": "ops/semver-owner-switch-differential.ts",
+      "purpose": "R1 differential: the deleted @beep/schema/Semver and hand-rolled VersionSync and CacheClientPin version code compared with @beep/semver over bun.lock and every tracked package.json."
     },
     {
       "path": "ops/xdg-systemd-differential.ts",
