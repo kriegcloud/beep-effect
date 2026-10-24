@@ -75,8 +75,9 @@ const scriptedSystemctl = (
   );
 
 const withSystemctl = (calls: Array<string>, exitCode = 0) => provideScopedLayer(scriptedSystemctl(calls, exitCode));
-const withHome = (home: string) => provideScopedLayer(ConfigProvider.layer(ConfigProvider.fromUnknown({ HOME: home })));
-const withoutHome = provideScopedLayer(ConfigProvider.layer(ConfigProvider.fromUnknown({})));
+const withHome = (home: string) =>
+  Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ HOME: home }));
+const withoutHome = Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({}));
 
 // The handler reports through Console; capturing it is how its rendering is
 // asserted alongside the units it wrote.
@@ -395,34 +396,36 @@ layer(NodeServices.layer, { excludeTestServices: true, timeout: "30 seconds" })(
     })
   );
 
-  it.effect(
-    "wires --bun-path, --page, and --uninstall through the research command tree",
-    Effect.fn(function* () {
-      const { home, execLine, unitsPresent } = yield* fixture();
-      const calls: Array<string> = [];
-      const runCommand = (args: ReadonlyArray<string>) =>
-        captureOutput(
-          Command.runWith(researchCommand, { version: "test", renderErrors: false })(["install-timers", ...args])
-        ).pipe(withSystemctl(calls), withHome(home), provideScopedLayer(FetchHttpClient.layer));
-      const installed = yield* runCommand(["--bun-path", "/usr/bin/bun", "--page", PAGE_ID]);
-      assertSuccess(installed.result, undefined);
-      assertSome(
-        yield* execLine("beep-research-daily.service"),
-        `ExecStart="/usr/bin/bun" run beep research daily --commit --page ${PAGE_ID}`
-      );
-      const removed = yield* runCommand(["--uninstall"]);
-      assertSuccess(removed.result, undefined);
-      expect(yield* unitsPresent).toEqual([false, false, false, false]);
-      expect(calls).toEqual([
-        "systemctl --user daemon-reload",
-        "systemctl --user enable --now beep-research-daily.timer",
-        "systemctl --user enable --now beep-research-repo-card.timer",
-        "systemctl --user disable --now beep-research-daily.timer",
-        "systemctl --user disable --now beep-research-repo-card.timer",
-        "systemctl --user daemon-reload",
-      ]);
-    })
-  );
+  it.layer(FetchHttpClient.layer, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "wires --bun-path, --page, and --uninstall through the research command tree",
+      Effect.fn(function* () {
+        const { home, execLine, unitsPresent } = yield* fixture();
+        const calls: Array<string> = [];
+        const runCommand = (args: ReadonlyArray<string>) =>
+          captureOutput(
+            Command.runWith(researchCommand, { version: "test", renderErrors: false })(["install-timers", ...args])
+          ).pipe(withSystemctl(calls), withHome(home));
+        const installed = yield* runCommand(["--bun-path", "/usr/bin/bun", "--page", PAGE_ID]);
+        assertSuccess(installed.result, undefined);
+        assertSome(
+          yield* execLine("beep-research-daily.service"),
+          `ExecStart="/usr/bin/bun" run beep research daily --commit --page ${PAGE_ID}`
+        );
+        const removed = yield* runCommand(["--uninstall"]);
+        assertSuccess(removed.result, undefined);
+        expect(yield* unitsPresent).toEqual([false, false, false, false]);
+        expect(calls).toEqual([
+          "systemctl --user daemon-reload",
+          "systemctl --user enable --now beep-research-daily.timer",
+          "systemctl --user enable --now beep-research-repo-card.timer",
+          "systemctl --user disable --now beep-research-daily.timer",
+          "systemctl --user disable --now beep-research-repo-card.timer",
+          "systemctl --user daemon-reload",
+        ]);
+      })
+    );
+  });
   it.effect(
     "parses systemd directives in order and supports data-first and data-last readers",
     Effect.fn(function* () {
@@ -611,43 +614,44 @@ layer(NodeServices.layer, { excludeTestServices: true, timeout: "30 seconds" })(
     })
   );
 
-  it.effect(
-    "wires --repo-root and --refresh through the research command tree",
-    Effect.fn(function* () {
-      const { fs, path, home, touch, execLine, readUnit, unitsPresent } = yield* fixture();
-      const root = path.join(home, "clone");
-      yield* fs.makeDirectory(root);
-      const calls: Array<string> = [];
-      const runCommand = (args: ReadonlyArray<string>) =>
-        captureOutput(Command.runWith(researchCommand, { version: "test", renderErrors: false })(args)).pipe(
-          withSystemctl(calls),
-          withHome(home),
-          provideScopedLayer(FetchHttpClient.layer)
+  it.layer(FetchHttpClient.layer, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "wires --repo-root and --refresh through the research command tree",
+      Effect.fn(function* () {
+        const { fs, path, home, touch, execLine, readUnit, unitsPresent } = yield* fixture();
+        const root = path.join(home, "clone");
+        yield* fs.makeDirectory(root);
+        const calls: Array<string> = [];
+        const runCommand = (args: ReadonlyArray<string>) =>
+          captureOutput(Command.runWith(researchCommand, { version: "test", renderErrors: false })(args)).pipe(
+            withSystemctl(calls),
+            withHome(home)
+          );
+        const installed = yield* runCommand(["install-timers", "--repo-root", root, "--bun-path", "/usr/bin/bun"]);
+        assertSuccess(installed.result, undefined);
+        const shim = path.join(home, ".local", "share", "mise", "shims", "bun");
+        yield* touch(shim);
+        const refreshed = yield* runCommand(["install-timers", "--refresh"]);
+        assertSuccess(refreshed.result, undefined);
+        expect(yield* unitsPresent).toEqual([true, true, true, true]);
+        assertSome(
+          yield* execLine("beep-research-daily.service"),
+          `ExecStart="${shim}" run beep research daily --commit`
         );
-      const installed = yield* runCommand(["install-timers", "--repo-root", root, "--bun-path", "/usr/bin/bun"]);
-      assertSuccess(installed.result, undefined);
-      const shim = path.join(home, ".local", "share", "mise", "shims", "bun");
-      yield* touch(shim);
-      const refreshed = yield* runCommand(["install-timers", "--refresh"]);
-      assertSuccess(refreshed.result, undefined);
-      expect(yield* unitsPresent).toEqual([true, true, true, true]);
-      assertSome(
-        yield* execLine("beep-research-daily.service"),
-        `ExecStart="${shim}" run beep research daily --commit`
-      );
-      expect(Str.split(yield* readUnit("beep-research-daily.service"), "\n")).toContain(`WorkingDirectory=${root}`);
-      expect(calls).toEqual(
-        A.flatten(
-          A.replicate(
-            [
-              "systemctl --user daemon-reload",
-              "systemctl --user enable --now beep-research-daily.timer",
-              "systemctl --user enable --now beep-research-repo-card.timer",
-            ],
-            2
+        expect(Str.split(yield* readUnit("beep-research-daily.service"), "\n")).toContain(`WorkingDirectory=${root}`);
+        expect(calls).toEqual(
+          A.flatten(
+            A.replicate(
+              [
+                "systemctl --user daemon-reload",
+                "systemctl --user enable --now beep-research-daily.timer",
+                "systemctl --user enable --now beep-research-repo-card.timer",
+              ],
+              2
+            )
           )
-        )
-      );
-    })
-  );
+        );
+      })
+    );
+  });
 });

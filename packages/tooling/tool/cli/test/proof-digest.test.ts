@@ -1,17 +1,15 @@
 import { collectProofEpoch, proofEpochDigest, proofInputKey } from "@beep/repo-cli/test/Yeet";
-import { provideScopedLayer } from "@beep/test-utils";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 
-const CryptoLayer = NodeCrypto.layer;
 const PlatformLayer = Layer.mergeAll(NodeCrypto.layer, NodeFileSystem.layer, NodePath.layer);
 
-describe("proof digest derivation", () => {
+it.layer(PlatformLayer)("proof digest derivation", (it) => {
   it.effect("pins the proof input key golden value", () =>
     proofInputKey({
       laneId: "coverage",
@@ -24,8 +22,7 @@ describe("proof digest derivation", () => {
         Effect.sync(() => {
           expect(key).toBe("8bdd88f9d6be41b8b6785ed9c1b1ec83636b9fdf8b82c4cc5aff2c0cf5c02be3");
         })
-      ),
-      provideScopedLayer(CryptoLayer)
+      )
     )
   );
 
@@ -42,8 +39,7 @@ describe("proof digest derivation", () => {
         Effect.sync(() => {
           expect(digest).toBe("f11ba5b46cc83373b84f72aacf4a129037cfbfcd0f3c3d295e6a55bd4378ee49");
         })
-      ),
-      provideScopedLayer(CryptoLayer)
+      )
     )
   );
 
@@ -62,6 +58,6 @@ describe("proof digest derivation", () => {
         policyPackVersion: "9.8.7",
         digest: "c7882af3d329abacab659646adb399fca1f00a7af44e8fac5c9713e5ce50f799",
       });
-    }).pipe(provideScopedLayer(PlatformLayer))
+    })
   );
 });
