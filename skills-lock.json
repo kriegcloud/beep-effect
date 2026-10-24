@@ -243,7 +243,7 @@
         ".claude/skills/operator-handoff",
         ".agents/skills/operator-handoff"
       ],
-      "installedTreeHash": "a660f7653a61dcd703912169f16e6354489d8852c76a1cc654be5754839432a0"
+      "installedTreeHash": "376aae5dd0d9b74f1b4fe6c152a5bf973d8c30b90968eb0f81ca6e477474a29b"
     },
     "oracle": {
       "_tag": "vendored",

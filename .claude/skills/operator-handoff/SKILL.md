@@ -51,17 +51,25 @@ Do these in order, without asking the operator anything:
      runs), each with the maximum timeout, re-armed on every expiry;
    - every merge gate the handoff lists as armed or pending, using the
      argv-file recipe and verifying `ExecStart` names the right sha;
-   - any wait-then-arm units it lists.
+   - any wait-then-arm units it lists;
+   - each `background-job` register row: `bun run beep yeet job wait <id>`,
+     or re-submit it when the job is gone (orchestrate Hand-off step 1
+     converts pollers into exactly these detached jobs);
+   - each `systemd-unit` register row: `systemctl --user status <unit>`, and
+     its orphan plan when the unit is inactive;
+   - each `in-process-agent` row the predecessor could not convert: run the
+     authorized parts of its orphan plan and keep its brief on disk.
    `systemctl --user list-units 'merge-gate-*' 'wait-arm-*'` shows which
-   survived; re-arm only the missing ones.
+   gates and waiters survived; re-arm only the missing ones.
 5. Send the handoff's "Broadcast" text only to units the "Communication
    routes" table marks as authorized contacts, through the route recorded
    there. That column is where the holder records the operator's
    coordination authorization for each unit. A session id, register row or this skill's invocation does not
    establish messaging permission, and a Claude Desktop attachment is a
    separate qualification: use a `local_…` Desktop route only where the table
-   authorizes it. Record every other unit as unreachable in the handoff and
-   keep its brief on disk; never resume a dormant Codex Desktop task to
+   authorizes it. Record every other unit as unreachable in the handoff,
+   keep its brief on disk and apply only the authorized parts of its orphan
+   plan; never resume a dormant Codex Desktop task to
    deliver a message.
 6. Work the "Next actions" list. The standing loop is the orchestrate
    skill's "Run" section: verify each `final <sha40>` (head, draft, threads,
