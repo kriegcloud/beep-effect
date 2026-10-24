@@ -192,6 +192,11 @@ flag counts only when:
 - the block's layer does not compose `TestClock.layer()`, directly or through same-file bindings
   (`composesTestClock`). `TestClock.layer` installs a TestClock as the Clock again
   (`TestClock.ts:553`).
+- a nested block inherits the live Clock only while its own layer does not compose
+  `TestClock.layer()` either (`reinstallsTestClock`, from the #2227 review): `@effect/vitest`
+  composes the nested layer over the outer one, so an inner `it.layer(TestClock.layer())` runs its
+  tests, and every block inside it, on a TestClock again. Two failing-first fixtures, direct and
+  through a same-file binding with a further nested block, now flag.
 
 This guard was added after the first `--write`. That run retired
 `ProviderCache.test.ts:366`, whose block layer `CacheTestServices` merges `TestClock.layer()`, and
@@ -385,7 +390,8 @@ cross-provider lane.
 
 ## Reversal
 
-Revert the PR. The 23 rows come back from the base inventory with their status and reasons. The
-12 converted rows return to `open`, and the 10 annotated reasons lose their owner/exit suffix. The
+Revert the PR. The 22 retired rows come back from the base inventory with their status and reasons.
+The 13 converted rows return to `open` (the `files-command` `withReplacedPath` exception reverts to
+the base's open `withEnvVar` row), and the 10 annotated reasons lose their owner/exit suffix. The
 inherited EV011 row returns as a new open finding until its import is fixed again. Per-repair
 reversals are listed above.

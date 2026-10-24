@@ -820,6 +820,8 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         `it.layer(L.mergeAll(services, TC.layer()), { excludeTestServices: true })((it) => { ${poll} });`,
         `const clocked = L.mergeAll(services, TC.layer()); it.layer(clocked, { excludeTestServices: true })((it) => { ${poll} });`,
         `const clocked = L.mergeAll(services, TC.layer()); const twice = L.mergeAll(clocked, clocked); it.layer(twice, { excludeTestServices: true })((it) => { ${poll} });`,
+        `it.layer(services, { excludeTestServices: true })((it) => { it.layer(TC.layer())((it) => { ${poll} }); });`,
+        `const clocked = L.mergeAll(other, TC.layer()); it.layer(services, { excludeTestServices: true })((it) => { it.layer(clocked)((it) => { it.layer(more)((it) => { ${poll} }); }); });`,
         `${until} it.layer(services, { excludeTestServices: true })((it) => { it.effect("live", () => until(probe)); }); it.layer(services)((it) => { it.effect("clock", () => until(probe)); });`,
       ];
       for (const body of testClock) assertTrue(yield* hasRule(body, "EV008"));

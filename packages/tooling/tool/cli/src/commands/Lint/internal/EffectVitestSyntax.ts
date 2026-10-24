@@ -1128,8 +1128,15 @@ export const createEffectVitestHarnessIndex: {
     if (live) MutableHashSet.add(liveLayers, start);
     return true;
   };
+  // A nested block inherits the live Clock from an `excludeTestServices` owner unless its own layer
+  // composes `TestClock.layer()`, which installs a TestClock again for that block and everything inside it.
+  const reinstallsTestClock = (call: CallExpression): boolean => {
+    const builder = call.getExpression();
+    const layer = Node.isCallExpression(builder) ? builder.getArguments()[0] : undefined;
+    return layer !== undefined && composesTestClock(layer, imports);
+  };
   const registerCallbacks = (call: CallExpression, mode: EffectVitestHarnessMode, liveOwner = false): boolean => {
-    const live = mode === "layer" && (liveOwner || excludesTestServices(call, imports));
+    const live = mode === "layer" && ((liveOwner && !reinstallsTestClock(call)) || excludesTestServices(call, imports));
     const registered = mode === "effect" && liveOwner ? "live" : mode;
     let changed = false;
     for (const callback of effectVitestTestCallbacks(call, imports))
