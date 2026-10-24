@@ -951,27 +951,30 @@ const conformanceOutputFlag = Flag.Path("output", { pathType: "file" }).pipe(
   Flag.withDescription("Write the cache-conformance-run/v1 report to this path")
 );
 
-const conformanceTargetCommand = <R>(
-  name: string,
-  description: string,
-  run: (
-    descriptor: CacheConformanceTarget,
-    bearers: CacheConformanceBearers,
-    corpus: CacheConformanceCorpus
-  ) => Effect.Effect<CacheConformanceRun, CacheCommandError, R>
-) =>
-  Command.make(name, { target: conformanceTargetFlag, output: conformanceOutputFlag }, ({ target, output }) =>
+// Command names stay literal at each Command.make site: the knowledge
+// command-surface derivation reads them statically.
+const runConformanceTarget =
+  <R>(
+    run: (
+      descriptor: CacheConformanceTarget,
+      bearers: CacheConformanceBearers,
+      corpus: CacheConformanceCorpus
+    ) => Effect.Effect<CacheConformanceRun, CacheCommandError, R>
+  ) =>
+  ({ target, output }: { readonly target: string; readonly output: string }) =>
     Effect.gen(function* () {
       const { descriptor, bearers } = yield* readConformanceTarget(target);
       const corpus = yield* buildCacheConformanceCorpus(process.cwd());
       yield* writeConformanceRun(yield* run(descriptor, bearers, corpus), output);
-    }).pipe(renderCacheFailure)
-  ).pipe(Command.withDescription(description), Command.provide(FetchHttpClient.layer));
+    }).pipe(renderCacheFailure);
 
-const cacheConformanceRunCommand = conformanceTargetCommand(
+const cacheConformanceRunCommand = Command.make(
   "conformance-run",
-  "Score one Remote Cache target over direct HTTP; native and lab cases are not executed",
-  (descriptor, bearers, corpus) => runCacheConformance(corpus, descriptor, bearers)
+  { target: conformanceTargetFlag, output: conformanceOutputFlag },
+  runConformanceTarget((descriptor, bearers, corpus) => runCacheConformance(corpus, descriptor, bearers))
+).pipe(
+  Command.withDescription("Score one Remote Cache target over direct HTTP; native and lab cases are not executed"),
+  Command.provide(FetchHttpClient.layer)
 );
 
 const cacheConformanceNativeCommand = Command.make(
@@ -1002,13 +1005,17 @@ const cacheConformanceNativeCommand = Command.make(
   Command.provide(FetchHttpClient.layer)
 );
 
-const cacheConformanceLabCommand = conformanceTargetCommand(
+const cacheConformanceLabCommand = Command.make(
   "conformance-lab",
-  "Inject RC-023 fault classes through the proxy and measure the RC-027/RC-028 envelopes",
-  (descriptor, bearers, corpus) =>
+  { target: conformanceTargetFlag, output: conformanceOutputFlag },
+  runConformanceTarget((descriptor, bearers, corpus) =>
     loadCacheConformanceEnvelope(process.cwd()).pipe(
       Effect.flatMap((envelope) => runCacheConformanceLab(corpus, descriptor, bearers, envelope))
     )
+  )
+).pipe(
+  Command.withDescription("Inject RC-023 fault classes through the proxy and measure the RC-027/RC-028 envelopes"),
+  Command.provide(FetchHttpClient.layer)
 );
 
 const cacheConformanceCompareCommand = Command.make(
