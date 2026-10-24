@@ -1043,6 +1043,57 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       })
     );
 
+    it.effect(`${adapter.agentKind} honors the explicit stamp cap after 3000ms of startup work`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* makeHarnessFixtureRoot();
+        const oracle = yield* typescriptHarnessHash(root);
+        const bin = yield* fs.makeTempDirectoryScoped();
+        const date = path.join(bin, "date");
+        // Pin the counterexample without sleeping or depending on runner load:
+        // the body starts at 1000ms and reaches the stamp gate at 4000ms.
+        yield* fs.writeFileString(
+          date,
+          `#!/usr/bin/env bash
+if [ "$*" = '+%s%3N' ]; then
+  if [ -e "${date}.started" ]; then
+    printf '4000\\n'
+  else
+    touch "${date}.started"
+    printf '1000\\n'
+  fi
+else
+  command -p date "$@"
+fi
+`
+        );
+        yield* fs.chmod(date, 0o755);
+        const executablePath = `${bin}:${yield* Config.String("PATH")}`;
+        for (const stampCap of ["60s", ""]) {
+          yield* fs.remove(`${date}.started`, { force: true });
+          const run = yield* runWriter(
+            yield* encodeJson({ ...sessionStartPayload(root), hook_event_name: adapter.hookEvent }),
+            {
+              writerPath: adapter.writerPath,
+              ...(adapter.registeredEvent === undefined ? {} : { registeredEvent: adapter.registeredEvent }),
+              executablePath,
+              stampCap,
+            }
+          );
+          if (stampCap === "60s") {
+            yield* assertAdapterStamp(run, adapter.agentKind, adapter.stdout, oracle.harnessHash);
+            expect(run.refusals).toHaveLength(0);
+          } else {
+            expect(run.stdout).toBe(adapter.stdout);
+            expect(run.rows).toHaveLength(1);
+            assertNone((yield* decodeHookPulseRow(A.getUnsafe(run.rows, 0))).harnessHash);
+            expect((yield* decodeHookPulseRefusalJson(A.getUnsafe(run.refusals, 0))).reason).toBe("stamp-failed");
+          }
+        }
+      })
+    );
+
     it.effect(`${adapter.agentKind} stamp assertion reports refusals for None stamps and missing rows`, () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;

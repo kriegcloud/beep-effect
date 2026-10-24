@@ -786,20 +786,20 @@ describe("Markdown.stringify", () => {
         `emitted: ${JSON.stringify(emitted)} must not re-parse as an autolink`
       );
     });
-    it("KNOWN LIMITATION: email-shaped plain text re-parses as an autolink under gfm", () => {
-      // The email matcher is a postprocess over DECODED text (the P2
-      // hook-placement ruling), so no backslash or entity spelling can
-      // hide an email-shaped run from it — the escape decodes away
-      // before the scan. Canonical stringify therefore cannot keep
-      // email-shaped plain text plain under the gfm dialect; this test
-      // pins the limitation so a future fix is a deliberate change.
+    it("keeps email-shaped plain text literal under gfm", () => {
+      // Escape provenance survives until the email postprocess.
       const emitted = out(rootOf(paragraph(text("mail a@b.example please"))));
       const reparsed = Result.getOrThrow(Markdown.parseResult(emitted));
       const p = reparsed.children[0];
-      assert.isTrue(
-        p?.type === "paragraph" && A.some(p.children, (child) => child.type === "link"),
-        `emitted: ${JSON.stringify(emitted)} — if this now stays text, the limitation was fixed; update this pin`
-      );
+      assert.strictEqual(emitted, "mail a\\@b.example please\n");
+      assert.isTrue(p?.type === "paragraph");
+      if (p?.type === "paragraph") {
+        assert.deepStrictEqual(
+          A.map(p.children, (child) => child.type),
+          ["text"]
+        );
+        assert.strictEqual(p.children[0]?.type === "text" ? p.children[0].value : "", "mail a@b.example please");
+      }
     });
   });
 

@@ -171,6 +171,16 @@ Runbook: `docs/runbooks/agent-pools.md`.
   starts; do not respond to a missing MCP tool by asking the operator to unlock
   1Password or run `op signin`.
 
+## Sensitive human input
+
+When an authorized task needs sensitive human text (password, OTP, recovery
+code, token), use the `plasma-sensitive-entry` skill before collecting it.
+Its masked Plasma dialog delivers the value directly to the authorized
+consumer; never request or expose it through chat, question tools, terminal
+input, logs, arguments or files. Missing secure GUI delivery blocks collection.
+Canonical local YubiKey privilege wrappers, remote authentication wrappers and
+the agent 1Password lane take precedence; a dialog never replaces those routes.
+
 ## Code Laws
 
 - Use schema-first domain models; prefer typed errors and tagged unions.
@@ -233,9 +243,15 @@ needed only for the escalation list below.
   final; nobody un-drafts and merges in one step. Whoever merges re-reads the
   review threads immediately before merging: a failed or rate-limited thread
   read is unknown, never zero.
-- Review loops stop after round 2: fix every P0/P1 in any round; from round 3,
-  answer P2-and-below threads with a tracked follow-up and resolve them
-  instead of pushing again.
+- Fix findings where they are found (operator 2026-10-24): every actionable
+  review finding, any severity and any round, and every defect observed while
+  working is fixed in the current PR before it merges; a defect outside the
+  PR's files gets a small PR opened the same hour. Never file a "tracked
+  follow-up" issue to defer fixable work. File an issue only for work blocked
+  on the operator, on elapsed time or on money, or for a deferral the
+  operator explicitly authorized (such as an S11 merge over reds with one
+  batch fix PR). A finding judged wrong is answered with the reason and
+  resolved; that is not a deferral. Batch each round's fixes into one push.
 - Inherited reds: attribute first, fix them once on `main` (one small PR) and
   tell dependent lanes to merge `main` once; do not copy the fix into each
   lane. The orchestrator declares one consolidated unblocker per red episode
@@ -275,6 +291,14 @@ needed only for the escalation list below.
   monitor; hosted CI is the authoritative proof and `yeet verify` is
   on-demand. Never wait on a queued local full proof to publish. One push per
   fully addressed wave, never per file or comment (push-first-publish D1–D11).
+- When local compute is constrained (operator 2026-10-24), push straight to
+  hosted CI instead of queueing: if scheduler admission or a local gate has
+  waited 10 minutes, stop that local run, keep the package-scoped checks that
+  already passed (`quality package-verify`, or lint and check of the touched
+  packages), `git push`, and open the PR with
+  `gh pr create --draft --label ready-for-heavy`, then flip it with
+  `bun run beep yeet ready` at content-final as usual. Hosted CI is the
+  proof; record in the PR body which local checks ran and which were skipped.
 - Draft means only "the owner is still pushing". Flip the PR ready with
   `bun run beep yeet ready` as soon as its content is final and cheap gates
   pass; do not wait for hosted heavy CI, which doubles as the review window.

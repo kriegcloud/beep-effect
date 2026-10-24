@@ -448,6 +448,15 @@ describe("@beep/md/Md.syntax phrasing mapping", () => {
     ]);
   });
 
+  it("distinguishes literal soft breaks from newline character references", () => {
+    expect(encoded("a&#10;b\nc&#xA;d\ne&NewLine;f").children).toEqual([
+      { _tag: "p", children: [{ _tag: "text", value: "a\nb c\nd e\nf" }] },
+    ]);
+    expect(encoded("a&#10;b\nc", { softBreak: "newline" }).children).toEqual([
+      { _tag: "p", children: [{ _tag: "text", value: "a\nb\nc" }] },
+    ]);
+  });
+
   it("merges escaped HTML with surrounding text while keeping HTML newlines", () => {
     const source = 'before <span\nclass="x">after</span> end';
     expect(encoded(source).children).toEqual([{ _tag: "p", children: [{ _tag: "text", value: source }] }]);
@@ -756,8 +765,8 @@ describe("@beep/md/Md.syntax recognizers", () => {
     expect(bridge("costs \\$5 and \\$6", { math: true }).losses).toEqual([]);
   });
 
-  it("skips inline math that spans entities and display math inside containers", () => {
-    const result = bridge("a &amp; $b$\n\n> $$\n> x\n> $$\n\n> a $b\n> c$", { math: true });
+  it("recognizes math beside entities but skips math spanning entities or container prefixes", () => {
+    const result = bridge("a &amp; $b$\n\n$a&amp;b$\n\n> $$\n> x\n> $$\n\n> a $b\n> c$", { math: true });
     expect(A.map(result.losses, (loss) => `${loss.reason}:${loss.nodeKind}`)).toEqual([
       "recognizerSkipped:text",
       "recognizerSkipped:paragraph",

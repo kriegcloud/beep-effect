@@ -9,6 +9,7 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { flow } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Match from "effect/Match";
@@ -20,9 +21,12 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { doctestSourceMarker, isDoctestSourcePath } from "../jsdoc/DoctestSource.ts";
 import {
+  CheckerScriptName,
   CodegenGeneratorPackage,
+  checkerEngineExemptions,
   ImplScriptDrift,
   implScriptDefaults,
+  NonCanonicalChecker,
   PackageKind,
   PackageScriptsReport,
   ScriptsBlock,
@@ -30,7 +34,7 @@ import {
   TaskScriptName,
   taskScriptRules,
 } from "./PackageScripts.schemas.ts";
-import type { PackageScriptsDrift, TaskScriptRule } from "./PackageScripts.schemas.ts";
+import type { CheckerEngineExemption, PackageScriptsDrift, TaskScriptRule } from "./PackageScripts.schemas.ts";
 
 const $I = $RepoCliId.create("internal/package-scripts/PackageScriptsPolicy");
 
@@ -234,6 +238,61 @@ const diffBlock: PackageScriptsPolicyShape["diff"] = (actual, expected) => {
   return drift;
 };
 
+// `tsc-rs` is the only TypeScript checker a `beep:build`, `beep:check`, or `beep:check:*` script
+// may run. Every word of the command counts, not just each segment's head, so runner flag values
+// (`bunx -p typescript tsc`), wrappers (`env … tsc`, `node node_modules/typescript/bin/tsc`) and
+// assignments (`TSC=tsgo`) cannot hide a checker. Each word is normalized first: a trailing
+// `@<version>` is dropped, the `@typescript/native-preview` package maps to `tsgo`, and the
+// basename loses a `.js`/`.cjs`/`.mjs`/`.cmd`/`.exe` extension, so `tsc@5.9.3`, `tsgo@latest` and
+// `node node_modules/typescript/lib/tsc.js` count too. A normalized `tsgo` or `tsc` fails the gate
+// unless `checkerEngineExemptions` carries a reviewed row for that manifest script.
+const COMMAND_WORD_SEPARATOR = /[\s;&|=()"'`]+/u;
+const isCheckerScriptName = S.is(CheckerScriptName);
+const isNonCanonicalChecker = S.is(NonCanonicalChecker);
+const CHECKER_PACKAGE_ALIASES: Readonly<Record<string, NonCanonicalChecker>> = {
+  "@typescript/native-preview": "tsgo",
+};
+const normalizeCommandWord = flow(
+  Str.replace(/(?<=.)@[^/@]*$/u, ""),
+  (word: string) => O.getOrElse(R.get(CHECKER_PACKAGE_ALIASES, word), () => word),
+  Str.split("/"),
+  A.lastNonEmpty,
+  Str.replace(/\.(?:[cm]?js|cmd|exe)$/u, "")
+);
+const commandCheckers = flow(
+  Str.split(COMMAND_WORD_SEPARATOR),
+  A.map(normalizeCommandWord),
+  A.filter(isNonCanonicalChecker),
+  A.dedupe
+);
+const isExempt = (
+  exemptions: ReadonlyArray<CheckerEngineExemption>,
+  manifest: string,
+  script: string,
+  engine: NonCanonicalChecker
+) => A.some(exemptions, (row) => row.manifest === manifest && row.script === script && row.engine === engine);
+
+const checkerEngineDrift = (
+  exemptions: ReadonlyArray<CheckerEngineExemption>,
+  manifestPath: string,
+  actual: ScriptsBlock
+): ReadonlyArray<PackageScriptsDrift> => {
+  type Entry = readonly [name: string, value: string];
+  const entries: ReadonlyArray<Entry> = [...HashMap.toEntries(actual.impls), ...HashMap.toEntries(actual.extras)];
+  const scripts = A.sortWith(
+    A.filter(entries, ([name]: Entry) => isCheckerScriptName(name)),
+    ([name]: Entry) => name,
+    Order.String
+  );
+  return A.flatMap(scripts, ([name, value]: Entry) => {
+    const engines = commandCheckers(value);
+    return A.map(
+      A.filter(engines, (engine) => !isExempt(exemptions, manifestPath, name, engine)),
+      (engine): PackageScriptsDrift => ({ _tag: "checker-engine", name, engine, actual: value })
+    );
+  });
+};
+
 const implementationDrift = (actual: ScriptsBlock): ReadonlyArray<ImplScriptDrift> =>
   A.getSomes(
     A.map(implScriptDefaults, (row) =>
@@ -260,7 +319,10 @@ const implementationDrift = (actual: ScriptsBlock): ReadonlyArray<ImplScriptDrif
 export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, PackageScriptsPolicyShape>()(
   $I`PackageScriptsPolicy`,
   {
-    make: Effect.fn("PackageScriptsPolicy.make")(function* (root: string) {
+    make: Effect.fn("PackageScriptsPolicy.make")(function* (
+      root: string,
+      exemptions: ReadonlyArray<CheckerEngineExemption> = checkerEngineExemptions
+    ) {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const fsUtils = yield* FsUtils;
@@ -356,7 +418,11 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
           isNoEmitBuild(actual) && !declaresEmptyBuildOutputs(turboText)
             ? [{ _tag: "derivation-conflict", name: "build", reason: NOEMIT_BUILD_REASON }]
             : [];
-        const conflicts = [...derivationConflicts(evidence, manifestPath, expected), ...buildConflicts];
+        const conflicts = [
+          ...derivationConflicts(evidence, manifestPath, expected),
+          ...buildConflicts,
+          ...checkerEngineDrift(exemptions, manifestPath, actual),
+        ];
         const rendered =
           write && A.isReadonlyArrayNonEmpty(diffBlock(actual, expected))
             ? `${yield* codec

@@ -47,7 +47,7 @@ describe("literal autolink boundary behavior", () => {
     ["xmailto:a@b.org xxmpp:a@b.org/path", ["mailto:a@b.org", "mailto:a@b.org"]],
     ["a@b@c.org a@@c.org", ["mailto:b@c.org"]],
     ["https://a_b.c.d.e.f.g.h.i.j.k.l.org/", ["https://a_b.c.d.e.f.g.h.i.j.k.l.org/"]],
-    ["www.a\\.b.org", ["http://www.a\\.b.org"]],
+    ["www.a\\.b.org", ["http://www.a.b.org"]],
   ];
   for (const [source, expected] of cases) {
     it.effect(`linkifies the expected source boundaries: ${source}`, () =>
