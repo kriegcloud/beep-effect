@@ -56,6 +56,7 @@ the sub-wave order, dependencies and parallel lanes, and its decisions are recor
 | R1 (merged, #2195) | semver owner switch (no new package) | W4-h, W4-i. Deletes `@beep/schema/Semver` (zero importers, no alias). repo-cli VersionSync `BunResolver` and `DockerResolver` (one exported `selectLatestDockerTag`) and `@beep/repo-configs` `CacheClientPin.version` read through `@beep/semver`. Parity: `ops/semver-owner-switch-differential.ts`, recorded before the deletion in `research/semver-owner-switch-differential-r1.json`, 0 unclassified differences. Removes the "Duplicate semver model" Exception Ledger row; reuse-ledger `@beep/semver` section. |
 | Deferred | npm registry/publish driver, `@beep/sigstore`, `@beep/ink`, `engine` -> `@beep/mcp-kit` | D-05 as amended by W4-m: deleted from the lab at C and pinned by sha; see "Deferred" below. |
 | 4-W-a (merged, #2206) | `@beep/repo-workspaces` (core and config-deps) | W4-f, W4-g, W4-h. Rename-only partial move (W4-t), then the conformance commits to zero findings; the `testing` cluster stays in the lab and imports the leaves (4-W-b moves it). `@beep/commands` and `@beep/git` are operational-adapter driver deps confined by `test/reachability.test.ts`; `@pnpm/catalogs.*` exact catalog pins. The config-dependency ladder reads through `FileSystem`/`Path`/`Config` (correction 4). Oracle: `research/repo-workspaces-differential-w4.json` (186 members, 1,301 edges, `sort()` valid). Exception Ledger "Duplicate workspace discovery and dependency graph" (4-A1..4-A3). |
+| 4-S (merged, #2183) | `@beep/sbom` | W4-b, W4-g, W4-j, W4-s (4-S parts). The 8 pure modules of the lab `sbom` (IdentityToken included) as branded `S.Opaque` records admitted once per constructor; `SigstoreSigner` stays in the lab (signer-only `index.ts`, deferred `@beep/sigstore`). Bun-safe raw-glob reachability, `S.optionalKey` kept on the 5 input structs with their explicit-undefined tests inverted to pin rejection (#1928 under EF-40, W4-j), `ajv`/`ajv-formats` exact pins with no new `bun.lock` hash, the full-schema oracle and `ops/sbom-corpus.ts` (192 manifests, 191 generated, 0 schema failures). Lab retargets: the signer, github-actions `ActionsIdentityToken`/`ActionsProvenance`, both PROMOTED maps. |
 | DEBT (in review, this PR) | no new package | W4-j (DEBT), W4-u. Closes #2185: the lab `github-actions` suite is 957/957 on Node and Bun (was 12 failing) with the explicit-undefined tests inverted to pin rejection, the `DetachedProcess.reap` ESRCH classification fixed with a red-then-green real-process test, and the Bun `process.exitCode` restore in `Action.test.ts`. Closes #2170: `initiative-manifest/v2` `opsScripts` with the `beep goals doctor` registration check, all fourteen `ops/*.ts` registered. Closes #2160: the wave-4 plan snapshot note. |
 
 ## Wave 4 and the closing roadmap
@@ -75,12 +76,12 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | 3-3 (#2134, merged) | `@beep/config-file`; docgen `readJsoncFile`, repo-cli Models `load`; lab xdg and cli retargets | 3-Y (merged) |
 | 3-5 (#2159, merged) | `@beep/lockfiles`; lab workspaces retargets | main |
 | 2d-3 (#2141, merged) | `@beep/md` `Md.render` `&`/`$` escaping, evidence-gated | 2d-2 (merged) |
-| R0 (#2156, merged) | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
+| R0 (merged, #2156) | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
 | 3-A2 (merged, #2197) | package-json field growth (`DevEngine.onFail` gains `download`, verified against npm docs) | 3-4 (merged) |
 | 3-A5 | CheckCensus onto `TsconfigLoader.compilerOptions` | 3-2 (merged) |
 | 3-A7 | `TsconfigSync.schemas` onto `@beep/tsconfig`, byte parity | 3-2 (merged) |
 | 3-A8 (merged, #2202) | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |
-| 3-A9 (#2190, merged) | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
+| 3-A9 (merged, #2190) | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
 | 4-CI (merged, #2179) | one CI rule through `@beep/runtime-env` (W4-e) | main |
 | R1 (merged, #2195) | delete `@beep/schema/Semver`; BunResolver and DockerResolver onto `@beep/semver`; `Cache.policy.ts:245` pin | main |
 | R2a | `vitest.setup.ts`: `toml` shim out, `GlobShim` matcher on `@beep/glob`; `toml`, `picomatch`, `@types/picomatch` out of the root | main |
@@ -88,7 +89,7 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | R5b | slugger/TOC in `@beep/markdown`; `@effect/markdown-toc` out of docgen, repo-cli and root; effect-drizzle README script | main |
 | R9 | exiftool, pdf-tools, obs, tailscale onto `@beep/commands` `Run.collect`; retire the D-03 "Driver-local output folds" row | main (after #2145 if it is close to merging) |
 | R10 | `@beep/git` for `Skills/internal/MergeBase.ts`, `repo-run/GitWorktree.ts`, `Yeet/internal/ProvenanceFooter.ts`, dead `GitExec.ts` collectors | main |
-| 4-S | `@beep/sbom` (W4-b); lab signer, github-actions, PROMOTED maps | main |
+| 4-S (merged, #2183) | `@beep/sbom` (W4-b); lab signer, github-actions, PROMOTED maps | main |
 | 4-X (merged, #2184) | `@beep/xdg` (W4-c); m365-mcp `OutboxConfig`, repo-cli `WorkstationState` | 3-3 |
 | 4-C (merged, #2200) | `@beep/cli-kit` (W4-d); repo-cli MonitorComments + Accounts.view, ai-metrics agent-effectiveness; lab ui retargets | 3-3 |
 | 3-A1 (merged, #2187) | lockfiles adoption + `ResolvedPackage.installName`; `CatalogUsage.ts`, `RootCatalog.ts` (bun.lock half) | 3-5 |

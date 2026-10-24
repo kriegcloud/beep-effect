@@ -2388,6 +2388,11 @@
       ],
       "@beep/repo-workspaces/internal/*": [
         "./packages/tooling/library/repo-workspaces/src/internal/*"
+      ],
+      "@beep/sbom": ["./packages/foundation/modeling/sbom/src/index.ts"],
+      "@beep/sbom/*": ["./packages/foundation/modeling/sbom/src/*"],
+      "@beep/sbom/internal/*": [
+        "./packages/foundation/modeling/sbom/src/internal/*"
       ]
     }
   }
