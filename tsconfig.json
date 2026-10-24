@@ -2368,6 +2368,21 @@
       "@beep/lockfiles/internal/*": [
         "./packages/foundation/modeling/lockfiles/src/internal/*"
       ],
+      "@beep/xdg": ["./packages/foundation/capability/xdg/src/index.ts"],
+      "@beep/xdg/*": ["./packages/foundation/capability/xdg/src/*"],
+      "@beep/xdg/internal/*": [
+        "./packages/foundation/capability/xdg/src/internal/*"
+      ],
+      "@beep/cli-kit": [
+        "./packages/foundation/capability/cli-kit/src/index.ts"
+      ],
+      "@beep/cli-kit/*": ["./packages/foundation/capability/cli-kit/src/*"],
+      "@beep/cli-kit/internal/*": [
+        "./packages/foundation/capability/cli-kit/src/internal/*"
+      ],
+      "@beep/cli-kit/testing": [
+        "./packages/foundation/capability/cli-kit/src/testing.ts"
+      ],
       "@beep/repo-workspaces": [
         "./packages/tooling/library/repo-workspaces/src/index.ts"
       ],
@@ -2376,11 +2391,6 @@
       ],
       "@beep/repo-workspaces/internal/*": [
         "./packages/tooling/library/repo-workspaces/src/internal/*"
-      ],
-      "@beep/xdg": ["./packages/foundation/capability/xdg/src/index.ts"],
-      "@beep/xdg/*": ["./packages/foundation/capability/xdg/src/*"],
-      "@beep/xdg/internal/*": [
-        "./packages/foundation/capability/xdg/src/internal/*"
       ]
     }
   }

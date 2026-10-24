@@ -3,7 +3,7 @@
 // `@effected/cli/ui/testing/serializer` default-exports, never with `expect.addSnapshotSerializer`.
 import { assert, describe, it } from "@effect/vitest";
 import { expect } from "vitest";
-import { Doc, Render, Status } from "../../../effected/cli/index.ts";
+import { Doc, Render, Status } from "@beep/cli-kit";
 import { CliUiTest } from "../../../effected/cli/ui-testing.ts";
 import serializer from "../../../effected/cli/ui-testing-serializer.ts";
 

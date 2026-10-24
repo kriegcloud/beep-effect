@@ -5,7 +5,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";
 import { createElement } from "react";
-import { Cancelled, Fmt } from "../../../effected/cli/index.ts";
+import { Cancelled, Fmt } from "@beep/cli-kit";
 import type { ConfirmResult, ConfirmToggle } from "../../../effected/cli/ui.ts";
 import { Confirm, Toggle } from "../../../effected/cli/ui.ts";
 import { CliUiTest } from "../../../effected/cli/ui-testing.ts";

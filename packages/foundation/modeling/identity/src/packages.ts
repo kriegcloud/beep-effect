@@ -238,8 +238,9 @@ const generatedComposers = $I.compose(
   "package-json",
   "config-file",
   "lockfiles",
-  "repo-workspaces",
-  "xdg"
+  "xdg",
+  "cli-kit",
+  "repo-workspaces"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -3464,23 +3465,6 @@ export const $ConfigFileId: Identity.IdentityComposer<"@beep/config-file"> = com
 export const $LockfilesId: Identity.IdentityComposer<"@beep/lockfiles"> = composers.$LockfilesId;
 
 /**
- * Identity composer for `@beep/repo-workspaces`.
- *
- * **Example** (Make package ID)
- *
- * ```ts import.meta.vitest name="Make package ID"
- * import { $RepoWorkspacesId } from "@beep/identity/packages"
- *
- * const id = $RepoWorkspacesId.make("RepoWorkspaces")
- * console.log(id)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $RepoWorkspacesId: Identity.IdentityComposer<"@beep/repo-workspaces"> = composers.$RepoWorkspacesId;
-
-/**
  * Identity composer for `@beep/xdg`.
  *
  * **Example** (Make package ID)
@@ -3496,3 +3480,37 @@ export const $RepoWorkspacesId: Identity.IdentityComposer<"@beep/repo-workspaces
  * @since 0.0.0
  */
 export const $XdgId: Identity.IdentityComposer<"@beep/xdg"> = composers.$XdgId;
+
+/**
+ * Identity composer for `@beep/cli-kit`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $CliKitId } from "@beep/identity/packages"
+ *
+ * const id = $CliKitId.make("CliKit")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $CliKitId: Identity.IdentityComposer<"@beep/cli-kit"> = composers.$CliKitId;
+
+/**
+ * Identity composer for `@beep/repo-workspaces`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $RepoWorkspacesId } from "@beep/identity/packages"
+ *
+ * const id = $RepoWorkspacesId.make("RepoWorkspaces")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $RepoWorkspacesId: Identity.IdentityComposer<"@beep/repo-workspaces"> = composers.$RepoWorkspacesId;
