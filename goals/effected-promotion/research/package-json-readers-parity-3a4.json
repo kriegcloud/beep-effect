@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "tool": "goals/effected-promotion/ops/package-json-readers-parity.ts",
   "scope": "git ls-files '*package.json' excluding **/test/fixtures/**",
-  "commit": "be1d85d99393a4d878678303a6e9e0e49c679323",
+  "commit": "e6486764df9e7057aa964023c7614e4034dd27a9",
   "manifests": 193,
   "sites": [
     {
@@ -76,17 +76,17 @@
       "divergences": []
     },
     {
-      "site": "repo-cli Lint/PackageTestTypecheck.ts (name, scripts)",
+      "site": "repo-cli Lint/PackageTestTypecheck.ts (name, scripts of a named manifest)",
       "manifests": 193,
       "agree": 193,
       "rejectedByBoth": 0,
       "divergences": []
     },
     {
-      "site": "repo-cli Lint/internal/EffectSchemaInventoryModules.ts (effect catalog specifier, effectSource)",
+      "site": "repo-cli Lint/internal/EffectSchemaInventoryModules.ts (inventory pin)",
       "manifests": 193,
       "agree": 193,
-      "rejectedByBoth": 0,
+      "rejectedByBoth": 192,
       "divergences": []
     },
     {
