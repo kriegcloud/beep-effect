@@ -3,9 +3,8 @@ import {
   ResearchCommandServiceLive,
   ResearchNotionPullOptions,
 } from "@beep/repo-cli/commands/Research";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it, layer } from "@effect/vitest";
+import { expect, it, layer } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
@@ -27,7 +26,6 @@ const testLayer = Layer.mergeAll(
   NodeServices.layer
 );
 
-const provideTestLayer = provideScopedLayer(testLayer);
 const encodeLinksFile = S.encodeEffect(S.fromJsonString(S.Unknown));
 
 const LINKS = [
@@ -90,80 +88,72 @@ const stubNotionLayer = Layer.mergeAll(
   NodeServices.layer
 );
 
-describe("research notion-pull", () => {
+it.layer(testLayer, { timeout: "30 seconds" })("research notion-pull", (it) => {
   it.effect("writes one x-post card per usable saved link and skips the rest", () =>
-    provideTestLayer(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const { linksFile, vaultRoot } = yield* makeFixture(LINKS);
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const { linksFile, vaultRoot } = yield* makeFixture(LINKS);
 
-        const summary = yield* pullResearchNotionLinks(
-          ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot })
-        );
+      const summary = yield* pullResearchNotionLinks(
+        ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot })
+      );
 
-        expect(summary.pagesSeen).toBe(3);
-        expect(summary.cardsWritten).toBe(2);
-        expect(summary.skippedSeen).toBe(1);
+      expect(summary.pagesSeen).toBe(3);
+      expect(summary.cardsWritten).toBe(2);
+      expect(summary.skippedSeen).toBe(1);
 
-        const xPosts = path.join(vaultRoot, "sources/x-posts");
-        const written = yield* fs.readDirectory(xPosts);
-        expect(A.length(written)).toBe(2);
-        const cards = yield* Effect.forEach(written, (name) => fs.readFileString(path.join(xPosts, name)));
-        expect(A.every(cards, (card) => Str.includes("source-type: x-post")(card))).toBe(true);
-        expect(A.some(cards, (card) => Str.includes('Saved to Notion ("Reading List")')(card))).toBe(true);
-        expect(A.some(cards, (card) => Str.includes("title: Schema First")(card))).toBe(true);
-      })
-    )
+      const xPosts = path.join(vaultRoot, "sources/x-posts");
+      const written = yield* fs.readDirectory(xPosts);
+      expect(A.length(written)).toBe(2);
+      const cards = yield* Effect.forEach(written, (name) => fs.readFileString(path.join(xPosts, name)));
+      expect(A.every(cards, (card) => Str.includes("source-type: x-post")(card))).toBe(true);
+      expect(A.some(cards, (card) => Str.includes('Saved to Notion ("Reading List")')(card))).toBe(true);
+      expect(A.some(cards, (card) => Str.includes("title: Schema First")(card))).toBe(true);
+    })
   );
 
   it.effect("skips a link the catalog has already seen on a second pull", () =>
-    provideTestLayer(
-      Effect.gen(function* () {
-        const { linksFile, vaultRoot } = yield* makeFixture(A.take(LINKS, 1));
-        const options = ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot });
+    Effect.gen(function* () {
+      const { linksFile, vaultRoot } = yield* makeFixture(A.take(LINKS, 1));
+      const options = ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot });
 
-        const first = yield* pullResearchNotionLinks(options);
-        const second = yield* pullResearchNotionLinks(options);
+      const first = yield* pullResearchNotionLinks(options);
+      const second = yield* pullResearchNotionLinks(options);
 
-        expect(first.cardsWritten).toBe(1);
-        expect(second.cardsWritten).toBe(0);
-        expect(second.skippedSeen).toBe(1);
-      })
-    )
+      expect(first.cardsWritten).toBe(1);
+      expect(second.cardsWritten).toBe(0);
+      expect(second.skippedSeen).toBe(1);
+    })
   );
 
   it.effect("fails with the links-file path when the file is not valid JSON", () =>
-    provideTestLayer(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const vaultRoot = yield* fs.makeTempDirectoryScoped({ prefix: "research-notion-" });
-        const linksFile = path.join(vaultRoot, "links.json");
-        yield* fs.writeFileString(linksFile, "{ not json");
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const vaultRoot = yield* fs.makeTempDirectoryScoped({ prefix: "research-notion-" });
+      const linksFile = path.join(vaultRoot, "links.json");
+      yield* fs.writeFileString(linksFile, "{ not json");
 
-        const error = yield* Effect.flip(
-          pullResearchNotionLinks(ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot }))
-        );
-        expect(error.message).toContain("failed schema validation");
-      })
-    )
+      const error = yield* Effect.flip(
+        pullResearchNotionLinks(ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot }))
+      );
+      expect(error.message).toContain("failed schema validation");
+    })
   );
 
   it.effect("fails with the links-file path when the file is missing", () =>
-    provideTestLayer(
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const vaultRoot = yield* fs.makeTempDirectoryScoped({ prefix: "research-notion-" });
-        const linksFile = path.join(vaultRoot, "absent.json");
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const vaultRoot = yield* fs.makeTempDirectoryScoped({ prefix: "research-notion-" });
+      const linksFile = path.join(vaultRoot, "absent.json");
 
-        const error = yield* Effect.flip(
-          pullResearchNotionLinks(ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot }))
-        );
-        expect(error.message).toContain("Failed reading links file");
-      })
-    )
+      const error = yield* Effect.flip(
+        pullResearchNotionLinks(ResearchNotionPullOptions.make({ database: "Reading List", linksFile, vaultRoot }))
+      );
+      expect(error.message).toContain("Failed reading links file");
+    })
   );
 });
 

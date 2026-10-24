@@ -2,9 +2,8 @@ import { CacheFixtureRuntime, CacheSyntheticRequest } from "@beep/repo-cli/comma
 import { runCacheSyntheticForTesting } from "@beep/repo-cli/test/Cache";
 import { CacheClientPin } from "@beep/repo-configs/cache";
 import { LiteralKit, Sha256HexFromBytes } from "@beep/schema";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Crypto from "effect/Crypto";
@@ -220,7 +219,7 @@ const fixture = Effect.fn("SyntheticOrchestrationTest.fixture")(function* (fault
   return { root, fs, path, run, request, calls };
 });
 
-describe("synthetic orchestration process boundary", () => {
+it.layer(platform)("synthetic orchestration process boundary", (it) => {
   it.effect(
     "compares fresh, replay, invalidation and adversarial observations and removes disposable roots",
     Effect.fnUntraced(function* () {
@@ -234,7 +233,7 @@ describe("synthetic orchestration process boundary", () => {
       expect(calls).toContain("runtime");
       expect(calls).toContain("shadow-unicode-input");
       expect(yield* fs.readDirectory(path.join(root, ".beep/cache/experiments"))).toEqual(["owner"]);
-    }, provideScopedLayer(platform))
+    })
   );
 
   for (const fault of faults.pick([
@@ -260,7 +259,7 @@ describe("synthetic orchestration process boundary", () => {
         const result = yield* run().pipe(Effect.result);
         result.pipe(Result.isFailure, assertTrue);
         expect(yield* fs.readDirectory(path.join(root, ".beep/cache/experiments"))).toEqual(["owner"]);
-      }, provideScopedLayer(platform))
+      })
     );
   }
 
@@ -283,6 +282,6 @@ describe("synthetic orchestration process boundary", () => {
         (yield* run(changed).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
       }
       expect(calls).toEqual([]);
-    }, provideScopedLayer(platform))
+    })
   );
 });

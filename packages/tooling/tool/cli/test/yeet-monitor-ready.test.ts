@@ -38,7 +38,6 @@ import {
   yeetMonitorExitTable,
   yeetPrMergeReadyRowId,
 } from "@beep/repo-cli/test/Yeet";
-import { provideScopedLayer } from "@beep/test-utils";
 import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -1189,56 +1188,58 @@ it.layer(platform)("B7 remaining boundaries", (test) => {
 });
 
 for (const waiting of ["awaiting-log", "awaiting-run"])
-  it.effect(`keeps polling required ${waiting} decisions`, () =>
-    fixture((root) =>
-      Effect.gen(function* () {
-        const polls = yield* Ref.make(0);
-        const runner = ChildProcessSpawner.make(
-          Effect.fnUntraced(function* (command) {
-            if (!ChildProcess.isStandardCommand(command)) return yield* Effect.die("unexpected pipe");
-            if (command.args[1] === "list")
+  it.layer(platform)((it) => {
+    it.effect(`keeps polling required ${waiting} decisions`, () =>
+      fixture((root) =>
+        Effect.gen(function* () {
+          const polls = yield* Ref.make(0);
+          const runner = ChildProcessSpawner.make(
+            Effect.fnUntraced(function* (command) {
+              if (!ChildProcess.isStandardCommand(command)) return yield* Effect.die("unexpected pipe");
+              if (command.args[1] === "list")
+                return yield* Effect.succeed(
+                  handle(
+                    yield* encodeJson([
+                      { databaseId: 7, headSha: head, status: "in_progress", conclusion: "", name: "CI" },
+                    ])
+                  )
+                );
+              if (command.args[1] === "rerun") return yield* Effect.die("must not rerun an active parent");
+              if (A.contains(command.args, "--log-failed"))
+                return yield* Effect.succeed(
+                  waiting === "awaiting-log" ? handle("", 1) : handle("Test timed out in 5000ms")
+                );
               return yield* Effect.succeed(
                 handle(
-                  yield* encodeJson([
-                    { databaseId: 7, headSha: head, status: "in_progress", conclusion: "", name: "CI" },
-                  ])
+                  yield* encodeJson({
+                    jobs: [
+                      {
+                        databaseId: 991,
+                        name: "Lint",
+                        status: "completed",
+                        conclusion: "failure",
+                        steps: [{ name: "Test", conclusion: "failure" }],
+                      },
+                    ],
+                  })
                 )
               );
-            if (command.args[1] === "rerun") return yield* Effect.die("must not rerun an active parent");
-            if (A.contains(command.args, "--log-failed"))
-              return yield* Effect.succeed(
-                waiting === "awaiting-log" ? handle("", 1) : handle("Test timed out in 5000ms")
-              );
-            return yield* Effect.succeed(
-              handle(
-                yield* encodeJson({
-                  jobs: [
-                    {
-                      databaseId: 991,
-                      name: "Lint",
-                      status: "completed",
-                      conclusion: "failure",
-                      steps: [{ name: "Test", conclusion: "failure" }],
-                    },
-                  ],
-                })
-              )
-            );
-          })
-        );
-        const terminal = yield* runYeetMonitorUntilMerged(contextFor(root), {
-          ...options,
-          collectStatus: () =>
-            Ref.getAndUpdate(polls, (n) => n + 1).pipe(
-              Effect.map((n) => snapshot(root, [check("Lint", "fail")], true, head, n === 1 ? "CLOSED" : "OPEN"))
-            ),
-        }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner));
-        expect(terminal).toBe("closed");
-        expect(yield* Ref.get(polls)).toBe(2);
-        expect(yield* lines).toContain(waiting === "awaiting-log" ? "reclassifying next poll" : "deferring rerun");
-      })
-    ).pipe(provideScopedLayer(platform))
-  );
+            })
+          );
+          const terminal = yield* runYeetMonitorUntilMerged(contextFor(root), {
+            ...options,
+            collectStatus: () =>
+              Ref.getAndUpdate(polls, (n) => n + 1).pipe(
+                Effect.map((n) => snapshot(root, [check("Lint", "fail")], true, head, n === 1 ? "CLOSED" : "OPEN"))
+              ),
+          }).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner));
+          expect(terminal).toBe("closed");
+          expect(yield* Ref.get(polls)).toBe(2);
+          expect(yield* lines).toContain(waiting === "awaiting-log" ? "reclassifying next poll" : "deferring rerun");
+        })
+      )
+    );
+  });
 
 // R7 (reviewer follow-ups): a `--until-merged` session that starts after a gap
 // has to print what was said in that gap before it starts reporting merge

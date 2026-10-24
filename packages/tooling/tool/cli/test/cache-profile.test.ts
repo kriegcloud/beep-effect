@@ -4,9 +4,8 @@ import {
   writeCacheIdentityLintProfile,
 } from "@beep/repo-cli/test/Cache";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
@@ -16,7 +15,7 @@ const source =
   '{"root":true,"files":{"includes":["**","!**/*.gen.*","!!vendor"],"maxSize":4096},"plugins":["./rules/custom.grit"],"linter":{"enabled":true},"overrides":[{"includes":["**/test/**"],"formatter":{"enabled":false}}]}';
 const decodeJson = decodeJsoncTextAs(S.JsonObject);
 
-describe("identity lint profile projection", () => {
+it.layer(NodeServices.layer)("identity lint profile projection", (it) => {
   it.effect("retains exclusion order, scanner settings, plugins, rules and overrides", () =>
     Effect.gen(function* () {
       const rendered = yield* renderCacheIdentityLintProfile(source);
@@ -74,7 +73,7 @@ describe("identity lint profile projection", () => {
       yield* verifyCacheIdentityLintProfile(root);
       yield* fs.writeFileString(path.join(root, "biome.identity.jsonc"), "{}\n");
       expect(yield* verifyCacheIdentityLintProfile(root).pipe(Effect.isFailure)).toBe(true);
-    }).pipe(provideScopedLayer(NodeServices.layer))
+    })
   );
 
   it.effect("refuses output symlinks without changing their targets", () =>
@@ -89,6 +88,6 @@ describe("identity lint profile projection", () => {
       expect(yield* writeCacheIdentityLintProfile(root).pipe(Effect.isFailure)).toBe(true);
       expect(yield* verifyCacheIdentityLintProfile(root).pipe(Effect.isFailure)).toBe(true);
       expect(yield* fs.readFileString(target)).toBe("preserve");
-    }).pipe(provideScopedLayer(NodeServices.layer))
+    })
   );
 });

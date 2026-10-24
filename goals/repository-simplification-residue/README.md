@@ -60,6 +60,8 @@ Wave 4 retired 99 repo-cli assertion and harness rows and handed seven EV008/EV0
 ([record](./history/receipts/vitest-canon-wave-4.md)); wave 5 takes the resource-lifetime families.
 The EV012 seams lane gave the Anthropic turn kernel, the bounded SHACL validator and the Codex packet renderer production service seams and retired their three module mocks
 ([record](./history/receipts/vitest-canon-ev012-seams.md)).
+Wave 6 retired 116 repo-cli EV002 rows and handed 19 to #1855
+([record](./history/receipts/vitest-canon-wave-6.md)); waves 5 and 7 take EV004/EV003 and EV010.
 Issue #1876 is complete: the RDF failure assertions and the Pacer logout teardown
 witness are ported, with a per-hunk disposition of the preserved exports
 ([record](./history/receipts/rdf-pacer-ports.md)).

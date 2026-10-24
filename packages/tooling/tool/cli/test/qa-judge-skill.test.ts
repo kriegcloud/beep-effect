@@ -1,10 +1,9 @@
 import { QaJudgeContract, QaJudgeSkillOptions, runQaJudgeSkill } from "@beep/repo-cli/commands/Qa";
 import { renderSkillMarkdown } from "@beep/skill-contract";
 import { it } from "@beep/test-runner";
-import { provideScopedLayer } from "@beep/test-utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { describe, expect, vi } from "@effect/vitest";
+import { expect, vi } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -17,7 +16,7 @@ import * as Str from "effect/String";
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const expectedMarkdown = Result.getOrThrow(renderSkillMarkdown(QaJudgeContract));
 
-describe("commands/Qa judge-skill", () => {
+it.layer(PlatformLayer)("commands/Qa judge-skill", (it) => {
   it.effect("writes the rendered artifact bytes to the requested path, creating parent directories", () =>
     Effect.acquireUseRelease(
       Effect.flatMap(FileSystem.FileSystem, (fs) => fs.makeTempDirectory({ prefix: "beep-qa-judge-skill-" })),
@@ -31,7 +30,7 @@ describe("commands/Qa judge-skill", () => {
         expect(yield* fs.readFileString(target)).toBe(expectedMarkdown);
       }),
       (dir) => Effect.flatMap(FileSystem.FileSystem, (fs) => fs.remove(dir, { recursive: true }).pipe(Effect.orDie))
-    ).pipe(provideScopedLayer(PlatformLayer))
+    )
   );
 
   it.effect("prints the exact renderer bytes to stdout without a trailing newline", () =>
@@ -48,6 +47,6 @@ describe("commands/Qa judge-skill", () => {
 
       expect(A.join(chunks, "")).toBe(expectedMarkdown);
       expect(Str.endsWith("\n")(expectedMarkdown)).toBe(false);
-    }).pipe(provideScopedLayer(PlatformLayer))
+    })
   );
 });
