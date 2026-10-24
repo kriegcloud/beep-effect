@@ -136,6 +136,7 @@ export const GoalDoctorFindingKind = LiteralKit([
   "capability-stranded",
   "ops-script-missing",
   "ops-script-unregistered",
+  "ops-script-duplicate",
 ]).pipe(
   $I.annoteSchema("GoalDoctorFindingKind", {
     description:
@@ -501,7 +502,8 @@ const opsScriptFindings = Effect.fn("Goals.opsScriptFindings")(function* <E, R>(
   }
   const files = yield* reader.opsFiles(record.packetPath);
   const present = HashSet.fromIterable(files);
-  const listed = HashSet.fromIterable(A.map(manifest.opsScripts, (script) => script.path));
+  const listedPaths = A.map(manifest.opsScripts, (script) => script.path);
+  const listed = HashSet.fromIterable(listedPaths);
   const missing = A.map(
     A.filter(manifest.opsScripts, (script) => !HashSet.has(present, script.path)),
     (script) =>
@@ -524,7 +526,21 @@ const opsScriptFindings = Effect.fn("Goals.opsScriptFindings")(function* <E, R>(
         file
       )
   );
-  return A.appendAll(missing, unregistered);
+  const duplicate = A.map(
+    A.filter(
+      A.dedupe(listedPaths),
+      (scriptPath) => A.length(A.filter(listedPaths, (other) => other === scriptPath)) > 1
+    ),
+    (scriptPath) =>
+      finding(
+        record.slug,
+        "ops-script-duplicate",
+        "blocking",
+        `opsScripts lists ${scriptPath} more than once; keep one entry per script.`,
+        scriptPath
+      )
+  );
+  return A.flatten([missing, unregistered, duplicate]);
 });
 
 const statusConsistencyFindings = (

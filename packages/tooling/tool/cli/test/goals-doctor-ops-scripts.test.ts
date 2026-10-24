@@ -14,13 +14,15 @@ import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { GoalPacketReader } from "@beep/repo-cli/commands/Goals/Doctor";
 
-const encodeJson = S.encodeSync(S.fromJsonString(S.Unknown));
+const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);
 const memoryLayer = Layer.mergeAll(MemoryFileSystem.layer, NodePath.layer);
 
 const COMPLETION_GATE = {
@@ -140,6 +142,22 @@ describe("goal ops script registration", () => {
     })
   );
 
+  it.effect("reports a path listed more than once, once", () =>
+    Effect.gen(function* () {
+      const { reader } = stubReader(["ops/a.ts", "ops/b.ts"]);
+      const text = manifestText({
+        opsScripts: [
+          { path: "ops/a.ts", purpose: "A." },
+          { path: "ops/b.ts", purpose: "B." },
+          { path: "ops/a.ts", purpose: "A again." },
+          { path: "ops/a.ts", purpose: "A a third time." },
+        ],
+      });
+      const { findings } = yield* goalPacketFindings(record(text), reader);
+      assert.deepStrictEqual(opsKeys(findings), ["demo ops-script-duplicate ops/a.ts"]);
+    })
+  );
+
   it.effect("the tree reader lists every tracked file under one packet's ops/", () =>
     Effect.gen(function* () {
       const tree = makeKnowledgeDoctorMemoryTree({
@@ -157,6 +175,8 @@ describe("goal ops script registration", () => {
         "ops/manifest.json",
         "ops/nested/b.ts",
       ]);
+      assert.deepStrictEqual(yield* reader.opsFiles("goals/demo-two"), ["ops/c.ts"]);
+      assert.deepStrictEqual(yield* reader.opsFiles("goals/absent"), []);
     })
   );
 
