@@ -18,7 +18,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { absolutePathPattern } from "./internal/absolute.ts";
+import { AbsolutePath } from "./internal/absolute.ts";
 import { NativeDirs } from "./NativeDirs.ts";
 import { currentPlatform, Xdg } from "./Xdg.ts";
 import type { XdgPaths, XdgPlatform } from "./Xdg.ts";
@@ -275,18 +275,7 @@ export class ResolvedAppDirs extends S.Opaque<ResolvedAppDirs, { readonly brand:
   }).pipe($I.annoteSchema("ResolvedAppDirs", { description: "The fully resolved, app-namespaced directories." }))
 ) {}
 
-/** An override path: absolute on either platform, used verbatim. */
-const AbsoluteOverride = S.String.check(
-  S.isPattern(
-    absolutePathPattern,
-    $I.annote("AbsoluteOverrideCheck", {
-      description: "A directory override is an absolute POSIX or Windows path.",
-      message: "Expected an absolute path",
-    })
-  )
-).pipe($I.annoteSchema("AbsoluteOverride", { description: "An absolute directory override path." }));
-
-const isAbsoluteOverride = S.is(AbsoluteOverride);
+const isAbsoluteOverride = S.is(AbsolutePath);
 
 /**
  * Per-kind directory overrides. Each wins outright over every other rung.
@@ -314,23 +303,23 @@ const isAbsoluteOverride = S.is(AbsoluteOverride);
 export class AppDirOverrides extends S.Opaque<AppDirOverrides, { readonly brand: unique symbol }>()(
   S.Struct({
     /** The config directory path, absolute and used verbatim. */
-    config: S.optionalKey(AbsoluteOverride).pipe(
+    config: S.optionalKey(AbsolutePath).pipe(
       $I.annoteKey("AppDirOverrides.config", { description: "The config directory path, absolute and used verbatim." })
     ),
     /** The data directory path, absolute and used verbatim. */
-    data: S.optionalKey(AbsoluteOverride).pipe(
+    data: S.optionalKey(AbsolutePath).pipe(
       $I.annoteKey("AppDirOverrides.data", { description: "The data directory path, absolute and used verbatim." })
     ),
     /** The cache directory path, absolute and used verbatim. */
-    cache: S.optionalKey(AbsoluteOverride).pipe(
+    cache: S.optionalKey(AbsolutePath).pipe(
       $I.annoteKey("AppDirOverrides.cache", { description: "The cache directory path, absolute and used verbatim." })
     ),
     /** The state directory path, absolute and used verbatim. */
-    state: S.optionalKey(AbsoluteOverride).pipe(
+    state: S.optionalKey(AbsolutePath).pipe(
       $I.annoteKey("AppDirOverrides.state", { description: "The state directory path, absolute and used verbatim." })
     ),
     /** The runtime directory path, absolute and used verbatim. */
-    runtime: S.optionalKey(AbsoluteOverride).pipe(
+    runtime: S.optionalKey(AbsolutePath).pipe(
       $I.annoteKey("AppDirOverrides.runtime", {
         description: "The runtime directory path, absolute and used verbatim.",
       })

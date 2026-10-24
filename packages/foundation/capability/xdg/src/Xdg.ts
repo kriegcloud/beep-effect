@@ -17,20 +17,9 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { absolutePathPattern, isAbsolutePosix, isAbsoluteWin32 } from "./internal/absolute.ts";
+import { AbsolutePath, isAbsolutePosix, isAbsoluteWin32 } from "./internal/absolute.ts";
 
 const $I = $XdgId.create("Xdg");
-
-/** `$HOME` as the layer admits it: an absolute path of either platform, never empty or relative. */
-const AbsoluteHome = S.String.check(
-  S.isPattern(
-    absolutePathPattern,
-    $I.annote("AbsoluteHomeCheck", {
-      description: "HOME is an absolute POSIX or Windows path.",
-      message: "Expected an absolute path",
-    })
-  )
-).pipe($I.annoteSchema("AbsoluteHome", { description: "An absolute HOME directory." }));
 
 /**
  * The operating system the path decisions are taken against.
@@ -338,7 +327,7 @@ export class Xdg extends Context.Service<Xdg, XdgPaths>()($I`Xdg`) {
           Effect.catchTag(config, "ConfigError", (cause) => Effect.fail(XdgEnvError.make({ variable: name, cause })))
       );
 
-      const home = yield* asEnvError("HOME", Config.schema(AbsoluteHome, "HOME"));
+      const home = yield* asEnvError("HOME", Config.schema(AbsolutePath, "HOME"));
 
       /**
        * An unset variable is `Option.none()`, not a failure, and so is a value
