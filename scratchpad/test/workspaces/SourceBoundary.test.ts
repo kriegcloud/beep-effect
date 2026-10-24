@@ -431,7 +431,7 @@ describe("SourceBoundary on the real tree", () => {
 	// ConfigDependencyHooks.ts embeds a node program (REPLAY_SCRIPT) as template
 	// text: it reads process.argv, writes process.stdout and calls import(url),
 	// all as TEXT that this module never executes.
-	const file = resolve(dirname(fileURLToPath(import.meta.url)), "../../effected/workspaces/ConfigDependencyHooks.ts");
+	const file = resolve(dirname(fileURLToPath(import.meta.url)), "../../../packages/tooling/library/repo-workspaces/src/ConfigDependencyHooks.ts");
 	const text = readFileSync(file, "utf8");
 	const open = text.indexOf("const REPLAY_SCRIPT = `");
 	const script = text.slice(text.indexOf("`", open) + 1, text.indexOf("\n`;", open));
@@ -499,20 +499,17 @@ describe("SourceBoundary review regressions", () => {
 
 
 describe("SourceBoundary round-2 scanner contracts", () => {
-	it.effect("keeps option payloads plain, optional and free of eager defaults", () =>
+	// W4-j: EF-40 (#2145) made these keys exact, so an explicit undefined is rejected.
+	it.effect("keeps option payloads plain, exact-optional and free of eager defaults", () =>
 		Effect.gen(function* () {
 			const options: ScanOptions = { root: "/repo/src", rules: ["process"] };
 			assert.deepStrictEqual(yield* S.decodeEffect(ScanOptions)(options), options);
 			assert.deepStrictEqual(yield* S.decodeEffect(ReferenceOptions)({}), {});
-			const explicit: ScanOptions = {
-				...options,
-				ignoreTokens: undefined,
-				allow: undefined,
-				extensions: undefined,
-				allowRules: { process: undefined, forbidImports: ["allowed.ts"] },
-			};
-			assert.deepStrictEqual(yield* S.decodeEffect(ScanOptions)(explicit), explicit);
-			assert.isTrue(S.is(ScanOptions)({ ...options, allowRules: undefined }));
+			const present: ScanOptions = { ...options, allow: [], extensions: [".ts"], allowRules: { forbidImports: ["allowed.ts"] } };
+			assert.deepStrictEqual(yield* S.decodeEffect(ScanOptions)(present), present);
+			for (const key of ["ignoreTokens", "allow", "extensions", "allowRules"] as const)
+				assert.isFalse(S.is(ScanOptions)({ ...options, [key]: undefined }), key);
+			assert.isFalse(S.is(ScanOptions)({ ...options, allowRules: { process: undefined } }));
 		}));
 
 	it("flags escaped process reads and spares longer cooked identifiers", () => {
