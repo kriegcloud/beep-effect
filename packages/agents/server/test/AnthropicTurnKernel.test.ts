@@ -1,88 +1,87 @@
-import { AnthropicTurnKernel } from "@beep/agents-server/AnthropicTurnKernel";
+import { AnthropicTurnKernelFromProvider, AnthropicTurnProvider } from "@beep/agents-server/AnthropicTurnKernel";
+import { makeRepairInvalidBlocks } from "@beep/agents-server/BlockRepair";
 import { AgentTurnKernel, TurnGenerationError } from "@beep/agents-use-cases/public";
+import { AnthropicToolJsonResponse, RepairError } from "@beep/anthropic";
 import { it } from "@beep/test-runner";
 import { beforeEach, describe, expect } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as AiError from "effect/ai/AiError";
+import * as LanguageModel from "effect/ai/LanguageModel";
+import * as Response from "effect/ai/Response";
 import * as Effect from "effect/Effect";
+import * as ExecutionPlan from "effect/ExecutionPlan";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as Stream from "effect/Stream";
-import { vi } from "vitest";
-import type * as Response from "effect/ai/Response";
+import type * as Config from "effect/Config";
 
-const providerState = vi.hoisted(
-  (): {
-    parts: ReadonlyArray<Response.StreamPartEncoded>;
-    providerError: AiError.AiError | undefined;
-    repairError: string | undefined;
-    repairInputTokens: number;
-    repairJson: string;
-    repairOutputTokens: number;
-  } => ({
-    parts: [],
-    providerError: undefined,
-    repairError: undefined,
-    repairInputTokens: 3,
-    repairJson: '{"repairs":[]}',
-    repairOutputTokens: 2,
+const providerState: {
+  parts: ReadonlyArray<Response.StreamPartEncoded>;
+  providerError: AiError.AiError | undefined;
+  repairError: string | undefined;
+  repairInputTokens: number;
+  repairJson: string;
+  repairOutputTokens: number;
+} = {
+  parts: [],
+  providerError: undefined,
+  repairError: undefined,
+  repairInputTokens: 3,
+  repairJson: '{"repairs":[]}',
+  repairOutputTokens: 2,
+};
+
+// Typed to the provider plan's contract: the live plan's model layer can fail
+// with a missing-key ConfigError, so the scripted one declares the same channel.
+const TestLanguageModel: Layer.Layer<LanguageModel.LanguageModel, Config.ConfigError> = Layer.effect(
+  LanguageModel.LanguageModel,
+  LanguageModel.make({
+    generateText: () => Effect.die("unexpected non-streaming provider call"),
+    streamText: () =>
+      providerState.providerError === undefined
+        ? Stream.fromIterable(providerState.parts)
+        : Stream.fail(providerState.providerError),
   })
 );
 
-vi.mock("@beep/anthropic", (importOriginal) =>
-  Promise.all([
-    import("effect/Effect"),
-    import("effect/ExecutionPlan"),
-    import("effect/Layer"),
-    import("effect/Stream"),
-    importOriginal<typeof import("@beep/anthropic")>(),
-    import("effect/ai/LanguageModel"),
-    import("effect/ai/Response"),
-  ]).then(([Effect, ExecutionPlan, Layer, Stream, actual, languageModel, response]) => {
-    const TestLanguageModel = Layer.effect(
-      languageModel.LanguageModel,
-      languageModel.make({
-        generateText: () => Effect.die("unexpected non-streaming provider call"),
-        streamText: () =>
-          providerState.providerError === undefined
-            ? Stream.fromIterable(providerState.parts)
-            : Stream.fail(providerState.providerError),
-      })
-    );
+const TestAnthropicTurnProvider = Layer.succeed(AnthropicTurnProvider)({
+  // One attempt that never retries: the plan only supplies the scripted model.
+  turnPlan: ExecutionPlan.make({
+    provide: TestLanguageModel,
+    while: (_error: AiError.AiError | Config.ConfigError) => false,
+  }),
+  repairInvalidBlocks: makeRepairInvalidBlocks(() =>
+    providerState.repairError === undefined
+      ? Effect.succeed(
+          AnthropicToolJsonResponse.make({
+            paramsJson: providerState.repairJson,
+            usage: Response.Usage.make({
+              inputTokens: {
+                cacheRead: undefined,
+                cacheWrite: undefined,
+                total: providerState.repairInputTokens,
+                uncached: providerState.repairInputTokens,
+              },
+              outputTokens: {
+                reasoning: undefined,
+                text: providerState.repairOutputTokens,
+                total: providerState.repairOutputTokens,
+              },
+            }),
+          })
+        )
+      : Effect.fail(
+          RepairError.make({
+            message: providerState.repairError,
+            operation: "generate_tool_json",
+          })
+        )
+  ),
+});
 
-    return {
-      ...actual,
-      AnthropicTurnPlan: ExecutionPlan.make({ provide: TestLanguageModel }),
-      generateAnthropicToolJson: () =>
-        providerState.repairError === undefined
-          ? Effect.succeed(
-              actual.AnthropicToolJsonResponse.make({
-                paramsJson: providerState.repairJson,
-                usage: response.Usage.make({
-                  inputTokens: {
-                    cacheRead: undefined,
-                    cacheWrite: undefined,
-                    total: providerState.repairInputTokens,
-                    uncached: providerState.repairInputTokens,
-                  },
-                  outputTokens: {
-                    reasoning: undefined,
-                    text: providerState.repairOutputTokens,
-                    total: providerState.repairOutputTokens,
-                  },
-                }),
-              })
-            )
-          : Effect.fail(
-              actual.RepairError.make({
-                message: providerState.repairError,
-                operation: "generate_tool_json",
-              })
-            ),
-    };
-  })
-);
+const TestAnthropicTurnKernel = AnthropicTurnKernelFromProvider.pipe(Layer.provide(TestAnthropicTurnProvider));
 
 const usage = (inputTokens = 12, outputTokens = 8): typeof Response.Usage.Encoded => ({
   inputTokens: { cacheRead: undefined, cacheWrite: undefined, total: inputTokens, uncached: inputTokens },
@@ -123,9 +122,9 @@ beforeEach(() => {
 });
 
 describe("AnthropicTurnKernel", () => {
-  // This module mock owns one scenario record; deferred provider and repair
+  // The test provider reads one scenario record; deferred provider and repair
   // reads must finish before the next case resets or mutates that record.
-  it.layer(AnthropicTurnKernel, { concurrent: false })("with a deterministic provider stream", (it) => {
+  it.layer(TestAnthropicTurnKernel, { concurrent: false })("with a deterministic provider stream", (it) => {
     it.effect(
       "captures finish usage and response metadata, then finalizes after every block",
       Effect.fnUntraced(function* () {

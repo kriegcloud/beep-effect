@@ -67,6 +67,7 @@ Wave 3 retired 27 law-practice-server and leaf-package rows and handed 23 to #18
 (`history/receipts/vitest-canon-wave-3.md`); wave 4 is the repo-cli assertion and harness families.
 Wave 4 retired 99 repo-cli assertion and harness rows and handed seven EV008/EV013 rows to #1855
 (`history/receipts/vitest-canon-wave-4.md`); wave 5 is the resource-lifetime families.
+The EV012 seams lane retired the three no-seam module mocks through production service seams, with no row or exception added (`history/receipts/vitest-canon-ev012-seams.md`).
 Wave 6 retired 116 repo-cli EV002 rows and handed 19 to #1855
 (`history/receipts/vitest-canon-wave-6.md`); waves 5 and 7 are EV004/EV003 and EV010.
 #1876 `residue-rdf-pacer` is complete (`history/receipts/rdf-pacer-ports.md`): the

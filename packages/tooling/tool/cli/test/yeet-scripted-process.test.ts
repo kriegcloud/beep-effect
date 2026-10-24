@@ -462,7 +462,9 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
           );
         assertNone(yield* absent(0, "[]"));
         const failed = yield* Effect.flip(absent(1, "GitHub REST unavailable"));
-        expect(failed.message).toBe("Failed to inspect current branch pull request through GitHub REST.");
+        expect(failed.message).toBe(
+          "Failed to inspect current branch pull request through GitHub REST: GitHub REST unavailable"
+        );
       })
     );
 

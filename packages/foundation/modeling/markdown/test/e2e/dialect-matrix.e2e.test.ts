@@ -26,7 +26,7 @@ import { normalizeHtml } from "../support/normalizeHtml.ts";
 /**
  * The spec examples whose output legitimately differs under gfm, keyed by
  * example number, valued by the construct responsible. Discovered
- * empirically over the full corpus, then verified by hand — eleven entries,
+ * empirically over the full corpus, then verified by hand — ten entries,
  * two constructs.
  */
 const EXPECTED_GFM_DIVERGENT: HashMap.HashMap<number, string> = HashMap.make(
@@ -39,10 +39,9 @@ const EXPECTED_GFM_DIVERGENT: HashMap.HashMap<number, string> = HashMap.make(
   [176, "tagfilter: one-line <style> block"],
   [178, "tagfilter: <script> block closed mid-line"],
   // Autolink literals promote bare URLs and email addresses that CommonMark
-  // leaves as literal text (five examples, all in the spec's Autolinks
+  // leaves as literal text (four examples, all in the spec's Autolinks
   // section as NEGATIVE cases for the angle-bracket form).
   [602, "autolink literal: URL inside an invalid <> autolink"],
-  [606, "autolink literal: email inside an invalid <> autolink"],
   [608, "autolink literal: URL inside a spaced-out <> non-autolink"],
   [611, "autolink literal: bare URL"],
   [612, "autolink literal: bare email address"]

@@ -29,10 +29,12 @@ import {
   TurnGenerationError,
 } from "@beep/agents-use-cases/public";
 import { AnthropicTurnPlan } from "@beep/anthropic";
+import { $AgentsServerId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as LanguageModel from "effect/ai/LanguageModel";
 import * as Tool from "effect/ai/Tool";
 import * as Toolkit from "effect/ai/Toolkit";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Metric from "effect/Metric";
@@ -50,6 +52,75 @@ import type { AssistantTurnEvent, TurnHistoryItem } from "@beep/agents-use-cases
 import type * as AiError from "effect/ai/AiError";
 import type * as Response from "effect/ai/Response";
 import type * as Config from "effect/Config";
+import type * as ExecutionPlan from "effect/ExecutionPlan";
+import type { RepairInvalidBlocks } from "./BlockRepair.ts";
+
+const $I = $AgentsServerId.create("AssistantTurn/AnthropicTurnKernel");
+
+/**
+ * Provider seam for the Anthropic turn kernel: the turn execution plan and the
+ * block repair call.
+ *
+ * **Details**
+ *
+ * `turnPlan` is the execution plan that provides the language model for the
+ * streamed forced-tool turn. `repairInvalidBlocks` is the provider-backed
+ * repair the kernel's repair tail runs over blocks that failed validation.
+ *
+ * {@link AnthropicTurnKernelFromProvider} reads this service when its layer is
+ * built. {@link AnthropicTurnProviderLive} supplies the Anthropic driver's
+ * `AnthropicTurnPlan` and the Anthropic-backed `repairInvalidBlocks`; tests
+ * provide a deterministic implementation instead.
+ *
+ * **Example** (Provide a deterministic provider)
+ *
+ * ```ts
+ * import { AnthropicTurnProvider, AnthropicTurnProviderLive } from "@beep/agents-server/AnthropicTurnKernel"
+ * import * as Effect from "effect/Effect";
+ * import * as Layer from "effect/Layer";
+ * const NoRepair = Layer.effect(AnthropicTurnProvider)(
+ *   Effect.map(AnthropicTurnProvider, (live) =>
+ *     AnthropicTurnProvider.of({ ...live, repairInvalidBlocks: () => Effect.die("repair is not expected") })
+ *   )
+ * ).pipe(Layer.provide(AnthropicTurnProviderLive))
+ *
+ * console.log(Layer.isLayer(NoRepair)) // true
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class AnthropicTurnProvider extends Context.Service<
+  AnthropicTurnProvider,
+  {
+    readonly turnPlan: ExecutionPlan.ExecutionPlan<{
+      provides: LanguageModel.LanguageModel;
+      input: AiError.AiError | Config.ConfigError;
+      error: Config.ConfigError;
+      requirements: never;
+    }>;
+    readonly repairInvalidBlocks: RepairInvalidBlocks;
+  }
+>()($I`AnthropicTurnProvider`) {}
+
+/**
+ * Live {@link AnthropicTurnProvider} backed by the Anthropic driver.
+ *
+ * **Example** (Provide the live provider)
+ *
+ * ```ts
+ * import { AnthropicTurnProviderLive } from "@beep/agents-server/AnthropicTurnKernel"
+ * import * as Layer from "effect/Layer";
+ * console.log(Layer.isLayer(AnthropicTurnProviderLive)) // true
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const AnthropicTurnProviderLive: Layer.Layer<AnthropicTurnProvider> = Layer.succeed(AnthropicTurnProvider)({
+  turnPlan: AnthropicTurnPlan,
+  repairInvalidBlocks,
+});
 
 const SYSTEM_PROMPT = A.join(
   [
@@ -176,84 +247,111 @@ const makeProviderUsage = Effect.fn("AnthropicTurnKernel.makeProviderUsage")(fun
   );
 });
 
-const streamTurn = (
-  history: ReadonlyArray<TurnHistoryItem>
-): Stream.Stream<AssistantTurnEvent, TurnGenerationError> => {
-  // `AnthropicTurnPlan` is self-contained — it `provide`s the language model and
-  // resolves the redacted API key from config — so the only failures crossing
-  // the boundary are AiError (provider) and ConfigError (missing key), and the
-  // requirement channel is `never`. The driver's plan type erases its `provides`
-  // generic to `any`, so we pin the post-plan stream type explicitly here.
-  const parts = LanguageModel.streamText({
-    prompt: [
-      { role: "system", content: SYSTEM_PROMPT },
-      ...A.map(history, (item) => ({ role: item.role, content: item.text })),
-    ],
-    toolkit: RespondToolkit,
-    toolChoice: { tool: "respond" },
-    disableToolCallResolution: true,
-  }).pipe(Stream.withExecutionPlan(AnthropicTurnPlan, { preventFallbackOnPartialStream: true })) as Stream.Stream<
-    RespondStreamPart,
-    AiError.AiError | Config.ConfigError
-  >;
+const makeStreamTurn =
+  (provider: Context.Service.Shape<typeof AnthropicTurnProvider>) =>
+  (history: ReadonlyArray<TurnHistoryItem>): Stream.Stream<AssistantTurnEvent, TurnGenerationError> => {
+    // The provider's turn plan is self-contained — it `provide`s the language model and
+    // resolves the redacted API key from config — so the only failures crossing
+    // the boundary are AiError (provider) and ConfigError (missing key), and the
+    // requirement channel is `never`. The driver's plan type erases its `provides`
+    // generic to `any`, so we pin the post-plan stream type explicitly here.
+    const parts = LanguageModel.streamText({
+      prompt: [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...A.map(history, (item) => ({ role: item.role, content: item.text })),
+      ],
+      toolkit: RespondToolkit,
+      toolChoice: { tool: "respond" },
+      disableToolCallResolution: true,
+    }).pipe(Stream.withExecutionPlan(provider.turnPlan, { preventFallbackOnPartialStream: true })) as Stream.Stream<
+      RespondStreamPart,
+      AiError.AiError | Config.ConfigError
+    >;
 
-  return Stream.unwrap(
-    Effect.gen(function* () {
-      const failures = yield* Ref.make<ReadonlyArray<IssueReport>>(A.empty<IssueReport>());
-      const buffered = yield* Ref.make<ReadonlyArray<IndexedBlock>>(A.empty<IndexedBlock>());
-      const holdingAfterFailure = yield* Ref.make(false);
-      const modelId = yield* Ref.make<O.Option<string>>(O.none());
-      const finish = yield* Ref.make<O.Option<Response.FinishPart>>(O.none());
-      const repairInputTokens = yield* Ref.make(0);
-      const repairOutputTokens = yield* Ref.make(0);
-      const validated = parts.pipe(
-        Stream.tap(captureProviderMetadata(modelId, finish)),
-        Stream.flatMap((part) => (part.type === "tool-params-delta" ? Stream.succeed(part.delta) : Stream.empty)),
-        // mapAccum flattens the returned slices array into stream elements
-        Stream.mapAccum(() => initialScanState, scanChunk),
-        Stream.zipWithIndex,
-        Stream.mapEffect(routeBlock(failures, buffered, holdingAfterFailure)),
-        Stream.flatMap(Stream.fromIterable)
-      );
+    return Stream.unwrap(
+      Effect.gen(function* () {
+        const failures = yield* Ref.make<ReadonlyArray<IssueReport>>(A.empty<IssueReport>());
+        const buffered = yield* Ref.make<ReadonlyArray<IndexedBlock>>(A.empty<IndexedBlock>());
+        const holdingAfterFailure = yield* Ref.make(false);
+        const modelId = yield* Ref.make<O.Option<string>>(O.none());
+        const finish = yield* Ref.make<O.Option<Response.FinishPart>>(O.none());
+        const repairInputTokens = yield* Ref.make(0);
+        const repairOutputTokens = yield* Ref.make(0);
+        const validated = parts.pipe(
+          Stream.tap(captureProviderMetadata(modelId, finish)),
+          Stream.flatMap((part) => (part.type === "tool-params-delta" ? Stream.succeed(part.delta) : Stream.empty)),
+          // mapAccum flattens the returned slices array into stream elements
+          Stream.mapAccum(() => initialScanState, scanChunk),
+          Stream.zipWithIndex,
+          Stream.mapEffect(routeBlock(failures, buffered, holdingAfterFailure)),
+          Stream.flatMap(Stream.fromIterable)
+        );
 
-      const repairTail = Stream.unwrap(
-        Effect.gen(function* () {
-          const failed = yield* Ref.getAndSet(failures, A.empty<IssueReport>());
-          const validAfterFirstFailure = yield* Ref.getAndSet(buffered, A.empty<IndexedBlock>());
-          if (A.isReadonlyArrayEmpty(failed)) {
-            return Stream.fromIterable(validAfterFirstFailure);
-          }
-          const repaired = yield* repairInvalidBlocks(failed);
-          yield* Ref.set(repairInputTokens, repaired.inputTokens);
-          yield* Ref.set(repairOutputTokens, repaired.outputTokens);
-          return Stream.fromIterable(sortedIndexedBlocks(A.appendAll(repaired.blocks, validAfterFirstFailure)));
-        })
-      );
+        const repairTail = Stream.unwrap(
+          Effect.gen(function* () {
+            const failed = yield* Ref.getAndSet(failures, A.empty<IssueReport>());
+            const validAfterFirstFailure = yield* Ref.getAndSet(buffered, A.empty<IndexedBlock>());
+            if (A.isReadonlyArrayEmpty(failed)) {
+              return Stream.fromIterable(validAfterFirstFailure);
+            }
+            const repaired = yield* provider.repairInvalidBlocks(failed);
+            yield* Ref.set(repairInputTokens, repaired.inputTokens);
+            yield* Ref.set(repairOutputTokens, repaired.outputTokens);
+            return Stream.fromIterable(sortedIndexedBlocks(A.appendAll(repaired.blocks, validAfterFirstFailure)));
+          })
+        );
 
-      const finalization = Stream.unwrap(
-        Effect.gen(function* () {
-          const usage = yield* makeProviderUsage(
-            yield* Ref.get(modelId),
-            yield* Ref.get(finish),
-            yield* Ref.get(repairInputTokens),
-            yield* Ref.get(repairOutputTokens)
-          );
-          return Stream.succeed(AssistantTurnFinalization.make({ usage }));
-        })
-      );
+        const finalization = Stream.unwrap(
+          Effect.gen(function* () {
+            const usage = yield* makeProviderUsage(
+              yield* Ref.get(modelId),
+              yield* Ref.get(finish),
+              yield* Ref.get(repairInputTokens),
+              yield* Ref.get(repairOutputTokens)
+            );
+            return Stream.succeed(AssistantTurnFinalization.make({ usage }));
+          })
+        );
 
-      return validated.pipe(
-        Stream.concat(repairTail),
-        Stream.map((block) => AssistantTurnBlockEvent.make({ block })),
-        Stream.mapError((error: AiError.AiError | Config.ConfigError | BlockRepairFailed) =>
-          TurnGenerationError.make({ message: `Anthropic assistant turn failed: ${error.message}` })
-        ),
-        Stream.concat(finalization),
-        Stream.withSpan("agents.assistant_turn.stream")
-      );
-    })
-  );
-};
+        return validated.pipe(
+          Stream.concat(repairTail),
+          Stream.map((block) => AssistantTurnBlockEvent.make({ block })),
+          Stream.mapError((error: AiError.AiError | Config.ConfigError | BlockRepairFailed) =>
+            TurnGenerationError.make({ message: `Anthropic assistant turn failed: ${error.message}` })
+          ),
+          Stream.concat(finalization),
+          Stream.withSpan("agents.assistant_turn.stream")
+        );
+      })
+    );
+  };
+
+/**
+ * Anthropic {@link AgentTurnKernel} Layer that reads its provider operations
+ * from {@link AnthropicTurnProvider}.
+ *
+ * **Details**
+ *
+ * The provider is read once, when the layer is built.
+ * {@link AnthropicTurnKernel} is this layer with
+ * {@link AnthropicTurnProviderLive} provided.
+ *
+ * **Example** (Compose the kernel over the live provider)
+ *
+ * ```ts
+ * import { AnthropicTurnKernelFromProvider, AnthropicTurnProviderLive } from "@beep/agents-server/AnthropicTurnKernel"
+ * import * as Layer from "effect/Layer";
+ * const kernel = AnthropicTurnKernelFromProvider.pipe(Layer.provide(AnthropicTurnProviderLive))
+ *
+ * console.log(Layer.isLayer(kernel)) // true
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const AnthropicTurnKernelFromProvider: Layer.Layer<AgentTurnKernel, never, AnthropicTurnProvider> = Layer.effect(
+  AgentTurnKernel
+)(Effect.map(AnthropicTurnProvider, (provider) => AgentTurnKernel.of({ streamTurn: makeStreamTurn(provider) })));
 
 /**
  * Live Anthropic-backed {@link AgentTurnKernel} Layer. Self-contained: the
@@ -290,4 +388,6 @@ const streamTurn = (
  * @category layers
  * @since 0.0.0
  */
-export const AnthropicTurnKernel: Layer.Layer<AgentTurnKernel> = Layer.succeed(AgentTurnKernel)({ streamTurn });
+export const AnthropicTurnKernel: Layer.Layer<AgentTurnKernel> = AnthropicTurnKernelFromProvider.pipe(
+  Layer.provide(AnthropicTurnProviderLive)
+);
