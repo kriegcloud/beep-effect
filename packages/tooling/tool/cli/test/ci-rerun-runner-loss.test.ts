@@ -208,6 +208,11 @@ describe("runner-loss rerun decision", () => {
     expect(summary).not.toContain("| Test (node | bun) |");
   });
 
+  it("renders a newline in a job name as <br> so the summary row stays on one line", () => {
+    const summary = report(decideRunnerLossRerun(input({ failedJobs: [red(16, "Test\nnode")] })));
+    expect(summary).toContain("| Test<br>node | `16` | unknown | failed | 0 | left red: not runner loss |");
+  });
+
   it("re-runs only one lost job and leaves the real failure red and named", () => {
     const decision = decideRunnerLossRerun(
       input({ failedJobs: [lost(11, "Heavy / Lint Policy"), red(12, "Check"), lost(13, "Heavy / Docgen")] })
