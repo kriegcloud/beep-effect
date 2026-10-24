@@ -272,11 +272,24 @@ describe("gates and processes", () => {
       "effected/.canary/EffectDiagnosticsCanary.ts(12,14): error TS377101: Exported function `canaryPair` has no pipeable overload corresponding to its signature `(left: number, right: number) => number`. effect(missingPipeableSignature)",
       "effected/.canary/EffectDiagnosticsCanary.ts(15,57): error TS377029: Unexpected `string` type in condition, expected strictly a boolean instead. effect(strictBooleanExpressions)",
     ].join("\n");
-    assert.deepStrictEqual(canaryProblems(live), []);
-    assert.deepStrictEqual(canaryProblems(""), [
+    assert.deepStrictEqual(canaryProblems({ exitCode: 0, output: live }), []);
+    assert.deepStrictEqual(canaryProblems({ exitCode: 0, output: "" }), [
       "effect diagnostics are not live: the canary at scratchpad/effected/.canary was not flagged",
       "canary missing effect(missingPipeableSignature)",
       "canary missing effect(strictBooleanExpressions)",
+      "canary tsgo exit code: 0",
+    ]);
+  });
+  it("reports a crashed canary tsgo as a failed run with its exit code and output tail", () => {
+    const crash = ["$ tsgo -p effected/.canary/tsconfig.json", "panic: runtime error: invalid memory address", "goroutine 1 [running]:"].join("\n");
+    assert.deepStrictEqual(canaryProblems({ exitCode: 2, output: crash }), [
+      "canary tsgo failed before reporting diagnostics (exit 2)",
+      "canary missing effect(missingPipeableSignature)",
+      "canary missing effect(strictBooleanExpressions)",
+      "canary tsgo exit code: 2",
+      "canary output: $ tsgo -p effected/.canary/tsconfig.json",
+      "canary output: panic: runtime error: invalid memory address",
+      "canary output: goroutine 1 [running]:",
     ]);
   });
   it("orders tsgo versions numerically", () => {
