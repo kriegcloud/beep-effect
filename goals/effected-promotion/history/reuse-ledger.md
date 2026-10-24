@@ -28,14 +28,13 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 | repo-cli `Quality/internal/QualityArtifactSupport.ts` `discoverWorkspacePackages` | #143 | 4-A1 | Discovery onto `WorkspaceDiscovery`, discovery only, with a `resolvePathWithinRoot` post-filter (the kit keeps upstream link-following). Exception Ledger "Duplicate workspace discovery and dependency graph". |
 | repo-cli `workspacePatternsFrom` copies (`ChangesetGraph`, `CreatePackage`, `TsconfigSync.plan`, `ConfigUpdater`, `Quality/Tasks.ts`) | #146, #148, #149, #150 | 4-A2 | Through a public `WorkspacePatterns` leaf (`internal/patterns` today). |
 | repo-utils `Workspaces.ts`, `Dependencies.ts`, `DependencyIndex.ts`; `beep topo-sort` | #139, #142, #238, #239, #268 | 4-A3 | Onto `WorkspaceDiscovery` and `DependencyGraph.sort()`; the differential's 186-member, 1,301-edge parity is the baseline. |
-
 ## `@beep/lockfiles` (wave 3-5, W3-g)
 
 | Site | Map id | Status | Notes |
 | --- | --- | --- | --- |
-| lab `scratchpad/effected/workspaces` (`LockfileReader`, `PeerCheck`, `DuplicateCheck`, `WorkspaceCatalogs`, `WorkspaceSnapshots`, `WorkspacePackage`, internal roots and importer versions, their tests) and both PROMOTED maps | - | 3-5 | Retargeted in the promotion PR to `@beep/lockfiles` leaves; the core and config-dependency half promoted as `@beep/repo-workspaces` in 4-W-a, and the `testing` cluster follows in 4-W-b. |
-| repo-cli `Quality/CatalogUsage.ts` `readLockfilePackages` (bun.lock key and specifier splitting) | #233, #129 (lockfile part), #156 | 3-A1 | `Lockfile.parse({ format: "bun" })` and `ResolvedPackage.installName`; the catalog-specifier half is npm-spec's `DependencySpecifier`. Exception Ledger "Duplicate lockfile readers". |
-| repo-cli `VersionSync/internal/resolvers/RootCatalog.ts` `BunLockDocument` and `readLockfileResolvedVersion` | #131, #155, #269, #289 | 3-A1 (bun.lock half) | Filter `isWorkspace` to keep the legacy `None`; 2,403-name and 2,211-version live parity. The package.json half is 3-A4. |
+| lab `scratchpad/effected/workspaces` (`LockfileReader`, `PeerCheck`, `DuplicateCheck`, `WorkspaceCatalogs`, `WorkspaceSnapshots`, `WorkspacePackage`, internal roots and importer versions, their tests) and both PROMOTED maps | - | 3-5 | Retargeted in the promotion PR to `@beep/lockfiles` leaves; the module itself promotes as `@beep/repo-workspaces` in a later wave. |
+| repo-cli `Quality/CatalogUsage.ts` `readLockfilePackages` (bun.lock key and specifier splitting) | #233, #129 (lockfile part), #156 | adopted in 3-A1 | `Lockfile.parse({ format: "bun" })` with `[pkg.installName, pkg.name]` per package; `installedNameFromLockKey` and `CatalogUsageLockfile` are deleted. The override-selector `packageNameFromSpecifier` stays (not a lockfile read). Names 2,408/2,408 (`research/lockfiles-adoption-parity-w4.json`). Exception Ledger "Duplicate lockfile readers" removed. |
+| repo-cli `VersionSync/internal/resolvers/RootCatalog.ts` `BunLockDocument` and `readLockfileResolvedVersion` | #131, #155, #269, #289 | adopted in 3-A1 (bun.lock half) | `Lockfile#rootPackage` filtered to a non-workspace package of that real name; 3,172/3,356 probes agree, the 184 others are workspace packages whose legacy `workspace:<path>` "version" is now `None`. The package.json half is 3-A4. |
 | mcpb-kit `internal/steps.ts` `ensureWindowsBindings` | #136 | excluded | Needs the npm driver's tarball download and integrity check, deferred with it; the lockfile pin read alone does not justify the edge. |
 
 ## `@beep/cli-kit` (wave 4, 4-C, SPEC W4-d)

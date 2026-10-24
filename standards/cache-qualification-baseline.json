@@ -10,11 +10,11 @@
   ],
   "reviews": {
     "//": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion wave 4-C, feat/effected-promotion-w4-cli-kit)",
-      "reason": "Record the new wave-4-C workspace @beep/cli-kit scaffolded by create-package with the generated task set, the dependency-only drift of its two named importers (W4-d), and the input-only growth of the root policy-fingerprint task; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion 3-A1, refactor/repo-cli-lockfiles-adoption)",
+      "reason": "Record the 3-A1 dependency edge @beep/repo-cli -> @beep/lockfiles with its tsconfig references, and the policy-fingerprint input set that follows repo-cli's new runtime closure (@beep/lockfiles, @beep/npm-spec); no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w4-c.md",
-        "sha256": "2d509dee954c6036a8a808b9e3dc9547cf1f8c57572fb3081c3d7e9fb88800b0"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w3-a1.md",
+        "sha256": "82a3c00224dc2659be84e1e42ffcca2e5fd9f664a98de0849bc92a7432ff5803"
       }
     },
     "@beep/acp": {
@@ -1122,11 +1122,11 @@
       }
     },
     "@beep/repo-cli": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion roadmap R1, refactor/semver-owner-switch)",
-      "reason": "Record the R1 manifest edits that add the @beep/semver workspace dependency to @beep/repo-cli (VersionSync Bun and Docker resolvers) and @beep/repo-configs (CacheClientPin.version); the turbo coupling is measured in the review; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion 3-A1, refactor/repo-cli-lockfiles-adoption)",
+      "reason": "Record the 3-A1 dependency edge @beep/repo-cli -> @beep/lockfiles with its tsconfig references, and the policy-fingerprint input set that follows repo-cli's new runtime closure (@beep/lockfiles, @beep/npm-spec); no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-r1.md",
-        "sha256": "fb56bc111a0050d95bb02316f0df6f4dd3a670f6bf86ad38e1cced286e7ffd73"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w3-a1.md",
+        "sha256": "82a3c00224dc2659be84e1e42ffcca2e5fd9f664a98de0849bc92a7432ff5803"
       }
     },
     "@beep/repo-configs": {
@@ -1298,11 +1298,11 @@
       }
     },
     "@beep/t3-code": {
-      "reviewer": "GPT-6.1-Sol medium (coverage input union with subsequent main promotion)",
-      "reason": "Reconcile only coverage receipt environment keys, ignored nested-checkout root inputs and Turbo schema source digests with current main topology/new promotions; preserve every other task field, scope/profile/epoch, removed drivers and qualification ledger. No reuse qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (package-scripts tsc-rs engine gate, fix/package-scripts-tsc-rs-engine-gate)",
+      "reason": "Re-record the legacy cache posture of @beep/t3-code, whose beep:build, beep:check and beep:check:tests commands moved from tsc/tsgo to tsc-rs. Only manifest bytes changed; task names, inputs, outputs, cache flags and turbo.json are unchanged; no qualification is granted.",
       "basis": {
-        "path": "docs/reports/coverage-tsgo-shim-cache-input-review-2026-10-21.md",
-        "sha256": "c85aec4b476f3867fde28749e2ea004eb3058ef0ced84ef195d99362070aff40"
+        "path": "goals/tsc-rs-gates/research/cache-baseline-review-2026-10-23-t3-code.md",
+        "sha256": "f0cbf3ae959706c8049fd702ed220988c590d8538c13e474354e00eee5e85c77"
       }
     },
     "@beep/tailscale": {
@@ -2993,10 +2993,14 @@
             "packages/foundation/modeling/identity/src/**",
             "packages/foundation/modeling/jsonc/package.json",
             "packages/foundation/modeling/jsonc/src/**",
+            "packages/foundation/modeling/lockfiles/package.json",
+            "packages/foundation/modeling/lockfiles/src/**",
             "packages/foundation/modeling/markdown/package.json",
             "packages/foundation/modeling/markdown/src/**",
             "packages/foundation/modeling/md/package.json",
             "packages/foundation/modeling/md/src/**",
+            "packages/foundation/modeling/npm-spec/package.json",
+            "packages/foundation/modeling/npm-spec/src/**",
             "packages/foundation/modeling/provenance/package.json",
             "packages/foundation/modeling/provenance/src/**",
             "packages/foundation/modeling/schema/package.json",
@@ -97058,6 +97062,7 @@
           "@beep/glob#audit",
           "@beep/identity#audit",
           "@beep/libpff#audit",
+          "@beep/lockfiles#audit",
           "@beep/m365#audit",
           "@beep/markdown#audit",
           "@beep/mcp-kit#audit",
@@ -97168,6 +97173,7 @@
           "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
+          "@beep/lockfiles#build",
           "@beep/m365#build",
           "@beep/markdown#build",
           "@beep/mcp-kit#build",
@@ -97267,6 +97273,7 @@
           "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
+          "@beep/lockfiles#build",
           "@beep/m365#build",
           "@beep/markdown#build",
           "@beep/mcp-kit#build",
@@ -97353,6 +97360,7 @@
           "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
+          "@beep/lockfiles#build",
           "@beep/m365#build",
           "@beep/markdown#build",
           "@beep/mcp-kit#build",
@@ -97488,6 +97496,7 @@
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
+          "@beep/lockfiles#transit",
           "@beep/m365#transit",
           "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
@@ -97619,6 +97628,7 @@
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
+          "@beep/lockfiles#transit",
           "@beep/m365#transit",
           "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
@@ -97868,6 +97878,7 @@
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
+          "@beep/lockfiles#transit",
           "@beep/m365#transit",
           "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
@@ -97957,6 +97968,7 @@
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
+          "@beep/lockfiles#transit",
           "@beep/m365#transit",
           "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
@@ -98071,6 +98083,7 @@
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
+          "@beep/lockfiles#transit",
           "@beep/m365#transit",
           "@beep/markdown#transit",
           "@beep/mcp-kit#transit",
@@ -111317,7 +111330,7 @@
       {
         "computation": "@beep/t3-code#audit",
         "command": "bun run --if-present beep:audit",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "@beep/identity#audit",
           "@beep/mcp-kit#audit",
@@ -111382,7 +111395,7 @@
       {
         "computation": "@beep/t3-code#build",
         "command": "bun run beep:build",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "@beep/identity#build",
           "@beep/mcp-kit#build",
@@ -111436,7 +111449,7 @@
       {
         "computation": "@beep/t3-code#check",
         "command": "bun run beep:check",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "@beep/identity#build",
           "@beep/mcp-kit#build",
@@ -111477,7 +111490,7 @@
       {
         "computation": "@beep/t3-code#coverage",
         "command": "bunx vitest run --coverage --exclude=test/integration/**",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "@beep/identity#build",
           "@beep/mcp-kit#build",
@@ -111528,7 +111541,7 @@
       {
         "computation": "@beep/t3-code#docgen",
         "command": "bun run beep:docgen",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "@beep/repo-docgen#transit",
           "@beep/t3-code#transit"
@@ -111567,7 +111580,7 @@
       {
         "computation": "@beep/t3-code#lint",
         "command": "bun run beep:lint",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [],
         "configuration": {
           "cache": true,
@@ -111602,7 +111615,7 @@
       {
         "computation": "@beep/t3-code#lint:deprecated-apis",
         "command": "beep-cli lint deprecated-apis --package .",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/identity#transit",
@@ -111669,7 +111682,7 @@
       {
         "computation": "@beep/t3-code#lint:fix",
         "command": "bun run beep:lint:fix",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [],
         "configuration": {
           "cache": false,
@@ -111698,7 +111711,7 @@
       {
         "computation": "@beep/t3-code#lint:jsdoc",
         "command": "beep-cli lint jsdoc --package .",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -111753,7 +111766,7 @@
       {
         "computation": "@beep/t3-code#lint:laws",
         "command": "beep-cli lint laws --package .",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -111807,7 +111820,7 @@
       {
         "computation": "@beep/t3-code#package-test-typecheck",
         "command": "beep-cli quality test-tsgo-package",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "@beep/identity#transit",
           "@beep/mcp-kit#transit",
@@ -111851,7 +111864,7 @@
       {
         "computation": "@beep/t3-code#test",
         "command": "bun run beep:test",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "@beep/identity#transit",
           "@beep/mcp-kit#transit",
@@ -111901,7 +111914,7 @@
       {
         "computation": "@beep/t3-code#test:integration",
         "command": "bun run beep:test:integration",
-        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "commandDigest": "07af804e0993b571bccc2ff81253130aa65f142bba7142a0396f4caba7c56036",
         "dependencies": [
           "@beep/identity#build",
           "@beep/mcp-kit#build",
@@ -128341,7 +128354,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "a0fcf724d7972bbf6d79a785f85000443886cb7b8204576bb4ea8003bf2daa14"
+        "sha256": "fd8896d73a6d337e5de252374c3972ef278052b434c19d8fbb95394f1bc76350"
       }
     ]
   }
