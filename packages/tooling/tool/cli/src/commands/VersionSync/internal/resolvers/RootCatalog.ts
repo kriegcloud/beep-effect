@@ -146,7 +146,7 @@ export const readRootPackageJson = Effect.fn("readRootPackageJson")(function* (
  * @category utilities
  * @since 0.0.0
  */
-export const readRootLockfile = Effect.fn("readRootLockfile")(function* (
+export const readRootLockfile = Effect.fn("VersionSync.readRootLockfile")(function* (
   repoRoot: string
 ): Effect.fn.Return<O.Option<Lockfile>, VersionSyncError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
