@@ -1,5 +1,6 @@
 import { Chalk } from "@beep/chalk";
 import { createColors } from "@beep/colors";
+import { ExifMetadata, Exiftool, ReadTagsResult } from "@beep/exiftool";
 import {
   ChildArtifactRecord,
   FileProcessingCoverageSummary,
@@ -32,9 +33,11 @@ import {
   PersonMatchWorkerSuccess,
   PreparedAdaFaceArtifacts,
   ProcessFilesOptions,
+  probeMediaCreationDate,
   processFiles,
   renderFilesProgressBar,
   runMatchPerson,
+  SortableFile,
 } from "@beep/repo-cli/test/Files";
 import { it } from "@beep/test-runner";
 import { fcRuns, provideScopedLayer } from "@beep/test-utils";
@@ -49,6 +52,7 @@ import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
 import * as Command from "effect/cli/Command";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Hex from "effect/encoding/Hex";
@@ -3298,6 +3302,99 @@ exit 74
       yield* runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir, "--with-dimensions"]);
       yield* runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir, "--with-dimensions"]);
       expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["image_00_3x2.svg"]);
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
+  it.effect("stacks creation date, dimensions, reduced ratio, decimal size, and full source hash", () =>
+    Effect.gen(function* () {
+      const tmpDir = yield* temporaryWorkingDirectory;
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const datasetDir = yield* makeDatasetDir(tmpDir);
+      const source = path.join(datasetDir, "source.svg");
+      yield* writeSvgFile(source, 1920, 1080);
+      yield* fs.writeFileString(path.join(datasetDir, "notes.txt"), "leave me alone");
+      const expectedHash = (yield* sha256FileRef(source)).slice(7);
+      const sourceSize = (yield* fs.stat(source)).size;
+      const hundredths = (sourceSize * BigInt(100) + BigInt(500_000)) / BigInt(1_000_000);
+      const expectedSize = `${hundredths / BigInt(100)}.${pipe(`${hundredths % BigInt(100)}`, Str.padStart(2, "0"))}MB`;
+      yield* runFilesCommand([
+        "sort-and-rename",
+        "--prefix",
+        "image",
+        "--dir",
+        datasetDir,
+        "--with-hash",
+        "--with-size-mb",
+        "--with-aspect-ratio",
+        "--with-dimensions",
+        "--with-date-created",
+      ]);
+      const names = yield* sortedDirectoryEntries(datasetDir);
+      expect(names).toHaveLength(2);
+      expect(names[0]).toMatch(
+        new RegExp(`^image_00_[bn]\\d{8}T\\d{6}Z_1920x1080_ar16x9_${expectedSize}_sha256-${expectedHash}\\.svg$`)
+      );
+      expect(names[1]).toBe("notes.txt");
+      expect(yield* fs.readFileString(path.join(datasetDir, "notes.txt"))).toBe("leave me alone");
+    }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+  );
+
+  it.effect("converts grouped EXIF creation time and offset to UTC, skipping unzoned dates", () =>
+    Effect.gen(function* () {
+      const file = SortableFile.make({
+        canonicalPath: "/photos/source.jpg",
+        extension: ".jpg",
+        name: "source.jpg",
+        size: BigInt(100),
+        sourcePath: "/photos/source.jpg",
+      });
+      const readDate = (raw: Readonly<Record<string, unknown>>) =>
+        probeMediaCreationDate(file).pipe(
+          Effect.provideService(
+            Exiftool,
+            Exiftool.of({
+              readTags: () =>
+                Effect.succeed(
+                  ReadTagsResult.make({
+                    filePath: file.sourcePath,
+                    metadata: ExifMetadata.make({
+                      dateTimeOriginal: O.some("2020:01:02 03:04:05"),
+                      raw,
+                    }),
+                  })
+                ),
+              version: Effect.succeed("test"),
+              writeTags: () => Effect.die("unused"),
+              writeXmpPacket: () => Effect.die("unused"),
+            })
+          )
+        );
+      const zoned = yield* readDate({ "EXIF:OffsetTimeOriginal": "+02:00" });
+      expect(O.isSome(zoned) ? DateTime.formatIso(zoned.value) : "missing").toBe("2020-01-02T01:04:05.000Z");
+      expect(O.isNone(yield* readDate({}))).toBe(true);
+    })
+  );
+
+  it.effect("allows aspect ratio, size, and hash without dimensions", () =>
+    Effect.gen(function* () {
+      const tmpDir = yield* temporaryWorkingDirectory;
+      const path = yield* Path.Path;
+      const datasetDir = yield* makeDatasetDir(tmpDir);
+      const source = path.join(datasetDir, "source.svg");
+      yield* writeSvgFile(source, 1200, 800);
+      const expectedHash = (yield* sha256FileRef(source)).slice(7);
+      yield* runFilesCommand([
+        "sort-and-rename",
+        "--prefix",
+        "image",
+        "--dir",
+        datasetDir,
+        "--with-aspect-ratio",
+        "--with-size-mb",
+        "--with-hash",
+      ]);
+      expect(yield* sortedDirectoryEntries(datasetDir)).toEqual([`image_00_ar3x2_0.00MB_sha256-${expectedHash}.svg`]);
     }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
   );
 

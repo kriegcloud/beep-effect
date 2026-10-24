@@ -372,6 +372,33 @@ With dimensions enabled, names use
 `image_00_1024x1536.png`. Non-media files are left untouched. Video dimensions
 require `ffprobe`.
 
+The other optional fields can be used alone or stacked in any flag order. Their
+filename order is always **date, dimensions, aspect ratio, size, hash**:
+
+| Flag | Filename field | Example |
+| --- | --- | --- |
+| `--with-date-created` | UTC `YYYYMMDDTHHMMSSZ` with source marker | `m20261024T034612Z` |
+| `--with-dimensions` | Display width and height | `1920x1080` |
+| `--with-aspect-ratio` | Exact reduced display width:height | `ar16x9` |
+| `--with-size-mb` | Decimal MB (1,000,000 bytes), two decimals | `3.42MB` |
+| `--with-hash` | Full SHA-256 of original file bytes | `sha256-` followed by 64 hex digits |
+
+The date marker is `m` for embedded media creation time with a known UTC offset,
+`b` for filesystem birth time, or `n` for the current UTC time when neither is
+available. Unzoned media dates are skipped because their UTC time is ambiguous.
+Identical file bytes yield the same hash; the index keeps filenames distinct.
+Any of these fields selects image and video files only, leaving non-media files
+untouched. Aspect ratio uses orientation-adjusted dimensions and needs `ffprobe`
+for videos. Metadata probing and hashing finish before any files are renamed.
+
+```bash
+bun run beep files sort-and-rename --dir ./tmp --prefix image \
+  --with-date-created --with-dimensions --with-aspect-ratio --with-size-mb --with-hash
+```
+
+For a 1920x1080, 3.42 MB PNG with a zoned media creation date, this yields a
+name like `image_00_m20261024T034612Z_1920x1080_ar16x9_3.42MB_sha256-<64 hex digits>.png`.
+
 #### `files strip-metadata`
 
 Strip metadata from direct image and video files in place.
