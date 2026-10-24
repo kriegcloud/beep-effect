@@ -78,11 +78,19 @@ const unescapedDollarPattern = /(?<!\\)((?:\\\\)*)\$/g;
 const characterReferencePattern = /&(?=#[0-9]{1,7};|#[xX][0-9A-Fa-f]{1,6};|[A-Za-z][A-Za-z0-9]{0,31};)/g;
 // A `$` that could open inline math under pandoc's rules: one followed by a
 // non-space character, or one that ends the text node (its neighbour is
-// unknown here). A `$` followed by whitespace never opens math.
-const mathOpenerPattern = /\$(?=[^ \t\n]|$)/g;
+// unknown here). Newlines become entities or break tags in writer output,
+// so a dollar before a newline must be escaped too.
+const mathOpenerPattern = /\$(?=[^ \t]|$)/g;
 // The scheme colon of an `http://` or `https://` URL in text, which GFM's
 // autolink-literal extension would turn into a link; `http\://` stays text.
 const autolinkSchemePattern = /(?<![A-Za-z0-9])(https?):(?=\/\/)/gi;
+// GFM email literals use [A-Za-z0-9.+_-] before `@`, a dotted domain
+// of alphanumerics, `-` and `_`, and an alphabetic final character.
+// Match after escapeMarkdownLiteral: dots, hyphens and underscores already
+// carry backslashes. A domain dot must be followed by an alphanumeric, as
+// in markdown/internal/inlines/autolinkLiteral.ts (EmailCandidate).
+const autolinkEmailAtPattern =
+  /(?<=[A-Za-z0-9.+_-])@(?=(?:[A-Za-z0-9]|\\[-_])*(?:\\\.[A-Za-z0-9](?:[A-Za-z0-9]|\\[-_])*)+(?<=[A-Za-z])(?![A-Za-z0-9]|\\[-_]|\\\.[A-Za-z0-9]))/g;
 const tableCellPipePattern = /(?<!\\)((?:\\\\)*)\|/g;
 const leadingBlockWhitespacePattern = /^[ \t]+/g;
 const trailingBlockWhitespacePattern = /[ \t]+$/g;
@@ -97,10 +105,22 @@ const escapeMarkdownLiteral = flow(escapeMarkdownText, Str.replace(characterRefe
 // Text in phrasing content, where the bridge's inline-math recognizer runs
 // when math parsing is on and GFM links bare URLs: every `$` that could open
 // math and every URL scheme colon is escaped too.
-const escapeMarkdownPhrasing = flow(
+const escapeMarkdownPhrasingMarkers = flow(
   escapeMarkdownLiteral,
   Str.replace(mathOpenerPattern, "\\$"),
-  Str.replace(autolinkSchemePattern, "$1\\:")
+  Str.replace(autolinkSchemePattern, "$1\\:"),
+  Str.replace(autolinkEmailAtPattern, "\\@")
+);
+
+const escapeMarkdownTablePhrasing = flow(
+  escapeMarkdownPhrasingMarkers,
+  Str.replace(lineSeparatorGlobalPattern, "<br/>")
+);
+
+const escapeMarkdownPhrasing = flow(
+  escapeMarkdownPhrasingMarkers,
+  Str.replaceAll("\n", "&#10;"),
+  Str.replaceAll("\r", "&#13;")
 );
 
 const characterReferenceOf = (char: string): string => `&#${pipe(char, Str.charCodeAt(0), O.getOrElse(constant(0)))};`;
@@ -301,9 +321,15 @@ const renderInlineSequence = (
 ): string => {
   const rendered = A.map(children, renderInline);
   return joinEmpty(
-    A.map(children, (inline, index) =>
-      guardImageBang(fitEmphasisDelimiters(inline, rendered, index, renderChildren), inline, A.get(children, index + 1))
-    )
+    A.map(children, (inline, index) => {
+      const own = fitEmphasisDelimiters(inline, rendered, index, renderChildren);
+      // A literal digit prevents pandoc's `$` closer from closing. A
+      // reference keeps the digit's value while allowing the raw closer.
+      const guarded = O.exists(A.get(children, index - 1), (previous) => previous._tag === "inlineMath")
+        ? replaceAllWith(/^[0-9]/g, characterReferenceOf)(own)
+        : own;
+      return guardImageBang(guarded, inline, A.get(children, index + 1));
+    })
   );
 };
 
@@ -368,7 +394,7 @@ const renderHtmlTaskItem = (item: TaskItem): string => {
 // needs its cell escape.
 const renderMarkdownTableCell = (cell: TableCell): string =>
   pipe(
-    renderMarkdownInlines(cell.children),
+    renderMarkdownInlinesWithPolicy(CompatibilityUrlPolicySpec, cell.children, false, escapeMarkdownTablePhrasing),
     Str.replace(tableCellPipePattern, "$1\\|"),
     Str.replace(lineSeparatorGlobalPattern, "<br/>"),
     protectBlockEdgeWhitespace
@@ -1273,33 +1299,42 @@ const renderPolicy = (options: UrlRenderOptions, fallback: UrlPolicySpec): UrlPo
 const renderMarkdownInlinesWithPolicy = (
   policy: UrlPolicySpec,
   children: ReadonlyArray<Inline>,
-  linkLabel = false
+  linkLabel = false,
+  escapePhrasing = escapeMarkdownPhrasing
 ): string =>
   renderInlineSequence(
     children,
-    (inline) => renderMarkdownInlineWithPolicy(policy, inline, linkLabel),
-    (inlines) => renderMarkdownInlinesWithPolicy(policy, inlines, linkLabel)
+    (inline) => renderMarkdownInlineWithPolicy(policy, inline, linkLabel, escapePhrasing),
+    (inlines) => renderMarkdownInlinesWithPolicy(policy, inlines, linkLabel, escapePhrasing)
   );
 
-const renderMarkdownInlineWithPolicy = (policy: UrlPolicySpec, inline: Inline, linkLabel = false): string =>
+const renderMarkdownInlineWithPolicy = (
+  policy: UrlPolicySpec,
+  inline: Inline,
+  linkLabel = false,
+  escapePhrasing = escapeMarkdownPhrasing
+): string =>
   Match.value(inline).pipe(
-    Match.tag("text", ({ value }) => escapeMarkdownPhrasing(value)),
-    Match.tag("rawMarkdown", ({ value }) => (linkLabel ? escapeMarkdownPhrasing(value) : value)),
-    Match.tag("rawHtml", renderEscapedRawHtmlAsMarkdown),
+    Match.tag("text", ({ value }) => escapePhrasing(value)),
+    Match.tag("rawMarkdown", ({ value }) => (linkLabel ? escapePhrasing(value) : value)),
+    Match.tag("rawHtml", ({ value }) => escapePhrasing(value)),
     Match.tag("strong", ({ children }) => {
       const delimiter = strongDelimiter(children);
-      return `${delimiter}${renderMarkdownInlinesWithPolicy(policy, children, linkLabel)}${delimiter}`;
+      return `${delimiter}${renderMarkdownInlinesWithPolicy(policy, children, linkLabel, escapePhrasing)}${delimiter}`;
     }),
     Match.tag("em", ({ children }) => {
       const delimiter = emDelimiter(children);
-      return `${delimiter}${renderMarkdownInlinesWithPolicy(policy, children, linkLabel)}${delimiter}`;
+      return `${delimiter}${renderMarkdownInlinesWithPolicy(policy, children, linkLabel, escapePhrasing)}${delimiter}`;
     }),
-    Match.tag("del", ({ children }) => `~~${renderMarkdownInlinesWithPolicy(policy, children, linkLabel)}~~`),
+    Match.tag(
+      "del",
+      ({ children }) => `~~${renderMarkdownInlinesWithPolicy(policy, children, linkLabel, escapePhrasing)}~~`
+    ),
     Match.tag("code", ({ value }) => renderInlineCode(value)),
     Match.tag(
       "a",
       ({ href, children, title }) =>
-        `[${renderMarkdownInlinesWithPolicy(policy, children, true)}](${renderMarkdownDestinationWithTitle(href, title, policy)})`
+        `[${renderMarkdownInlinesWithPolicy(policy, children, true, escapePhrasing)}](${renderMarkdownDestinationWithTitle(href, title, policy)})`
     ),
     Match.tag(
       "img",
@@ -1380,7 +1415,7 @@ const renderMarkdownTableWithPolicy = (policy: UrlPolicySpec, block: Table): str
 
   const renderCell = (cell: TableCell): string =>
     pipe(
-      renderMarkdownInlinesWithPolicy(policy, cell.children),
+      renderMarkdownInlinesWithPolicy(policy, cell.children, false, escapeMarkdownTablePhrasing),
       Str.replace(tableCellPipePattern, "$1\\|"),
       Str.replace(lineSeparatorGlobalPattern, "<br/>"),
       protectBlockEdgeWhitespace

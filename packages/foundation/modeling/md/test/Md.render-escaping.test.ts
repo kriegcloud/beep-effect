@@ -73,6 +73,63 @@ describe("@beep/md/Md.render writer escapes", () => {
     expectWriter([p(link([text("a")], O.some("&#38;")))], '[a](https://example.com "\\&#38;")');
   });
 
+  it("preserves text newlines as references, including escaped HTML", () => {
+    expectWriter([p(text("a\nb"))], "a&#10;b");
+    const original = Result.getOrThrow(parseResult('before <span\nclass="x">after</span> end')).document;
+    expect(reparsed(renderUnsafe(original))).toStrictEqual(encode(original));
+  });
+
+  it("escapes dollars before encoded newlines without a skipped math recognizer", () => {
+    for (const value of ["$\nb$ c", "$\rb$ c", "$\r\nb$ c"]) {
+      const document = Document.make({ children: [p(text(value))] });
+      for (const markdown of [renderUnsafe(document), renderWithUnsafe(policyAdapter, document)]) {
+        const result = Result.getOrThrow(parseResult(markdown, { math: true }));
+        expect(encode(result.document)).toStrictEqual(encode(document));
+        expect(result.losses).toStrictEqual([]);
+      }
+    }
+  });
+
+  it("keeps multiline table values as visible breaks through both adapters", () => {
+    const table = Md.table([["Canonical Patch"], ['{\n  "count": 1\r\n}']], { headerRow: true });
+    const document = Md.make([table]);
+    const expected = '| Canonical Patch |\n| --- |\n| \\{<br/>  "count": 1<br/>\\} |';
+    expect(renderMarkdownBlock(table)).toBe(expected);
+    expect(renderWithUnsafe(policyAdapter, document)).toBe(expected);
+  });
+
+  it("keeps cell breaks nested in markup without rewriting references or titles", () => {
+    const table = Md.table([[Md.strong("a\nb"), link([text("c\rd")], O.some("title\nline")), "literal &#10;"]], {
+      headerRow: true,
+    });
+    const expected =
+      '| **a<br/>b** | [c<br/>d](https://example.com "title&#10;line") | literal &\\#10; |\n| --- | --- | --- |';
+    expect(renderMarkdownBlock(table)).toBe(expected);
+    expect(renderWithUnsafe(policyAdapter, Md.make([table]))).toBe(expected);
+  });
+
+  it("closes inline math before a digit through both adapters", () => {
+    expectWriter([p(InlineMath.make({ value: "x" }), text("123"))], "$x$&#49;23");
+    expectWriter([p(link([InlineMath.make({ value: "x" }), text("1")]))], "[$x$&#49;](https://example.com)");
+  });
+
+  it("keeps an email address in text from becoming an autolink", () => {
+    expectWriter([p(text("a@b.co"))], "a\\@b\\.co");
+    expectWriter([p(text("a+b@c-d.e_f.co"))], "a\\+b\\@c\\-d\\.e\\_f\\.co");
+    expectWriter([p(text("a@b.c."))], "a\\@b\\.c\\.");
+    expectWriter([p(text("a@b@c.d"))], "a@b\\@c\\.d");
+  });
+
+  it("keeps scoped package names and non-email at signs literal", () => {
+    expectWriter([p(text("@beep/repo-cli"))], "@beep/repo\\-cli");
+    expectWriter([p(text("@scope/pkg"))], "@scope/pkg");
+    for (const value of ["@", "@example", "a@b", "a@b.c1", "a@b.c_", "a@b.c-", "a@b..co", "a@b.-co"]) {
+      const document = Document.make({ children: [p(text(value))] });
+      expect(renderUnsafe(document)).not.toContain("\\@");
+      expect(reparsed(renderUnsafe(document))).toStrictEqual(encode(document));
+    }
+  });
+
   it("escapes a `$` only where it could open inline math", () => {
     expectWriter([p(text("cost $5, $ 6 and a$b$"))], "cost \\$5, $ 6 and a\\$b\\$");
     expectWriter([p(text("pay $5 for "), InlineMath.make({ value: "x^2" }))], "pay \\$5 for $x^2$");

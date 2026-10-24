@@ -3,11 +3,13 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { assert, describe, it } from "@effect/vitest";
-import { WorkspaceEnumerationDepthError } from "../../effected/workspaces/index.ts";
-import { WorkspaceEnumerationDepthError as SyncDepthError } from "../../effected/workspaces/WorkspacesSync.ts";
+import { WorkspaceEnumerationDepthError } from "@beep/repo-workspaces";
+import { WorkspaceEnumerationDepthError as SyncDepthError } from "@beep/repo-workspaces/WorkspacesSync";
 import { SourceBoundary } from "../../effected/workspaces/testing.ts";
 
+// Wave 4-W-a: the main entry lives in @beep/repo-workspaces; ./testing stays in the lab until 4-W-b.
 const SRC = resolve(dirname(fileURLToPath(import.meta.url)), "../../effected/workspaces");
+const PACKAGE_SRC = resolve(dirname(fileURLToPath(import.meta.url)), "../../../packages/tooling/library/repo-workspaces/src");
 
 /** Every relative import of a module, resolved to its source path. */
 const importsOf = (file: string): ReadonlyArray<string> =>
@@ -29,7 +31,7 @@ const reachableFrom = (entry: string): ReadonlySet<string> => {
 };
 
 const TESTING_ONLY =
-	/effected\/workspaces\/(testing|SourceBoundary|LayerPolicy|WorkspaceLayering|PackedInstall|internal\/sourceText|internal\/packedInstallPlan)\.ts$/;
+	/(?:effected\/workspaces|repo-workspaces\/src)\/(testing|SourceBoundary|LayerPolicy|WorkspaceLayering|PackedInstall|internal\/sourceText|internal\/packedInstallPlan)\.ts$/;
 
 describe("entrypoint boundary", () => {
 	it("exports the synchronous enumeration depth error from the main entrypoint", () => {
@@ -37,12 +39,12 @@ describe("entrypoint boundary", () => {
 	});
 
 	it("nothing reachable from `.` belongs to ./testing", () => {
-		const offenders = [...reachableFrom(resolve(SRC, "index.ts"))].filter((file) => TESTING_ONLY.test(file));
+		const offenders = [...reachableFrom(resolve(PACKAGE_SRC, "index.ts"))].filter((file) => TESTING_ONLY.test(file));
 		assert.deepStrictEqual(offenders, [], "repo-shape checks belong behind ./testing");
 	});
 
 	it("nothing reachable from `.` is ./node-sync", () => {
-		const offenders = [...reachableFrom(resolve(SRC, "index.ts"))].filter((file) => /effected\/workspaces\/node-sync\.ts$/.test(file));
+		const offenders = [...reachableFrom(resolve(PACKAGE_SRC, "index.ts"))].filter((file) => /repo-workspaces\/src\/node-sync\.ts$/.test(file));
 		assert.deepStrictEqual(offenders, []);
 	});
 
@@ -66,7 +68,7 @@ describe("entrypoint boundary", () => {
 
 	it("the walker resolves the main entry's modules, or it proves nothing", () => {
 		assert.isTrue(
-			[...reachableFrom(resolve(SRC, "index.ts"))].some((file) => /effected\/workspaces\/WorkspaceDiscovery\.ts$/.test(file)),
+			[...reachableFrom(resolve(PACKAGE_SRC, "index.ts"))].some((file) => /repo-workspaces\/src\/WorkspaceDiscovery\.ts$/.test(file)),
 		);
 	});
 });

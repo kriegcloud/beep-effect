@@ -60,6 +60,33 @@ describe("BlockRepair", () => {
   );
 
   it.effect(
+    "emits a repaired block whose original raw text is not JSON, without a patch summary",
+    Effect.fnUntraced(function* () {
+      const repair = makeRepairInvalidBlocks(() =>
+        Effect.succeed(
+          repairCallResult(
+            '{"repairs":[{"index":0,"block":{"type":"paragraph","children":[{"type":"text","text":"Fixed"}]}}]}'
+          )
+        )
+      );
+      const truncated = IssueReport.make({
+        index: 0,
+        raw: '{"type":"paragraph","children":[{"type":"te',
+        report: "stream truncated mid-block",
+      });
+
+      const repaired = yield* repair([truncated]);
+      expect(A.length(repaired.blocks)).toBe(1);
+      const first = A.head(repaired.blocks);
+      pipe(first, O.isSome, assertTrue);
+      if (O.isSome(first)) {
+        expect(first.value.index).toBe(0);
+        expect(first.value.block.type).toBe("paragraph");
+      }
+    })
+  );
+
+  it.effect(
     "drops blocks missing from the repair envelope",
     Effect.fnUntraced(function* () {
       const repair = makeRepairInvalidBlocks(() => Effect.succeed(repairCallResult('{"repairs":[]}')));

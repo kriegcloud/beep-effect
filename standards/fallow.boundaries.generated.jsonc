@@ -864,6 +864,12 @@
         ]
       },
       {
+        "name": "@beep/repo-workspaces",
+        "patterns": [
+          "packages/tooling/library/repo-workspaces/src/**"
+        ]
+      },
+      {
         "name": "@beep/runpod",
         "patterns": [
           "packages/drivers/runpod/src/**"
@@ -3326,6 +3332,7 @@
           "@beep/identity",
           "@beep/memfs",
           "@beep/observability",
+          "@beep/package-json",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -3336,6 +3343,7 @@
           "@beep/identity",
           "@beep/memfs",
           "@beep/observability",
+          "@beep/package-json",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
@@ -4324,9 +4332,11 @@
           "@beep/ffmpeg",
           "@beep/file-processing",
           "@beep/github",
+          "@beep/github-reporting",
           "@beep/glob",
           "@beep/identity",
           "@beep/libpff",
+          "@beep/lockfiles",
           "@beep/m365",
           "@beep/markdown",
           "@beep/mcp-kit",
@@ -4349,6 +4359,7 @@
           "@beep/runpod",
           "@beep/runtime-env",
           "@beep/schema",
+          "@beep/semver",
           "@beep/skill-contract",
           "@beep/spdx",
           "@beep/t3-code",
@@ -4375,9 +4386,11 @@
           "@beep/ffmpeg",
           "@beep/file-processing",
           "@beep/github",
+          "@beep/github-reporting",
           "@beep/glob",
           "@beep/identity",
           "@beep/libpff",
+          "@beep/lockfiles",
           "@beep/m365",
           "@beep/markdown",
           "@beep/mcp-kit",
@@ -4400,6 +4413,7 @@
           "@beep/runpod",
           "@beep/runtime-env",
           "@beep/schema",
+          "@beep/semver",
           "@beep/skill-contract",
           "@beep/spdx",
           "@beep/t3-code",
@@ -4420,6 +4434,7 @@
           "@beep/identity",
           "@beep/repo-configs",
           "@beep/schema",
+          "@beep/semver",
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
@@ -4428,6 +4443,7 @@
           "@beep/identity",
           "@beep/repo-configs",
           "@beep/schema",
+          "@beep/semver",
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
@@ -4506,6 +4522,43 @@
           "@beep/test-utils",
           "@beep/utils",
           "@beep/walker"
+        ]
+      },
+      {
+        "from": "@beep/repo-workspaces",
+        "allow": [
+          "@beep/commands",
+          "@beep/fc-runs",
+          "@beep/git",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/lockfiles",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/package-json",
+          "@beep/repo-workspaces",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/yaml"
+        ],
+        "allowTypeOnly": [
+          "@beep/commands",
+          "@beep/fc-runs",
+          "@beep/git",
+          "@beep/glob",
+          "@beep/identity",
+          "@beep/lockfiles",
+          "@beep/memfs",
+          "@beep/npm-spec",
+          "@beep/package-json",
+          "@beep/repo-workspaces",
+          "@beep/schema",
+          "@beep/semver",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/yaml"
         ]
       },
       {
@@ -4639,6 +4692,7 @@
           "@beep/repo-cli",
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
+          "@beep/repo-workspaces",
           "@beep/runtime-env",
           "@beep/schema",
           "@beep/scratchpad",
@@ -4696,6 +4750,7 @@
           "@beep/repo-cli",
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
+          "@beep/repo-workspaces",
           "@beep/runtime-env",
           "@beep/schema",
           "@beep/scratchpad",

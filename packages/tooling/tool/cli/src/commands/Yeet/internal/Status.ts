@@ -13,12 +13,14 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, flow, pipe } from "effect/Function";
+import * as Match from "effect/Match";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { GhActor } from "../../../internal/github/index.ts";
+import { GhActor, ghOutput } from "../../../internal/github/index.ts";
 import { runRepoCommandCapture } from "../../../internal/repo-run/index.ts";
 import { JsonStringCodec } from "../../../internal/schema/JsonCodec.ts";
 import { YeetCommandError } from "../Yeet.errors.ts";
@@ -39,6 +41,7 @@ export { deriveYeetMergeReady } from "./MergeReadiness.policy.ts";
 import { yeetCommentExcerpt } from "./MonitorComments.ts";
 import { YeetHeadTimeline } from "./MonitorPolicy.ts";
 import { YEET_STATUS_CHECK_FIELDS } from "./Planner.ts";
+import { findOpenPullRequestViaRest } from "./PullRequest.ts";
 import {
   deriveYeetReviewThreadState,
   summarizeYeetReviewThreadStates,
@@ -281,6 +284,8 @@ export class YeetStatusRemote extends S.Opaque<YeetStatusRemote, { readonly bran
     available: S.Boolean,
     checked: S.Boolean,
     detail: S.String,
+    // None on a successful lookup (including a confirmed absent PR).
+    readFailure: YeetCommandError.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     // Each check's whole record (signal, link, workflow, GitHub's instants), so
     // a row the merge loop writes carries the same capsule a --watch row does.
     // The key default keeps artifacts written before checks existed decoding.
@@ -612,6 +617,7 @@ export class GhStatusCheck extends S.Opaque<GhStatusCheck, { readonly brand: uni
 
 const decodeYeetVerdict = S.decodeUnknownEffect(S.fromJsonString(YeetVerdict));
 const decodePrCloseoutReport = PrCloseoutReportJson.decode;
+const decodeRestReviewComments = S.decodeEffect(S.Unknown.pipe(S.Array, S.fromJsonString));
 const decodeGhStatusPullRequest = S.decodeUnknownEffect(S.fromJsonString(GhStatusPullRequest));
 const decodeGhStatusReviewThreads = S.decodeUnknownEffect(S.fromJsonString(GhStatusReviewThreadsDocument));
 const decodeGhStatusWorkflowRuns = S.decodeUnknownEffect(S.fromJsonString(S.Array(GhStatusWorkflowRun)));
@@ -812,8 +818,11 @@ const readJsonArtifact = Effect.fn("YeetStatus.readJsonArtifact")(function* <Val
   render: (value: Value) => YeetStatusArtifact
 ): Effect.fn.Return<YeetStatusArtifact, never, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
-  const exists = yield* artifactExists(path);
-  if (!exists) {
+  const exists = yield* fs.exists(path).pipe(Effect.option);
+  if (O.isNone(exists)) {
+    return unreadableArtifact(path, unreadableDetail);
+  }
+  if (!exists.value) {
     return missingArtifact(path, missingDetail);
   }
   const text = yield* fs.readFileString(path).pipe(Effect.option);
@@ -845,13 +854,6 @@ const readCloseoutArtifact = (path: string): Effect.Effect<YeetStatusArtifact, n
     decodePrCloseoutReport,
     (report) => artifactFromCloseout(path, report)
   );
-
-const artifactExists = Effect.fn("YeetStatus.artifactExists")(function* (
-  path: string
-): Effect.fn.Return<boolean, never, FileSystem.FileSystem> {
-  const fs = yield* FileSystem.FileSystem;
-  return yield* fs.exists(path).pipe(Effect.orElseSucceed(() => false));
-});
 
 const checkIsFailing = (check: GhStatusCheck): boolean => {
   const bucket = Str.toLowerCase(check.bucket);
@@ -1033,7 +1035,8 @@ const pullRequestAuthorLogin = (node: GhStatusReviewThreadsNode): O.Option<strin
 // fallow-ignore-next-line complexity -- GraphQL cursor and page validity checks form one pagination loop (cognitive 14). Owner: @beep/repo-cli. Exit: move onto the internal/github `ghGraphqlPage` and `nextCursor` helpers that Reply uses.
 const collectRemoteReviewThreads = Effect.fn("YeetStatus.collectRemoteReviewThreads")(function* (
   context: RepoRunContext,
-  pullRequestId: string
+  pullRequestId: string,
+  pullRequestNumber: number
 ): Effect.fn.Return<
   GhStatusReviewThreadPages,
   YeetCommandError,
@@ -1055,15 +1058,30 @@ const collectRemoteReviewThreads = Effect.fn("YeetStatus.collectRemoteReviewThre
         ...O.match(cursor, { onNone: () => [], onSome: (value) => ["-F", `cursor=${value}`] }),
       ],
       context.repoRoot
-    ).pipe(Effect.mapError(YeetCommandError.new("Failed to inspect PR review threads for yeet status.")));
-    if (result.exitCode !== 0 || result.truncated) {
-      return yield* YeetCommandError.make({
-        message: "Failed to collect the paginated PR review-thread closeout gate.",
-        command: "gh api graphql",
-        exitCode: result.exitCode === 0 ? 1 : result.exitCode,
-      });
+    ).pipe(
+      Effect.mapError(YeetCommandError.new("Failed to inspect PR review threads for yeet status.")),
+      Effect.filterOrFail(
+        (result) => result.exitCode === 0 && !result.truncated,
+        (result) =>
+          YeetCommandError.make({
+            message: "Failed to collect the paginated PR review-thread closeout gate.",
+            command: "gh api graphql",
+            exitCode: result.exitCode === 0 ? 1 : result.exitCode,
+          })
+      ),
+      Effect.result
+    );
+    if (Result.isFailure(result)) {
+      // REST may recover a failed command, but never invalid JSON or pagination.
+      // In particular, an empty comments response cannot excuse a cursor cycle.
+      yield* confirmNoReviewComments(context, pullRequestNumber).pipe(
+        Effect.mapError((fallback) =>
+          YeetCommandError.make({ message: `${result.failure.message}; REST fallback: ${fallback.message}` })
+        )
+      );
+      return { pullRequestAuthor: O.none<string>(), threads: A.empty<GhStatusReviewThread>() };
     }
-    const node = yield* decodeGhStatusReviewThreads(result.output).pipe(
+    const node = yield* decodeGhStatusReviewThreads(result.success.output).pipe(
       Effect.map((document) => document.data.node),
       Effect.mapError(YeetCommandError.new("Failed to decode PR review threads for yeet status."))
     );
@@ -1388,6 +1406,87 @@ export const yeetRerunJobListingCommand = (runId: number): string =>
 export const yeetRerunDecisionText = (runName: string): string =>
   `same-SHA red detected for ${runName}; rerun one job with \`gh run rerun --job <databaseId>\`, never \`--failed\``;
 
+// Use the shared pushed-branch REST lookup after any failed GraphQL read.
+// Only a successful empty lookup proves absence; two failed reads stay unknown.
+const readRemotePullRequest = Effect.fn("YeetStatus.readRemotePullRequest")(function* (context: RepoRunContext) {
+  const primary = yield* ghOutput({
+    args: [
+      "pr",
+      "view",
+      "--json",
+      "id,number,url,state,mergeable,mergeStateStatus,isDraft,isCrossRepository,reviewDecision,headRefOid,labels",
+    ],
+    cwd: context.repoRoot,
+    label: "gh pr view",
+    onFailure: (failure) =>
+      YeetCommandError.make({
+        message: Match.value(failure).pipe(
+          Match.tag("nonzero-exit", ({ output }) => `gh pr view failed: ${Str.trim(output)}`),
+          Match.tag("truncated", () => "gh pr view output exceeded the repo-run capture limit"),
+          Match.tag("spawn", () => "could not start gh pr view"),
+          Match.exhaustive
+        ),
+        cause: failure,
+      }),
+  }).pipe(
+    Effect.flatMap((output) =>
+      decodeGhStatusPullRequest(output).pipe(
+        Effect.mapError(YeetCommandError.new("Failed to decode gh pr view JSON for yeet status."))
+      )
+    ),
+    Effect.result
+  );
+  if (Result.isSuccess(primary)) return O.some(primary.success);
+  return yield* Effect.gen(function* () {
+    const found = yield* findOpenPullRequestViaRest(context);
+    if (O.isNone(found)) return O.none<GhStatusPullRequest>();
+    const output = yield* ghOutput({
+      args: [
+        "api",
+        `repos/{owner}/{repo}/pulls/${found.value.number}`,
+        "--jq",
+        '{id: .node_id, number, url: .html_url, state: (if .merged then "MERGED" else (.state | ascii_upcase) end), mergeable: (if .mergeable == null then "UNKNOWN" elif .mergeable then "MERGEABLE" else "CONFLICTING" end), mergeStateStatus: (.mergeable_state // "unknown" | ascii_upcase), isDraft: .draft, isCrossRepository: (.head.repo.full_name != .base.repo.full_name), reviewDecision: null, headRefOid: .head.sha, labels}',
+      ],
+      cwd: context.repoRoot,
+      label: "gh api pull request status",
+      onFailure: YeetCommandError.new("Failed to read PR status through GitHub REST."),
+    });
+    return yield* decodeGhStatusPullRequest(output).pipe(
+      // REST PR metadata has no review decision. Null from the projection
+      // means unread here, whereas GraphQL null means no decision is required.
+      Effect.map((view) => O.some({ ...view, reviewDecision: "UNKNOWN" })),
+      Effect.mapError(YeetCommandError.new("Failed to decode GitHub REST PR status."))
+    );
+  }).pipe(
+    Effect.mapError((fallback) =>
+      YeetCommandError.make({
+        message: `${primary.failure.message}; REST fallback: ${fallback.message}`,
+        cause: fallback,
+      })
+    )
+  );
+});
+
+// As in the REST merge gate, no inline comments proves zero review threads.
+// Existing comments cannot establish resolution state and must fail closed.
+const confirmNoReviewComments = Effect.fn("YeetStatus.confirmNoReviewComments")(function* (
+  context: RepoRunContext,
+  number: number
+): Effect.fn.Return<void, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
+  const output = yield* ghOutput({
+    args: ["api", `repos/{owner}/{repo}/pulls/${number}/comments?per_page=1`],
+    cwd: context.repoRoot,
+    label: "gh api review comments",
+    onFailure: YeetCommandError.new("Could not read REST review comments."),
+  });
+  const comments = yield* decodeRestReviewComments(output).pipe(
+    Effect.mapError(YeetCommandError.new("Could not decode REST review comments."))
+  );
+  if (A.isReadonlyArrayNonEmpty(comments)) {
+    return yield* YeetCommandError.make({ message: "review comments exist; thread resolution is unknown" });
+  }
+});
+
 const collectRemoteStatus = Effect.fn("YeetStatus.collectRemoteStatus")(function* (
   context: RepoRunContext,
   remote: boolean
@@ -1395,43 +1494,38 @@ const collectRemoteStatus = Effect.fn("YeetStatus.collectRemoteStatus")(function
   if (!remote) {
     return skippedRemote;
   }
-  const result = yield* runRepoCommandCapture(
-    "gh",
-    [
-      "pr",
-      "view",
-      "--json",
-      "id,number,url,state,mergeable,mergeStateStatus,isDraft,isCrossRepository,reviewDecision,headRefOid,labels",
-    ],
-    context.repoRoot
-  ).pipe(Effect.mapError(YeetCommandError.new("Failed to inspect PR for yeet status.")));
-  if (result.exitCode !== 0) {
+  const lookup = yield* readRemotePullRequest(context).pipe(Effect.result);
+  if (Result.isFailure(lookup)) {
     return YeetStatusRemote.make({
       available: false,
       checked: true,
-      detail: "gh pr view found no pull request for the current branch",
+      detail: lookup.failure.message,
+      readFailure: O.some(lookup.failure),
     });
   }
-  if (result.truncated) {
+  if (O.isNone(lookup.success)) {
     return YeetStatusRemote.make({
       available: false,
       checked: true,
-      detail: "gh pr view output exceeded the repo-run capture limit",
+      detail: "GitHub REST found no open pull request for the current branch",
     });
   }
-  const view = yield* decodeGhStatusPullRequest(result.output).pipe(
-    Effect.mapError(YeetCommandError.new("Failed to decode gh pr view JSON for yeet status."))
-  );
+  const view = lookup.success.value;
   // Only the review-thread read needs the pull request view (its node id), so
   // the census, required census, thread pages and run list start together once
   // the view decodes: two gh round-trips deep instead of five (W10). Outcomes
   // surface in the old sequential order, so the first failing read in that
   // order still names the error and the snapshot is unchanged.
+  const threadPagesRead: Effect.Effect<
+    GhStatusReviewThreadPages,
+    YeetCommandError,
+    Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
+  > = collectRemoteReviewThreads(context, view.id, view.number);
   const [checksResult, requiredChecksResult, threadPagesResult, workflowRunsResult] = yield* Effect.all(
     [
       collectRemoteChecks(context, false),
       collectRemoteChecks(context, true),
-      collectRemoteReviewThreads(context, view.id),
+      threadPagesRead,
       collectRemoteWorkflowRuns(context),
     ],
     { concurrency: "unbounded", mode: "result" }

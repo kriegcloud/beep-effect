@@ -84,6 +84,7 @@ export type InlineNodeType = typeof InlineNodeType.Type;
  */
 export class InlineNodeData {
   declare breakStyle?: BreakStyle;
+  declare escaped?: boolean;
   declare identifier?: string;
   declare label?: string;
   declare markerChar?: EmphasisChar;

@@ -30,6 +30,17 @@ import { Funding } from "./Funding.ts";
 import { renderJson, resolveFormatOptions } from "./internal/format.ts";
 import { makeWire } from "./internal/wire.ts";
 import { InvalidSpdxLicenseError, SpdxLicense } from "./License.ts";
+import {
+  BooleanOrStringListField,
+  BrowserField,
+  ManField,
+  OpenRecordField,
+  OverridesField,
+  StringListField,
+  StringRecordField,
+  TypesVersionsField,
+  WorkspacesField,
+} from "./ManifestFields.ts";
 import { PackageManager } from "./PackageManager.ts";
 import { InvalidPackageNameError, PackageName } from "./PackageName.ts";
 import { Person } from "./Person.ts";
@@ -647,6 +658,125 @@ export class Package extends S.Class<Package, { readonly brand: unique symbol }>
         description:
           "Development environment constraints for package manager, runtime, operating system, CPU, and libc, with optional failure policies",
       })
+    ),
+    files: S.optionalKey(StringListField).pipe(
+      $I.annoteKey("Package.files", {
+        description: "File globs included when the package is packed, alongside the files npm always includes",
+      })
+    ),
+    imports: S.optionalKey(OpenRecordField).pipe(
+      $I.annoteKey("Package.imports", {
+        description: "Node subpath imports keyed by `#` specifiers, kept as an open object like `exports`",
+      })
+    ),
+    module: S.optionalKey(S.String).pipe(
+      $I.annoteKey("Package.module", {
+        description: "Bundler ESM entry-point path, read by bundlers that predate `exports`",
+      })
+    ),
+    browser: S.optionalKey(BrowserField).pipe(
+      $I.annoteKey("Package.browser", {
+        description: "Browser entry-point path, or a map of module replacements where `false` blocks a module",
+      })
+    ),
+    man: S.optionalKey(ManField).pipe(
+      $I.annoteKey("Package.man", {
+        description: "One man page path or a list of man page paths installed with the package",
+      })
+    ),
+    directories: S.optionalKey(StringRecordField).pipe(
+      $I.annoteKey("Package.directories", {
+        description: "Package layout hints such as `bin`, `man`, `doc`, `lib`, `example` and `test` directories",
+      })
+    ),
+    config: S.optionalKey(OpenRecordField).pipe(
+      $I.annoteKey("Package.config", {
+        description: "Configuration values exposed to package scripts as `npm_package_config_*` environment variables",
+      })
+    ),
+    bundleDependencies: S.optionalKey(BooleanOrStringListField).pipe(
+      $I.annoteKey("Package.bundleDependencies", {
+        description: "Dependency names bundled into the packed tarball, or `true` to bundle every dependency",
+      })
+    ),
+    bundledDependencies: S.optionalKey(BooleanOrStringListField).pipe(
+      $I.annoteKey("Package.bundledDependencies", {
+        description: "The `bundledDependencies` alias npm also accepts for `bundleDependencies`",
+      })
+    ),
+    overrides: S.optionalKey(OverridesField).pipe(
+      $I.annoteKey("Package.overrides", {
+        description: "npm dependency overrides: replacement specifiers or nested objects of scoped overrides",
+      })
+    ),
+    engineStrict: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("Package.engineStrict", {
+        description: "The deprecated npm flag that made `engines` mismatches fatal",
+      })
+    ),
+    os: S.optionalKey(StringListField).pipe(
+      $I.annoteKey("Package.os", {
+        description: "Operating systems the package runs on, with `!`-prefixed entries excluding a system",
+      })
+    ),
+    cpu: S.optionalKey(StringListField).pipe(
+      $I.annoteKey("Package.cpu", {
+        description: "CPU architectures the package runs on, with `!`-prefixed entries excluding an architecture",
+      })
+    ),
+    libc: S.optionalKey(StringListField).pipe(
+      $I.annoteKey("Package.libc", {
+        description: "C standard libraries the package runs against, such as `glibc` or `musl`",
+      })
+    ),
+    preferGlobal: S.optionalKey(S.Boolean).pipe(
+      $I.annoteKey("Package.preferGlobal", {
+        description: "The deprecated npm hint that the package is meant to be installed globally",
+      })
+    ),
+    workspaces: S.optionalKey(WorkspacesField).pipe(
+      $I.annoteKey("Package.workspaces", {
+        description: "Workspace package globs, as a list or as an object with packages, nohoist and other keys",
+      })
+    ),
+    sideEffects: S.optionalKey(BooleanOrStringListField).pipe(
+      $I.annoteKey("Package.sideEffects", {
+        description: "Bundler side-effect declaration: a flag, or the file globs that do have side effects",
+      })
+    ),
+    types: S.optionalKey(S.String).pipe(
+      $I.annoteKey("Package.types", { description: "TypeScript declaration entry-point path" })
+    ),
+    typings: S.optionalKey(S.String).pipe(
+      $I.annoteKey("Package.typings", { description: "The `typings` alias TypeScript also accepts for `types`" })
+    ),
+    typesVersions: S.optionalKey(TypesVersionsField).pipe(
+      $I.annoteKey("Package.typesVersions", {
+        description: "TypeScript version ranges mapped to path patterns and their declaration redirects",
+      })
+    ),
+    resolutions: S.optionalKey(StringRecordField).pipe(
+      $I.annoteKey("Package.resolutions", {
+        description: "Yarn and Bun dependency resolutions: package patterns mapped to forced specifiers",
+      })
+    ),
+    patchedDependencies: S.optionalKey(StringRecordField).pipe(
+      $I.annoteKey("Package.patchedDependencies", {
+        description: "Bun patches: package specifiers mapped to the patch file applied at install",
+      })
+    ),
+    trustedDependencies: S.optionalKey(StringListField).pipe(
+      $I.annoteKey("Package.trustedDependencies", {
+        description: "Bun packages allowed to run their lifecycle scripts at install",
+      })
+    ),
+    catalog: S.optionalKey(StringRecordField).pipe(
+      $I.annoteKey("Package.catalog", {
+        description: "Bun default catalog: package names mapped to the specifiers `catalog:` resolves to",
+      })
+    ),
+    readme: S.optionalKey(S.String).pipe(
+      $I.annoteKey("Package.readme", { description: "README text as the registry stores it in the published manifest" })
     ),
     rest: S.optionalKey(S.Record(S.String, S.Unknown)).pipe(
       $I.annoteKey("Package.rest", {

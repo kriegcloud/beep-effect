@@ -76,7 +76,26 @@ const originPushOwner = Effect.fn("Yeet.originPushOwner")(function* (context: Re
   );
 });
 
-const findOpenPullRequestViaRest = Effect.fn("Yeet.findOpenPullRequestViaRest")(function* (
+/**
+ * Find the pushed branch's open PR through REST, preserving lookup failures.
+ *
+ * **Example** (Build a REST lookup)
+ *
+ * ```ts
+ * import { findOpenPullRequestViaRest, RepoRunContext } from "@beep/repo-cli/test/Yeet"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ *
+ * const branchPrNumber = (context: RepoRunContext) =>
+ *   findOpenPullRequestViaRest(context).pipe(Effect.map(O.map((pr) => pr.number)))
+ * ```
+ *
+ * @param context - Checkout and pushed branch to inspect.
+ * @returns The open PR, or none only after a successful empty lookup.
+ * @category clients
+ * @since 0.0.0
+ */
+export const findOpenPullRequestViaRest = Effect.fn("Yeet.findOpenPullRequestViaRest")(function* (
   context: RepoRunContext
 ): Effect.fn.Return<O.Option<GhPrView>, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
   const headOwner = yield* originPushOwner(context);
@@ -94,7 +113,10 @@ const findOpenPullRequestViaRest = Effect.fn("Yeet.findOpenPullRequestViaRest")(
       failure._tag === "spawn"
         ? YeetCommandError.new("Failed to inspect current branch pull request through GitHub REST.")(failure.cause)
         : YeetCommandError.make({
-            message: "Failed to inspect current branch pull request through GitHub REST.",
+            message:
+              failure._tag === "truncated"
+                ? "GitHub REST pull request lookup output exceeded the repo-run capture limit."
+                : `Failed to inspect current branch pull request through GitHub REST: ${Str.trim(failure.output)}`,
             command: `gh api ${endpoint}`,
             exitCode: failure._tag === "truncated" ? 1 : failure.exitCode,
           }),

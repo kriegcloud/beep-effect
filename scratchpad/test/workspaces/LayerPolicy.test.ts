@@ -1,8 +1,9 @@
 import { assert, describe, it, layer } from "@effect/vitest";
 import { MemoryFileSystem } from "@beep/memfs";
 import * as Effect from "effect/Effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { LayerPolicy } from "../../effected/workspaces/testing.ts";
+import { LayerPolicy, LayerPolicyError } from "../../effected/workspaces/testing.ts";
 
 const VALID = { layers: [["app"], ["core"]], tooling: [], unconstrained: ["@e2e/*"] };
 
@@ -104,4 +105,16 @@ describe("LayerPolicy JSON Schema export", () => {
 			String.raw`^\S+ -> \S+$`,
 		);
 	});
+});
+
+describe("LayerPolicyError encoding", () => {
+	it.effect("preserves the originating failure stack", () =>
+		Effect.gen(function* () {
+			const cause = new Error("originating failure");
+			assert.isString(cause.stack);
+			const error = yield* S.encodeEffect(LayerPolicyError)(LayerPolicyError.make({ reason: "read", cause }));
+			assert.isTrue(P.isObject(error.cause));
+			if (P.isObject(error.cause)) assert.strictEqual(error.cause.stack, cause.stack);
+		}),
+	);
 });

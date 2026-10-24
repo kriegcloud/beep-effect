@@ -32,8 +32,9 @@ describe("SourceBoundary coverage controls", () => {
     assert.deepStrictEqual(SourceBoundary.verifyFixtures(), []);
   }));
   it.layer(Layer.mergeAll(MemoryFileSystem.layerWith({ "/repo/a.ts": "process.cwd(); console.log(1);" }), Path.layer), { timeout: "10 seconds" })((it) => {
-    it.effect("undefined rule waivers do not waive offences", () => Effect.gen(function* () {
-      const report = yield* SourceBoundary.scan({ root: "/repo", rules: ["process", "console"], allowRules: { process: undefined, console: ["a.ts"] } });
+    // W4-j: EF-40 (#2145) made rule waivers exact keys, so an absent waiver stands in for the old explicit undefined.
+    it.effect("absent rule waivers do not waive offences", () => Effect.gen(function* () {
+      const report = yield* SourceBoundary.scan({ root: "/repo", rules: ["process", "console"], allowRules: { console: ["a.ts"] } });
       assert.deepStrictEqual(report.offences.map((offence) => offence.rule), ["process"]);
       assert.deepStrictEqual(report.waived.map((offence) => offence.rule), ["console"]);
     }));

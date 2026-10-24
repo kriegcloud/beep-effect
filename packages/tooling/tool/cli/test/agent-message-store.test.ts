@@ -167,15 +167,29 @@ const processFixture = Effect.fn("AgentMessageTest.processFixture")(function* (
         BEEP_MESSAGE_FIXTURE_ENVELOPE: input,
       },
       stdin: "ignore",
-      stdout: "ignore",
+      stdout: "inherit",
       stderr: "inherit",
     }
   );
-  const wait = Effect.gen(function* () {
-    while (!(yield* fs.exists(checkpoint))) yield* Effect.sleep("10 millis");
-    return yield* fs.readFileString(checkpoint);
-  }).pipe(Effect.timeout("10 seconds"), TestClock.withLive);
-  return { child, wait };
+  const waitFor = (suffix = "") =>
+    Effect.gen(function* () {
+      while (!(yield* fs.exists(`${checkpoint}${suffix}`))) yield* Effect.sleep("10 millis");
+      return yield* fs.readFileString(`${checkpoint}${suffix}`);
+    }).pipe(
+      Effect.raceFirst(
+        child.exitCode.pipe(
+          Effect.flatMap((code) =>
+            RouterError.make({
+              code: "storage",
+              message: `Fixture exited before checkpoint ${markerName}${suffix}: ${code}`,
+            })
+          )
+        )
+      ),
+      Effect.timeout("10 seconds"),
+      TestClock.withLive
+    );
+  return { child, wait: waitFor(), waitFor };
 });
 
 it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 seconds" })(
@@ -381,6 +395,30 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             "ambiguous",
           ]);
           assertNone(yield* reopened.claimNext("b", "b-owner", 203, 303));
+        })
+      )
+    );
+
+    it.effect("child initialization retries temporary write contention", () =>
+      fixture((_store, filename) =>
+        Effect.gen(function* () {
+          const blocker = yield* makeAgentMessageSqliteClient(filename, "50 millis");
+          const process = yield* Effect.acquireUseRelease(
+            blocker`BEGIN IMMEDIATE`,
+            () =>
+              Effect.gen(function* () {
+                const child = yield* processFixture(filename, "claim", "initialization-contention");
+                // Release only after initialization has actually exhausted its native busy wait.
+                expect(yield* child.waitFor(".contended")).toBe("contended");
+                return child;
+              }),
+            () => blocker`ROLLBACK`.pipe(Effect.orDie)
+          );
+          expect(yield* process.wait).toBe("none");
+          yield* process.child.kill({ killSignal: "SIGKILL" });
+          expect((yield* Effect.flip(process.child.exitCode)).reason.cause).toMatchObject({
+            message: expect.stringContaining("SIGKILL"),
+          });
         })
       )
     );

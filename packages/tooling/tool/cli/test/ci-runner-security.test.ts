@@ -629,6 +629,58 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
   );
 
   it.effect(
+    "renders the exact runner-resources table with and without the CPU row",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* findRepoRoot();
+      const table = (stdout: string): string =>
+        pipe(
+          Str.split(stdout, "\n"),
+          A.filter(Str.startsWith("| ")),
+          A.map(Str.replace(/^\| Elapsed seconds \| \d+ \|$/u, "| Elapsed seconds | <n> |")),
+          A.join("\n")
+        );
+      const head = ["| Measurement | Value |", "| --- | --- |"];
+      const memory = [
+        "| Elapsed seconds | <n> |",
+        "| Memory samples (5-second interval) | 2 |",
+        "| Host memory GiB | 2.00 |",
+        "| Sampled used-memory peak GiB | 1.00 |",
+        "| Minimum available memory GiB | 1.00 |",
+      ];
+      for (const [lane, script, cpuRows, swap] of [
+        ["flat", "exit 3", [], "0 / 0"],
+        [
+          "busy",
+          'printf "cpu 200 0 150 850 0 0 0 0\\n" > "$1/stat"; printf "pswpin 8\\npswpout 9\\n" > "$1/vmstat"; exit 3',
+          ["| Host CPU busy percent (excluding I/O wait) | 75.0 |"],
+          "3 / 2",
+        ],
+      ] as const) {
+        const tempRoot = yield* fs.makeTempDirectoryScoped();
+        const proc = path.join(tempRoot, "proc");
+        yield* fs.makeDirectory(proc);
+        yield* fs.writeFileString(path.join(proc, "meminfo"), "MemTotal: 2097152 kB\nMemAvailable: 1048576 kB\n");
+        yield* fs.writeFileString(path.join(proc, "stat"), "cpu 100 0 100 800 0 0 0 0\n");
+        yield* fs.writeFileString(path.join(proc, "vmstat"), "pswpin 5\npswpout 7\n");
+        const result = Bun.spawnSync(
+          ["bash", path.join(repoRoot, "scripts/ci-runner-resources.sh"), lane, "bash", "-c", script, "fixture", proc],
+          { env: { ...process.env, RUNNER_TEMP: tempRoot, BEEP_CI_PROC_ROOT: proc }, stdout: "pipe", stderr: "pipe" }
+        );
+        assert.strictEqual(result.exitCode, 3);
+        assert.strictEqual(
+          table(result.stdout.toString()),
+          A.join(
+            [...head, "| Lane exit status | 3 |", ...memory, ...cpuRows, `| Swap-in / swap-out pages | ${swap} |`],
+            "\n"
+          )
+        );
+      }
+    })
+  );
+
+  it.effect(
     "preserves caller stdin through the resource adapter",
     Effect.fnUntraced(function* () {
       const fs = yield* FileSystem.FileSystem;

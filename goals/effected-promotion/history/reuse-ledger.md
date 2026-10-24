@@ -18,13 +18,24 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 | repo-cli `Files/internal/MatchPerson.ts` `resolveCacheRoot` | #178 | queued for 4-X-A | |
 | apps `docket-intake` `Config.ts` and `practice-m365-contacts` `Contacts.state.ts` | #181, #182 | queued for 4-X-A | |
 | apps `practice-mail-tagging` `PracticeMailTagging.config.ts` | #183 | excluded | It would start honouring XDG on a deployed practice service (W4-c correction 6). |
+
+## `@beep/repo-workspaces` (wave 4-W-a, W4-f)
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| lab `scratchpad/effected/workspaces` testing cluster (`SourceBoundary`, `LayerPolicy`, `WorkspaceLayering`, `PackedInstall`, `testing.ts` and their internals and tests) | - | 4-W-a | Retargeted to `@beep/repo-workspaces` leaves in the promotion PR; the cluster itself moves in 4-W-b. |
+| lab-wide `layering.int.test.ts` (with `lab-layers.json`), `peerClosure.int.test.ts`, `SourceBoundarySelf.int.test.ts`, and both PROMOTED maps | - | 4-W-a | Stay in place (correction 3) and read the package; `layering.int` maps `@beep/repo-workspaces` to the lab directory it came from. Deleted by C. |
+| repo-cli `Quality/internal/QualityArtifactSupport.ts` `discoverWorkspacePackages` | #143 | 4-A1 | Discovery onto `WorkspaceDiscovery`, discovery only, with a `resolvePathWithinRoot` post-filter (the kit keeps upstream link-following). Exception Ledger "Duplicate workspace discovery and dependency graph". |
+| repo-cli `workspacePatternsFrom` copies (`ChangesetGraph`, `CreatePackage`, `TsconfigSync.plan`, `ConfigUpdater`, `Quality/Tasks.ts`) | #146, #148, #149, #150 | 4-A2 | Through a public `WorkspacePatterns` leaf (`internal/patterns` today). |
+| repo-utils `Workspaces.ts`, `Dependencies.ts`, `DependencyIndex.ts`; `beep topo-sort` | #139, #142, #238, #239, #268 | 4-A3 | Onto `WorkspaceDiscovery` and `DependencyGraph.sort()`; the differential's 186-member, 1,301-edge parity is the baseline. |
+
 ## `@beep/lockfiles` (wave 3-5, W3-g)
 
 | Site | Map id | Status | Notes |
 | --- | --- | --- | --- |
-| lab `scratchpad/effected/workspaces` (`LockfileReader`, `PeerCheck`, `DuplicateCheck`, `WorkspaceCatalogs`, `WorkspaceSnapshots`, `WorkspacePackage`, internal roots and importer versions, their tests) and both PROMOTED maps | - | 3-5 | Retargeted in the promotion PR to `@beep/lockfiles` leaves; the module itself promotes as `@beep/repo-workspaces` in a later wave. |
-| repo-cli `Quality/CatalogUsage.ts` `readLockfilePackages` (bun.lock key and specifier splitting) | #233, #129 (lockfile part), #156 | 3-A1 | `Lockfile.parse({ format: "bun" })` and `ResolvedPackage.installName`; the catalog-specifier half is npm-spec's `DependencySpecifier`. Exception Ledger "Duplicate lockfile readers". |
-| repo-cli `VersionSync/internal/resolvers/RootCatalog.ts` `BunLockDocument` and `readLockfileResolvedVersion` | #131, #155, #269, #289 | 3-A1 (bun.lock half) | Filter `isWorkspace` to keep the legacy `None`; 2,403-name and 2,211-version live parity. The package.json half is 3-A4. |
+| lab `scratchpad/effected/workspaces` (`LockfileReader`, `PeerCheck`, `DuplicateCheck`, `WorkspaceCatalogs`, `WorkspaceSnapshots`, `WorkspacePackage`, internal roots and importer versions, their tests) and both PROMOTED maps | - | 3-5 | Retargeted in the promotion PR to `@beep/lockfiles` leaves; the core and config-dependency half promoted as `@beep/repo-workspaces` in 4-W-a, and the `testing` cluster follows in 4-W-b. |
+| repo-cli `Quality/CatalogUsage.ts` `readLockfilePackages` (bun.lock key and specifier splitting) | #233, #129 (lockfile part), #156 | adopted in 3-A1 | `Lockfile.parse({ format: "bun" })` with `[pkg.installName, pkg.name]` per package; `installedNameFromLockKey` and `CatalogUsageLockfile` are deleted. The override-selector `packageNameFromSpecifier` stays (not a lockfile read). Names 2,408/2,408 (`research/lockfiles-adoption-parity-w4.json`). Exception Ledger "Duplicate lockfile readers" removed. |
+| repo-cli `VersionSync/internal/resolvers/RootCatalog.ts` `BunLockDocument` and `readLockfileResolvedVersion` | #131, #155, #269, #289 | adopted in 3-A1 (bun.lock half) | `Lockfile#rootPackage` filtered to a non-workspace package of that real name; 3,172/3,356 probes agree, the 184 others are workspace packages whose legacy `workspace:<path>` "version" is now `None`. The package.json half is 3-A4. |
 | mcpb-kit `internal/steps.ts` `ensureWindowsBindings` | #136 | excluded | Needs the npm driver's tarball download and integrity check, deferred with it; the lockfile pin read alone does not justify the edge. |
 
 ## `@beep/cli-kit` (wave 4, 4-C, SPEC W4-d)
@@ -58,8 +69,8 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 | Site | Map id | Status | Notes |
 | --- | --- | --- | --- |
 | lab `scratchpad/effected/github-actions` (index re-exports, `Exports.test.ts`, reachability and layering maps) | - | 3-1 | Retargeted in the promotion PR; no lab module imports the suite any more. |
-| repo-cli `Ci/RunnerLossRerun.ts` markdown table | - | 3-A8, optional | `GitHubMarkdown.table`; fixes its unescaped `\|` cells. |
-| repo-cli `Ci/CiOperational.service.ts` markdown table | - | 3-A8, optional | `GitHubMarkdown.table`. |
+| repo-cli `Ci/RunnerLossRerun.ts` markdown table | - | adopted in 3-A8 | `GitHubMarkdown.table`; fixes its unescaped `\|` cells (red-then-green test in `ci-rerun-runner-loss.test.ts`). Pipes are escaped and newlines become `<br>` (both via `GitHubMarkdown.table`; pipe and newline tests in `ci-rerun-runner-loss.test.ts`). Parity: the existing `ci-rerun-runner-loss.test.ts` suite passes unchanged, and in a one-off old-vs-new render of its summaries only the pipe fixture (rendered twice, once per rerun mode) differs. |
+| repo-cli `Ci/CiOperational.service.ts` markdown table | - | adopted in 3-A8 | `GitHubMarkdown.table` for the runner-resources table. Parity: old and new tables byte-identical over a one-off 36-case measurement matrix; `ci-runner-security.test.ts` pins the exact table text for both CPU-row branches. |
 | repo-cli `LaneTimings` and `Ci.command` tables | - | excluded | Need column alignment, which the writer does not offer. |
 | repo-cli Reviewer and CI summary bodies | - | deferred | Named by D-10; adopt with the wave-5 GitHub Actions driver, which composes `CheckDocument` with a real sink. |
 | Marker-splice family (Provenance, GhOps, Quality, Findings.refresh, Atlas, Observability, Models) | - | excluded | File-backed managed sections go to `@beep/managed-section` directly, not through `ManagedDocument`'s comment dialect. |
@@ -112,13 +123,14 @@ formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToSt
 | --- | --- | --- | --- |
 | lab `sbom` `index.ts` re-export of `Package`, `Person`, `Repository` | - | 3-4 (done) | Dropped; `SbomMetadataSource` imports the types from `@beep/package-json`, and the sbom reachability test pins no runtime edge. |
 | lab `workspaces` `WorkspacePackage.ts`, `PackageManagerName.ts` | - | 3-4 (done) | Import `@beep/package-json`. |
-| `DevEngine.onFail` `download`, plus the generic npm/bun fields repo-utils models today | #243 | 3-A2 | Field growth in the kit, verified against the npm docs. |
+| `DevEngine.onFail` `download`, plus the generic npm/bun fields repo-utils models today | #243 | 3-A2 (done) | 25 fields join `Package` through `ManifestFields` and `LenientManifest` (W3-f 3-A2 row). npm documents `onFail` as `warn`/`error`/`ignore`; `download` is the OpenJS devEngines proposal value pnpm implements. Repo refinements (repo-name keys, closed `rest`, the strict `exports`/`imports` grammar, the typed `publishConfig` base, `beep`, `resolutions#`) stay for 3-A3. Census `--compare`: 0 regressions over 189 manifests; all 189 round-trip through `PackageManifest.schema` with the new fields typed. |
+| `@beep/lockfiles` `BunExtension.ts` private `OverrideValue` (bun.lock `overrides`) | - | excluded | Same recursive shape as `ManifestFields.OverrideValue` (3-A2), kept independent: lockfiles has no `@beep/package-json` edge and one five-line schema does not justify one (SPEC W3-f 3-A2 (i)). Reverse by importing `OverrideValue` from `@beep/package-json/ManifestFields`. |
 | repo-utils `schemas/PackageJson.ts` (2,111 lines), `DocgenConfig.ts`, `WorkspaceDeps.ts` | #127, #243, #267, #47 | 3-A3 | Re-based on `PackageManifest.extend`; repo-utils keeps the beep metadata, the closed `rest` refinement and JSON Schema emission (D-08 by field ownership). 184-manifest verdict parity. |
 | repo-utils `schemas/PackageJsonTools.ts` canonical order | #128 | 3-A3 | Keeps its own repo key order (beep after repository, publishConfig sub-order); the kit's `KEY_ORDER` has no override hook and is never the adopter path. |
 | repo-cli Quality readers: ChangesetGraph, ChangesetStatus, PackageVerify, QualityArtifactSupport, Quality.schemas, Tasks, CatalogUsage.schemas, PackageTestTypecheck, EffectSchemaInventoryModules | #134, #135, #130, #143, #277 | 3-A4 | `LenientManifest` or `PackageManifest` per site tier; 184-manifest verdict parity. |
 | repo-cli VersionSync `BunResolver`, `RootCatalog` (package.json half), `PackageJsonUpdater` | #132, #131, #133 | 3-A4 | `PackageManager.FromString`; the updaters become `PackageJsonFile.modify`. `RootCatalog`'s bun.lock half is 3-A1's. |
 | docgen `Version.ts`, `Configuration.ts:393` `PackageJsonSchema` | #307 | 3-A4 | After 3-3 changes the same file. |
-| observability `catalog/Catalog.names.ts` `PackageName` | #137 | 3-A9 (optional) | `ScopedPackageName`. |
+| observability `catalog/Catalog.names.ts` `PackageName` | #137 | adopted in 3-A9 | `ScopedPackageName`, re-annotated as the catalog owner name; the hand-rolled pattern and brand are gone. Parity: the old pattern and the new schema agree on all 2,407 distinct names in the tracked manifests and the root `bun.lock` (`ops/observability-package-name-parity.ts`, `research/observability-package-name-parity-3-a9.json`). npm-rule divergences (leading `-` in scope or name accepted, over 214 characters rejected) are pinned by inverted tests in `observability/test/Catalog.test.ts`. |
 | mcpb-kit manifests and `ensureWindowsBindings` | #136 | excluded | Deferred to the npm driver. |
 | m365-mcp and github test-only readers | - | excluded | Test fixtures; not worth the edge. |
 
@@ -145,12 +157,32 @@ formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToSt
 | `@beep/md` `Md.ts`: write-side DSL with no parser | #290 | resolved in 2d-2 | Merged into #237: `@beep/md/Md.parse` parses text. `@beep/schema`'s Markdown-to-HTML path stays (excluded with #227 and #258, MQ7 cycle). |
 | `@beep/md` merge design and hand-rolled frontmatter splitting | #259 | partly resolved in 2d-2 | Placement decided (D-02: parser in `@beep/markdown`, bridge in `@beep/md`) and the unsupported-node policy written (D-48). The frontmatter splitters are the 2d-A sites #37, #27, #276 and #231 above. |
 
+
+## `@beep/semver` (roadmap R1, SPEC W4-h)
+
+R1 is the owner switch. Parity is recorded in `research/semver-owner-switch-differential-r1.json`
+(`ops/semver-owner-switch-differential.ts`, run on a clean tree at 41a03502f3 with the deleted module restored
+from 6c0bb54d55 through `--old-module`): 0 unclassified differences in every section. That JSON is the only
+record of the old-module section; a run without `--old-module` reports it `skipped` and proves nothing for it.
+Docker differences are classified causally: the old strategy, re-run without the non-SemVer-core tags, must
+pick what the kit picks.
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| `@beep/schema/Semver` (`Semver`, `SemverFromString`) | #41 | retired (R1) | Zero importers. Deleted with its test, both export entries, the root re-export and the generated aliases, catalog and inventory rows. 2,264 versions parse alike with the same format; 5,125,696 ordered pairs agree except 14 probe pairs where the old `localeCompare` disagrees with ASCII order (§11.4.2). The old loose normalization (`v1.2.3`, `1.2`) had no caller. |
+| repo-cli VersionSync `BunResolver` `BunSemver` pattern and comparator | #42, #308 | adopted (R1) | One `SemVer.parseResult` after an optional leading `v` (no surrounding whitespace, no build metadata), then `SemVer.gte`; a property pins the `SemVer.gte` winner. 600,683 of 604,506 pairs pick the same pin; 3,436 involve a pin the kit rejects (leading zero, unsafe integer) and 387 differ only by the dropped leading `v` (the canonical pin written since c3260f33). `BunSemver` export removed (no importer). |
+| repo-cli VersionSync `DockerResolver` triple parser, comparator and the duplicated latest-tag loops | #43, #308 | adopted (R1) | One exported `selectLatestDockerTag` over `SemVer`: stable, pinnable, first-listed wins among equal versions; a property pins the first tag holding the `SemVer.compare` maximum. 8,842 of 9,000 seeded tag lists agree; each of the other 158 goes away once its non-SemVer-core tags are removed. |
+| `@beep/repo-configs` `CacheClientPin.version` inline regex | #46 | adopted (R1) | `SemVer.PinnableVersionString`. All 5 committed pins pass both; the 6 old-only accepts are leading zeros, an empty identifier and an unsafe integer. |
+| repo-cli VersionSync `RootCatalog` bun.lock versions | #269 | 3-A1 | The lockfile half rides the lockfiles adoption; its Docker semver half is #43 above. |
+| repo-utils `schemas/PackageJson.ts` version fields | #243 | 3-A3 | Re-based on `@beep/package-json`, which already types versions through `@beep/semver`. |
+| repo-cli `EffectResolver` `VERSION_SPECIFIER_PATTERN`, `TurboResolver` `STABLE_VERSION_PATTERN` | - | excluded | Shape checks on a specifier or schema URL; neither parses nor orders versions. |
+
 ## Backfill of the remaining map sites (R0, W4-k)
 
 Every confirmed and partial site of the map that had no row above (the earlier `2d-later` rows now carry their plan PR or exclusion too), so each one is migrated, queued under a
 PR id of the wave-4 plan's PR sequence (`research/wave-4-plan-2026-10-23.md`), or excluded with a reason. Each
 PR flips its own rows. Rows whose status the plan does not name were assigned from the map's prerequisite column.
-200 rows: 25 migrated, 94 queued on a plan PR,
+200 rows: 30 migrated, 89 queued on a plan PR,
 33 handed to the W4-l follow-up goal, 4 deferred with their module (W4-m) and 44 excluded.
 A row naming two PRs is split between them; #143 also appears above for its package.json half.
 
@@ -193,7 +225,7 @@ A row naming two PRs is split between them; #143 also appears above for its pack
 | repo-cli Quality/CatalogUsage.ts | #156 | partial | queued: 3-A1 | `CatalogUsage` onto `@beep/lockfiles` with `ResolvedPackage.installName`. |
 | repo-cli Quality/CatalogUsage.ts | #233 | partial | queued: 3-A1 | `CatalogUsage` onto `@beep/lockfiles` with `ResolvedPackage.installName`. |
 | repo-cli VersionSync/internal/resolvers/RootCatalog.ts | #289 | partial | queued: 3-A1 | `RootCatalog` bun.lock half onto `Lockfile.parse`; no `CatalogSet` for one catalog. |
-| repo-cli VersionSync/internal/resolvers/RootCatalog.ts | #269 | partial | queued: 3-A1; R1 | Lockfile half with 3-A1, Docker semver half with R1 (#43); counted there. |
+| repo-cli VersionSync/internal/resolvers/RootCatalog.ts | #269 | partial | queued: 3-A1 | Lockfile half with 3-A1; the Docker semver half is #43, migrated in R1. |
 
 ### Wave 4 promotions and adoptions (4-X, 4-X-A, 4-C, 4-C-A, 4-A1 to 4-A4)
 
@@ -227,11 +259,11 @@ A row naming two PRs is split between them; #143 also appears above for its pack
 
 | Site | Map id | Verdict | Status | Notes |
 | --- | --- | --- | --- | --- |
-| schema Semver.ts | #41 | confirmed | queued: R1 | Delete `@beep/schema/Semver` (closes the Duplicate semver model row). |
-| repo-cli VersionSync/internal/resolvers/BunResolver.ts | #42 | confirmed | queued: R1 | BunResolver `BunSemver` onto `@beep/semver` (strip a leading `v` first). |
-| repo-cli VersionSync/internal/resolvers/DockerResolver.ts | #43 | partial | queued: R1 | DockerResolver `semverCompare` onto `SemVer.Order`. |
-| repo-configs cache/Cache.policy.ts | #46 | confirmed | queued: R1 | `Cache.policy.ts` version pin onto `SemVer.PinnableVersionString`. |
-| repo-cli VersionSync/internal/resolvers | #308 | partial | queued: R1 | BunResolver `BunSemver` onto `@beep/semver` (strip a leading `v` first). |
+| schema Semver.ts | #41 | confirmed | migrated (R1, W4-h) | `@beep/schema/Semver` deleted; the Duplicate semver model row is closed. Migrated in R1; see the `@beep/semver` section above. |
+| repo-cli VersionSync/internal/resolvers/BunResolver.ts | #42 | confirmed | migrated (R1, W4-h) | BunResolver `BunSemver` onto `@beep/semver` (a leading `v` stripped first). Migrated in R1; see the `@beep/semver` section above. |
+| repo-cli VersionSync/internal/resolvers/DockerResolver.ts | #43 | partial | migrated (R1, W4-h) | DockerResolver `semverCompare` onto `@beep/semver` (`selectLatestDockerTag`). Migrated in R1; see the `@beep/semver` section above. |
+| repo-configs cache/Cache.policy.ts | #46 | confirmed | migrated (R1, W4-h) | `Cache.policy.ts` version pin onto `SemVer.PinnableVersionString`. Migrated in R1; see the `@beep/semver` section above. |
+| repo-cli VersionSync/internal/resolvers | #308 | partial | migrated (R1, W4-h) | BunResolver `BunSemver` onto `@beep/semver` (a leading `v` stripped first). Migrated in R1; see the `@beep/semver` section above. |
 | repo-cli Skills/internal/MergeBase.ts | #103 | partial | queued: R10 | `readAtMergeBase` over `Git.mergeBase` + `Git.show`. |
 | repo-cli internal/repo-run/GitWorktree.ts | #104 | partial | queued: R10 | Worktree list and remove onto `@beep/git`; prune stays a single capture call. |
 | repo-cli Yeet/internal/ProvenanceFooter.ts | #108 | partial | queued: R10 | Config reads onto `Git.configGet`/`Git.remoteUrl`. |

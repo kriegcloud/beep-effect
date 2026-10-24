@@ -12,8 +12,10 @@ Dated, verbatim operator wording, newest first. Paraphrases are not rulings.
 
 | Date | Ruling (verbatim) | Source |
 | --- | --- | --- |
+| 2026-10-24 | "I agree & we should make this the default rule for now when compute is constrained" (push straight to hosted CI) | AGENTS.md Quality Operator constrained-compute bullet |
+| 2026-10-24 | "I prefer that issues ... [are fixed] at their root cause as soon as they are identified instead of kicking the bucket down the road" (supersedes the round-2 review-loop stop) | AGENTS.md Autonomy "Fix findings where they are found" |
 | 2026-10-06 | "flip your PR from draft to READY as soon as the content is final and cheap gates pass ... I do not merge until 20 minutes after the later of 'marked ready' and your last push" | memory feedback-review-window-before-merge |
-| 2026-10-06 | "only money escalates ... review loops stop after round 2" | AGENTS.md Autonomy (#1448) |
+| 2026-10-06 | "only money escalates" (its "review loops stop after round 2" clause was superseded 2026-10-24) | AGENTS.md Autonomy (#1448) |
 
 ## Gate snapshot
 
@@ -40,10 +42,28 @@ Money only. Everything else was decided and is in the Decision Log of the owning
 | Asked | Question | Asked by | Fleet desk doc | Status |
 | --- | --- | --- | --- | --- |
 
+## Operator-hands items
+
+Non-money steps only the operator can perform: answering a session's pending question, GUI steps,
+a YubiKey-gated `sudo`, a sign-in. Agents decide everything else.
+
+| Item | Where | Unblocks |
+| --- | --- | --- |
+
 ## Next actions (ordered)
 
 1. <the single most important thing; usually a merge or a routed hold>
 2. ...
+
+## Recipes
+
+Exact commands a successor needs to re-create what dies with this session or must be re-armed:
+merge-gate arming (argv-file recipe), wait-then-arm units, every `Monitor` and background poller
+command with its timeout, and worker/lane launch commands. Paths here are private; never commit.
+
+```bash
+<command>   # what it re-arms, when to re-run it
+```
 
 ## Register
 

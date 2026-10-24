@@ -47,7 +47,7 @@ export const escapeConstruct: InlineConstruct = {
     const escaped = unitAt(scanner.subject, scanner.pos);
     if (reEscapable.test(escaped)) {
       scanner.pos += 1;
-      scanner.appendText(escaped, from, scanner.pos);
+      scanner.appendText(escaped, from, scanner.pos).data.escaped = true;
       return true;
     }
 
