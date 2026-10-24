@@ -44,3 +44,27 @@ const win32Absolute = /^(?:[A-Za-z]:[\\/]|[\\/]{2})/;
  * @since 0.0.0
  */
 export const isAbsoluteWin32 = (value: string): boolean => win32Absolute.test(value);
+
+/**
+ * The absolute-path pattern of either platform: a POSIX root, a drive root or a UNC share.
+ *
+ * **Details**
+ *
+ * The union of {@link isAbsolutePosix} and {@link isAbsoluteWin32}, as a
+ * pattern so a schema check built on it also drives arbitrary generation.
+ * `$HOME` and the `AppDirs` overrides take it, because either can name a
+ * Windows directory.
+ *
+ * **Example** (Check values of either platform)
+ *
+ * ```ts
+ * import { absolutePathPattern } from "@beep/xdg/internal/absolute";
+ *
+ * console.log(absolutePathPattern.test("/home/ada"), absolutePathPattern.test("D:/data")); // true true
+ * console.log(absolutePathPattern.test("relative")); // false
+ * ```
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const absolutePathPattern: RegExp = /^(?:\/|[A-Za-z]:[\\/]|[\\/]{2})/;

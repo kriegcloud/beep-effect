@@ -22,6 +22,7 @@ export {
   AppDirsError,
   AppDirsNamespaceError,
   AppDirsOptions,
+  AppDirsOverrideError,
   type AppDirsShape,
   ResolvedAppDirs,
 } from "./AppDirs.ts";
