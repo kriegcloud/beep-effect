@@ -5,8 +5,8 @@ import {
   tsgoDisabledRules,
 } from "@beep/repo-cli/commands/Quality/Quality.command";
 import { CoverageScopeOwner, workspaceDependentOwners } from "@beep/repo-cli/test/Quality";
+import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
-import { describe, expect, it } from "vitest";
 
 const pluginWith = (diagnosticSeverity: Readonly<Record<string, unknown>>, overrides: ReadonlyArray<unknown> = []) => ({
   name: "@effect/language-service",
