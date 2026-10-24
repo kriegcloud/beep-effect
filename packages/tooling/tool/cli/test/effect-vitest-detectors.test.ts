@@ -466,6 +466,26 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
+  it.effect("permits with-named layer factories that hand their Layer to it.layer", () =>
+    Effect.gen(function* () {
+      const block = 'it.effect("x", () => program);';
+      const factories = [
+        `const withFake = (adapter) => L.unwrap(Fx.map(Fake, adapter)).pipe(L.provideMerge(L.sync(Fake, makeFake))); it.layer(L.fresh(withFake(mirror)))((it) => { ${block} });`,
+        `const withFake = (adapter) => { return L.unwrap(Fx.map(Fake, adapter)); }; it.layer(withFake(mirror))((it) => { ${block} });`,
+        `const withStore = (dataDir) => L.scoped(Store, openStore(dataDir)); it.layer(withStore("fixtures/a"))((it) => { ${block} });`,
+      ];
+      for (const body of factories) assertFalse(yield* hasRule(body, "EV003"));
+
+      const wrappers = [
+        'const withStore = (use) => use.pipe(Fx.provide(L.scoped(Store, openStore("a")))); it.effect("x", () => withStore(program));',
+        'const withFake = (adapter) => L.build(L.unwrap(Fx.map(Fake, adapter))); it.effect("x", () => withFake(mirror));',
+        'const withFake = (adapter) => L.unwrap(Fx.map(Fake, adapter)).pipe(Fx.provide(other)); it.effect("x", () => withFake(mirror));',
+        'const withFake = (adapter, use) => { if (adapter) return L.unwrap(Fx.map(Fake, adapter)); return Fx.acquireUseRelease(open, use, close); }; it.effect("x", () => withFake(mirror, program));',
+      ];
+      for (const body of wrappers) assertTrue(yield* hasRule(body, "EV003"));
+    })
+  );
+
   it.effect("inspects Option, Result, and Exit values supplied as matcher arguments", () =>
     Effect.gen(function* () {
       assertTrue(yield* hasRule('it("o", () => expect(value).toEqual(O.none()));', "EV006"));
@@ -727,7 +747,7 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
-  it.effect("limits withLive exemption to the wrapped wait and preserves cancellation uncertainty", () =>
+  it.effect("limits withLive exemption to the wrapped wait", () =>
     Effect.gen(function* () {
       assertFalse(yield* hasRule('it.effect("live", () => TC.withLive(Fx.sleep("1 second")));', "EV008"));
       assertFalse(
@@ -746,13 +766,65 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
         'it.effect("stall", Fx.fnUntraced(function* () { yield* Fx.sleep("1 second"); yield* TC.adjust("1 second"); }));'
       );
       assertTrue(A.some(sequential, (row) => row.ruleId === "EV008" && row.mechanization === "detector"));
-      for (const control of ['TC.adjust("1 second")', "Fiber.interrupt(fiber)"]) {
-        const rows = yield* findings(
-          `import { Fiber } from "effect"; it.effect("controlled", Fx.fnUntraced(function* () { const fiber = yield* Fx.forkChild(Fx.sleep("1 second")); yield* ${control}; }));`
-        );
-        assertTrue(A.some(rows, (row) => row.ruleId === "EV008" && row.mechanization === "judgment"));
-      }
       assertFalse(yield* hasRule('it.effect("count", () => Fx.succeed(1).pipe(Fx.repeat(S.recurs(3))));', "EV008"));
+    })
+  );
+
+  it.effect("permits waits a forked fiber holds while a later same-body clock operation drives it", () =>
+    Effect.gen(function* () {
+      const test = (body: string) =>
+        `import { Fiber } from "effect"; it.effect("controlled", Fx.fnUntraced(function* () { ${body} }));`;
+      const controlled = [
+        'const fiber = yield* Fx.forkChild(Fx.sleep("1 minute")); yield* TC.adjust("1 minute"); yield* Fiber.join(fiber);',
+        'const fiber = yield* Fx.forkChild(Fx.sleep("1 second")); yield* TC.setTime(1_000);',
+        'const fiber = yield* transaction(() => Fx.sleep("1 hour")).pipe(Fx.forkChild({ startImmediately: true })); yield* Fiber.interrupt(fiber);',
+        'const slowFs = { ...fs, read: (file) => Fx.sleep("3 seconds").pipe(Fx.andThen(fs.read(file))) }; const service = yield* makeService().pipe(Fx.provideService(FileSystem.FileSystem, slowFs)); const fiber = yield* Fx.forkChild(service.detect(root)); yield* TC.adjust("2 seconds"); yield* Fiber.join(fiber);',
+      ];
+      for (const body of controlled) assertFalse(yield* hasRule(test(body), "EV008"));
+
+      const uncontrolled = [
+        'const fiber = yield* Fx.forkChild(Fx.sleep("1 second")); yield* Fiber.join(fiber);',
+        'yield* TC.adjust("1 second"); const fiber = yield* Fx.forkChild(Fx.sleep("1 second")); yield* Fiber.join(fiber);',
+        'const slow = { read: () => Fx.sleep("3 seconds") }; yield* slow.read(); yield* TC.adjust("3 seconds");',
+        'const slow = { read: () => Fx.sleep("3 seconds") }; const fiber = yield* Fx.forkChild(other()); yield* TC.adjust("3 seconds"); yield* slow.read();',
+        'const slow = { read: () => Fx.sleep("3 seconds") }; yield* TC.adjust("3 seconds"); const fiber = yield* Fx.forkChild(slow.read()); yield* Fiber.join(fiber);',
+        'const slow = { read: () => Fx.sleep("3 seconds") }; const fiber = yield* Fx.forkChild(slow.read()); yield* slow.read(); yield* TC.adjust("3 seconds"); yield* Fiber.join(fiber);',
+        'const slow = { read: () => Fx.sleep("3 seconds") }; const fiber = yield* Fx.forkChild(slow.read()); const direct = yield* slow.read(); yield* TC.adjust("3 seconds"); yield* Fiber.join(fiber);',
+      ];
+      for (const body of uncontrolled) assertTrue(yield* hasRule(test(body), "EV008"));
+    })
+  );
+
+  it.effect("treats waits in excludeTestServices layer blocks as live-clock waits", () =>
+    Effect.gen(function* () {
+      const poll = 'it.effect("poll", () => Fx.sleep("10 millis"));';
+      const until =
+        'const until = (probe) => probe.pipe(Fx.repeat({ schedule: S.spaced("5 millis"), until: (ready) => ready }));';
+      const live = [
+        `it.layer(services, { excludeTestServices: true })((it) => { ${poll} });`,
+        `it.layer(services, { excludeTestServices: true, timeout: "5 seconds" })("live suite", (it) => { ${poll} });`,
+        `it.layer(services, { excludeTestServices: true })((it) => { it.layer(other)((it) => { ${poll} }); });`,
+        `${until} it.layer(services, { excludeTestServices: true })((it) => { it.effect("poll", () => until(probe)); });`,
+        `const base = services; const twice = L.mergeAll(base, base); it.layer(twice, { excludeTestServices: true })((it) => { ${poll} });`,
+        `const left = L.mergeAll(services, right); const right = L.mergeAll(other, left); it.layer(left, { excludeTestServices: true })((it) => { ${poll} });`,
+      ];
+      for (const body of live) assertFalse(yield* hasRule(body, "EV008"));
+
+      const testClock = [
+        `it.layer(services)((it) => { ${poll} });`,
+        `it.layer(services, { excludeTestServices: false })((it) => { ${poll} });`,
+        `it.layer(services, { excludeTestServices: liveClock })((it) => { ${poll} });`,
+        `it.layer(services, { timeout: "5 seconds" })((it) => { ${poll} });`,
+        `it.layer(services, { excludeTestServices: true })((it) => { it.effect("outer", () => Fx.void); }); ${poll}`,
+        `${until} it.layer(services)((it) => { it.effect("poll", () => until(probe)); });`,
+        `it.layer(L.mergeAll(services, TC.layer()), { excludeTestServices: true })((it) => { ${poll} });`,
+        `const clocked = L.mergeAll(services, TC.layer()); it.layer(clocked, { excludeTestServices: true })((it) => { ${poll} });`,
+        `const clocked = L.mergeAll(services, TC.layer()); const twice = L.mergeAll(clocked, clocked); it.layer(twice, { excludeTestServices: true })((it) => { ${poll} });`,
+        `it.layer(services, { excludeTestServices: true })((it) => { it.layer(TC.layer())((it) => { ${poll} }); });`,
+        `const clocked = L.mergeAll(other, TC.layer()); it.layer(services, { excludeTestServices: true })((it) => { it.layer(clocked)((it) => { it.layer(more)((it) => { ${poll} }); }); });`,
+        `${until} it.layer(services, { excludeTestServices: true })((it) => { it.effect("live", () => until(probe)); }); it.layer(services)((it) => { it.effect("clock", () => until(probe)); });`,
+      ];
+      for (const body of testClock) assertTrue(yield* hasRule(body, "EV008"));
     })
   );
 
@@ -838,12 +910,12 @@ layer(BunCrypto.layer, { timeout: "10 seconds" })((it) => {
     })
   );
 
-  it.effect("keeps piped fork cancellation as judgment without hiding a subsequent direct wait", () =>
+  it.effect("permits piped fork cancellation without hiding a subsequent direct wait", () =>
     Effect.gen(function* () {
       const rows = yield* findings(
         'import { Fiber } from "effect"; it.effect("cancel", Fx.fnUntraced(function* () { const fiber = yield* transaction(() => Fx.sleep("1 hour")).pipe(Fx.forkChild({ startImmediately: true })); yield* Fiber.interrupt(fiber); yield* Fx.sleep("1 second"); }));'
       );
-      assertTrue(A.filter(rows, (row) => row.ruleId === "EV008" && row.mechanization === "judgment").length === 1);
+      assertTrue(A.filter(rows, (row) => row.ruleId === "EV008" && row.mechanization === "judgment").length === 0);
       assertTrue(A.filter(rows, (row) => row.ruleId === "EV008" && row.mechanization === "detector").length === 1);
     })
   );

@@ -417,6 +417,14 @@
       ],
       "installedTreeHash": "e2ae4a428c536575906b8fcdad56c7ac992e243073128345c3276572cd7c7ae4"
     },
+    "remote-development-agents": {
+      "_tag": "local",
+      "installedTargets": [
+        ".claude/skills/remote-development-agents",
+        ".agents/skills/remote-development-agents"
+      ],
+      "installedTreeHash": "9a0d1310679bad3817a42fcd632679165c0f8f398e11481279f2cfa14571e961"
+    },
     "schema-first-development": {
       "_tag": "local",
       "installedTargets": [

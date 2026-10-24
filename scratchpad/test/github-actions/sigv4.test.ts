@@ -121,15 +121,14 @@ describe("SigV4 normalized transport headers", () => {
 });
 
 describe("SigV4 executable contracts", () => {
-	it.effect("keeps plain credential construction, free-form strings and optional explicit undefined", () =>
+	it.effect("keeps plain credential construction and free-form strings and rejects an explicit undefined option", () =>
 		Effect.gen(function* () {
 			const plain: SigV4Credentials = { ...credentials, service: "custom-service", region: "", accessKeyId: "" };
 			const decoded = yield* S.decodeEffect(SigV4Credentials)(plain);
 			assert.deepStrictEqual(decoded, plain);
 			assert.notProperty(decoded, "sessionToken");
-			const explicit = yield* S.decodeEffect(SigV4Credentials)({ ...plain, sessionToken: undefined });
-			assert.property(explicit, "sessionToken");
-			assert.strictEqual(explicit.sessionToken, undefined);
+			// Exact optional keys (EF-40): an optional key is omitted, never undefined.
+			assert.isFalse(S.is(SigV4Credentials)({ ...plain, sessionToken: undefined }));
 			assert.isTrue(S.is(SigV4Credentials)({ ...plain, sessionToken: "" }));
 			assert.isFalse(S.is(SigV4Credentials)({ ...plain, secretAccessKey: 123 }));
 			assert.isFalse(S.is(SigV4Credentials)({ ...plain, sessionToken: null }));
@@ -144,7 +143,7 @@ describe("SigV4 executable contracts", () => {
 			assert.strictEqual(decoded.body, plain.body);
 			assert.strictEqual(decoded.now, plain.now);
 			assert.notProperty(decoded, "encodedPathPrefix");
-			assert.isTrue(S.is(SigV4Request)({ ...plain, encodedPathPrefix: undefined }));
+			assert.isFalse(S.is(SigV4Request)({ ...plain, encodedPathPrefix: undefined }));
 			assert.isTrue(S.is(SigV4Request)({ ...plain, encodedPathPrefix: "/s3" }));
 			assert.isFalse(S.is(SigV4Request)({ ...plain, body: [1, 2] }));
 			assert.isFalse(S.is(SigV4Request)({ ...plain, now: "2024-01-01T00:00:00Z" }));

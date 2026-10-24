@@ -21,7 +21,7 @@ const $I = $ScratchpadId.create("effected/github-actions/internal/twirp");
 const TwirpFailureKind = LiteralKit(["transport", "status", "malformed"]).pipe($I.annoteSchema("TwirpFailureKind", { description: "The transport, HTTP status, or JSON decoding stage of a failed RPC." }));
 const TwirpFailureFields = {
 	method: S.String.pipe($I.annoteKey("TwirpFailureFields.method", { description: "The RPC that failed." })),
-	status: S.optionalKey(S.Finite).pipe($I.annoteKey("TwirpFailureFields.status", { description: "The finite HTTP status, when present; explicit undefined is accepted." })),
+	status: S.optionalKey(S.Finite).pipe($I.annoteKey("TwirpFailureFields.status", { description: "The finite HTTP status, when present; an explicit undefined is rejected." })),
 	cause: S.optionalKey(S.Unknown).pipe($I.annoteKey("TwirpFailureFields.cause", { description: "The underlying failure, when present; explicit undefined is accepted." })),
 };
 
