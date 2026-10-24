@@ -232,7 +232,7 @@ Each entry reports `name`, `isDirectory` and `isSymbolicLink` as a `SyncDirector
 import { readdirSync } from "node:fs";
 import type { SyncDirectoryEntry } from "@beep/repo-workspaces";
 
-const readDirectoryWithTypes = (p: string): ReadonlyArray<SyncDirectoryEntry> =>
+const readDirectoryWithTypes = (p: string): ReadonlyArray<SyncDirectoryEntry.Encoded> =>
   readdirSync(p, { withFileTypes: true }).map((entry) => ({
     name: entry.name,
     isDirectory: entry.isDirectory(),
