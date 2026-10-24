@@ -2,8 +2,8 @@
 
 ## Status
 
-Status: `active`
-Lifecycle: `active`
+Status: `completed-retained`
+Lifecycle: `completed-retained`
 
 Launched for the early handoff required by task qualification, under the
 operator's delegated blocker-resolution authority. Work is integrated in
@@ -16,13 +16,13 @@ SPEC gates. Prefer local fixtures with no incremental cloud resources.
 
 | Phase | Status | Work | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Pins, corpus and budget plan | completed | Refresh exact releases/licenses, inventory the source contract, agree receipt interfaces and derive the lab deployment plan. | Immutable pins and case mapping; numeric cost/TTL/load bounds precede any deployment. |
-| P1 Local differential runner | in-progress | Generate baseline cases and add semantic/adversarial fixtures behind Cache. | Spec/stable/canary verdicts remain separate; direct receipts expose fail-soft behavior. |
-| P2 Disposable AWS lab | in-progress | Review the bounded deployment preview and provision isolated comparison topologies through repo infra. | Scoped lab is healthy, expiring, budgeted, and has a reproducible teardown. |
-| P3 Execute and compare | pending | Run identical cases/load across incumbent, evolved incumbent, Bruno and Ducktors; consume trust fixes and rerun. | Every case is attributed; frozen rubric yields a recommendation or a substantiated no-eligible result. |
-| P4 Verify and tear down | pending | Prove upgrade regeneration, fault reproducibility, artifact retention and lab teardown; hand off signed-boundary receipts. | Package/protocol checks pass, deletion targets are verified, cost and cleanup receipts exist. |
-| P5 Yeet: PR to mergeable | pending | Publish through Yeet and resolve hosted failures and reviews. | Yeet monitor reports merge-ready: yes on final head. |
-| P6 Close | pending | Land comparison, reflection and lifecycle with final implementation work. | Reproducible evidence and same-PR closeout. |
+| P0 Pins, corpus and budget plan | complete | Refresh exact releases/licenses, inventory the source contract, agree receipt interfaces and derive the lab deployment plan. | Immutable pins and case mapping; numeric cost/TTL/load bounds precede any deployment. |
+| P1 Local differential runner | complete | Generate baseline cases and add semantic/adversarial fixtures behind Cache. | Spec/stable/canary verdicts remain separate; direct receipts expose fail-soft behavior. |
+| P2 Disposable AWS lab | complete | Review the bounded deployment preview and provision isolated comparison topologies through repo infra. | Scoped lab is healthy, expiring, budgeted, and has a reproducible teardown. |
+| P3 Execute and compare | complete | Run identical cases/load across incumbent, evolved incumbent, Bruno and Ducktors; consume trust fixes and rerun. | Every case is attributed; frozen rubric yields a recommendation or a substantiated no-eligible result. |
+| P4 Verify and tear down | complete | Prove upgrade regeneration, fault reproducibility, artifact retention and lab teardown; hand off signed-boundary receipts. | Package/protocol checks pass, deletion targets are verified, cost and cleanup receipts exist. |
+| P5 Yeet: PR to mergeable | in-progress | Publish through Yeet and resolve hosted failures and reviews. | Yeet monitor reports merge-ready: yes on final head. |
+| P6 Close | complete | Land comparison, reflection and lifecycle with final implementation work. | Reproducible evidence and same-PR closeout. |
 
 ## First action
 
@@ -212,3 +212,39 @@ Bruno behind that boundary and alone, and upstream Ducktors, all over an
 isolated S3-compatible store on loopback. The operator approved the AWS lab
 (USD 10, 48 hours); stack `lab-c1023a` applied 32 lab-only resources at
 2026-10-24T01:10:54Z ([receipt](./research/aws-lab-c1023a.json)).
+
+## Execution and comparison — 2026-10-24
+
+Commands: `cache conformance-corpus`, `conformance-run` (19 wire cases),
+`conformance-lab` (RC-023 faults through a fault proxy, RC-027/RC-028
+envelopes), `conformance-native` (RC-017..RC-022 with the exact stable and
+canary executables) and `conformance-compare` (frozen rubric, SHA-256 checked).
+
+Seven targets ran every executor: locally the incumbent, the evolved
+incumbent, Bruno behind the policy boundary, Bruno alone and upstream
+Ducktors; on AWS the incumbent and the evolved incumbent (tag passthrough plus
+reserved concurrency 60/30/60). The [comparison](./research/comparison.md)
+finds **no eligible replacement**: every topology fails tenant binding (G5),
+and no candidate shows a material win over the incumbent. The evolved
+incumbent passes 10 of 12 gates on AWS, improving gates 1, 2, 3, 6 and 9 with
+no regression, so the result is retain and evolve.
+
+Findings that the incumbent's remediation must carry:
+
+- The shim drops `x-artifact-tag`, so signed replays always miss (1 of 8
+  native checks per client). The shim's signature-key setting is only a mode
+  switch; with it on, untagged writes are acknowledged and then unreadable,
+  so every writer must sign and existing objects read as misses once.
+- Reserved concurrency 20 read / 10 write equals the observed production peak:
+  demand is censored, and production reads were throttled 25,760 times in 30
+  days, which Turbo reports as ordinary misses.
+- No bearer is bound to a tenant; the no-delete bucket policy leaves no
+  targeted namespace cleanup (G10); client and backend logs cannot be
+  correlated (RC-031).
+
+The AWS lab ran 2.2 hours of its 48-hour TTL, spent well under USD 0.10 of the
+USD 10 ceiling, and was torn down with an empty name and tag inventory
+([receipt](./research/aws-lab-c1023a.json)). No production resource changed.
+Gate 11's rollback is evidenced by an AWS cutback drill with no mixed writes.
+Because no replacement qualified, the exploration's migration candidate stays
+queued and no migration packet opens.

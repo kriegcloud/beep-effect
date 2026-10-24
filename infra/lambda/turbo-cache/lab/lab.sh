@@ -2,6 +2,7 @@
 # Local container lab for turbo-cache conformance (goal turborepo-cache-conformance).
 #
 #   lab.sh up       start every topology on 127.0.0.1 with fresh lab-only tokens
+#   lab.sh evolved  add the evolved incumbent to a running lab
 #   lab.sh status   print topology endpoints and liveness (no secret values)
 #   lab.sh down     stop recorded processes, remove the store container and state
 #
@@ -29,6 +30,9 @@ incumbent_port=17101
 bruno_policy_port=17102
 bruno_port=17103
 ducktors_port=17104
+evolved_port=17105
+evolved_reader_port=17113
+evolved_writer_port=17114
 reader_port=17111
 writer_port=17112
 
@@ -93,7 +97,7 @@ up() {
     -e ROOT_ACCESS_KEY_ID="$LAB_S3_ACCESS" -e ROOT_SECRET_ACCESS_KEY="$LAB_S3_SECRET" \
     -v "$state/data/store:/data" "$store_image" posix /data >/dev/null
   wait_port "$store_port"
-  for bucket in lab-incumbent lab-bruno; do
+  for bucket in lab-incumbent lab-incumbent-evolved lab-bruno; do
     AWS_ACCESS_KEY_ID="$LAB_S3_ACCESS" AWS_SECRET_ACCESS_KEY="$LAB_S3_SECRET" AWS_REGION=us-east-1 \
       aws s3api create-bucket --endpoint-url "http://127.0.0.1:$store_port" --bucket "$bucket" >/dev/null
   done
@@ -131,6 +135,38 @@ up() {
   for port in "$reader_port" "$writer_port" "$incumbent_port" "$bruno_port" "$bruno_policy_port" "$ducktors_port"; do
     wait_port "$port"
   done
+  start_evolved
+  status
+}
+
+start_evolved() {
+  # Minimum incumbent remediation: the 2.12.0 shim stores and returns
+  # x-artifact-tag only when TURBO_REMOTE_CACHE_SIGNATURE_KEY is non-empty.
+  # It never verifies with the value, so a fixed non-secret mode switch is set;
+  # the client keeps the real signing key.
+  local s3=(AWS_ACCESS_KEY_ID="$LAB_S3_ACCESS" AWS_SECRET_ACCESS_KEY="$LAB_S3_SECRET" AWS_REGION=us-east-1)
+  for fn in reader writer; do
+    local fport=$evolved_reader_port read_only=true
+    [[ $fn == writer ]] && fport=$evolved_writer_port read_only=false
+    spawn "evolved-$fn" env -i PATH="$PATH" HOME="$HOME" "${s3[@]}" \
+      AUTH_MODE=none STORAGE_PROVIDER=s3 STORAGE_PATH=lab-incumbent-evolved READ_ONLY="$read_only" \
+      TURBO_REMOTE_CACHE_SIGNATURE_KEY=tag-passthrough-mode-switch \
+      S3_ENDPOINT="http://127.0.0.1:$store_port" LAB_FUNCTION="$fn" LAB_WORKER_PORT="$fport" \
+      LAB_WRITER_SECRET="$LAB_WRITER_SECRET" bun "$here/worker.ts"
+  done
+  spawn evolved-gateway env -i PATH="$PATH" HOME="$HOME" LAB_MODE=incumbent LAB_PORT="$evolved_port" \
+    LAB_READER_PORT="$evolved_reader_port" LAB_WRITER_PORT="$evolved_writer_port" LAB_READ_TOKEN="$LAB_READ_TOKEN" \
+    LAB_WRITE_TOKEN="$LAB_WRITE_TOKEN" LAB_WRITER_SECRET="$LAB_WRITER_SECRET" bun "$here/gateway.ts"
+  for port in "$evolved_reader_port" "$evolved_writer_port" "$evolved_port"; do wait_port "$port"; done
+}
+
+# Add the evolved incumbent to a lab started before it existed.
+evolved() {
+  [[ -d "$state" ]] || die "lab is down"
+  set -a; . "$state/lab.env"; set +a
+  AWS_ACCESS_KEY_ID="$LAB_S3_ACCESS" AWS_SECRET_ACCESS_KEY="$LAB_S3_SECRET" AWS_REGION=us-east-1 \
+    aws s3api create-bucket --endpoint-url "http://127.0.0.1:$store_port" --bucket lab-incumbent-evolved >/dev/null 2>&1 || true
+  start_evolved
   status
 }
 
@@ -142,7 +178,8 @@ status() {
     if kill -0 "$pid" 2>/dev/null; then echo "$name: up (pid $pid)"; else echo "$name: DOWN"; fi
   done
   docker inspect -f '{{.Name}}: {{.State.Status}}' "$container" 2>/dev/null || echo "store: DOWN"
-  printf 'endpoints: incumbent=%s bruno-policy=%s bruno-loopback=%s ducktors-upstream=%s\n' \
+  printf 'endpoints: incumbent-evolved=%s ' "http://127.0.0.1:$evolved_port"
+  printf 'incumbent=%s bruno-policy=%s bruno-loopback=%s ducktors-upstream=%s\n' \
     "http://127.0.0.1:$incumbent_port" "http://127.0.0.1:$bruno_policy_port" \
     "http://127.0.0.1:$bruno_port" "http://127.0.0.1:$ducktors_port"
   printf 'env file: %s\n' "$state/lab.env"
@@ -166,7 +203,8 @@ down() {
 
 case "${1:-}" in
   up) up ;;
+  evolved) evolved ;;
   status) status ;;
   down) down ;;
-  *) die "usage: lab.sh up|status|down" ;;
+  *) die "usage: lab.sh up|evolved|status|down" ;;
 esac

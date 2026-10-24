@@ -13,7 +13,7 @@
  */
 
 import * as pulumi from "@pulumi/pulumi";
-import { CiTurboCache, loadCiTurboCacheConfig } from "../CiTurboCache.ts";
+import { CiTurboCache, CiTurboCachePulumiConfigValues, loadCiTurboCacheConfig } from "../CiTurboCache.ts";
 
 const lab = new pulumi.Config("turboCacheLab");
 const epoch = lab.require("epoch");
@@ -26,6 +26,22 @@ if (!config.bucketName.startsWith(`beep-tcl-${epoch}-`)) {
 }
 
 const incumbent = new CiTurboCache(`beep-tcl-${epoch}`, { config });
+
+// Evolved incumbent: the minimum remediation measured against the same corpus.
+// Its own bucket keeps tagged and untagged objects apart; reserved concurrency
+// is raised above the observed (capped) 20/10 peak.
+const evolved = new CiTurboCache(`beep-tcl-${epoch}-evo`, {
+  config: CiTurboCachePulumiConfigValues.make({
+    ...config,
+    bucketName: `beep-tcl-${epoch}-evo-${config.bucketName.slice(`beep-tcl-${epoch}-`.length)}`,
+  }),
+  remediation: {
+    tagPassthrough: true,
+    readReservedConcurrency: 60,
+    writeReservedConcurrency: 30,
+    authorizerReservedConcurrency: 60,
+  },
+});
 
 /**
  * Lab incumbent API endpoint; conformance targets append `/v8`.
@@ -42,3 +58,11 @@ export const incumbentEndpoint = incumbent.apiEndpoint;
  * @since 0.0.0
  */
 export const incumbentBucket = incumbent.bucketName;
+
+/**
+ * Lab evolved-incumbent API endpoint.
+ *
+ * @category resources
+ * @since 0.0.0
+ */
+export const evolvedEndpoint = evolved.apiEndpoint;

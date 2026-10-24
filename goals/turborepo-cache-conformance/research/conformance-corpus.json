@@ -411,7 +411,7 @@
       },
       "executor": "native",
       "dimensions": ["published-stable-client", "published-canary-client"],
-      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache protocol-run."
+      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache conformance-native through the fault proxy."
     },
     {
       "id": "RC-018",
@@ -423,7 +423,7 @@
       },
       "executor": "native",
       "dimensions": ["published-stable-client", "published-canary-client"],
-      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache protocol-run."
+      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache conformance-native through the fault proxy."
     },
     {
       "id": "RC-019",
@@ -435,7 +435,7 @@
       },
       "executor": "native",
       "dimensions": ["published-stable-client", "published-canary-client"],
-      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache protocol-run."
+      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache conformance-native through the fault proxy."
     },
     {
       "id": "RC-020",
@@ -447,7 +447,7 @@
       },
       "executor": "native",
       "dimensions": ["published-stable-client", "published-canary-client"],
-      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache protocol-run."
+      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache conformance-native through the fault proxy."
     },
     {
       "id": "RC-021",
@@ -458,12 +458,8 @@
         "origin": "hand-authored"
       },
       "executor": "native",
-      "dimensions": [
-        "published-stable-client",
-        "published-canary-client",
-        "beep-security-policy"
-      ],
-      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache protocol-run."
+      "dimensions": ["published-stable-client", "published-canary-client"],
+      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache conformance-native through the fault proxy. The wrong-team response is replayed by the fault proxy, so it scores clients only; backend tenant isolation is RC-014."
     },
     {
       "id": "RC-022",
@@ -479,7 +475,7 @@
         "published-canary-client",
         "beep-security-policy"
       ],
-      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache protocol-run."
+      "reason": "Requires the exact pinned Turbo executables and signing epochs; executed by cache conformance-native through the fault proxy."
     },
     {
       "id": "RC-023",
@@ -491,7 +487,7 @@
       },
       "executor": "wire",
       "dimensions": ["strict-openapi", "observability"],
-      "reason": "Only wire-reproducible classes (401, 403, genuine 404) run here; 429, 5xx, timeout, reset and truncation need lab fault injection."
+      "reason": "The wire run covers 401, 403 and a genuine 404; cache conformance-lab injects 429, 503, timeout, reset and truncation at the fault proxy and scores observability."
     },
     {
       "id": "RC-024",
@@ -539,7 +535,7 @@
       },
       "executor": "lab",
       "dimensions": ["performance-envelope"],
-      "reason": "Payload envelopes need measured p50/p95/p99 sizes on a deployed replica."
+      "reason": "cache conformance-lab measures the p50/p95/p99, 2x p99 and observed-max sizes; only a disposable-deployment run is representative."
     },
     {
       "id": "RC-028",
@@ -551,7 +547,7 @@
       },
       "executor": "lab",
       "dimensions": ["performance-envelope"],
-      "reason": "Concurrency envelopes need measured peak load on a deployed replica."
+      "reason": "cache conformance-lab measures observed peak and 1.5x peak read/write concurrency; only a disposable-deployment run is representative."
     },
     {
       "id": "RC-029",

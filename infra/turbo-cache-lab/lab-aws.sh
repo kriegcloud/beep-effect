@@ -64,7 +64,19 @@ up() { require_approval; require_account; (cd "$here" && pulumi up --stack "$sta
 
 destroy() {
   require_account
-  aws s3 rm "s3://$bucket" --recursive --region "$region" >/dev/null 2>&1 || true
+  # CiTurboCache's bucket policy denies every object action outside the two
+  # cache roles, and neither role may delete, so the bucket cannot be emptied
+  # while that policy stands. Remove it through the stack first, then empty
+  # the bucket (versions included), then destroy the rest.
+  (cd "$here" && pulumi destroy --stack "$stack" --yes \
+    --target "**${prefix}-bucket-policy" --target "**${prefix}-evo-bucket-policy")
+  local b remaining
+  for b in "$bucket" "$prefix-evo-$account"; do
+    aws s3api head-bucket --bucket "$b" --region "$region" 2>/dev/null || continue
+    aws s3 rm "s3://$b" --recursive --region "$region" >/dev/null
+    remaining="$(aws s3api list-objects-v2 --bucket "$b" --region "$region" --query 'length(Contents || `[]`)' --output text)"
+    [[ "$remaining" == "0" ]] || die "lab bucket $b still holds $remaining objects; not destroying"
+  done
   (cd "$here" && pulumi destroy --stack "$stack" --yes && pulumi stack rm "$stack" --yes)
   local key
   key="$(aws ssm describe-parameters --region "$region" --parameter-filters "Key=Name,Option=BeginsWith,Values=$params/" \

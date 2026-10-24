@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 import { $RepoCliId } from "@beep/identity/packages";
+import { CacheClientChannel } from "@beep/repo-configs/cache";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
 import { GitObjectId } from "@beep/schema/Conformance";
 import * as A from "effect/Array";
@@ -666,6 +667,7 @@ export const CacheConformanceSelectorShape = LiteralKit([
   "traversal",
   "encoded",
   "oversized",
+  "run-epoch",
 ]).pipe(
   $I.annoteSchema("CacheConformanceSelectorShape", {
     description: "Namespace selector shape; the selector value itself is not recorded.",
@@ -779,6 +781,10 @@ export class CacheConformanceExchange extends S.Opaque<CacheConformanceExchange,
     contentType: S.OptionFromNullOr(S.String.check(S.isMaxLength(128))),
     requestBytes: S.Natural,
     requestSha256: S.OptionFromNullOr(Sha256Hex),
+    requestTagSha256: S.OptionFromNullOr(Sha256Hex).pipe(
+      S.withDecodingDefaultKey(Effect.succeed(null)),
+      S.withConstructorDefault(Effect.succeedNone)
+    ),
     responseBytes: S.Natural,
     responseSha256: S.OptionFromNullOr(Sha256Hex),
     tagPresent: S.Boolean,
@@ -788,7 +794,170 @@ export class CacheConformanceExchange extends S.Opaque<CacheConformanceExchange,
   }).pipe(
     $I.annoteSchema("CacheConformanceExchange", {
       description:
-        "Method, route template, selector and hash shapes, status class, byte counts, body and tag digests, timing.",
+        "Method, route template, selector and hash shapes, status class, byte counts, body and sent/received tag digests, timing.",
+    })
+  )
+) {}
+
+/**
+ * Fault the conformance proxy injects into one artifact read.
+ *
+ * **Example** (Name a throttling fault)
+ * ```ts
+ * import { CacheConformanceFault } from "@beep/repo-cli/commands/Cache"
+ * console.assert(CacheConformanceFault.is["status-429"]("status-429"))
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const CacheConformanceFault = LiteralKit([
+  "none",
+  "missing-tag",
+  "tampered-tag",
+  "tampered-body",
+  "truncated-body",
+  "wrong-team",
+  "status-429",
+  "status-503",
+  "timeout",
+  "reset",
+]).pipe(
+  $I.annoteSchema("CacheConformanceFault", {
+    description: "Explicit proxy fault for artifact reads; every other request is forwarded unchanged to the target.",
+  })
+);
+/**
+ * Fault the conformance proxy injects into one artifact read.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type CacheConformanceFault = typeof CacheConformanceFault.Type;
+
+/**
+ * One sanitized request observed by the fault proxy.
+ *
+ * **Example** (Inspect proxy event fields)
+ * ```ts
+ * import { CacheConformanceProxyEvent } from "@beep/repo-cli/commands/Cache"
+ * console.assert("upstreamStatus" in CacheConformanceProxyEvent.fields)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class CacheConformanceProxyEvent extends S.Opaque<
+  CacheConformanceProxyEvent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    scenario: S.NonEmptyString.check(S.isMaxLength(96)),
+    fault: CacheConformanceFault,
+    upstreamStatus: S.OptionFromNullOr(S.Int.check(S.isBetween({ minimum: 100, maximum: 599 }))),
+    exchange: CacheConformanceExchange,
+  }).pipe(
+    $I.annoteSchema("CacheConformanceProxyEvent", {
+      description:
+        "Scenario, applied fault, upstream status and the sanitized exchange the client was actually delivered.",
+    })
+  )
+) {}
+
+/**
+ * Latency and correctness of one measured envelope step.
+ *
+ * **Example** (Inspect measurement fields)
+ * ```ts
+ * import { CacheConformanceMeasurement } from "@beep/repo-cli/commands/Cache"
+ * console.assert("readP95Ms" in CacheConformanceMeasurement.fields)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class CacheConformanceMeasurement extends S.Opaque<
+  CacheConformanceMeasurement,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    label: S.NonEmptyString.check(S.isMaxLength(96)),
+    sizeBytes: S.Natural,
+    readConcurrency: S.Natural,
+    writeConcurrency: S.Natural,
+    requests: S.Natural,
+    failures: S.Natural,
+    readP50Ms: S.Natural,
+    readP95Ms: S.Natural,
+    readMaxMs: S.Natural,
+    writeP50Ms: S.Natural,
+    writeP95Ms: S.Natural,
+    writeMaxMs: S.Natural,
+  }).pipe(
+    $I.annoteSchema("CacheConformanceMeasurement", {
+      description: "Request count, failures and nearest-rank read/write latency for one size or concurrency step.",
+    })
+  )
+) {}
+
+/**
+ * Selected fields of the measured production load envelope.
+ *
+ * **Example** (Inspect envelope fields)
+ * ```ts
+ * import { CacheConformanceLoadEnvelope } from "@beep/repo-cli/commands/Cache"
+ * console.assert("envelope" in CacheConformanceLoadEnvelope.fields)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class CacheConformanceLoadEnvelope extends S.Opaque<
+  CacheConformanceLoadEnvelope,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    schemaVersion: S.tag("cache-conformance-load-envelope/v1"),
+    artifactSizes: S.Struct({ p50Bytes: S.Natural, p95Bytes: S.Natural, p99Bytes: S.Natural, maxBytes: S.Natural }),
+    concurrency: S.Struct({
+      readPeak: S.Natural,
+      writePeak: S.Natural,
+      censored: S.Boolean.pipe(
+        S.withDecodingDefaultKey(Effect.succeed(false)),
+        S.withConstructorDefault(Effect.succeed(false))
+      ),
+    }),
+    envelope: S.Struct({ payloadBytes: S.Natural, readConcurrency: S.Natural, writeConcurrency: S.Natural }),
+  }).pipe(
+    $I.annoteSchema("CacheConformanceLoadEnvelope", {
+      description: "Observed artifact size quantiles, peak concurrency and the ratified safety envelope.",
+    })
+  )
+) {}
+
+/**
+ * Exact native client that produced a native run.
+ *
+ * **Example** (Inspect client record fields)
+ * ```ts
+ * import { CacheConformanceClientRecord } from "@beep/repo-cli/commands/Cache"
+ * console.assert("executableSha256" in CacheConformanceClientRecord.fields)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class CacheConformanceClientRecord extends S.Opaque<
+  CacheConformanceClientRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    channel: CacheClientChannel,
+    version: S.NonEmptyString,
+    executableSha256: Sha256Hex,
+  }).pipe(
+    $I.annoteSchema("CacheConformanceClientRecord", {
+      description: "Channel, exact version and verified executable digest of one native client lane.",
     })
   )
 ) {}
@@ -814,6 +983,10 @@ export class CacheConformanceCaseResult extends S.Opaque<
     executor: CacheConformanceExecutor,
     exchanges: S.Array(CacheConformanceExchange),
     notes: S.Array(S.String.check(S.isMaxLength(512))),
+    measurements: S.Array(CacheConformanceMeasurement).pipe(
+      S.withDecodingDefaultKey(Effect.succeed([])),
+      S.withConstructorDefault(Effect.succeed([]))
+    ),
     verdicts: CacheConformanceCaseVerdicts,
   }).pipe(
     $I.annoteSchema("CacheConformanceCaseResult", {
@@ -868,7 +1041,18 @@ export class CacheConformanceRun extends S.Opaque<CacheConformanceRun, { readonl
   S.Struct({
     schemaVersion: S.tag("cache-conformance-run/v1"),
     profile: CacheConformanceProfile,
-    representative: S.tag(false),
+    representative: S.Boolean.pipe(
+      S.withDecodingDefaultKey(Effect.succeed(false)),
+      S.withConstructorDefault(Effect.succeed(false))
+    ),
+    executors: S.NonEmptyArray(CacheConformanceExecutor).pipe(
+      S.withDecodingDefaultKey(Effect.succeed<readonly ["wire"]>(["wire"])),
+      S.withConstructorDefault(Effect.succeed<readonly ["wire"]>(["wire"]))
+    ),
+    clients: S.Array(CacheConformanceClientRecord).pipe(
+      S.withDecodingDefaultKey(Effect.succeed([])),
+      S.withConstructorDefault(Effect.succeed([]))
+    ),
     topology: CacheConformanceTopology,
     backend: CacheConformanceTarget.fields.backend,
     policy: CacheConformanceTarget.fields.policy,

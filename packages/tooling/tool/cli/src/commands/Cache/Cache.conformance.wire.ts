@@ -5,13 +5,14 @@
  * @since 0.0.0
  */
 import { $RepoCliId } from "@beep/identity/packages";
-import { Sha256HexFromBytes } from "@beep/schema";
+import { Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { O } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Crypto from "effect/Crypto";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Base64 from "effect/encoding/Base64";
 import * as Hex from "effect/encoding/Hex";
 import * as HashMap from "effect/HashMap";
 import * as Headers from "effect/http/Headers";
@@ -21,23 +22,30 @@ import * as Match from "effect/Match";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
+import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import { CacheConformanceExchange } from "./Cache.conformance.schemas.ts";
+import { nearestRank } from "../../internal/stats/NearestRank.ts";
+import {
+  CacheConformanceExchange,
+  CacheConformanceMeasurement,
+  CacheConformanceTarget,
+} from "./Cache.conformance.schemas.ts";
 import { CacheCommandError } from "./Cache.schemas.ts";
-import type { Sha256Hex } from "@beep/schema";
 import type {
   CacheConformanceBearers,
   CacheConformanceCaseId,
   CacheConformanceCredentialRole,
+  CacheConformanceFault,
   CacheConformanceHashShape,
+  CacheConformanceLoadEnvelope,
   CacheConformanceMethod,
   CacheConformanceOperation,
   CacheConformanceOutcome,
+  CacheConformanceProxyEvent,
   CacheConformanceRoute,
   CacheConformanceSelectorShape,
-  CacheConformanceTarget,
 } from "./Cache.conformance.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Cache/Cache.conformance.wire");
@@ -83,6 +91,9 @@ export class CacheConformanceWireOutcome extends S.Opaque<
     exchanges: S.Array(CacheConformanceExchange),
     strict: S.Array(CacheConformanceWireCheck),
     policy: S.Array(CacheConformanceWireCheck),
+    observability: S.Array(CacheConformanceWireCheck).pipe(S.withConstructorDefault(Effect.succeed([]))),
+    performance: S.Array(CacheConformanceWireCheck).pipe(S.withConstructorDefault(Effect.succeed([]))),
+    measurements: S.Array(CacheConformanceMeasurement).pipe(S.withConstructorDefault(Effect.succeed([]))),
     notes: S.Array(S.String),
     unsupported: S.OptionFromNullOr(S.NonEmptyString),
   }).pipe(
@@ -132,10 +143,13 @@ type WireStep = {
   readonly abortAfter?: number;
   readonly neverWritten?: boolean;
   readonly strictScored?: boolean;
+  /** Send a PUT without the opaque `x-artifact-tag` every signing writer sends. */
+  readonly untagged?: boolean;
 };
 
 type WireReply = {
   readonly receipt: CacheConformanceExchange;
+  readonly sentTag: O.Option<string>;
   readonly status: O.Option<number>;
   readonly headers: Headers.Headers;
   readonly body: Uint8Array;
@@ -152,6 +166,9 @@ type Recorder = {
   readonly exchanges: Array<CacheConformanceExchange>;
   readonly strict: Array<CacheConformanceWireCheck>;
   readonly policy: Array<CacheConformanceWireCheck>;
+  readonly observability: Array<CacheConformanceWireCheck>;
+  readonly performance: Array<CacheConformanceWireCheck>;
+  readonly measurements: Array<CacheConformanceMeasurement>;
   readonly notes: Array<string>;
   unsupported: O.Option<string>;
 };
@@ -159,7 +176,20 @@ type Recorder = {
 const inRange = (minimum: number, maximum: number) => (status: number) => status >= minimum && status <= maximum;
 const isSuccessStatus = inRange(200, 299);
 
-const classify = (neverWritten: boolean) =>
+/**
+ * Classify a delivered HTTP status; 404 is a miss only for a never-written hash.
+ *
+ * **Example** (Separate a miss from a 404 on a written hash)
+ * ```ts
+ * import { classifyCacheConformanceStatus } from "@beep/repo-cli/commands/Cache"
+ * console.assert(classifyCacheConformanceStatus(true)(404) === "miss")
+ * console.assert(classifyCacheConformanceStatus(false)(404) === "not-found")
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const classifyCacheConformanceStatus = (neverWritten: boolean) =>
   Match.type<number>().pipe(
     Match.when(isSuccessStatus, (): CacheConformanceOutcome => "success"),
     Match.when(404, (): CacheConformanceOutcome => (neverWritten ? "miss" : "not-found")),
@@ -216,8 +246,19 @@ const buildRequest = (context: WireContext, step: WireStep) => {
 const optionalDigest = (present: boolean, bytes: Uint8Array) =>
   present ? hashBytes(bytes).pipe(Effect.asSome) : Effect.succeed(O.none<Sha256Hex>());
 
-const send = Effect.fnUntraced(function* (context: WireContext, step: WireStep) {
+// Signing clients send an opaque tag on every upload; a fresh random base64
+// value per PUT stands in for it unless the step is explicitly untagged or
+// supplies its own. Only the tag's digest reaches a receipt.
+const withWriterTag = Effect.fnUntraced(function* (step: WireStep) {
+  const explicit = O.fromUndefinedOr(step.headers?.["x-artifact-tag"]);
+  if (step.method !== "PUT" || (step.untagged ?? false) || O.isSome(explicit)) return { step, sentTag: explicit };
+  const tag = Base64.encode(yield* randomBytes(32));
+  return { step: { ...step, headers: { ...step.headers, "x-artifact-tag": tag } }, sentTag: O.some(tag) };
+});
+
+const send = Effect.fnUntraced(function* (context: WireContext, unsigned: WireStep) {
   const client = yield* HttpClient.HttpClient;
+  const { step, sentTag } = yield* withWriterTag(unsigned);
   const started = yield* Clock.currentTimeMillis;
   const empty = new Uint8Array();
   const observed = yield* client.execute(buildRequest(context, step)).pipe(
@@ -268,7 +309,7 @@ const send = Effect.fnUntraced(function* (context: WireContext, step: WireStep) 
     outcome: O.getOrElse(observed.fault, () =>
       O.match(observed.status, {
         onNone: (): CacheConformanceOutcome => "transport-error",
-        onSome: classify(step.neverWritten ?? false),
+        onSome: classifyCacheConformanceStatus(step.neverWritten ?? false),
       })
     ),
     status: observed.status,
@@ -283,6 +324,10 @@ const send = Effect.fnUntraced(function* (context: WireContext, step: WireStep) 
       onNone: () => Effect.succeed(O.none<Sha256Hex>()),
       onSome: (body) => optionalDigest(true, body),
     }),
+    requestTagSha256: yield* O.match(sentTag, {
+      onNone: () => Effect.succeed(O.none<Sha256Hex>()),
+      onSome: (value) => digestText(value).pipe(Effect.asSome),
+    }),
     responseBytes: S.Natural.make(observed.body.byteLength),
     responseSha256: yield* optionalDigest(O.isSome(observed.status) && step.method !== "HEAD", observed.body),
     tagPresent: O.isSome(tag),
@@ -293,10 +338,25 @@ const send = Effect.fnUntraced(function* (context: WireContext, step: WireStep) 
     durationPresent: O.isSome(Headers.get(observed.headers, "x-artifact-duration")),
     elapsedMs: S.Natural.make(Math.max(0, Math.round(finished - started))),
   });
-  return { receipt, status: observed.status, headers: observed.headers, body: observed.body } satisfies WireReply;
+  return {
+    receipt,
+    sentTag,
+    status: observed.status,
+    headers: observed.headers,
+    body: observed.body,
+  } satisfies WireReply;
 });
 
-const makeRecorder = (): Recorder => ({ exchanges: [], strict: [], policy: [], notes: [], unsupported: O.none() });
+const makeRecorder = (): Recorder => ({
+  exchanges: [],
+  strict: [],
+  policy: [],
+  observability: [],
+  performance: [],
+  measurements: [],
+  notes: [],
+  unsupported: O.none(),
+});
 
 const track = (recorder: Recorder, replies: ReadonlyArray<WireReply>) => {
   for (const reply of replies) recorder.exchanges.push(reply.receipt);
@@ -356,12 +416,13 @@ const writeArtifact = Effect.fnUntraced(function* (
   context: WireContext,
   recorder: Recorder,
   label: string,
-  size: number
+  size: number,
+  extra: Partial<WireStep> = {}
 ) {
   const hash = yield* freshHash;
   const body = yield* randomBytes(size);
-  const reply = yield* sendTracked(context, recorder)(putStep(label, "writer", valid(hash), body));
-  return { hash, body, digest: yield* hashBytes(body), reply };
+  const reply = yield* sendTracked(context, recorder)(putStep(label, "writer", valid(hash), body, extra));
+  return { hash, body, digest: yield* hashBytes(body), reply, tag: reply.sentTag };
 });
 
 const roundTrip = (size: number): WireCase =>
@@ -386,6 +447,12 @@ const roundTrip = (size: number): WireCase =>
     );
     const download = yield* run(readStep("reader-get", "reader", "GET", valid(written.hash)));
     expectStrict(recorder, "round-trip-bytes", sameBody(download, written.digest), statusText(download));
+    expectStrict(
+      recorder,
+      "tag-round-trip",
+      O.exists(written.tag, (tag) => O.contains(header(download, "x-artifact-tag"), tag)),
+      "GET returns the opaque x-artifact-tag the writer sent"
+    );
   });
 
 const status: WireCase = (context, recorder) =>
@@ -787,7 +854,7 @@ const artifactHashes: WireCase = Effect.fnUntraced(function* (context: WireConte
 
 const readFaults: WireCase = Effect.fnUntraced(function* (context: WireContext, recorder: Recorder) {
   const run = sendTracked(context, recorder);
-  const written = yield* writeArtifact(context, recorder, "writer-put-seed", 32);
+  const written = yield* writeArtifact(context, recorder, "writer-put-seed", 32, { strictScored: false });
   for (const role of ["unknown", "missing"] as const) {
     const reply = yield* run(readStep(`${role}-get-written`, role, "GET", valid(written.hash)));
     expectStrict(recorder, `${role}-auth-distinct-from-miss`, denied(reply), statusText(reply));
@@ -820,6 +887,22 @@ const writeFaults: WireCase = Effect.fnUntraced(function* (context: WireContext,
   expectPolicy(recorder, "aborted-write-not-acknowledged", !succeeded(aborted), statusText(aborted));
   const intact = yield* run(readStep("reader-get-existing", "reader", "GET", valid(written.hash)));
   expectPolicy(recorder, "prior-object-intact", sameBody(intact, written.digest), statusText(intact));
+  // The one deliberately untagged write: an acknowledged upload must be readable.
+  const unsignedHash = yield* freshHash;
+  const unsignedBody = yield* randomBytes(512);
+  const unsigned = yield* run(
+    putStep("writer-put-untagged", "writer", valid(unsignedHash), unsignedBody, { untagged: true })
+  );
+  const unsignedRead = yield* run(readStep("reader-get-untagged", "reader", "GET", valid(unsignedHash)));
+  const readable = !succeeded(unsigned) || sameBody(unsignedRead, yield* hashBytes(unsignedBody));
+  expectPolicy(
+    recorder,
+    "untagged-write-readable",
+    readable,
+    readable
+      ? `${statusText(unsigned)}; ${statusText(unsignedRead)}`
+      : `acknowledged write unreadable: tag passthrough requires every writer to sign; ${statusText(unsigned)}; ${statusText(unsignedRead)}`
+  );
 });
 
 const concurrentWrites: WireCase = Effect.fnUntraced(function* (context: WireContext, recorder: Recorder) {
@@ -959,3 +1042,360 @@ export const runCacheConformanceWireCase = Effect.fn("CacheConformance.runWireCa
     unsupported: recorder.unsupported,
   });
 }, CacheCommandError.mapError("Cannot execute a direct-wire conformance case."));
+
+const outcomeOf = (recorder: Recorder) =>
+  CacheConformanceWireOutcome.make({
+    exchanges: recorder.exchanges,
+    strict: recorder.strict,
+    policy: recorder.policy,
+    observability: recorder.observability,
+    performance: recorder.performance,
+    measurements: recorder.measurements,
+    notes: recorder.notes,
+    unsupported: recorder.unsupported,
+  });
+
+type FaultProxy = {
+  readonly url: string;
+  readonly events: Effect.Effect<ReadonlyArray<CacheConformanceProxyEvent>>;
+  readonly setScenario: (id: string, fault: CacheConformanceFault) => Effect.Effect<void>;
+};
+
+type LabCase = (
+  context: WireContext,
+  recorder: Recorder,
+  proxy: FaultProxy,
+  envelope: CacheConformanceLoadEnvelope
+) => Effect.Effect<void, CacheCommandError | S.SchemaError, HttpClient.HttpClient | Crypto.Crypto>;
+
+const expectObservable = (recorder: Recorder, id: string, ok: boolean, detail: string) =>
+  recorder.observability.push(CacheConformanceWireCheck.make({ id, ok, detail }));
+const expectEnvelope = (recorder: Recorder, id: string, ok: boolean, detail: string) =>
+  recorder.performance.push(CacheConformanceWireCheck.make({ id, ok, detail }));
+
+const faultProbes = [
+  ["none", "unwritten", "miss"],
+  ["none", "written", "success"],
+  ["status-429", "written", "throttled"],
+  ["status-503", "written", "server-error"],
+  ["timeout", "written", "timeout"],
+  ["reset", "written", "transport-error"],
+  ["truncated-body", "written", "truncated-body"],
+] as const satisfies ReadonlyArray<readonly [CacheConformanceFault, "written" | "unwritten", CacheConformanceOutcome]>;
+
+/** Client deadline for the proxied fault probes; the proxy holds a `timeout` fault longer. */
+const faultProbeTimeoutMs = 1500;
+
+const faultClasses: LabCase = Effect.fnUntraced(function* (
+  context: WireContext,
+  recorder: Recorder,
+  proxy: FaultProxy
+) {
+  const written = yield* writeArtifact(context, recorder, "writer-put-seed", 4096);
+  const unwritten = yield* freshHash;
+  const viaProxy: WireContext = {
+    ...context,
+    base: proxy.url,
+    target: CacheConformanceTarget.make({ ...context.target, requestTimeoutMs: faultProbeTimeoutMs }),
+  };
+  const run = sendTracked(viaProxy, recorder);
+  const seen = A.empty<CacheConformanceOutcome>();
+  for (const [fault, artifact, expected] of faultProbes) {
+    const scenario = `rc-023-${fault}-${artifact}`;
+    yield* proxy.setScenario(scenario, fault);
+    const reply = yield* run(
+      readStep(
+        `reader-get-${fault}-${artifact}`,
+        "reader",
+        "GET",
+        valid(artifact === "written" ? written.hash : unwritten),
+        {
+          neverWritten: artifact === "unwritten",
+          strictScored: false,
+        }
+      )
+    );
+    seen.push(reply.receipt.outcome);
+    expectObservable(
+      recorder,
+      `fault-${fault}-${artifact}-distinct`,
+      reply.receipt.outcome === expected && (fault === "none" || reply.receipt.outcome !== "miss"),
+      `expected ${expected}; ${statusText(reply)}`
+    );
+  }
+  yield* proxy.setScenario("rc-023-done", "none");
+  // A held `timeout` response is only recorded once the proxy's hold ends,
+  // after the client deadline; wait (bounded) for that receipt.
+  const all = yield* proxy.events.pipe(
+    Effect.repeat({
+      until: (events) => A.some(events, (event) => event.fault === "timeout"),
+      times: 80,
+      schedule: Schedule.spaced(Duration.millis(100)),
+    })
+  );
+  const receipts = A.filter(all, (event) => Str.startsWith("rc-023-")(event.scenario));
+  for (const [fault, artifact] of faultProbes) {
+    const scenario = `rc-023-${fault}-${artifact}`;
+    expectObservable(
+      recorder,
+      `proxy-receipt-${fault}-${artifact}`,
+      A.some(receipts, (event) => event.scenario === scenario && event.fault === fault),
+      "the proxy recorded a direct receipt naming the injected fault"
+    );
+  }
+  for (const event of receipts) recorder.exchanges.push(event.exchange);
+  expectObservable(
+    recorder,
+    "fault-classes-pairwise-distinct",
+    A.dedupe(seen).length === faultProbes.length,
+    A.join(seen, ", ")
+  );
+  recorder.notes.push(
+    "Faults were injected at the loopback proxy in front of the target, so this proves receipt attribution of each class, not backend-originated faults."
+  );
+});
+
+const latencies = (replies: ReadonlyArray<WireReply>) => A.map(replies, (reply) => reply.receipt.elapsedMs);
+const quantile = (values: ReadonlyArray<number>, q: number) =>
+  S.Natural.make(O.getOrElse(nearestRank(values, q), () => 0));
+const measure = (
+  label: string,
+  sizeBytes: number,
+  readConcurrency: number,
+  writeConcurrency: number,
+  writes: ReadonlyArray<WireReply>,
+  reads: ReadonlyArray<WireReply>,
+  failures: number
+) =>
+  CacheConformanceMeasurement.make({
+    label,
+    sizeBytes: S.Natural.make(sizeBytes),
+    readConcurrency: S.Natural.make(readConcurrency),
+    writeConcurrency: S.Natural.make(writeConcurrency),
+    requests: S.Natural.make(writes.length + reads.length),
+    failures: S.Natural.make(failures),
+    readP50Ms: quantile(latencies(reads), 0.5),
+    readP95Ms: quantile(latencies(reads), 0.95),
+    readMaxMs: quantile(latencies(reads), 1),
+    writeP50Ms: quantile(latencies(writes), 0.5),
+    writeP95Ms: quantile(latencies(writes), 0.95),
+    writeMaxMs: quantile(latencies(writes), 1),
+  });
+
+/** Sequential write-then-read rounds per payload size. */
+const payloadRounds = 6;
+
+const payloadEnvelope: LabCase = Effect.fnUntraced(function* (
+  context: WireContext,
+  recorder: Recorder,
+  _proxy: FaultProxy,
+  envelope: CacheConformanceLoadEnvelope
+) {
+  const run = sendTracked(context, recorder);
+  const sizes = [
+    ["p50", envelope.artifactSizes.p50Bytes],
+    ["p95", envelope.artifactSizes.p95Bytes],
+    ["p99", envelope.artifactSizes.p99Bytes],
+    ["envelope-2x-p99", envelope.envelope.payloadBytes],
+    ["observed-max", envelope.artifactSizes.maxBytes],
+  ] as const;
+  for (const [label, size] of sizes) {
+    const writes = A.empty<WireReply>();
+    const reads = A.empty<WireReply>();
+    let failures = 0;
+    for (let round = 0; round < payloadRounds; round++) {
+      const hash = yield* freshHash;
+      const body = yield* randomBytes(size);
+      const digest = yield* hashBytes(body);
+      const write = yield* run(putStep(`writer-put-${label}`, "writer", valid(hash), body));
+      const read = yield* run(readStep(`reader-get-${label}`, "reader", "GET", valid(hash)));
+      writes.push(write);
+      reads.push(read);
+      if (!succeeded(write) || !sameBody(read, digest)) failures++;
+    }
+    recorder.measurements.push(measure(`payload-${label}`, size, 1, 1, writes, reads, failures));
+    expectEnvelope(
+      recorder,
+      `payload-${label}-correct`,
+      failures === 0,
+      `${failures} of ${payloadRounds} round trips failed at ${size} bytes; ${O.match(
+        A.findFirst(A.appendAll(writes, reads), (reply) => !succeeded(reply)),
+        { onNone: () => "all 2xx", onSome: statusText }
+      )}`
+    );
+  }
+  recorder.notes.push(`Each size ran ${payloadRounds} sequential write-then-read round trips with random bytes.`);
+});
+
+/** Concurrent rounds per concurrency step. */
+const concurrencyRounds = 2;
+
+const concurrencyEnvelope: LabCase = Effect.fnUntraced(function* (
+  context: WireContext,
+  recorder: Recorder,
+  _proxy: FaultProxy,
+  envelope: CacheConformanceLoadEnvelope
+) {
+  const size = envelope.artifactSizes.p95Bytes;
+  const poolSize = envelope.envelope.readConcurrency;
+  const pool = yield* Effect.forEach(
+    A.makeBy(poolSize, () => 0),
+    () =>
+      Effect.gen(function* () {
+        const hash = yield* freshHash;
+        const body = yield* randomBytes(size);
+        return { hash, body, digest: yield* hashBytes(body) };
+      }),
+    { concurrency: 1 }
+  );
+  const seeded = yield* Effect.forEach(
+    pool,
+    (entry, index) => send(context, putStep(`writer-put-pool-${index + 1}`, "writer", valid(entry.hash), entry.body)),
+    { concurrency: envelope.envelope.writeConcurrency }
+  );
+  track(recorder, seeded);
+  expectEnvelope(
+    recorder,
+    "concurrency-pool-seeded",
+    A.every(seeded, succeeded),
+    A.join(
+      A.map(
+        A.filter(seeded, (reply) => !succeeded(reply)),
+        statusText
+      ),
+      "; "
+    )
+  );
+  const steps = [
+    ["observed-peak", envelope.concurrency.readPeak, envelope.concurrency.writePeak],
+    ["envelope-1.5x-peak", envelope.envelope.readConcurrency, envelope.envelope.writeConcurrency],
+  ] as const;
+  for (const [label, readers, writers] of steps) {
+    const writes = A.empty<WireReply>();
+    const reads = A.empty<WireReply>();
+    let failures = 0;
+    for (let round = 0; round < concurrencyRounds; round++) {
+      const fresh = yield* Effect.forEach(
+        A.makeBy(writers, () => 0),
+        () =>
+          Effect.gen(function* () {
+            const hash = yield* freshHash;
+            const body = yield* randomBytes(size);
+            return { hash, body, digest: yield* hashBytes(body) };
+          })
+      );
+      const [roundWrites, roundReads] = yield* Effect.all(
+        [
+          Effect.forEach(
+            fresh,
+            (entry, index) =>
+              send(context, putStep(`writer-put-${label}-${index + 1}`, "writer", valid(entry.hash), entry.body)),
+            { concurrency: writers }
+          ),
+          Effect.forEach(
+            A.makeBy(readers, (index) => index),
+            (index) =>
+              send(
+                context,
+                readStep(
+                  `reader-get-${label}-${index + 1}`,
+                  "reader",
+                  "GET",
+                  valid(pool[index % pool.length]?.hash ?? "")
+                )
+              ),
+            { concurrency: readers }
+          ),
+        ],
+        { concurrency: 2 }
+      );
+      const verified = yield* Effect.forEach(
+        fresh,
+        (entry, index) =>
+          send(context, readStep(`reader-verify-${label}-${index + 1}`, "reader", "GET", valid(entry.hash))),
+        { concurrency: writers }
+      );
+      track(recorder, [...roundWrites, ...roundReads, ...verified]);
+      writes.push(...roundWrites);
+      reads.push(...roundReads);
+      failures += A.filter(roundWrites, (reply) => !succeeded(reply)).length;
+      failures += A.filter(
+        roundReads,
+        (reply, index) => !sameBody(reply, pool[index % pool.length]?.digest ?? sharedNoDigest)
+      ).length;
+      failures += A.filter(verified, (reply, index) => !sameBody(reply, fresh[index]?.digest ?? sharedNoDigest)).length;
+    }
+    recorder.measurements.push(measure(`concurrency-${label}`, size, readers, writers, writes, reads, failures));
+    expectEnvelope(
+      recorder,
+      `concurrency-${label}-correct`,
+      failures === 0,
+      `${failures} incorrect or failed of ${writes.length + reads.length} requests plus write verification at ${readers} readers / ${writers} writers`
+    );
+  }
+  recorder.notes.push(
+    `Each step ran ${concurrencyRounds} rounds of simultaneous writes and reads at the p95 size; every write was read back.`
+  );
+  const unavailable = A.filter(recorder.exchanges, (exchange) => O.contains(exchange.status, 503));
+  if (A.isReadonlyArrayNonEmpty(unavailable))
+    recorder.notes.push(
+      `503 answers: GET ${A.filter(unavailable, (exchange) => exchange.method === "GET").length}, PUT ${A.filter(unavailable, (exchange) => exchange.method === "PUT").length}; on a Lambda topology these are throttles at the reserved concurrency cap.`
+    );
+});
+
+const sharedNoDigest = Sha256Hex.make(Str.repeat(64)("0"));
+
+const labCases = HashMap.make<ReadonlyArray<readonly [CacheConformanceCaseId, LabCase]>>(
+  ["RC-023", faultClasses],
+  ["RC-027", payloadEnvelope],
+  ["RC-028", concurrencyEnvelope]
+);
+
+/**
+ * Case ids the lab runner executes.
+ *
+ * **Example** (List lab-executed cases)
+ * ```ts
+ * import { cacheConformanceLabCaseIds } from "@beep/repo-cli/commands/Cache"
+ * console.assert(cacheConformanceLabCaseIds.includes("RC-027"))
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const cacheConformanceLabCaseIds: ReadonlyArray<CacheConformanceCaseId> = ["RC-023", "RC-027", "RC-028"];
+
+/**
+ * Execute one lab case: proxied fault classes or a measured envelope.
+ *
+ * **Details**
+ * RC-023 sends reads through the fault proxy with a short client deadline and
+ * checks that each injected class reaches a distinct receipt; RC-027 and
+ * RC-028 measure payload sizes and concurrency directly against the target.
+ *
+ * **Example** (Reference the lab executor)
+ * ```ts
+ * import { runCacheConformanceLabCase } from "@beep/repo-cli/commands/Cache"
+ * console.assert(typeof runCacheConformanceLabCase === "function")
+ * ```
+ *
+ * @internal
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const runCacheConformanceLabCase = Effect.fn("CacheConformance.runLabCase")(function* (
+  id: CacheConformanceCaseId,
+  target: CacheConformanceTarget,
+  bearers: CacheConformanceBearers,
+  operations: ReadonlyArray<CacheConformanceOperation>,
+  proxy: FaultProxy,
+  envelope: CacheConformanceLoadEnvelope
+) {
+  const execute = yield* HashMap.get(labCases, id).pipe(
+    Effect.fromOption(() => CacheCommandError.new(`${id} has no lab executor.`))
+  );
+  const recorder = makeRecorder();
+  const base = Str.replace(/\/+$/, "")(target.baseUrl.href);
+  yield* execute({ base, target, bearers, operations }, recorder, proxy, envelope);
+  return outcomeOf(recorder);
+}, CacheCommandError.mapError("Cannot execute a lab conformance case."));

@@ -58,30 +58,54 @@ const validFixtureSelectors = (parts: ReadonlyArray<string>, namespace: string) 
   );
 };
 
-// Truncate artifact bytes while retaining complete HTTP framing so the native
-// client must reject the signed payload itself.
-const readFaultBody = (stored: StoredArtifact, fault: CacheFixtureScenario["fault"]) => {
-  const body = new Uint8Array(
-    fault === "truncated-body" ? stored.body.subarray(0, Math.max(0, stored.body.byteLength - 1)) : stored.body
-  );
-  if (fault === "corrupt-body" && body.byteLength > 0) {
+/**
+ * Copy artifact bytes with the first bit flipped; an empty body stays empty.
+ *
+ * **Example** (Corrupt one byte)
+ * ```ts
+ * import { corruptCacheArtifactBody } from "@beep/repo-cli/commands/Cache"
+ * console.assert(corruptCacheArtifactBody(Uint8Array.of(0))[0] === 1)
+ * ```
+ *
+ * @category fixtures
+ * @since 0.0.0
+ */
+export const corruptCacheArtifactBody = (bytes: Uint8Array) => {
+  const body = new Uint8Array(bytes);
+  if (body.byteLength > 0) {
     const view = new DataView(body.buffer, body.byteOffset, body.byteLength);
     view.setUint8(0, view.getUint8(0) ^ 1);
   }
   return body;
 };
 
-const readFaultTag = (stored: StoredArtifact, fault: CacheFixtureScenario["fault"]) => {
-  const tag =
-    fault === "missing-tag"
-      ? O.none()
-      : O.some(
-          fault === "invalid-tag"
-            ? `${Str.startsWith("A")(stored.tag) ? "B" : "A"}${Str.slice(1)(stored.tag)}`
-            : stored.tag
-        );
-  return tag;
-};
+/**
+ * Change the first character of an opaque artifact tag.
+ *
+ * **Example** (Tamper with a tag)
+ * ```ts
+ * import { tamperCacheArtifactTag } from "@beep/repo-cli/commands/Cache"
+ * console.assert(tamperCacheArtifactTag("Abc") === "Bbc")
+ * ```
+ *
+ * @category fixtures
+ * @since 0.0.0
+ */
+export const tamperCacheArtifactTag = (tag: string) => `${Str.startsWith("A")(tag) ? "B" : "A"}${Str.slice(1)(tag)}`;
+
+// Truncate artifact bytes while retaining complete HTTP framing so the native
+// client must reject the signed payload itself.
+const readFaultBody = (stored: StoredArtifact, fault: CacheFixtureScenario["fault"]) =>
+  fault === "corrupt-body"
+    ? corruptCacheArtifactBody(stored.body)
+    : new Uint8Array(
+        fault === "truncated-body" ? stored.body.subarray(0, Math.max(0, stored.body.byteLength - 1)) : stored.body
+      );
+
+const readFaultTag = (stored: StoredArtifact, fault: CacheFixtureScenario["fault"]) =>
+  fault === "missing-tag"
+    ? O.none()
+    : O.some(fault === "invalid-tag" ? tamperCacheArtifactTag(stored.tag) : stored.tag);
 
 /**
  * Start a bounded local fixture whose lifetime is owned by the caller's scope.

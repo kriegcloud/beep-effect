@@ -57,6 +57,8 @@ export const CacheConformancePaths = {
 
 const hashBytes = S.decodeEffect(Sha256HexFromBytes);
 const CorpusJson = S.fromJsonString(CacheConformanceCorpus, { space: 2 });
+const normalise = (text: string) =>
+  S.decodeEffect(S.fromJsonString(S.Unknown))(text).pipe(Effect.flatMap(S.encodeEffect(S.fromJsonString(S.Unknown))));
 
 const OpenApiDocument = S.Struct({
   paths: S.Record(S.String, S.Record(S.String, S.Unknown)),
@@ -95,7 +97,8 @@ const routeTable: ReadonlyArray<readonly [CacheConformanceMethod, string]> = [
 ];
 
 const wireReason = "Reproducible against any target with the direct HTTP runner and per-run random hashes.";
-const nativeReason = "Requires the exact pinned Turbo executables and signing epochs; executed by cache protocol-run.";
+const nativeReason =
+  "Requires the exact pinned Turbo executables and signing epochs; executed by cache conformance-native through the fault proxy.";
 
 const CaseRule = S.Struct({
   executor: CacheConformanceExecutor,
@@ -156,18 +159,30 @@ const caseTable: ReadonlyArray<CaseRule> = [
   rule("native", [...clients], nativeReason),
   rule("native", [...clients], nativeReason),
   rule("native", [...clients], nativeReason),
-  rule("native", [...clients, "beep-security-policy"], nativeReason),
+  rule(
+    "native",
+    [...clients],
+    `${nativeReason} The wrong-team response is replayed by the fault proxy, so it scores clients only; backend tenant isolation is RC-014.`
+  ),
   rule("native", [...clients, "beep-security-policy"], nativeReason),
   rule(
     "wire",
     ["strict-openapi", "observability"],
-    "Only wire-reproducible classes (401, 403, genuine 404) run here; 429, 5xx, timeout, reset and truncation need lab fault injection."
+    "The wire run covers 401, 403 and a genuine 404; cache conformance-lab injects 429, 503, timeout, reset and truncation at the fault proxy and scores observability."
   ),
   rule("wire", ["strict-openapi", "beep-security-policy"], wireReason),
   rule("wire", ["strict-openapi", "beep-security-policy"], wireReason),
   rule("wire", ["strict-openapi", "beep-security-policy"], wireReason),
-  rule("lab", ["performance-envelope"], "Payload envelopes need measured p50/p95/p99 sizes on a deployed replica."),
-  rule("lab", ["performance-envelope"], "Concurrency envelopes need measured peak load on a deployed replica."),
+  rule(
+    "lab",
+    ["performance-envelope"],
+    "cache conformance-lab measures the p50/p95/p99, 2x p99 and observed-max sizes; only a disposable-deployment run is representative."
+  ),
+  rule(
+    "lab",
+    ["performance-envelope"],
+    "cache conformance-lab measures observed peak and 1.5x peak read/write concurrency; only a disposable-deployment run is representative."
+  ),
   rule(
     "lab",
     ["beep-security-policy", "observability"],
@@ -309,7 +324,8 @@ export const renderCacheConformanceCorpus = Effect.fn("CacheConformance.renderCo
 }, CacheCommandError.mapError("Cannot encode the Remote Cache conformance corpus."));
 
 /**
- * Write the generated corpus, or with `check` fail when the committed file differs.
+ * Write the generated corpus, or with `check` fail when the committed file's
+ * content differs; whitespace-only reformatting is tolerated.
  *
  * **Example** (Check corpus freshness)
  * ```ts
@@ -336,7 +352,9 @@ export const syncCacheConformanceCorpus = Effect.fn("CacheConformance.syncCorpus
   const committed = yield* readCacheExperimentBytes(root, CacheConformancePaths.corpus).pipe(
     Effect.flatMap(decodeCacheExperimentText)
   );
-  if (committed !== rendered)
+  // Compare whitespace-normalised JSON: the commit formatter may re-wrap the
+  // generated document, but any change of content or key order still fails.
+  if ((yield* normalise(committed)) !== (yield* normalise(rendered)))
     return yield* CacheCommandError.new(
       `${CacheConformancePaths.corpus} is stale; run bun run beep cache conformance-corpus.`
     );

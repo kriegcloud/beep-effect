@@ -32,6 +32,26 @@ export {
   runCacheWarm,
 } from "./Cache.command.ts";
 /**
+ * Frozen-rubric backend comparison.
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export {
+  CacheConformanceComparison,
+  CacheConformanceEvidence,
+  CacheConformanceEvidenceCheck,
+  CacheConformanceEvidenceVerdict,
+  CacheConformanceGateEvidence,
+  CacheConformanceGateResult,
+  CacheConformanceGateStatus,
+  CacheConformanceObligationCheck,
+  CacheConformanceRubric,
+  CacheConformanceTargetComparison,
+  compareCacheConformanceRuns,
+  renderCacheConformanceComparison,
+} from "./Cache.conformance.compare.ts";
+/**
  * Remote Cache conformance corpus generation.
  *
  * @category commands
@@ -43,6 +63,26 @@ export {
   renderCacheConformanceCorpus,
   syncCacheConformanceCorpus,
 } from "./Cache.conformance.corpus.ts";
+/**
+ * Native signed-cache matrix with exact pinned clients.
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export {
+  CacheConformanceClientPin,
+  CacheConformanceNativeOutcome,
+  cacheConformancePinsPath,
+  resolveCacheConformanceClient,
+  runCacheConformanceNative,
+} from "./Cache.conformance.native.ts";
+/**
+ * Loopback fault proxy for conformance runs.
+ *
+ * @category commands
+ * @since 0.0.0
+ */
+export { CacheConformanceProxyOptions, makeCacheConformanceFaultProxy } from "./Cache.conformance.proxy.ts";
 /**
  * Remote Cache conformance corpus, target, receipt and run-report contracts.
  *
@@ -56,19 +96,24 @@ export {
   CacheConformanceCaseId,
   CacheConformanceCaseResult,
   CacheConformanceCaseVerdicts,
+  CacheConformanceClientRecord,
   CacheConformanceCorpus,
   CacheConformanceCredentialRole,
   CacheConformanceDimension,
   CacheConformanceEnvName,
   CacheConformanceExchange,
   CacheConformanceExecutor,
+  CacheConformanceFault,
   CacheConformanceHashShape,
+  CacheConformanceLoadEnvelope,
+  CacheConformanceMeasurement,
   CacheConformanceMethod,
   CacheConformanceOperation,
   CacheConformanceOperationId,
   CacheConformanceOrigin,
   CacheConformanceOutcome,
   CacheConformanceProfile,
+  CacheConformanceProxyEvent,
   CacheConformanceResponseShape,
   CacheConformanceRoute,
   CacheConformanceRun,
@@ -86,10 +131,18 @@ export {
  * @since 0.0.0
  */
 export {
+  assembleCacheConformanceRun,
   assertCacheConformanceTargetBoundary,
+  cacheConformanceCaseVerdicts,
+  cacheConformanceLoadEnvelopePath,
+  cacheConformanceVerdictOf,
   encodeCacheConformanceRun,
   loadCacheConformanceBearers,
+  loadCacheConformanceEnvelope,
+  mergeCacheConformanceRuns,
   runCacheConformance,
+  runCacheConformanceLab,
+  skippedCacheConformanceCase,
 } from "./Cache.conformance.ts";
 /**
  * Direct-wire Remote Cache case execution.
@@ -100,6 +153,9 @@ export {
 export {
   CacheConformanceWireCheck,
   CacheConformanceWireOutcome,
+  cacheConformanceLabCaseIds,
+  classifyCacheConformanceStatus,
+  runCacheConformanceLabCase,
   runCacheConformanceWireCase,
 } from "./Cache.conformance.wire.ts";
 /**
@@ -253,7 +309,11 @@ export {
   CacheFixtureFault,
   CacheFixtureScenario,
 } from "./Cache.protocol.fixture.schemas.ts";
-export { makeCacheProtocolFixture } from "./Cache.protocol.fixture.ts";
+export {
+  corruptCacheArtifactBody,
+  makeCacheProtocolFixture,
+  tamperCacheArtifactTag,
+} from "./Cache.protocol.fixture.ts";
 export {
   CacheProtocolExecution,
   CacheProtocolIsolationRoot,
@@ -262,6 +322,8 @@ export {
 } from "./Cache.protocol.runner.schemas.ts";
 export {
   assertCachePrivateNetwork,
+  CacheProtocolNativeSummary,
+  cacheProtocolSandboxMounts,
   runCacheProtocolExperiment,
   runCacheProtocolWorker,
 } from "./Cache.protocol.runner.ts";
