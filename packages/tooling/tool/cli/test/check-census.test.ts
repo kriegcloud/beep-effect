@@ -5,9 +5,8 @@ import {
   runCheckCensus,
 } from "@beep/repo-cli/test/Quality";
 import { findRepoRoot } from "@beep/repo-utils/Root";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -83,110 +82,102 @@ const writeFixtureRepo = Effect.fn("CheckCensusTest.writeFixtureRepo")(function*
   );
 });
 
-describe("check census", () => {
+it.layer(NodeServices.layer)("check census", (it) => {
   it.effect(
     "measures the committed overlay against a reference-keeping overlay and removes the temporary config",
-    Effect.fnUntraced(
-      function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const repoRoot = yield* findRepoRoot();
-        const tsgoPath = path.join(repoRoot, "node_modules", ".bin", "tsgo");
-        // Under the repo's node_modules/.tmp (the tsgo-smoke precedent): the tsgo
-        // shim discovers the installed compiler from the spawn cwd, so a fixture
-        // outside the checkout fails discovery under Node.
-        const tempRoot = path.join(repoRoot, "node_modules", ".tmp");
-        yield* fs.makeDirectory(tempRoot, { recursive: true });
-        const root = yield* fs.makeTempDirectoryScoped({ directory: tempRoot, prefix: "check-census-" });
-        const consumerDir = path.join(root, "packages", "consumer");
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* findRepoRoot();
+      const tsgoPath = path.join(repoRoot, "node_modules", ".bin", "tsgo");
+      // Under the repo's node_modules/.tmp (the tsgo-smoke precedent): the tsgo
+      // shim discovers the installed compiler from the spawn cwd, so a fixture
+      // outside the checkout fails discovery under Node.
+      const tempRoot = path.join(repoRoot, "node_modules", ".tmp");
+      yield* fs.makeDirectory(tempRoot, { recursive: true });
+      const root = yield* fs.makeTempDirectoryScoped({ directory: tempRoot, prefix: "check-census-" });
+      const consumerDir = path.join(root, "packages", "consumer");
 
-        yield* writeFixtureRepo(root);
-        // Build the upstream declaration output the reference-keeping overlay resolves through.
-        const build = Bun.spawnSync([tsgoPath, "-p", path.join(root, "packages", "upstream", "tsconfig.json")], {
-          cwd: root,
-          stderr: "pipe",
-          stdout: "pipe",
-        });
-        expect(build.exitCode, `${build.stdout.toString()}\n${build.stderr.toString()}`).toBe(0);
+      yield* writeFixtureRepo(root);
+      // Build the upstream declaration output the reference-keeping overlay resolves through.
+      const build = Bun.spawnSync([tsgoPath, "-p", path.join(root, "packages", "upstream", "tsconfig.json")], {
+        cwd: root,
+        stderr: "pipe",
+        stdout: "pipe",
+      });
+      expect(build.exitCode, `${build.stdout.toString()}\n${build.stderr.toString()}`).toBe(0);
 
-        const report = yield* runCheckCensus(
-          CheckCensusOptions.make({
-            repoRoot: root,
-            tsgoPath,
-            packages: [{ name: "@fixture/consumer", dir: consumerDir }],
-            concurrency: 1,
-          })
-        );
+      const report = yield* runCheckCensus(
+        CheckCensusOptions.make({
+          repoRoot: root,
+          tsgoPath,
+          packages: [{ name: "@fixture/consumer", dir: consumerDir }],
+          concurrency: 1,
+        })
+      );
 
-        expect(report.rows).toHaveLength(1);
-        const row = report.rows[0];
-        expect(row?.package).toBe("@fixture/consumer");
-        // Committed overlay: no references, so the upstream import is its source file.
-        expect(row?.overlay.upstreamSrc).toBe(1);
-        expect(row?.overlay.upstreamDist).toBe(0);
-        expect(row?.overlay.diagnostics).toBe(0);
-        // Reference-keeping overlay: the same import resolves to upstream/dist/index.d.ts.
-        expect(row?.referenceKeeping.upstreamSrc).toBe(0);
-        expect(row?.referenceKeeping.upstreamDist).toBe(1);
-        expect(row?.referenceKeeping.diagnostics).toBe(0);
-        expect(row?.delta.upstreamSrc).toBe(-1);
-        expect(row?.delta.upstreamDist).toBe(1);
-        expect(row?.delta.diagnostics).toBe(0);
-        // Both programs share the consumer's own source with the build program.
-        expect(row?.buildOverlapFiles).toBeGreaterThanOrEqual(1);
-        expect(row?.overlay.files).toBeGreaterThan(row?.overlay.upstreamSrc ?? 0);
-        expect(row?.overlay.wallMs).toBeGreaterThanOrEqual(0);
-        expect(yield* fs.exists(path.join(consumerDir, CHECK_CENSUS_OVERLAY_FILE_NAME))).toBe(false);
+      expect(report.rows).toHaveLength(1);
+      const row = report.rows[0];
+      expect(row?.package).toBe("@fixture/consumer");
+      // Committed overlay: no references, so the upstream import is its source file.
+      expect(row?.overlay.upstreamSrc).toBe(1);
+      expect(row?.overlay.upstreamDist).toBe(0);
+      expect(row?.overlay.diagnostics).toBe(0);
+      // Reference-keeping overlay: the same import resolves to upstream/dist/index.d.ts.
+      expect(row?.referenceKeeping.upstreamSrc).toBe(0);
+      expect(row?.referenceKeeping.upstreamDist).toBe(1);
+      expect(row?.referenceKeeping.diagnostics).toBe(0);
+      expect(row?.delta.upstreamSrc).toBe(-1);
+      expect(row?.delta.upstreamDist).toBe(1);
+      expect(row?.delta.diagnostics).toBe(0);
+      // Both programs share the consumer's own source with the build program.
+      expect(row?.buildOverlapFiles).toBeGreaterThanOrEqual(1);
+      expect(row?.overlay.files).toBeGreaterThan(row?.overlay.upstreamSrc ?? 0);
+      expect(row?.overlay.wallMs).toBeGreaterThanOrEqual(0);
+      expect(yield* fs.exists(path.join(consumerDir, CHECK_CENSUS_OVERLAY_FILE_NAME))).toBe(false);
 
-        const lines = renderCheckCensusLines(report);
-        expect(lines).toHaveLength(3);
-        expect(A.some(lines, Str.includes("@fixture/consumer"))).toBe(true);
-      },
-      Effect.scoped,
-      provideScopedLayer(NodeServices.layer)
-    )
+      const lines = renderCheckCensusLines(report);
+      expect(lines).toHaveLength(3);
+      expect(A.some(lines, Str.includes("@fixture/consumer"))).toBe(true);
+    })
   );
 
   it.effect(
     "refuses to measure an unbuilt tree and names the missing declaration output",
-    Effect.fnUntraced(
-      function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-        const repoRoot = yield* findRepoRoot();
-        const tsgoPath = path.join(repoRoot, "node_modules", ".bin", "tsgo");
-        const tempRoot = path.join(repoRoot, "node_modules", ".tmp");
-        yield* fs.makeDirectory(tempRoot, { recursive: true });
-        const root = yield* fs.makeTempDirectoryScoped({ directory: tempRoot, prefix: "check-census-unbuilt-" });
-        const consumerDir = path.join(root, "packages", "consumer");
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* findRepoRoot();
+      const tsgoPath = path.join(repoRoot, "node_modules", ".bin", "tsgo");
+      const tempRoot = path.join(repoRoot, "node_modules", ".tmp");
+      yield* fs.makeDirectory(tempRoot, { recursive: true });
+      const root = yield* fs.makeTempDirectoryScoped({ directory: tempRoot, prefix: "check-census-unbuilt-" });
+      const consumerDir = path.join(root, "packages", "consumer");
 
-        // Same fixture, upstream never built: the reference-keeping overlay
-        // would only count TS6305 noise, so the census must refuse up front.
-        yield* writeFixtureRepo(root);
+      // Same fixture, upstream never built: the reference-keeping overlay
+      // would only count TS6305 noise, so the census must refuse up front.
+      yield* writeFixtureRepo(root);
 
-        const error = yield* runCheckCensus(
-          CheckCensusOptions.make({
-            repoRoot: root,
-            tsgoPath,
-            packages: [{ name: "@fixture/consumer", dir: consumerDir }],
-            concurrency: 1,
-          })
-        ).pipe(Effect.flip);
+      const error = yield* runCheckCensus(
+        CheckCensusOptions.make({
+          repoRoot: root,
+          tsgoPath,
+          packages: [{ name: "@fixture/consumer", dir: consumerDir }],
+          concurrency: 1,
+        })
+      ).pipe(Effect.flip);
 
-        expect(error._tag).toBe("QualityScriptCommandError");
-        expect(error.message).toContain(
-          "check-census needs a built tree: 1 referenced project(s) across 1 package(s) have no declaration output."
-        );
-        expect(error.message).toContain(
-          "  - @fixture/consumer: ../upstream/tsconfig.json -> packages/upstream/dist/index.d.ts"
-        );
-        expect(error.message).toContain("Run `bun run build`");
-        // Nothing was measured: no temporary overlay was ever written.
-        expect(yield* fs.exists(path.join(consumerDir, CHECK_CENSUS_OVERLAY_FILE_NAME))).toBe(false);
-        expect(yield* fs.exists(path.join(root, "packages", "upstream", "dist"))).toBe(false);
-      },
-      Effect.scoped,
-      provideScopedLayer(NodeServices.layer)
-    )
+      expect(error._tag).toBe("QualityScriptCommandError");
+      expect(error.message).toContain(
+        "check-census needs a built tree: 1 referenced project(s) across 1 package(s) have no declaration output."
+      );
+      expect(error.message).toContain(
+        "  - @fixture/consumer: ../upstream/tsconfig.json -> packages/upstream/dist/index.d.ts"
+      );
+      expect(error.message).toContain("Run `bun run build`");
+      // Nothing was measured: no temporary overlay was ever written.
+      expect(yield* fs.exists(path.join(consumerDir, CHECK_CENSUS_OVERLAY_FILE_NAME))).toBe(false);
+      expect(yield* fs.exists(path.join(root, "packages", "upstream", "dist"))).toBe(false);
+    })
   );
 });

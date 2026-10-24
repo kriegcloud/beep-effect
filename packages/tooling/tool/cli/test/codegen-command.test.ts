@@ -1,9 +1,8 @@
 import { codegenCommand } from "@beep/repo-cli/commands/Codegen";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { it } from "@beep/test-runner";
-import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect } from "@effect/vitest";
+import { expect } from "@effect/vitest";
 import * as Command from "effect/cli/Command";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -19,7 +18,7 @@ const testLayer = Layer.mergeAll(
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer))
 );
 
-describe("codegen command", () => {
+it.layer(testLayer, { timeout: "30 seconds" })("codegen command", (it) => {
   it.effect("uses uniform .ts specifiers for TypeScript and TSX barrel entries", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -41,7 +40,7 @@ describe("codegen command", () => {
       expect(barrel).toContain('export * from "./Model.ts";');
       expect(barrel).toContain('export * from "./View.ts";');
       expect(barrel).not.toContain(".tsx");
-    }).pipe(Effect.scoped, provideScopedLayer(testLayer))
+    })
   );
 
   it.effect("preserves an authored module header and export docs across regeneration", () =>
@@ -73,6 +72,6 @@ describe("codegen command", () => {
       yield* runCodegenCommand(["barrel", "--package", packageDir]);
       const second = yield* fs.readFileString(path.join(srcDir, "index.ts"));
       expect(second).toBe(first);
-    }).pipe(Effect.scoped, provideScopedLayer(testLayer))
+    })
   );
 });

@@ -24,7 +24,6 @@ import {
   sortedUniquePaths,
   writeGitArchive,
 } from "@beep/repo-cli/test/RepoRun";
-import { provideScopedLayer } from "@beep/test-utils";
 import { Str } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
@@ -35,7 +34,6 @@ import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
-import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
@@ -308,38 +306,38 @@ describe("GitExec archive spawn wiring", () => {
     );
   });
 
-  it.effect(
-    "sends the canonical vector, the attribute-isolation env, and extendEnv on the archive spawn",
-    Effect.fnUntraced(function* () {
-      type SpawnFacts = {
-        readonly args: ReadonlyArray<string>;
-        readonly env: Record<string, string | undefined> | undefined;
-        readonly extendEnv: boolean | undefined;
-      };
-      const captured = yield* Ref.make<ReadonlyArray<SpawnFacts>>([]);
-      const spawner = ChildProcessSpawner.make((command) => {
-        if (!ChildProcess.isStandardCommand(command)) {
-          return Effect.die("the archive writer never spawns a piped command");
-        }
-        return Ref.update(
-          captured,
-          A.append({ args: command.args, env: command.options.env, extendEnv: command.options.extendEnv })
-        ).pipe(Effect.as(emptyHandle));
-      });
+  it.layer(BunCrypto.layer)((it) => {
+    it.effect(
+      "sends the canonical vector, the attribute-isolation env, and extendEnv on the archive spawn",
+      Effect.fnUntraced(function* () {
+        type SpawnFacts = {
+          readonly args: ReadonlyArray<string>;
+          readonly env: Record<string, string | undefined> | undefined;
+          readonly extendEnv: boolean | undefined;
+        };
+        const captured = yield* Ref.make<ReadonlyArray<SpawnFacts>>([]);
+        const spawner = ChildProcessSpawner.make((command) => {
+          if (!ChildProcess.isStandardCommand(command)) {
+            return Effect.die("the archive writer never spawns a piped command");
+          }
+          return Ref.update(
+            captured,
+            A.append({ args: command.args, env: command.options.env, extendEnv: command.options.extendEnv })
+          ).pipe(Effect.as(emptyHandle));
+        });
 
-      yield* writeGitArchive("/repo", "deadbeef", "/tmp/out.tar", adapter).pipe(
-        provideScopedLayer(
-          Layer.mergeAll(Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, spawner), BunCrypto.layer)
-        )
-      );
+        yield* writeGitArchive("/repo", "deadbeef", "/tmp/out.tar", adapter).pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, spawner)
+        );
 
-      const calls = yield* Ref.get(captured);
-      expect(calls).toHaveLength(1);
-      expect(calls[0]?.args).toEqual(gitArchiveArgs("/tmp/out.tar", "deadbeef"));
-      expect(calls[0]?.env).toStrictEqual(gitArchiveEnv);
-      expect(calls[0]?.extendEnv).toBe(true);
-    })
-  );
+        const calls = yield* Ref.get(captured);
+        expect(calls).toHaveLength(1);
+        expect(calls[0]?.args).toEqual(gitArchiveArgs("/tmp/out.tar", "deadbeef"));
+        expect(calls[0]?.env).toStrictEqual(gitArchiveEnv);
+        expect(calls[0]?.extendEnv).toBe(true);
+      })
+    );
+  });
 });
 
 // Each hostile profile is proven live by a negative-control witness: the unpinned vector must

@@ -17,7 +17,7 @@ import {
   turboLaneDigestFromSummary,
   turboLaneDigestPackages,
 } from "@beep/repo-cli/test/Quality";
-import { fcRuns, provideScopedLayer } from "@beep/test-utils";
+import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue, notDeepStrictEqual } from "@effect/vitest/utils";
@@ -34,7 +34,6 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const providePlatform = provideScopedLayer(NodeServices.layer);
 type StreamingStepOutcome = Parameters<typeof resolveLaneInputDigestForTesting>[0];
 const encodeSummary = S.encodeEffect(S.fromJsonString(TurboRunSummary));
 const decodeSummary = S.decodeEffect(S.fromJsonString(TurboRunSummary));
@@ -77,39 +76,41 @@ describe("Turbo lane digests", () => {
     { arbitrary: fcRuns(25) }
   );
 
-  it.effect(
-    "folds selected task hashes by bare name, independent of row order",
-    Effect.fnUntraced(function* () {
-      const rows = [
-        task("//#lint:allowlist", "a1", "MISS"),
-        task("@beep/schema#lint:laws", "b2", "HIT"),
-        task("//#lint:typos", "c3", "MISS"),
-      ];
-      const forward = yield* turboLaneDigestFromSummary(summary("run", 100, rows), ["lint:allowlist", "lint:laws"]);
-      const reversed = yield* turboLaneDigestFromSummary(summary("run", 100, A.reverse(rows)), [
-        "lint:laws",
-        "lint:allowlist",
-      ]);
-      forward.pipe(O.isSome, assertTrue);
-      if (O.isSome(forward) && O.isSome(reversed)) {
-        expect(forward.value.digest).toBe(reversed.value.digest);
-        expect(A.map(forward.value.tasks, (row) => row.taskId)).toEqual([
-          "//#lint:allowlist",
-          "@beep/schema#lint:laws",
+  it.layer(NodeServices.layer)((it) => {
+    it.effect(
+      "folds selected task hashes by bare name, independent of row order",
+      Effect.fnUntraced(function* () {
+        const rows = [
+          task("//#lint:allowlist", "a1", "MISS"),
+          task("@beep/schema#lint:laws", "b2", "HIT"),
+          task("//#lint:typos", "c3", "MISS"),
+        ];
+        const forward = yield* turboLaneDigestFromSummary(summary("run", 100, rows), ["lint:allowlist", "lint:laws"]);
+        const reversed = yield* turboLaneDigestFromSummary(summary("run", 100, A.reverse(rows)), [
+          "lint:laws",
+          "lint:allowlist",
         ]);
-        expect(forward.value.summaryIds).toEqual(["run"]);
-      }
-      const everything = yield* turboLaneDigestFromSummary(summary("run", 100, rows), []);
-      assertSome(
-        O.map(everything, (digest) => A.length(digest.tasks)),
-        3
-      );
-      notDeepStrictEqual(
-        O.map(everything, (digest) => digest.digest),
-        O.map(forward, (digest) => digest.digest)
-      );
-    }, providePlatform)
-  );
+        forward.pipe(O.isSome, assertTrue);
+        if (O.isSome(forward) && O.isSome(reversed)) {
+          expect(forward.value.digest).toBe(reversed.value.digest);
+          expect(A.map(forward.value.tasks, (row) => row.taskId)).toEqual([
+            "//#lint:allowlist",
+            "@beep/schema#lint:laws",
+          ]);
+          expect(forward.value.summaryIds).toEqual(["run"]);
+        }
+        const everything = yield* turboLaneDigestFromSummary(summary("run", 100, rows), []);
+        assertSome(
+          O.map(everything, (digest) => A.length(digest.tasks)),
+          3
+        );
+        notDeepStrictEqual(
+          O.map(everything, (digest) => digest.digest),
+          O.map(forward, (digest) => digest.digest)
+        );
+      })
+    );
+  });
 
   // TTC ruling 72: a selected task folds whatever its exit code, so a red run records the key a
   // green run of the same inputs records; only a selection that matched nothing folds to None.
@@ -202,169 +203,178 @@ describe("Turbo lane digests", () => {
     );
   });
 
-  it.effect(
-    "does not read historical summaries when collecting a new lane digest",
-    Effect.fnUntraced(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ prefix: "turbo-lane-history-" });
-      const runs = path.join(root, ".turbo", "runs");
-      yield* fs.makeDirectory(runs, { recursive: true });
-      const stalePath = path.join(runs, "stale.json");
-      const freshPath = path.join(runs, "fresh.json");
-      yield* fs.writeFileString(stalePath, "historical output must not be read");
-      yield* fs.utimes(stalePath, 1, 1);
-      yield* encodeSummary(summary("fresh", 1_789_185_601_000, [task("//#lint:allowlist", "new", "MISS")])).pipe(
-        Effect.flatMap((text) => fs.writeFileString(freshPath, text))
-      );
-      // Include a same-second write even when the filesystem rounds its mtime.
-      yield* fs.utimes(freshPath, 1_789_185_600, 1_789_185_600);
-      const reads = yield* Ref.make(A.empty<string>());
-      const digest = yield* readTurboLaneDigest(root, "2026-09-12T04:00:00.500Z", ["lint:allowlist"]).pipe(
-        Effect.provideService(FileSystem.FileSystem, {
-          ...fs,
-          readFileString: (file, ...args) =>
-            fs.readFileString(file, ...args).pipe(Effect.tap(() => Ref.update(reads, A.append(file)))),
-        })
-      );
-      expect(yield* Ref.get(reads)).toEqual([freshPath]);
-      assertSome(
-        O.map(digest, (value) => value.summaryIds),
-        ["fresh"]
-      );
-    }, providePlatform)
-  );
+  it.layer(NodeServices.layer)((it) => {
+    it.effect(
+      "does not read historical summaries when collecting a new lane digest",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "turbo-lane-history-" });
+        const runs = path.join(root, ".turbo", "runs");
+        yield* fs.makeDirectory(runs, { recursive: true });
+        const stalePath = path.join(runs, "stale.json");
+        const freshPath = path.join(runs, "fresh.json");
+        yield* fs.writeFileString(stalePath, "historical output must not be read");
+        yield* fs.utimes(stalePath, 1, 1);
+        yield* encodeSummary(summary("fresh", 1_789_185_601_000, [task("//#lint:allowlist", "new", "MISS")])).pipe(
+          Effect.flatMap((text) => fs.writeFileString(freshPath, text))
+        );
+        // Include a same-second write even when the filesystem rounds its mtime.
+        yield* fs.utimes(freshPath, 1_789_185_600, 1_789_185_600);
+        const reads = yield* Ref.make(A.empty<string>());
+        const digest = yield* readTurboLaneDigest(root, "2026-09-12T04:00:00.500Z", ["lint:allowlist"]).pipe(
+          Effect.provideService(FileSystem.FileSystem, {
+            ...fs,
+            readFileString: (file, ...args) =>
+              fs.readFileString(file, ...args).pipe(Effect.tap(() => Ref.update(reads, A.append(file)))),
+          })
+        );
+        expect(yield* Ref.get(reads)).toEqual([freshPath]);
+        assertSome(
+          O.map(digest, (value) => value.summaryIds),
+          ["fresh"]
+        );
+      })
+    );
+  });
 
-  it.effect(
-    "folds declared digests newest-per-task and round-trips the wrapper lane ledger",
-    Effect.fnUntraced(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ prefix: "turbo-lane-ledger-" });
-      const ledger = path.join(root, "nested", "lane.jsonl");
-      assertNone(yield* readTurboLaneLedger(ledger));
-      assertNone(yield* foldTurboLaneDigests([]));
+  it.layer(NodeServices.layer)((it) => {
+    it.effect(
+      "folds declared digests newest-per-task and round-trips the wrapper lane ledger",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "turbo-lane-ledger-" });
+        const ledger = path.join(root, "nested", "lane.jsonl");
+        assertNone(yield* readTurboLaneLedger(ledger));
+        assertNone(yield* foldTurboLaneDigests([]));
 
-      const row = (taskId: string, hash: string, cacheStatus: "HIT" | "MISS") => ({ taskId, hash, cacheStatus });
-      const first = TurboLaneDigest.make({
-        digest: "a",
-        summaryIds: ["run-1"],
-        tasks: [row("//#lint:allowlist", "h1", "MISS")],
-      });
-      const second = TurboLaneDigest.make({
-        digest: "b",
-        summaryIds: ["run-2"],
-        tasks: [row("//#lint:allowlist", "h2", "HIT"), row("//#lint:typos", "t1", "MISS")],
-      });
-      yield* appendTurboLaneLedger(ledger, first);
-      yield* appendTurboLaneLedger(ledger, second);
-      // Unclosed ledgers read as none: the child may still be declaring, or it died mid-way.
-      assertNone(yield* readTurboLaneLedger(ledger));
-      yield* closeTurboLaneLedger(ledger, 2);
-      const folded = yield* readTurboLaneLedger(ledger);
-      assertSome(
-        O.map(folded, (value) => value.summaryIds),
-        ["run-1", "run-2"]
-      );
-      assertSome(
-        O.map(folded, (value) => A.map(value.tasks, (task) => `${task.taskId}=${task.hash}`)),
-        ["//#lint:allowlist=h2", "//#lint:typos=t1"]
-      );
-      expect(folded).toEqual(yield* foldTurboLaneDigests([first, second]));
-      // A close record naming more attempts than declarations marks a lost declaration.
-      yield* closeTurboLaneLedger(ledger, 1);
-      assertNone(yield* readTurboLaneLedger(ledger));
+        const row = (taskId: string, hash: string, cacheStatus: "HIT" | "MISS") => ({ taskId, hash, cacheStatus });
+        const first = TurboLaneDigest.make({
+          digest: "a",
+          summaryIds: ["run-1"],
+          tasks: [row("//#lint:allowlist", "h1", "MISS")],
+        });
+        const second = TurboLaneDigest.make({
+          digest: "b",
+          summaryIds: ["run-2"],
+          tasks: [row("//#lint:allowlist", "h2", "HIT"), row("//#lint:typos", "t1", "MISS")],
+        });
+        yield* appendTurboLaneLedger(ledger, first);
+        yield* appendTurboLaneLedger(ledger, second);
+        // Unclosed ledgers read as none: the child may still be declaring, or it died mid-way.
+        assertNone(yield* readTurboLaneLedger(ledger));
+        yield* closeTurboLaneLedger(ledger, 2);
+        const folded = yield* readTurboLaneLedger(ledger);
+        assertSome(
+          O.map(folded, (value) => value.summaryIds),
+          ["run-1", "run-2"]
+        );
+        assertSome(
+          O.map(folded, (value) => A.map(value.tasks, (task) => `${task.taskId}=${task.hash}`)),
+          ["//#lint:allowlist=h2", "//#lint:typos=t1"]
+        );
+        expect(folded).toEqual(yield* foldTurboLaneDigests([first, second]));
+        // A close record naming more attempts than declarations marks a lost declaration.
+        yield* closeTurboLaneLedger(ledger, 1);
+        assertNone(yield* readTurboLaneLedger(ledger));
 
-      yield* fs.writeFileString(ledger, "{not json\n", { flag: "a" });
-      (yield* Effect.exit(readTurboLaneLedger(ledger))).pipe(Exit.isFailure, assertTrue);
-    }, providePlatform)
-  );
+        yield* fs.writeFileString(ledger, "{not json\n", { flag: "a" });
+        (yield* Effect.exit(readTurboLaneLedger(ledger))).pipe(Exit.isFailure, assertTrue);
+      })
+    );
+  });
 
-  it.effect(
-    "hands a wrapper lane its ledger and folds only what the child declared",
-    Effect.fnUntraced(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ prefix: "turbo-lane-handoff-" });
-      const runs = path.join(root, ".turbo", "runs");
-      yield* fs.makeDirectory(runs, { recursive: true });
-      const startedAtIso = "2026-09-12T04:00:00.000Z";
-      const startedAt = DateTime.toEpochMillis(DateTime.makeUnsafe(startedAtIso));
-      const write = (name: string, value: TurboRunSummary) =>
-        Effect.flatMap(encodeSummary(value), (text) => fs.writeFileString(path.join(runs, name), text));
-      // The child's own direct step shares `.turbo/runs` with a concurrent lane whose task failed.
-      yield* write("own.json", summary("own", startedAt + 1_000, [task("//#lint:typos", "mine", "MISS")]));
-      yield* write("other.json", summary("other", startedAt + 1_500, [task("//#lint:allowlist", "theirs", "MISS", 1)]));
+  it.layer(NodeServices.layer)((it) => {
+    it.effect(
+      "hands a wrapper lane its ledger and folds only what the child declared",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "turbo-lane-handoff-" });
+        const runs = path.join(root, ".turbo", "runs");
+        yield* fs.makeDirectory(runs, { recursive: true });
+        const startedAtIso = "2026-09-12T04:00:00.000Z";
+        const startedAt = DateTime.toEpochMillis(DateTime.makeUnsafe(startedAtIso));
+        const write = (name: string, value: TurboRunSummary) =>
+          Effect.flatMap(encodeSummary(value), (text) => fs.writeFileString(path.join(runs, name), text));
+        // The child's own direct step shares `.turbo/runs` with a concurrent lane whose task failed.
+        yield* write("own.json", summary("own", startedAt + 1_000, [task("//#lint:typos", "mine", "MISS")]));
+        yield* write(
+          "other.json",
+          summary("other", startedAt + 1_500, [task("//#lint:allowlist", "theirs", "MISS", 1)])
+        );
 
-      const ledger = path.join(root, "lane-a", "ledger.jsonl");
-      const outcome = (step: QualityTaskStep): StreamingStepOutcome => ({
-        durationMs: 1,
-        startedAt: startedAtIso,
-        endedAt: "2026-09-12T04:00:05.000Z",
-        failure: O.none(),
-        step,
-      });
-      const child = QualityTaskStep.make({
-        label: "ci:lint",
-        command: "bunx",
-        args: ["turbo", "run", "lint:typos", "--summarize"],
-        cwd: root,
-      });
-      assertNone(yield* recordTurboLaneLedgerRowForTesting(O.none(), outcome(child)));
-      expect(yield* fs.exists(ledger)).toBe(false);
-      const unmatched = QualityTaskStep.make({
-        label: "ci:lint",
-        command: "bunx",
-        args: ["turbo", "run", "lint:nothing-ran", "--summarize"],
-        cwd: root,
-      });
-      // An attempted declaration with no matching summary is reported, not silently skipped.
-      assertSome(yield* recordTurboLaneLedgerRowForTesting(O.some(ledger), outcome(unmatched)), false);
-      expect(yield* fs.exists(ledger)).toBe(false);
-      assertSome(yield* recordTurboLaneLedgerRowForTesting(O.some(ledger), outcome(child)), true);
-      // A digest that cannot be appended (the ledger directory is a file) is an attempt that did not land.
-      const unwritable = path.join(runs, "own.json", "nested", "ledger.jsonl");
-      assertSome(yield* recordTurboLaneLedgerRowForTesting(O.some(unwritable), outcome(child)), false);
-      yield* closeTurboLaneLedger(ledger, 1);
-      const declared = yield* readTurboLaneLedger(ledger);
-      assertSome(
-        O.map(declared, (value) => A.map(value.tasks, (row) => `${row.taskId}=${row.hash}`)),
-        ["//#lint:typos=mine"]
-      );
+        const ledger = path.join(root, "lane-a", "ledger.jsonl");
+        const outcome = (step: QualityTaskStep): StreamingStepOutcome => ({
+          durationMs: 1,
+          startedAt: startedAtIso,
+          endedAt: "2026-09-12T04:00:05.000Z",
+          failure: O.none(),
+          step,
+        });
+        const child = QualityTaskStep.make({
+          label: "ci:lint",
+          command: "bunx",
+          args: ["turbo", "run", "lint:typos", "--summarize"],
+          cwd: root,
+        });
+        assertNone(yield* recordTurboLaneLedgerRowForTesting(O.none(), outcome(child)));
+        expect(yield* fs.exists(ledger)).toBe(false);
+        const unmatched = QualityTaskStep.make({
+          label: "ci:lint",
+          command: "bunx",
+          args: ["turbo", "run", "lint:nothing-ran", "--summarize"],
+          cwd: root,
+        });
+        // An attempted declaration with no matching summary is reported, not silently skipped.
+        assertSome(yield* recordTurboLaneLedgerRowForTesting(O.some(ledger), outcome(unmatched)), false);
+        expect(yield* fs.exists(ledger)).toBe(false);
+        assertSome(yield* recordTurboLaneLedgerRowForTesting(O.some(ledger), outcome(child)), true);
+        // A digest that cannot be appended (the ledger directory is a file) is an attempt that did not land.
+        const unwritable = path.join(runs, "own.json", "nested", "ledger.jsonl");
+        assertSome(yield* recordTurboLaneLedgerRowForTesting(O.some(unwritable), outcome(child)), false);
+        yield* closeTurboLaneLedger(ledger, 1);
+        const declared = yield* readTurboLaneLedger(ledger);
+        assertSome(
+          O.map(declared, (value) => A.map(value.tasks, (row) => `${row.taskId}=${row.hash}`)),
+          ["//#lint:typos=mine"]
+        );
 
-      const wrapperArgs = ["run", "beep", "ci", "lane", "lint"];
-      const wrapper = QualityTaskStep.make({
-        label: "quality:lint",
-        command: "bun",
-        args: wrapperArgs,
-        cwd: root,
-        env: { [TURBO_LANE_LEDGER_ENV]: ledger },
-      });
-      const declaredDigest = pipe(
-        declared,
-        O.map((value) => value.digest),
-        O.getOrThrow
-      );
-      const resolved = yield* resolveLaneInputDigestForTesting(outcome(wrapper), O.none());
-      assertSome(resolved.inputDigest, declaredDigest);
-      // TTC ruling 68: a root-task-only lane folds `//#lint:typos`, which names no workspace.
-      expect(resolved.inputPackages).toStrictEqual([]);
-      // The ledger directory is consumed once read; a wrapper without one reports no digest at all.
-      expect(yield* fs.exists(path.dirname(ledger))).toBe(false);
-      const bare = QualityTaskStep.make({ label: "quality:lint", command: "bun", args: wrapperArgs, cwd: root });
-      const bareResolved = yield* resolveLaneInputDigestForTesting(outcome(bare), O.none());
-      assertNone(bareResolved.inputDigest);
-      expect(bareResolved.inputPackages).toStrictEqual([]);
-      // A declared digest is taken as given, so it carries no package scope of its own.
-      const declaredResolved = yield* resolveLaneInputDigestForTesting(outcome(wrapper), O.some("declared"));
-      assertSome(declaredResolved.inputDigest, "declared");
-      expect(declaredResolved.inputPackages).toStrictEqual([]);
-      // A direct step still selects only its own task rows from the shared runs directory.
-      const directResolved = yield* resolveLaneInputDigestForTesting(outcome(child), O.none());
-      assertSome(directResolved.inputDigest, declaredDigest);
-      expect(directResolved.inputPackages).toStrictEqual([]);
-    }, providePlatform)
-  );
+        const wrapperArgs = ["run", "beep", "ci", "lane", "lint"];
+        const wrapper = QualityTaskStep.make({
+          label: "quality:lint",
+          command: "bun",
+          args: wrapperArgs,
+          cwd: root,
+          env: { [TURBO_LANE_LEDGER_ENV]: ledger },
+        });
+        const declaredDigest = pipe(
+          declared,
+          O.map((value) => value.digest),
+          O.getOrThrow
+        );
+        const resolved = yield* resolveLaneInputDigestForTesting(outcome(wrapper), O.none());
+        assertSome(resolved.inputDigest, declaredDigest);
+        // TTC ruling 68: a root-task-only lane folds `//#lint:typos`, which names no workspace.
+        expect(resolved.inputPackages).toStrictEqual([]);
+        // The ledger directory is consumed once read; a wrapper without one reports no digest at all.
+        expect(yield* fs.exists(path.dirname(ledger))).toBe(false);
+        const bare = QualityTaskStep.make({ label: "quality:lint", command: "bun", args: wrapperArgs, cwd: root });
+        const bareResolved = yield* resolveLaneInputDigestForTesting(outcome(bare), O.none());
+        assertNone(bareResolved.inputDigest);
+        expect(bareResolved.inputPackages).toStrictEqual([]);
+        // A declared digest is taken as given, so it carries no package scope of its own.
+        const declaredResolved = yield* resolveLaneInputDigestForTesting(outcome(wrapper), O.some("declared"));
+        assertSome(declaredResolved.inputDigest, "declared");
+        expect(declaredResolved.inputPackages).toStrictEqual([]);
+        // A direct step still selects only its own task rows from the shared runs directory.
+        const directResolved = yield* resolveLaneInputDigestForTesting(outcome(child), O.none());
+        assertSome(directResolved.inputDigest, declaredDigest);
+        expect(directResolved.inputPackages).toStrictEqual([]);
+      })
+    );
+  });
 
   // TTC ruling 68 (C5): a lane run carries the workspace packages of the Turbo tasks its
   // digest folds, by both the wrapper-ledger path and the direct `turbo run --summarize`
@@ -466,71 +476,73 @@ describe("Turbo lane digests", () => {
   // which the labs filter makes exactly the lab tasks today. Upstream build/transit work reaches it
   // only through Turbo's dependency hashing, and a run with zero labs declares nothing, so the lane
   // stays green but non-reusable.
-  it.effect(
-    "folds the labs lane digest from lab task rows and leaves zero labs undeclared",
-    Effect.fnUntraced(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const startedAtIso = "2026-09-16T14:00:00.000Z";
-      // One fixture clock for the summary's start time and its file mtime, so the fresh-summary
-      // filter never depends on the host's wall clock being later than the fixed start.
-      const writtenAtMillis = DateTime.toEpochMillis(DateTime.makeUnsafe(startedAtIso)) + 1_000;
-      const labsRun = Effect.fnUntraced(function* (prefix: string, tasks: ReadonlyArray<TurboSummaryTask>) {
-        const root = yield* fs.makeTempDirectoryScoped({ prefix });
-        const runs = path.join(root, ".turbo", "runs");
-        const summaryPath = path.join(runs, "labs.json");
-        yield* fs.makeDirectory(runs, { recursive: true });
-        yield* encodeSummary(summary("labs", writtenAtMillis, tasks)).pipe(
-          Effect.flatMap((text) => fs.writeFileString(summaryPath, text))
-        );
-        // `utimes` takes epoch seconds, as in the historical-summary case above.
-        yield* fs.utimes(summaryPath, writtenAtMillis / 1_000, writtenAtMillis / 1_000);
-        const step = pipe(ciLaneStepsForTesting(root, "labs", labsLaneOptions), A.head, O.getOrThrow);
-        const ledger = path.join(root, "lane-labs", "ledger.jsonl");
-        const declared = yield* recordTurboLaneLedgerRowForTesting(O.some(ledger), {
-          durationMs: 1,
-          startedAt: startedAtIso,
-          endedAt: "2026-09-16T14:05:00.000Z",
-          failure: O.none(),
-          step,
+  it.layer(NodeServices.layer)((it) => {
+    it.effect(
+      "folds the labs lane digest from lab task rows and leaves zero labs undeclared",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const startedAtIso = "2026-09-16T14:00:00.000Z";
+        // One fixture clock for the summary's start time and its file mtime, so the fresh-summary
+        // filter never depends on the host's wall clock being later than the fixed start.
+        const writtenAtMillis = DateTime.toEpochMillis(DateTime.makeUnsafe(startedAtIso)) + 1_000;
+        const labsRun = Effect.fnUntraced(function* (prefix: string, tasks: ReadonlyArray<TurboSummaryTask>) {
+          const root = yield* fs.makeTempDirectoryScoped({ prefix });
+          const runs = path.join(root, ".turbo", "runs");
+          const summaryPath = path.join(runs, "labs.json");
+          yield* fs.makeDirectory(runs, { recursive: true });
+          yield* encodeSummary(summary("labs", writtenAtMillis, tasks)).pipe(
+            Effect.flatMap((text) => fs.writeFileString(summaryPath, text))
+          );
+          // `utimes` takes epoch seconds, as in the historical-summary case above.
+          yield* fs.utimes(summaryPath, writtenAtMillis / 1_000, writtenAtMillis / 1_000);
+          const step = pipe(ciLaneStepsForTesting(root, "labs", labsLaneOptions), A.head, O.getOrThrow);
+          const ledger = path.join(root, "lane-labs", "ledger.jsonl");
+          const declared = yield* recordTurboLaneLedgerRowForTesting(O.some(ledger), {
+            durationMs: 1,
+            startedAt: startedAtIso,
+            endedAt: "2026-09-16T14:05:00.000Z",
+            failure: O.none(),
+            step,
+          });
+          yield* closeTurboLaneLedger(ledger, 1);
+          return { declared, digest: yield* readTurboLaneLedger(ledger) };
         });
-        yield* closeTurboLaneLedger(ledger, 1);
-        return { declared, digest: yield* readTurboLaneLedger(ledger) };
-      });
-      // Lab names in lexical order, so the rows are already in the digest's task-id order.
-      const labRows = A.flatMap(["api-docs", "ciops", "semantica"], (lab) =>
-        A.map(["check", "lint", "test"], (name) => task(`@beep/${lab}#${name}`, `${lab}:${name}`, "MISS"))
-      );
-      const upstream = [
-        task("@beep/schema#build", "schema:build", "HIT"),
-        task("@beep/schema#transit", "schema:transit", "MISS"),
-      ];
+        // Lab names in lexical order, so the rows are already in the digest's task-id order.
+        const labRows = A.flatMap(["api-docs", "ciops", "semantica"], (lab) =>
+          A.map(["check", "lint", "test"], (name) => task(`@beep/${lab}#${name}`, `${lab}:${name}`, "MISS"))
+        );
+        const upstream = [
+          task("@beep/schema#build", "schema:build", "HIT"),
+          task("@beep/schema#transit", "schema:transit", "MISS"),
+        ];
 
-      const populated = yield* labsRun("turbo-lane-labs-", [...upstream, ...labRows]);
-      assertSome(populated.declared, true);
-      assertSome(
-        O.map(populated.digest, (value) => A.map(value.tasks, (row) => row.taskId)),
-        A.map(labRows, (row) => row.taskId)
-      );
+        const populated = yield* labsRun("turbo-lane-labs-", [...upstream, ...labRows]);
+        assertSome(populated.declared, true);
+        assertSome(
+          O.map(populated.digest, (value) => A.map(value.tasks, (row) => row.taskId)),
+          A.map(labRows, (row) => row.taskId)
+        );
 
-      // The fold keys on what the invocation ran, not on package identity: a foreign check task the
-      // filter pulled in would gate the lane, so its hash must key the digest rather than be dropped.
-      const foreignCheck = task("@beep/schema#check", "schema:check", "MISS");
-      const widened = yield* labsRun("turbo-lane-labs-widened-", [...upstream, foreignCheck, ...labRows]);
-      assertSome(
-        O.map(widened.digest, (value) => A.map(value.tasks, (row) => row.taskId)),
-        pipe(
-          [...labRows, foreignCheck],
-          A.map((row) => row.taskId),
-          A.sort(Str.Order)
-        )
-      );
+        // The fold keys on what the invocation ran, not on package identity: a foreign check task the
+        // filter pulled in would gate the lane, so its hash must key the digest rather than be dropped.
+        const foreignCheck = task("@beep/schema#check", "schema:check", "MISS");
+        const widened = yield* labsRun("turbo-lane-labs-widened-", [...upstream, foreignCheck, ...labRows]);
+        assertSome(
+          O.map(widened.digest, (value) => A.map(value.tasks, (row) => row.taskId)),
+          pipe(
+            [...labRows, foreignCheck],
+            A.map((row) => row.taskId),
+            A.sort(Str.Order)
+          )
+        );
 
-      const zero = yield* labsRun("turbo-lane-zero-labs-", []);
-      assertSome(zero.declared, false);
-      assertNone(zero.digest);
-    }, providePlatform)
-  );
+        const zero = yield* labsRun("turbo-lane-zero-labs-", []);
+        assertSome(zero.declared, false);
+        assertNone(zero.digest);
+      })
+    );
+  });
 
   // TTC ruling 72: the wrapper child (`bun run beep ci lane <id>`) declares a red direct Turbo
   // step's digest too, so the parent resolves a failed wrapper lane to the key a pass records.

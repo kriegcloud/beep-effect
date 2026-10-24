@@ -299,9 +299,15 @@ needed only for the escalation list below.
   `gh pr create --draft --label ready-for-heavy`, then flip it with
   `bun run beep yeet ready` at content-final as usual. Hosted CI is the
   proof; record in the PR body which local checks ran and which were skipped.
-- Draft means only "the owner is still pushing". Flip the PR ready with
-  `bun run beep yeet ready` as soon as its content is final and cheap gates
-  pass; do not wait for hosted heavy CI, which doubles as the review window.
+- Draft means only "the owner is still pushing". "Final" means the pushed
+  head passed `bun run beep yeet final-check`: the scoped local replay of
+  every hosted gate the cheap tier skips (Lint Policy, Lint, Effect
+  Diagnostics, Check, Docgen, Repo Sanity, Fallow, Coverage, and test
+  expectations rewritten to match new output). Flip the PR ready with
+  `bun run beep yeet ready`, which refuses without that head's passing
+  receipt; do not wait for hosted heavy CI, which doubles as the review
+  window. A gate parked by constrained compute is skipped only with
+  `--skip <gate>=<reason>`, named in the PR body.
 - Heavy admitted work runs in `agent-run-<ticket>.scope` under
   `agent-runs.slice` when the user manager allows it; `scheduler reap --apply`
   stops scopes backed by dead leases. A loaded scope without a dead lease is
