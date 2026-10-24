@@ -9,6 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as N from "effect/Number";
@@ -58,10 +59,7 @@ export class EffectCatalogState extends S.Opaque<EffectCatalogState, { readonly 
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefaultKey(Effect.succeed(""))
     ),
-    packages: S.Array(EffectCatalogPackage).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<EffectCatalogPackage>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<EffectCatalogPackage>()))
-    ),
+    packages: ArrayKeyDefaultEmpty(EffectCatalogPackage),
   }).pipe(
     $I.annoteSchema("EffectCatalogState", {
       description: "Resolved lockstep Effect catalog dependency state from the root package.json.",

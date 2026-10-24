@@ -7,8 +7,8 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { Sha256Hex } from "@beep/schema/Sha256";
-import { A } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
@@ -64,18 +64,9 @@ class SkillOptTaskCompletionCriteria extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    requiredExports: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    requiredPatterns: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    forbiddenPatterns: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    requiredExports: ArrayKeyDefaultEmpty(S.String),
+    requiredPatterns: ArrayKeyDefaultEmpty(S.String),
+    forbiddenPatterns: ArrayKeyDefaultEmpty(S.String),
   }).pipe(
     $I.annoteSchema("SkillOptTaskCompletionCriteria", {
       description: "Declarative deterministic completion checks from a SkillOpt task manifest.",
@@ -126,14 +117,8 @@ class SkillOptTaskWeights extends S.Opaque<SkillOptTaskWeights, { readonly brand
 export class SkillOptTaskManifest extends S.Opaque<SkillOptTaskManifest, { readonly brand: unique symbol }>()(
   S.Struct({
     id: S.String,
-    ruleIds: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    derivedFrom: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    ruleIds: ArrayKeyDefaultEmpty(S.String),
+    derivedFrom: ArrayKeyDefaultEmpty(S.String),
     prompt: S.String,
     fixture: S.String,
     entrypoint: S.String,
@@ -405,10 +390,7 @@ export class AgentEffectivenessEvalScoreReport extends S.Opaque<
       S.withConstructorDefault(Effect.succeed<"scored">("scored")),
       S.withDecodingDefaultKey(Effect.succeed<"scored">("scored"))
     ),
-    lanes: S.Array(AgentEffectivenessEvalLaneReport).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<AgentEffectivenessEvalLaneReport>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<AgentEffectivenessEvalLaneReport>()))
-    ),
+    lanes: ArrayKeyDefaultEmpty(AgentEffectivenessEvalLaneReport),
   }).pipe(
     $I.annoteSchema("AgentEffectivenessEvalScoreReport", {
       description: "Machine-readable SkillOpt eval score report emitted by agent-effectiveness evals score.",

@@ -23,6 +23,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { isCi } from "../../internal/cli/EnvConfig.ts";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { applyJsoncModification, JsoncModification } from "../../internal/cli/Jsonc.ts";
 import {
@@ -682,7 +683,7 @@ const assembleDeletePolicy = Effect.fn("DeletePackage.assembleDeletePolicy")(fun
   resolved: ResolvedDeleteTarget,
   options: DeletePackageHandlerOptions
 ) {
-  const inCi = yield* Config.Boolean("CI").pipe(Config.withDefault(false));
+  const inCi = yield* isCi;
   const retiredNameCollision =
     resolved.liveWorkspace && (yield* hasRetiredCollision(repoRoot, resolved.target.packageName));
   const livePromotionRecord =

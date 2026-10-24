@@ -1,5 +1,5 @@
 {
-  "previous": "97e0d34e65de21a53eec3053646db50ce13eb985b97a944d7f951f5785b86557",
+  "previous": "4cb52cda310eae1a432d818059977e924ac08e1c7ba453e58997792e00d33ed0",
   "review": {
     "reviewer": "Claude Opus 5.5 (effected-promotion 3-A9, refactor/observability-scoped-package-name)",
     "reason": "Record the dependency-only drift of @beep/observability from its new @beep/package-json edge (reuse site #137) and the input-only growth of the root policy-fingerprint task; no qualification is granted.",
