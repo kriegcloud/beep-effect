@@ -104,9 +104,43 @@ serialized native Claude development within the same host budget. The first
 authorization code exchange failed HTTP 400; a fresh manual authorization
 completed successfully. No authentication code or token was recorded here.
 
-Other native/proxy coding-provider sign-ins remain in progress. No cloud-account
-login or paid overage is admitted. Managed automation, verification scripts and
+Native Grok's stored credential matched the approved account with mode 0600.
+A bounded `grok-4.7` / medium inference check returned the exact marker in one
+turn; the provider reported `grok-4.7-build`. No duplicate grant was created
+when the continuation found a working credential already present.
+
+Cursor completed browser sign-in. Its bounded `claude-opus-5-5-medium` check
+started with the required sandbox enabled, then failed on the subscription's
+Opus usage limit. The provider reports a reset on November 11, 2026. This proves
+authentication and sandbox startup, not successful Cursor inference. No paid
+usage or model substitution was enabled.
+
+Muse completed its approved Meta Model API sign-in and stored its credential
+with mode 0600. Its `muse-wonder-1.0` / medium test reached the provider but
+returned HTTP 429, subscription quota exhausted, with reset
+`2026-10-26T00:00:00Z` (October 25 at 7 p.m. America/Chicago). Successful Muse
+inference is not claimed. No additional test call or paid usage bypass followed.
+
+The separate loopback proxy completed all four provider sign-ins. Bounded
+`claudex`, `claudep` and `claudeg` tests returned their exact markers with
+`gpt-6.1-sol(medium)`, `claude-fable-5-1` and `grok-4.7` respectively. The wrappers
+apply medium effort. Meta's proxy credential is installed, but `claudem`
+inference remains unqualified under the same quota hold.
+
+All four proxy credential files have mode 0600 inside a mode-0700 directory.
+The temporary loopback callback forward was removed. After restarting only
+the worker proxy, all four credentials and model families remained available,
+its listener remained `127.0.0.1:8317`, and all 22 worker-boundary checks passed.
+At that observation the host had approximately 12.8 GiB available memory and
+the worker filesystem had 239.5 GiB free. These are point-in-time readings.
+The final check used only the worker login; the earlier administrative service
+observation is retained as dated evidence, not a new health attestation.
+
+This completes the admitted initial worker setup with two explicit provider
+capacity holds. It does not qualify parallel workloads or host reboot recovery.
+No cloud-account login or paid overage is admitted. Managed automation, verification scripts and
 the operating guide are published in [dankserver PR #1](https://github.com/kriegcloud/dankserver/pull/1).
 The fleet skill and operating records are published in
 [Beep PR #2222](https://github.com/beep-effect/beep-effect/pull/2222).
-Both remain drafts pending the remaining provider checks and publication gates.
+Publication gates and the broader cloud/fleet packet remain separate from this
+runtime setup receipt. The same global skill covers all three worker routes.

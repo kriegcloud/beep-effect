@@ -23,8 +23,8 @@ versioned source belongs to Beep; each target checkout supplies its own rules.
 1. **Select and verify the target.** Confirm hostname, ordinary worker account,
    current readiness and limits. Do not treat a dated setup receipt as a current
    health check. Do not send work to `tbk-ubuntu`: its development target is the
-   separate `tbk-worker` guest. Dankserver admits serialized Codex or Claude work under
-   its smaller budget; other providers require their own completed proof.
+   separate `tbk-worker` guest. Dankserver admits one substantive job at a time
+   under its smaller budget; its profile records provider proof and quota holds.
 2. **Connect without administrative forwarding.** Use the profile's canonical
    workstation SSH wrapper. Announce hardware touches; serialize requests to the
    physical key. Resume a pending terminal instead of opening another. Retry
@@ -81,5 +81,5 @@ versioned source belongs to Beep; each target checkout supplies its own rules.
 - “Continue the build after SSH disconnected”: inspect the original unit or
   Yeet job ID and resulting files before deciding whether any retry is needed.
 - “Use dankserver for an agent”: use the dedicated worker login and its
-  qualified Codex or Claude route; verify the current host budget and provider status.
+  qualified route from its profile; verify the current host budget and provider status.
   The administrative login and an installed CLI alone are insufficient.

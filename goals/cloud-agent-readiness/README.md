@@ -78,9 +78,11 @@ The isolated tbk-worker now has its own initial serialized-development proof;
 its limits and remaining acceptance are recorded below. L4 fleet closeout is
 pending. On October 23 the operator resumed the packet and requested bare-metal
 development on dankserver. Its dedicated worker boundary, repository/toolchain,
-GitHub/reference tooling and native Codex inference/tool checks now pass.
-It admits one substantive Codex job at a time; the other native/proxy provider
-routes remain pending their separate authentication and proof.
+GitHub/reference tooling and native Codex/Claude coding checks now pass.
+All five native sign-ins and four separate proxy sign-ins are complete.
+Native Grok and the Codex/Claude/Grok proxy routes passed bounded inference.
+Cursor and Muse remain quota-blocked, with exact limits recorded in the receipt.
+It admits one substantive job at a time within the installed host budget.
 
 ## Latest Evidence
 

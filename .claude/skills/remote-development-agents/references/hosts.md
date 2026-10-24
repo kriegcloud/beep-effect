@@ -1,7 +1,7 @@
 # Host profiles
 
 These are routing records, not live health attestations. Last reconciled:
-2026-10-23. The canonical Beep packet is `goals/cloud-agent-readiness` at the
+2026-10-24. The canonical Beep packet is `goals/cloud-agent-readiness` at the
 repository containing this skill's real path. Read `SPEC.md` before changing a
 boundary. Host-specific receipts are under that packet's `history/` directory.
 
@@ -9,7 +9,7 @@ boundary. Host-specific receipts are under that packet's `history/` directory.
 | --- | --- | --- |
 | `beep-worker` | `ssh-beep-worker-yubi` | Existing headless development worker; default wrapper disables forwarding. Recheck current provider and workload readiness. |
 | `tbk-worker` | `ssh-tbk-worker` | Separate KVM guest, account `worker`, no sudo; initial serialized development verified. Only DankStation has admitted inbound SSH. |
-| `dankserver` | `ssh-dankserver-worker` | Dedicated bare-metal account `worker`; initial serialized Codex and Claude development verified. Other coding-provider routes remain pending. |
+| `dankserver` | `ssh-dankserver-worker` | Dedicated bare-metal account `worker`; initial serialized development verified. Codex/Claude/Grok are available; Cursor/Muse have recorded quota holds. |
 
 ## beep-worker
 
@@ -60,6 +60,11 @@ groups. It is **not** an ordinary agent launch route. Read the control repositor
 at `~/YeeBois/projects/dankserver` and preserve its existing uncommitted changes.
 
 Use `ssh-dankserver-worker` for ordinary work, without an agent forwarded.
+If the dedicated workstation SSH agent is missing after a session restart,
+initialize it with `ssh-dankserver-yubi -G >/dev/null`, then use the worker
+wrapper. The configuration-only invocation loads the existing key handle
+without opening an administrative connection. Keep the usual serialized
+YubiKey touch and notification route for the worker login.
 The root-owned parent budget is 8 GiB RAM, 200% CPU time, no worker swap and
 2,048 tasks across worker sessions/services. Its 256 GiB home filesystem uses
 the existing root disk. The shared `agent-runs.slice` is smaller: 7 GiB maximum,
@@ -72,8 +77,20 @@ and tool-use fixture passed. Codex used `gpt-6.1-sol` with medium reasoning in
 its normal workspace-write restriction; an independent recheck passed the
 fixture's tests. Native Claude also completed sign-in and a bounded
 `claude-fable-5-1` / medium coding fixture, with zero permission denials and
-an independent passing test run. Use explicit model/effort flags. Grok, Cursor,
-Muse and proxy routes are not yet qualified on this host.
+an independent passing test run. Use explicit model/effort flags. Native Grok
+authentication and a bounded `grok-4.7` / medium inference check also passed;
+its usage record reports `grok-4.7-build`. Cursor is signed in and its required
+sandbox started, but Opus inference is quota-blocked until November 11, 2026.
+Muse is signed in, but its `muse-wonder-1.0` / medium test returned a subscription
+quota error with reset `2026-10-26T00:00:00Z`. Do not buy usage or substitute
+models to bypass these limits.
+
+The loopback proxy has separate Codex/Claude/Grok/Meta credentials. `claudex`,
+`claudep` and `claudeg` returned exact markers using their approved model/effort
+pins. `claudem` is configured but remains unqualified for inference under the
+same Meta quota hold. After proxy restart, all four credentials and model
+families remained available and all 22 worker-boundary checks passed. Model
+listing is persistence evidence, not proof of Meta inference.
 Read `history/2026-10-23-dankserver-development.md`
 for the evidence boundary. OpenClaw was disabled with its data retained.
 
