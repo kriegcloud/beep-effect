@@ -713,8 +713,9 @@ export const runCacheConformanceNative = Effect.fn("CacheConformance.runNativeMa
     const parent = path.join(root, ".beep/cache-conformance-native");
     yield* fs.makeDirectory(parent, { recursive: true });
     const directory = yield* fs.makeTempDirectoryScoped({ directory: parent, prefix: `${channel}-` });
-    const outcomes = yield* Effect.forEach(plans, (plan) =>
-      Effect.gen(function* () {
+    const outcomes = yield* Effect.forEach(
+      plans,
+      Effect.fnUntraced(function* (plan) {
         yield* proxy.setScenario(plan.name, plan.fault);
         const work = yield* prepareWorkspace(directory, plan);
         return [plan.name, yield* runNative(work, executable, proxy.url, plan, bearers, client.pin, secrets)] as const;

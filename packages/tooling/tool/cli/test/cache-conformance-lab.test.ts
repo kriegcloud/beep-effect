@@ -65,6 +65,17 @@ const Services = Layer.mergeAll(NodeServices.layer, FetchHttpClient.layer);
 // response instead, so abort-dependent expectations assert that shim behaviour
 // there rather than the abort.
 const abortsConnections = process.versions.bun !== undefined;
+
+type ProbeReply = { readonly status: number; readonly headers: Headers.Headers; readonly body: Uint8Array };
+type ProbeOutcome = Result.Result<O.Option<ProbeReply>, unknown>;
+const replied = (outcome: ProbeOutcome, check: (reply: ProbeReply) => boolean) =>
+  Result.isSuccess(outcome) && O.exists(outcome.success, check);
+const tagOf = (outcome: ProbeOutcome) =>
+  Result.isSuccess(outcome)
+    ? O.flatMap(outcome.success, (reply) => Headers.get(reply.headers, "x-artifact-tag"))
+    : O.none();
+const abortedOrShimCompleted = (outcome: ProbeOutcome) =>
+  abortsConnections ? Result.isFailure(outcome) : replied(outcome, (reply) => reply.status === 200);
 const RunJson = S.fromJsonString(CacheConformanceRun, { space: 2 });
 const ComparisonJson = S.fromJsonString(CacheConformanceComparison, { space: 2 });
 const encodeProxyEvents = S.encodeEffect(CacheConformanceProxyEvent.pipe(S.Array, S.fromJsonString));
@@ -148,37 +159,18 @@ it.layer(Services, { timeout: "60 seconds", excludeTestServices: true })("cache 
           )
         );
       const plain = yield* read("none");
-      assertTrue(Result.isSuccess(plain) && O.exists(plain.success, (reply) => reply.status === 200));
-      const tagOf = (outcome: Effect.Success<ReturnType<typeof read>>) =>
-        Result.isSuccess(outcome)
-          ? O.flatMap(outcome.success, (reply) => Headers.get(reply.headers, "x-artifact-tag"))
-          : O.none();
+      assertTrue(replied(plain, (reply) => reply.status === 200));
       assertSome(tagOf(plain), "Atag-value");
-      const stripped = yield* read("missing-tag");
-      stripped.pipe(tagOf, assertNone);
+      assertNone(tagOf(yield* read("missing-tag")));
       assertSome(tagOf(yield* read("tampered-tag")), "Btag-value");
       const tampered = yield* read("tampered-body");
-      assertTrue(
-        Result.isSuccess(tampered) &&
-          O.exists(tampered.success, (reply) => reply.body.byteLength === body.byteLength && reply.body[0] !== body[0])
-      );
-      for (const [fault, status] of [
-        ["status-429", 429],
-        ["status-503", 503],
-      ] as const) {
-        const reply = yield* read(fault);
-        assertTrue(Result.isSuccess(reply) && O.exists(reply.success, (response) => response.status === status));
-      }
+      assertTrue(replied(tampered, (reply) => reply.body.byteLength === body.byteLength && reply.body[0] !== body[0]));
+      assertTrue(replied(yield* read("status-429"), (reply) => reply.status === 429));
+      assertTrue(replied(yield* read("status-503"), (reply) => reply.status === 503));
       const held = yield* read("timeout");
       assertTrue(Result.isSuccess(held) && O.isNone(held.success));
-      for (const fault of ["reset", "truncated-body"] as const) {
-        const aborted = yield* read(fault);
-        assertTrue(
-          abortsConnections
-            ? Result.isFailure(aborted)
-            : Result.isSuccess(aborted) && O.exists(aborted.success, (reply) => reply.status === 200)
-        );
-      }
+      assertTrue(abortedOrShimCompleted(yield* read("reset")));
+      assertTrue(abortedOrShimCompleted(yield* read("truncated-body")));
       const events = yield* proxy.events;
       const faults = A.map(
         A.filter(events, (event) => event.exchange.method === "GET"),

@@ -200,8 +200,9 @@ const caseTable: ReadonlyArray<CaseRule> = [
 
 const deriveOperations = Effect.fn("CacheConformance.deriveOperations")(function* (document: unknown) {
   const { paths } = yield* S.decodeUnknownEffect(OpenApiDocument)(document);
-  return yield* Effect.forEach(routeTable, ([method, path]) =>
-    Effect.gen(function* () {
+  return yield* Effect.forEach(
+    routeTable,
+    Effect.fnUntraced(function* ([method, path]) {
       const raw = yield* R.get(paths, path).pipe(
         O.flatMap(R.get(Str.toLowerCase(method))),
         Effect.fromOption(() => CacheCommandError.new(`OpenAPI blob has no ${method} ${path} operation.`))
@@ -283,8 +284,9 @@ export const buildCacheConformanceCorpus = Effect.fn("CacheConformance.buildCorp
     return yield* CacheCommandError.new(
       `Plan has ${plan.cases.length} cases; the hand-authored table has ${caseTable.length}.`
     );
-  const cases = yield* Effect.forEach(A.zip(plan.cases, caseTable), ([planned, entry]) =>
-    Effect.gen(function* () {
+  const cases = yield* Effect.forEach(
+    A.zip(plan.cases, caseTable),
+    Effect.fnUntraced(function* ([planned, entry]) {
       const generated = planned.class === "generated" || planned.class === "generated-optional";
       if (generated !== A.isReadonlyArrayNonEmpty(entry.routes))
         return yield* CacheCommandError.new(`${planned.id} origin disagrees with its plan class ${planned.class}.`);
