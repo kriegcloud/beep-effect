@@ -3164,6 +3164,7 @@
     {"name":"Worktree.renderRemovalReceipt","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Worktree.renderUnpushedInspection","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Worktree.resolveWorktreeContext","owner":"@beep/repo-cli","family":"tooling","conforms":true},
+    {"name":"Worktree.restoreMaterial","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Worktree.runStreamingStep","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Worktree.runWorktreeDoctor","owner":"@beep/repo-cli","family":"tooling","conforms":true},
     {"name":"Worktree.runWorktreeNew","owner":"@beep/repo-cli","family":"tooling","conforms":true},

@@ -44,6 +44,7 @@ import * as Match from "effect/Match";
 import * as N from "effect/Number";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
+import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { ghOutput } from "../../internal/github/index.ts";
@@ -1026,7 +1027,8 @@ const transferMaterialEntry = Effect.fn("WorktreeRemovalService.transferMaterial
   source: string,
   destination: string,
   destinationParent: string,
-  renameCap: number
+  renameCap: number,
+  afterRename: (tree: MaterialTree) => Effect.Effect<void> = () => Effect.void
 ): Effect.fn.Return<MaterialTree, WorktreePreservationError, FileSystem.FileSystem | Path.Path | Crypto.Crypto> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -1042,7 +1044,11 @@ const transferMaterialEntry = Effect.fn("WorktreeRemovalService.transferMaterial
     .pipe(materialError(step, "Could not read the destination directory.", destinationParent));
   const rename = before.bytes <= renameCap && sourceDevice.dev === parentDevice.dev;
   yield* rename
-    ? fs.rename(source, destination).pipe(materialError(step, "Could not move the entry.", destination))
+    ? fs.rename(source, destination).pipe(
+        materialError(step, "Could not move the entry.", destination),
+        Effect.tap(() => afterRename(before)),
+        Effect.uninterruptible
+      )
     : copyMaterialTree(step, source, destination);
   const after = yield* describeMaterialTree(step, destination);
   if (!sameMaterialTree(before, after)) {
@@ -1062,7 +1068,10 @@ const materialRenameCap = Config.Int(MATERIAL_RENAME_CAP_ENV).pipe(
 const preserveBeepMaterial = Effect.fn("WorktreeRemovalService.preserveBeepMaterial")(function* (
   targetPath: string,
   plan: WorktreeArchivePlan,
-  materialEntries: ReadonlyArray<string>
+  materialEntries: ReadonlyArray<string>,
+  rollback: Ref.Ref<
+    ReadonlyArray<Effect.Effect<void, WorktreePreservationError, FileSystem.FileSystem | Path.Path | Crypto.Crypto>>
+  >
 ): Effect.fn.Return<
   ReadonlyArray<WorktreeBeepMaterialEntry>,
   WorktreePreservationError,
@@ -1085,7 +1094,28 @@ const preserveBeepMaterial = Effect.fn("WorktreeRemovalService.preserveBeepMater
       path.join(targetPath, ".beep", name),
       path.join(plan.materialRoot, name),
       plan.materialRoot,
-      renameCap
+      renameCap,
+      (tree) =>
+        Ref.update(
+          rollback,
+          A.prepend(
+            Effect.gen(function* () {
+              const source = path.join(plan.materialRoot, name);
+              const destination = path.join(targetPath, ".beep", name);
+              const archived = yield* describeMaterialTree("preserve-beep-material", source);
+              if (!sameMaterialTree(tree, archived)) {
+                return yield* WorktreePreservationError.new(
+                  "preserve-beep-material",
+                  `Rollback refused: material at ${source} changed; the fenced checkout remains at ${targetPath}.`,
+                  { path: source }
+                );
+              }
+              yield* fs
+                .rename(source, destination)
+                .pipe(materialError("preserve-beep-material", "Could not roll back the moved material.", source));
+            })
+          )
+        )
     ).pipe(Effect.map((tree) => WorktreeBeepMaterialEntry.make({ name, ...tree })))
   );
 });
@@ -1139,9 +1169,22 @@ export const restoreBeepMaterial = Effect.fn("WorktreeRemovalService.restoreBeep
     manifest.materialEntries,
     Effect.fnUntraced(function* (entry) {
       const destination = path.join(beepRoot, entry.name);
-      const occupied = yield* fs
-        .exists(destination)
-        .pipe(materialError("restore-beep-material", "Could not check the restore destination.", destination));
+      if (
+        !Str.Equivalence(path.basename(entry.name), entry.name) ||
+        !isContainedRelativePath(path, beepRoot, destination)
+      ) {
+        return yield* WorktreePreservationError.new(
+          "restore-beep-material",
+          `Refused invalid material entry name: ${entry.name}.`,
+          { path: destination }
+        );
+      }
+      const link = yield* fs.readLink(destination).pipe(Effect.option);
+      const occupied =
+        O.isSome(link) ||
+        (yield* fs
+          .exists(destination)
+          .pipe(materialError("restore-beep-material", "Could not check the restore destination.", destination)));
       if (occupied) {
         return yield* WorktreePreservationError.new(
           "restore-beep-material",
@@ -1149,21 +1192,29 @@ export const restoreBeepMaterial = Effect.fn("WorktreeRemovalService.restoreBeep
           { path: destination }
         );
       }
-      const restored = yield* transferMaterialEntry(
-        "restore-beep-material",
-        path.join(manifest.residueRoot, "beep-material", entry.name),
-        destination,
-        beepRoot,
-        renameCap
-      );
+      const source = path.join(manifest.residueRoot, "beep-material", entry.name);
+      const restored = yield* describeMaterialTree("restore-beep-material", source);
       if (!sameMaterialTree(restored, entry)) {
         return yield* WorktreePreservationError.new(
           "restore-beep-material",
           `The archived .beep/${entry.name} no longer matches its manifest (digest ${restored.digest}, recorded ${entry.digest}).`,
-          { path: destination }
+          { path: source }
         );
       }
     }),
+    { discard: true }
+  );
+  // Every source and destination passes preflight before the first transfer.
+  yield* Effect.forEach(
+    manifest.materialEntries,
+    (entry) =>
+      transferMaterialEntry(
+        "restore-beep-material",
+        path.join(manifest.residueRoot, "beep-material", entry.name),
+        path.join(beepRoot, entry.name),
+        beepRoot,
+        renameCap
+      ),
     { discard: true }
   );
   return manifest.materialEntries;
@@ -1249,39 +1300,67 @@ const preserveResidue = Effect.fn("WorktreeRemovalService.preserveResidue")(func
     );
   }
   yield* copyUntrackedFiles(request.targetPath, plan, untrackedFiles);
-  const preservedMaterial = yield* preserveBeepMaterial(request.targetPath, plan, materialEntries);
+  const rollback = yield* Ref.make<
+    ReadonlyArray<Effect.Effect<void, WorktreePreservationError, FileSystem.FileSystem | Path.Path | Crypto.Crypto>>
+  >([]);
+  // The journal is independent of manifest.json: a failed capture or manifest write
+  // restores every renamed entry before restoreFencedCheckout puts the lane back.
+  return yield* Effect.gen(function* () {
+    const preservedMaterial = yield* preserveBeepMaterial(request.targetPath, plan, materialEntries, rollback);
 
-  const manifest = WorktreeResidueManifest.make({
-    name: request.name,
-    branch: request.branch,
-    head,
-    archivedAt,
-    archiveRef: plan.archiveRef,
-    repositoryHash,
-    patchPath,
-    untrackedFiles,
-    materialEntries: preservedMaterial,
-    residueRoot: plan.residueRoot,
-    reason,
-    upstream,
-  });
-  const manifestJson = yield* encodeResidueManifest(manifest).pipe(
-    Effect.mapError((cause) =>
-      WorktreePreservationError.new("write-manifest", "Could not encode the residue manifest.", {
-        cause,
-        path: plan.manifestPath,
+    const manifest = WorktreeResidueManifest.make({
+      name: request.name,
+      branch: request.branch,
+      head,
+      archivedAt,
+      archiveRef: plan.archiveRef,
+      repositoryHash,
+      patchPath,
+      untrackedFiles,
+      materialEntries: preservedMaterial,
+      residueRoot: plan.residueRoot,
+      reason,
+      upstream,
+    });
+    const manifestJson = yield* encodeResidueManifest(manifest).pipe(
+      Effect.mapError((cause) =>
+        WorktreePreservationError.new("write-manifest", "Could not encode the residue manifest.", {
+          cause,
+          path: plan.manifestPath,
+        })
+      )
+    );
+    yield* fs.writeFileString(plan.manifestPath, `${manifestJson}\n`).pipe(
+      Effect.mapError((cause) =>
+        WorktreePreservationError.new("write-manifest", "Could not write the residue manifest.", {
+          cause,
+          path: plan.manifestPath,
+        })
+      )
+    );
+    return manifest;
+  }).pipe(
+    Effect.catchCause((cause) =>
+      Effect.gen(function* () {
+        yield* Effect.all(yield* Ref.get(rollback), { discard: true });
+        // Only copied (possibly partial) entries remain; their originals never moved.
+        yield* fs
+          .remove(plan.materialRoot, { recursive: true, force: true })
+          .pipe(
+            materialError(
+              "preserve-beep-material",
+              "Could not remove the rolled-back material copy.",
+              plan.materialRoot
+            )
+          );
+        yield* fs
+          .remove(plan.manifestPath, { force: true })
+          .pipe(materialError("preserve-beep-material", "Could not remove the failed manifest.", plan.manifestPath));
+        return yield* Effect.failCause(cause);
       })
-    )
+    ),
+    Effect.uninterruptible
   );
-  yield* fs.writeFileString(plan.manifestPath, `${manifestJson}\n`).pipe(
-    Effect.mapError((cause) =>
-      WorktreePreservationError.new("write-manifest", "Could not write the residue manifest.", {
-        cause,
-        path: plan.manifestPath,
-      })
-    )
-  );
-  return manifest;
 });
 
 const validateRemovalRequest = Effect.fn("WorktreeRemovalService.validateRemovalRequest")(function* (

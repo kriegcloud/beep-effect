@@ -59,6 +59,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as PlatformError from "effect/PlatformError";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Ref from "effect/Ref";
@@ -1575,6 +1576,72 @@ describe("worktree git operations", () => {
   });
 
   it.layer(testLayer, { timeout: "60 seconds" })((it) => {
+    for (const failure of ["second-entry", "manifest"]) {
+      it.effect(`restores every material entry after a ${failure} failure without a manifest`, () =>
+        withScratchRepo((repoRoot) =>
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const context = yield* resolveWorktreeContext(repoRoot);
+            yield* fs.writeFileString(path.join(repoRoot, ".git", "info", "exclude"), ".beep/\n");
+            const name = `rollback-${failure}`;
+            const targetPath = yield* addWorktree(context, name, defaultWorktreeBranch(name));
+            yield* fs.makeDirectory(path.join(targetPath, ".beep"), { recursive: true });
+            yield* fs.writeFileString(path.join(targetPath, ".beep", "notes.txt"), "notes\n");
+            yield* fs.symlink("../missing-cache", path.join(targetPath, ".beep", "cache"));
+            const injected = (method: string, target: string) =>
+              Effect.fail(
+                PlatformError.systemError({
+                  _tag: "PermissionDenied",
+                  module: "FileSystem",
+                  method,
+                  pathOrDescriptor: target,
+                })
+              );
+            const faultyFs = FileSystem.FileSystem.of({
+              ...fs,
+              rename: Effect.fn("WorktreeCommandTest.injectRename")((source, target) =>
+                failure === "second-entry" && Str.endsWith("/beep-material/notes.txt")(target)
+                  ? injected("rename", target)
+                  : fs.rename(source, target)
+              ),
+
+              writeFileString: Effect.fn("WorktreeCommandTest.injectManifest")((target, content, options) =>
+                failure === "manifest" && Str.endsWith("/manifest.json")(target)
+                  ? fs
+                      .writeFileString(target, "partial manifest")
+                      .pipe(Effect.andThen(injected("writeFileString", target)))
+                  : fs.writeFileString(target, content, options)
+              ),
+            });
+            const failed = yield* removeArchivedLane(context, name, targetPath).pipe(
+              Effect.provideServiceEffect(
+                WorktreeRemovalService,
+                WorktreeRemovalServiceLive.pipe(
+                  Layer.fresh,
+                  Layer.provide(Layer.mergeAll(NodeServices.layer, Layer.succeed(FileSystem.FileSystem, faultyFs))),
+                  Layer.build,
+                  Effect.map(Context.get(WorktreeRemovalService))
+                )
+              ),
+              Effect.flip
+            );
+            expect(failed.message).toContain(failure === "manifest" ? "Could not write" : "Could not move");
+            expect(yield* fs.readLink(path.join(targetPath, ".beep", "cache"))).toBe("../missing-cache");
+            expect(yield* fs.readFileString(path.join(targetPath, ".beep", "notes.txt"))).toBe("notes\n");
+            expect(yield* runWorktreeGitCapture(targetPath, ["rev-parse", "--show-toplevel"], "restored")).toContain(
+              targetPath
+            );
+            const residue = yield* fs.readDirectory(path.join(context.worktreesRoot, "test-residue"), {
+              recursive: true,
+            });
+            expect(A.some(residue, Str.endsWith("/manifest.json"))).toBe(false);
+            expect(A.some(residue, Str.includes("/beep-material/"))).toBe(false);
+          })
+        )
+      );
+    }
+
     it.effect("preserves a clean lane's git-ignored .beep material and restores it as the exact inverse", () =>
       withScratchRepo((repoRoot) =>
         Effect.gen(function* () {
@@ -1642,7 +1709,13 @@ describe("worktree git operations", () => {
           // Restore is the exact inverse: the entry returns under its recorded digest, and a second restore is refused.
           const restorePath = path.join(context.worktreesRoot, "material-restored");
           yield* runGit(repoRoot, ["worktree", "add", "--detach", restorePath, manifest.archiveRef]);
-          expect(yield* restoreBeepMaterial(manifest, restorePath)).toEqual(manifest.materialEntries);
+          const lines = yield* collectRemovalReceiptLines(moved.receipt, true);
+          expect(A.some(lines, Str.includes("bun run beep worktree restore-material"))).toBe(true);
+          yield* Command.runWith(worktreeCommand, { version: "0.0.0" })([
+            "restore-material",
+            manifest.residueRoot,
+            restorePath,
+          ]);
           expect(yield* fs.readFileString(path.join(restorePath, ".beep", "fallow", "report.json"))).toBe(
             '{"findings":[]}\n'
           );
@@ -1718,6 +1791,8 @@ describe("worktree git operations", () => {
           );
           expect(refused.message).toContain("Refused to copy the special file");
           expect((yield* fs.stat(path.join(fifoLane, ".beep", "pipes", "fifo"))).type).toBe("FIFO");
+          expect(yield* fs.readLink(path.join(fifoLane, ".beep", "cache"))).toBe("../shared-cache");
+          expect(yield* fs.readFileString(path.join(fifoLane, ".beep", "notes.txt"))).toBe("n\n");
         })
       )
     );
@@ -1733,16 +1808,32 @@ describe("worktree git operations", () => {
             const targetPath = yield* addWorktree(context, name, defaultWorktreeBranch(name));
             yield* fs.makeDirectory(path.join(targetPath, ".beep", "fallow"), { recursive: true });
             yield* fs.writeFileString(path.join(targetPath, ".beep", "fallow", "report.json"), "original\n");
+            yield* fs.makeDirectory(path.join(targetPath, ".beep", "quality"), { recursive: true });
+            yield* fs.writeFileString(path.join(targetPath, ".beep", "quality", "report.json"), "original\n");
             const manifest = O.getOrThrow((yield* removeArchivedLane(context, name, targetPath)).manifest);
             const restorePath = path.join(context.worktreesRoot, `${name}-restored`);
             yield* runGit(repoRoot, ["worktree", "add", "--detach", restorePath, manifest.archiveRef]);
-            return { manifest, restorePath, archived: path.join(manifest.residueRoot, "beep-material", "fallow") };
+            return { manifest, restorePath, archived: path.join(manifest.residueRoot, "beep-material", "quality") };
           });
 
           const tampered = yield* retire("material-tampered");
           yield* fs.writeFileString(path.join(tampered.archived, "report.json"), "changed\n");
           const mismatch = yield* Effect.flip(restoreBeepMaterial(tampered.manifest, tampered.restorePath));
           expect(mismatch.message).toContain("no longer matches its manifest");
+          expect(yield* fs.readFileString(path.join(tampered.archived, "report.json"))).toBe("changed\n");
+          expect(yield* fs.exists(path.join(tampered.restorePath, ".beep", "fallow"))).toBe(false);
+          expect(
+            yield* fs.readFileString(path.join(tampered.manifest.residueRoot, "beep-material", "fallow", "report.json"))
+          ).toBe("original\n");
+          const cliMismatch = yield* Effect.flip(
+            Command.runWith(worktreeCommand, { version: "0.0.0" })([
+              "restore-material",
+              tampered.manifest.residueRoot,
+              tampered.restorePath,
+            ])
+          );
+          expect(cliMismatch.message).toContain("no longer matches its manifest");
+          expect(yield* fs.readFileString(path.join(tampered.archived, "report.json"))).toBe("changed\n");
 
           const missing = yield* retire("material-missing");
           yield* fs.remove(missing.archived, { recursive: true });

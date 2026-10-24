@@ -40,6 +40,7 @@ import {
   WorktreeInvokerExemption,
   WorktreeListEntry,
   WorktreeRemovalRequest,
+  WorktreeResidueManifest,
   WorktreeSessionMarker,
   WorktreeUpstreamState,
   WorktreeUpstreamVerdict,
@@ -47,6 +48,7 @@ import {
 import {
   branchDeleteCommand,
   installRegenerateMergeDriver,
+  restoreBeepMaterial,
   runWorktreeGitCapture,
   WorktreeRemovalService,
   WorktreeRemovalServiceLive,
@@ -59,6 +61,7 @@ import type { WorktreeInotifyWatcher, WorktreeRemovalReceipt, WorktreeUnpushedIn
 const $I = $RepoCliId.create("commands/Worktree/Worktree.command");
 const decodeWorktreeName = S.decodeUnknownEffect(WorktreeRemovalRequest.fields.name);
 const isProcessPid = S.is(ProcessPid);
+const decodeResidueManifest = S.decodeUnknownEffect(S.fromJsonString(WorktreeResidueManifest));
 
 // Claude Code exports its own pid under this name to every tool shell it
 // spawns; that harness key lives here, in the command layer that runs under
@@ -972,7 +975,7 @@ const renderRemovalReceipt = Effect.fn("Worktree.renderRemovalReceipt")(function
       }
       if (A.isReadonlyArrayNonEmpty(manifest.materialEntries)) {
         yield* Console.log(
-          `    move ${manifest.residueRoot}/beep-material/ entries back into <restore-path>/.beep/ (restoreBeepMaterial verifies each digest)`
+          `    bun run beep worktree restore-material ${quoteShellArgument(manifest.residueRoot)} <restore-path>`
         );
       }
     }),
@@ -1209,6 +1212,51 @@ const worktreeRemoveCommand = Command.make(
   Command.provide(WorktreeRemovalServiceLive)
 );
 
+const quoteShellArgument = (value: string): string => `'${Str.replaceAll("'", "'\\''")(value)}'`;
+
+const worktreeRestoreMaterialCommand = Command.make(
+  "restore-material",
+  {
+    archive: Argument.String("archive").pipe(
+      Argument.withDescription("Residue archive directory containing manifest.json")
+    ),
+    restorePath: Argument.String("restore-path").pipe(
+      Argument.withDescription("Checkout restored from the archive ref")
+    ),
+  },
+  Effect.fn("Worktree.restoreMaterial")(function* ({ archive, restorePath }) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const manifestPath = path.join(path.resolve(archive), "manifest.json");
+    const restore = Effect.gen(function* () {
+      const manifest = yield* fs.readFileString(manifestPath).pipe(
+        Effect.flatMap(decodeResidueManifest),
+        Effect.mapError((cause) =>
+          WorktreeCommandError.make({
+            message: `Could not read the residue manifest at ${manifestPath}.`,
+            cause,
+          })
+        )
+      );
+      if (!Str.Equivalence(path.resolve(manifest.residueRoot), path.resolve(archive))) {
+        return yield* WorktreeCommandError.make({
+          message: "The manifest residue root does not match the archive directory.",
+        });
+      }
+      const entries = yield* restoreBeepMaterial(manifest, path.resolve(restorePath));
+      yield* Console.log(
+        `Restored ${A.length(entries)} .beep material entries into ${path.resolve(restorePath)} (digests verified).`
+      );
+    });
+    yield* restore.pipe(
+      Effect.catchTags({
+        WorktreeCommandError: (error) => failWithReportedExit(`worktree restore-material: ${error.message}`),
+        WorktreePreservationError: (error) => failWithReportedExit(`worktree restore-material: ${error.message}`),
+      })
+    );
+  })
+).pipe(Command.withDescription("Restore archived .beep material after validating every entry against its manifest"));
+
 const worktreeDoctorCommand = Command.make(
   "doctor",
   {},
@@ -1236,7 +1284,7 @@ const worktreeDoctorCommand = Command.make(
  * **Details**
  *
  * Bare `worktree` prints the subcommand menu; the work lives in the `new`,
- * `remove`, `doctor`, `reap`, and `fleet` subcommands.
+ * `remove`, `restore-material`, `doctor`, `reap`, and `fleet` subcommands.
  *
  * **Example** (Build the CLI program for the group)
  *
@@ -1258,6 +1306,7 @@ export const worktreeCommand = Command.make("worktree", {}, () =>
         "Worktree commands:",
         "- bun run beep worktree new <name> [--branch <branch>]",
         "- bun run beep worktree remove <name> [--archive] [--delete-branch]",
+        "- bun run beep worktree restore-material <archive> <restore-path>",
         "- bun run beep worktree doctor",
         "- bun run beep worktree reap [--apply] [--json] [--idle-hours <hours>]",
         "- bun run beep worktree fleet [--json]",
@@ -1278,6 +1327,7 @@ export const worktreeCommand = Command.make("worktree", {}, () =>
     ).pipe(Command.withDescription("Install the local fail-closed projection merge driver")),
     worktreeNewCommand,
     worktreeRemoveCommand,
+    worktreeRestoreMaterialCommand,
     worktreeDoctorCommand,
     worktreeReapCommand,
     worktreeFleetCommand,
