@@ -150,6 +150,12 @@
         ]
       },
       {
+        "name": "@beep/cli-kit",
+        "patterns": [
+          "packages/foundation/capability/cli-kit/src/**"
+        ]
+      },
+      {
         "name": "@beep/codegen-kit",
         "patterns": [
           "packages/tooling/library/codegen-kit/src/**"
@@ -1098,6 +1104,12 @@
         ]
       },
       {
+        "name": "@beep/xdg",
+        "patterns": [
+          "packages/foundation/capability/xdg/src/**"
+        ]
+      },
+      {
         "name": "@beep/xstate",
         "patterns": [
           "packages/drivers/xstate/src/**"
@@ -1641,6 +1653,35 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/cli-kit",
+        "allow": [
+          "@beep/cli-kit",
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/github-commands",
+          "@beep/identity",
+          "@beep/markdown",
+          "@beep/memfs",
+          "@beep/runtime-env",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/walker"
+        ],
+        "allowTypeOnly": [
+          "@beep/cli-kit",
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/github-commands",
+          "@beep/identity",
+          "@beep/markdown",
+          "@beep/memfs",
+          "@beep/runtime-env",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/walker"
         ]
       },
       {
@@ -3020,7 +3061,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/xdg"
         ],
         "allowTypeOnly": [
           "@beep/data",
@@ -3031,7 +3073,8 @@
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/xdg"
         ]
       },
       {
@@ -4236,6 +4279,7 @@
       {
         "from": "@beep/repo-ai-metrics",
         "allow": [
+          "@beep/cli-kit",
           "@beep/duckdb",
           "@beep/fc-runs",
           "@beep/file-processing",
@@ -4250,6 +4294,7 @@
           "@beep/utils"
         ],
         "allowTypeOnly": [
+          "@beep/cli-kit",
           "@beep/duckdb",
           "@beep/fc-runs",
           "@beep/file-processing",
@@ -4270,6 +4315,7 @@
           "@beep/ai-provider-cli",
           "@beep/ai-sync",
           "@beep/chalk",
+          "@beep/cli-kit",
           "@beep/colors",
           "@beep/config-file",
           "@beep/duckdb",
@@ -4301,6 +4347,7 @@
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runpod",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/skill-contract",
           "@beep/spdx",
@@ -4312,12 +4359,14 @@
           "@beep/tika",
           "@beep/uspto",
           "@beep/utils",
-          "@beep/walker"
+          "@beep/walker",
+          "@beep/xdg"
         ],
         "allowTypeOnly": [
           "@beep/ai-provider-cli",
           "@beep/ai-sync",
           "@beep/chalk",
+          "@beep/cli-kit",
           "@beep/colors",
           "@beep/config-file",
           "@beep/duckdb",
@@ -4349,6 +4398,7 @@
           "@beep/repo-tsconfig",
           "@beep/repo-utils",
           "@beep/runpod",
+          "@beep/runtime-env",
           "@beep/schema",
           "@beep/skill-contract",
           "@beep/spdx",
@@ -4360,7 +4410,8 @@
           "@beep/tika",
           "@beep/uspto",
           "@beep/utils",
-          "@beep/walker"
+          "@beep/walker",
+          "@beep/xdg"
         ]
       },
       {
@@ -4547,6 +4598,7 @@
       {
         "from": "@beep/scratchpad",
         "allow": [
+          "@beep/cli-kit",
           "@beep/commands",
           "@beep/config-file",
           "@beep/dock",
@@ -4603,6 +4655,7 @@
           "@beep/yaml"
         ],
         "allowTypeOnly": [
+          "@beep/cli-kit",
           "@beep/commands",
           "@beep/config-file",
           "@beep/dock",
@@ -5305,6 +5358,29 @@
           "@beep/test-utils",
           "@beep/workspace-domain",
           "@beep/workspace-use-cases"
+        ]
+      },
+      {
+        "from": "@beep/xdg",
+        "allow": [
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/xdg"
+        ],
+        "allowTypeOnly": [
+          "@beep/config-file",
+          "@beep/fc-runs",
+          "@beep/identity",
+          "@beep/memfs",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/walker",
+          "@beep/xdg"
         ]
       },
       {

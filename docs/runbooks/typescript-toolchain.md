@@ -13,7 +13,7 @@ tsc-rs remains the build/check gate.
 | `@typescript/native` | `npm:typescript@^7.0.2` | The same TypeScript 7 package under the retained alias, used by patching and unstable API consumers. Alias consolidation is a separate follow-up. |
 | `@typescript/typescript6` | `6.0.2` (exact) | Microsoft’s classic JS API bridge for the schema-opaque codemod/fixup, scratchpad JSDoc census; declared at root and in scratchpad. |
 | `@effect/tsgo` (pins its seven `@effect/tsgo-<platform>` packages exactly) | `0.55.0` | The Effect language service build of TypeScript 7. Editors and the independent Effect diagnostics lane use this reviewed pin; it can advance beyond the tsc-rs port. |
-| `tsc-rs` + six `@tsc-rs/<platform>` optional packages | `0.6.0` | The Rust port of the TypeScript 7 compiler ([pingdotgg/ts-rust](https://github.com/pingdotgg/ts-rust)) with the Effect rules of one effect-tsgo version compiled in (0.6.0 ports 0.51.1) and its own TypeScript pinned (`7.1.0-dev.20261008.1`). Runs generated library `beep:build`, `beep:check` and `beep:check:tests` gates, the root `check:configs`, and infra's `-b` check. Framework apps retain their own build commands. |
+| `tsc-rs` + six `@tsc-rs/<platform>` optional packages | `0.8.0` | The Rust port of the TypeScript 7 compiler ([pingdotgg/ts-rust](https://github.com/pingdotgg/ts-rust)) with the Effect rules of one effect-tsgo version compiled in (0.8.0 ports 0.51.1) and its own TypeScript pinned (`7.1.0-dev.20261008.1`, the upstream pin in ts-rust's `UPSTREAM.json`, unchanged since 0.6.0). Runs generated library `beep:build`, `beep:check` and `beep:check:tests` gates, the root `check:configs`, and infra's `-b` check. Framework apps retain their own build commands. |
 
 The root `prepare` script (`effect-tsgo unpatch && node scripts/prune-tsgo-backups.mjs && effect-tsgo patch`)
 copies the Effect binary over the native package's Go binary, keeping the stock
@@ -61,7 +61,41 @@ exception was upstream 7.1-dev behaviour, fixed in #1670). Rules of the road:
 - `tsc-rs --version` prints `Version 7.1.0-dev`; the `.bin/tsc` ↔ `.bin/tsgo`
   version equality test covers the Effect
   binary; `EffectTsgoEffectFnPolicy.test.ts` independently verifies the tsc-rs
-  identity and that both shared Effect rules and type errors still fail Check.
+  identity, that an Effect-only finding leaves tsc-rs at exit 0 (the
+  standalone diagnostics lane gates Effect rules), and that type errors still
+  fail Check.
+
+### Updating tsc-rs
+
+`tsc-rs` is not in syncpack's held-back update group, so
+`bun run deps:update` (`syncpack update --target=latest
+--dependency-types=catalog`) moves its root catalog entry to the latest npm
+release. To bump only `tsc-rs`, edit that one catalog entry (or run
+`bunx syncpack update --target=latest --dependency-types=catalog --dependencies 'tsc-rs'`),
+then run `bun install`. The six `@tsc-rs/<platform>` packages are exact
+optional dependencies of `tsc-rs`, so `bun.lock` moves them with it; check that
+all seven entries show the new version. `bunx syncpack update --check
+--target=latest --dependency-types=catalog --dependencies 'tsc-rs'` exits 1
+while a newer release exists.
+
+After a bump:
+
+1. Read the new `node_modules/tsc-rs/README.md` and ts-rust's `UPSTREAM.json`
+   at the release tag. Update the table row above: the version, the TypeScript
+   snapshot (`7.1.0-dev.<date>` from the current pin) and the effect-tsgo
+   version its Effect rules port. Recheck these rules of the road and the known
+   problems.
+2. If the ported effect-tsgo version moved, revisit the standalone Effect
+   diagnostics profile (below): rules tsc-rs now knows can fold into the
+   compiler maps.
+3. Run `bun run check` and `bun run check:configs` across the repo, and fix new
+   TypeScript errors at their source. Effect-rule (377xxx) findings do not fail
+   these gates.
+4. Run the `@beep/repo-configs` tests (`bunx vitest run` in
+   `packages/tooling/policy-pack/repo-configs`). `bun run check` does not run
+   them. `EffectTsgoEffectFnPolicy.test.ts` checks the tsc-rs identity
+   (`^Version 7\.1\.0-dev`, which must move with ts-rust's TypeScript pin), the
+   root-map unknown-rule canary and the exit-code policy.
 
 ## Binary paths (Linux x64)
 
@@ -152,7 +186,7 @@ Effect-only finding leaves tsc-rs at exit 0 while standalone diagnostics rejects
 it, and a TypeScript error still fails tsc-rs.
 
 The root and all copied compiler profiles contain only rule names known by
-tsc-rs 0.6.0's embedded 0.51.1 rule set. The eleven newer keys (nine from
+tsc-rs 0.8.0's embedded 0.51.1 rule set. The eleven newer keys (nine from
 0.52–0.53, `schemaClassObjectLiteral` from 0.54 and `preferEffectString` from 0.55) live in
 `standards/effect-diagnostics.profile.json`, decoded by the CLI with a closed
 schema. Each project's `extends` chain is resolved with `TsconfigLoader` from `@beep/repo-tsconfig`.
@@ -169,13 +203,14 @@ Promotion followed the first green main run (job 116271099290 on ce5780ed67:
 ruleset 10240248 both require `Heavy / Effect Diagnostics`, and the three
 ignore flags are true. The standalone profile stays: an empty-project canary
 with the nine keys folded into the root map exits 0 with the flags true, but
-tsc-rs 0.6.0 prints nine TS377134 unknown-rule warnings for every project.
+tsc-rs 0.8.0 prints nine TS377134 unknown-rule warnings for every project.
 Fold the profile into `tsconfig.base.json` and delete it, with its overlay
 loader, when tsc-rs ports those rules. The empty-project policy canary keeps
 proving that the root map produces no unknown-rule warnings.
 
 The eight Effect packages stay synchronized, but they no longer move with
-`tsc-rs`. Both remain independently held for reviewed upgrades. The tsc-rs 0.6.0
+`tsc-rs`. The Effect packages remain held for reviewed upgrades; `tsc-rs`
+follows `deps:update` (see Updating tsc-rs). The tsc-rs 0.8.0
 embedded rules are still 0.51.1 and may lag. Re-couple only after tsc-rs ports
 the newest rules and parity is proved, then remove the separate lane. A bump
 must update the complete root severity map and explicit disabled-rule ledger,

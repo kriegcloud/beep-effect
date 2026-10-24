@@ -6,7 +6,7 @@ import * as Queue from "effect/Queue";
 import * as Stream from "effect/Stream";
 import { Text } from "ink";
 import { createElement } from "react";
-import { CliInteractive, CliTheme } from "../../../effected/cli/index.ts";
+import { CliInteractive, CliTheme } from "@beep/cli-kit";
 import { makeFakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";
 // The live module and the streams reference, not the ./ui barrel: the live view needs nothing more.
 import { live } from "../../../effected/cli/ui/CliUiLive.ts";

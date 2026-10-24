@@ -9,7 +9,7 @@ import * as S from "effect/Schema";
 import { Text } from "ink";
 import type { ReactElement } from "react";
 import { createElement, useState } from "react";
-import { CliInteractive, CliTheme, Fmt } from "../../../effected/cli/index.ts";
+import { CliInteractive, CliTheme, Fmt } from "@beep/cli-kit";
 import { makeFakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";
 import type { Screen, ViewportRow, ViewportState } from "../../../effected/cli/ui.ts";
 import { CliUi, KeyHelp, UiStreams, Viewport, useKeys } from "../../../effected/cli/ui.ts";

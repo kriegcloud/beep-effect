@@ -40,9 +40,11 @@ const POLICY = fileURLToPath(new URL("./lab-layers.json", import.meta.url));
 // its reporting suite is `@beep/github-reporting` and the drivers stay a lab
 // directory, so the package folds into the `github-actions` lab module. Wave 3-2 promoted
 // the `tsconfig-json` IO half as `@beep/repo-tsconfig`, which folds into `tsconfig-json`
-// beside `@beep/tsconfig`. Wave 3-3 promoted `config-file` whole as `@beep/config-file`.
+// beside `@beep/tsconfig`. Wave 3-3 promoted `config-file` whole as `@beep/config-file`,
+// and wave 4-X promoted `xdg` whole as `@beep/xdg`.
 // Every other kit module is still a lab directory reached relatively.
 const PROMOTED: Readonly<Record<string, string>> = {
+	"@beep/cli-kit": "cli",
 	"@beep/commands": "commands",
 	"@beep/config-file": "config-file",
 	"@beep/git": "git",
@@ -67,6 +69,7 @@ const PROMOTED: Readonly<Record<string, string>> = {
 	"@beep/toml": "toml",
 	"@beep/tsconfig": "tsconfig-json",
 	"@beep/walker": "walker",
+	"@beep/xdg": "xdg",
 	"@beep/yaml": "yaml",
 };
 // Each package's directory, resolved the way the lab's own imports resolve it.

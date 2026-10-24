@@ -14,6 +14,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty, BoolKeyDefaultFalse } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
@@ -58,14 +59,8 @@ export class FrozenGrantSetRulesOptions extends S.Opaque<
   { readonly brand: unique symbol }
 >()(
   S.Struct({
-    strictCheck: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    excludePaths: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    strictCheck: BoolKeyDefaultFalse,
+    excludePaths: ArrayKeyDefaultEmpty(S.String),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
   }).pipe(
     $I.annoteSchema("FrozenGrantSetRulesOptions", {
@@ -143,14 +138,8 @@ export class FrozenGrantSetRulesSummary extends S.Opaque<
     touchedFiles: S.Finite,
     violationCount: S.Finite,
     strictFailure: S.Boolean,
-    affectedFiles: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    diagnostics: S.Array(FrozenGrantSetDiagnostic).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<FrozenGrantSetDiagnostic>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<FrozenGrantSetDiagnostic>()))
-    ),
+    affectedFiles: ArrayKeyDefaultEmpty(S.String),
+    diagnostics: ArrayKeyDefaultEmpty(FrozenGrantSetDiagnostic),
   }).pipe(
     $I.annoteSchema("FrozenGrantSetRulesSummary", {
       description: "Summary of repo-local FrozenGrantSet construction law results.",

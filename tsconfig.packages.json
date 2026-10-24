@@ -292,6 +292,9 @@
       "path": "packages/foundation/capability/chalk"
     },
     {
+      "path": "packages/foundation/capability/cli-kit"
+    },
+    {
       "path": "packages/foundation/capability/colors"
     },
     {
@@ -323,6 +326,9 @@
     },
     {
       "path": "packages/foundation/capability/walker"
+    },
+    {
+      "path": "packages/foundation/capability/xdg"
     },
     {
       "path": "packages/foundation/modeling/epistemics"

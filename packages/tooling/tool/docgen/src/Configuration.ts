@@ -9,6 +9,7 @@ import { ConfigFile } from "@beep/config-file/ConfigFile";
 import { JsoncCodec } from "@beep/config-file/JsoncCodec";
 import { $RepoDocgenId } from "@beep/identity/packages";
 import { decodeTSConfigFromJsoncTextEffect, TSConfigCompilerOptions } from "@beep/repo-utils";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -73,10 +74,7 @@ const stringKeyDefault = (value: string) =>
   S.String.pipe(S.withConstructorDefault(Effect.succeed(value)), S.withDecodingDefaultKey(Effect.succeed(value)));
 const booleanKeyDefault = (value: boolean) =>
   S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(value)), S.withDecodingDefaultKey(Effect.succeed(value)));
-const stringArrayKeyDefault = S.Array(S.String).pipe(
-  S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-  S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-);
+const stringArrayKeyDefault = ArrayKeyDefaultEmpty(S.String);
 
 /**
  * Schema for the optional package-local `docgen.json` document.

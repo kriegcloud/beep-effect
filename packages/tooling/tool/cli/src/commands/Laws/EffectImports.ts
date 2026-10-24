@@ -12,6 +12,7 @@ import { jsonParse } from "@beep/repo-utils/JsonUtils";
 import { readPackageJsonFile } from "@beep/repo-utils/schemas/PackageJson";
 import { toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty, BoolKeyDefaultFalse } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -136,39 +137,18 @@ export type EffectImportManualReviewKind = typeof EffectImportManualReviewKind.T
  */
 export class EffectImportRulesOptions extends S.Opaque<EffectImportRulesOptions, { readonly brand: unique symbol }>()(
   S.Struct({
-    write: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    strictCheck: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    candidate: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    effectOnly: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
+    write: BoolKeyDefaultFalse,
+    strictCheck: BoolKeyDefaultFalse,
+    candidate: BoolKeyDefaultFalse,
+    effectOnly: BoolKeyDefaultFalse,
     mode: EffectImportCorpusMode.pipe(
       S.withConstructorDefault(Effect.succeed("code" as const)),
       S.withDecodingDefaultKey(Effect.succeed("code" as const))
     ),
-    enforceDocumentation: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    excludePaths: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    enforceDocumentation: BoolKeyDefaultFalse,
+    excludePaths: ArrayKeyDefaultEmpty(S.String),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
-    includePrefixes: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    includePrefixes: ArrayKeyDefaultEmpty(S.String),
     promotedFamilyPrefixes: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(EFFECT_IMPORT_PROMOTED_FAMILY_PREFIXES)),
       S.withDecodingDefaultKey(Effect.succeed(EFFECT_IMPORT_PROMOTED_FAMILY_PREFIXES))
@@ -261,18 +241,9 @@ export class EffectImportRulesSummary extends S.Opaque<EffectImportRulesSummary,
     emittedExports: S.Natural,
     rootSpecifierCounts: S.Record(S.String, S.Natural),
     strictFailure: S.Boolean,
-    changedFiles: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
-    manualReviews: S.Array(EffectImportManualReview).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<EffectImportManualReview>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<EffectImportManualReview>()))
-    ),
-    parserWarnings: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    changedFiles: ArrayKeyDefaultEmpty(S.String),
+    manualReviews: ArrayKeyDefaultEmpty(EffectImportManualReview),
+    parserWarnings: ArrayKeyDefaultEmpty(S.String),
   }).pipe(
     $I.annoteSchema("EffectImportRulesSummary", {
       description: "Structured counts and manual-review findings from one per-module import scan.",
