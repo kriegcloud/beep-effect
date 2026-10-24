@@ -320,7 +320,7 @@
         ".claude/skills/orchestrate",
         ".agents/skills/orchestrate"
       ],
-      "installedTreeHash": "1d392f0511cefce3b16c34a335b32607f9808e2b32e56b307fa8864e4a8a0720"
+      "installedTreeHash": "f0d4834a8b9b3663349dc8ba602ac80a40458bddd4998776f8ef873713d19998"
     },
     "plasma-sensitive-entry": {
       "_tag": "local",
@@ -408,6 +408,14 @@
         ".agents/skills/reflect"
       ],
       "installedTreeHash": "e2ae4a428c536575906b8fcdad56c7ac992e243073128345c3276572cd7c7ae4"
+    },
+    "remote-development-agents": {
+      "_tag": "local",
+      "installedTargets": [
+        ".claude/skills/remote-development-agents",
+        ".agents/skills/remote-development-agents"
+      ],
+      "installedTreeHash": "1b209766af42699cb5caec78b9d766f2402fbf3ef3b20c9a2457648ab197b1ba"
     },
     "schema-first-development": {
       "_tag": "local",

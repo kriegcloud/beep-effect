@@ -126,6 +126,104 @@ Staking host provisioning stays isolated from its running validators. Do not
 migrate them to VMs, install a development stack on the staking host, or expose
 its credentials as a shortcut to making a worker ready.
 
+### Staking-host worker continuation — 2026-10-23
+
+Priority change: the operator requested stable 26.04 LTS host upgrades first
+(D21). Both upgrades and post-reboot recovery are now verified, including fresh
+tbk hardware administration and successful Rocket Pool attestations. Evidence is in the
+[host upgrade checkpoint](./history/2026-10-23-host-os-upgrades.md). Preserve
+unrelated changes in the dankserver control-plane checkout.
+
+The operator accepted a KVM guest (D13) managed by libvirt/QEMU (D14),
+initially serving command-line and web workflows (D15), with 4 vCPUs and
+32 GiB guest RAM (D16). A 512 GiB disk may use verified free extents on the
+old Ubuntu SATA SSD while preserving existing data (D17).
+Restricted guest networking is accepted (D18): operator inbound access and
+public-internet egress, with private host/LAN/tailnet initiation denied by default.
+A dedicated development-only 1Password service account is required for this
+guest (D19); audit vault membership and credential capabilities before delivery.
+D29 initially admitted repository, registry and coding-provider credentials.
+D40 supersedes the vault membership: each dedicated worker account can read
+`BEEP_SECRETS` plus its own development vault. The replacements were verified
+and the old accounts revoked. Shared-vault visibility does not authorize
+using every credential or performing cloud deployments.
+D30 uses beep-worker's documented headless environment as the implementation
+baseline; the operator confirmed the same tools with coding credentials
+initially, deferring cloud-account sign-ins. Reuse the existing setup and recovery receipts, refresh repository
+pins and official installers at provisioning time, and size internal worker
+concurrency for this guest's four-vCPU/32-GiB allocation.
+Continue the design interview one decision at a time, recording accepted
+choices in SPEC and dated evidence in
+[the setup checkpoint](./history/2026-10-23-tbk-worker-design.md).
+
+Current checkpoint: the guest is provisioned, bounded and enrolled. Live
+isolation and graceful/forced protective-stop tests pass. Repository installation
+and representative quick checks pass; dedicated vault and scoped GitHub access
+are verified. One real I/O-pressure stop was investigated without relaxing any
+limit. Numerical shutdown diagnostics, guest restart checks, bounded Effect
+reference graph/query proof and native/proxy provider sign-ins now pass. Four
+native providers and all four proxy wrappers return successful inference;
+Cursor's approved Opus model remains quota-blocked until November 11 after
+its targeted AppArmor prerequisite was repaired. Full provider tool execution,
+broader reference indexing, host-reboot recovery and parallel capacity retain
+their separate acceptance boundaries. Keep heavy work serialized. See the
+[operating runbook](./ops/tbk-worker-runbook.md).
+
+1. Manager selected: libvirt/QEMU. Verify enforceable CPU, memory and disk I/O
+   limits on the installed version before admitting guest workloads. D24 limits
+   the VM to two physical cores and their four sibling threads, with one combined
+   four-logical-CPU runtime ceiling. Recheck topology and verify startup/runtime
+   cgroups, thread placement and dedicated helpers before admission.
+2. Initial CPU/RAM and conditional storage allocation selected. D31 implements
+   the 512 GiB guest disk as a preallocated raw image in a new 544 GiB SATA
+   filesystem/LV. Verify free extents, stable disk identity and drive health
+   immediately before allocating storage. Preserve LVM metadata and account
+   for filesystem reserved space; reapply image preallocation after conversion.
+   Guest OS is Ubuntu Server 26.04 LTS (D20). D23 resolves guest administration:
+   enroll a guest-only hardware key and separate agent; forward it only during
+   explicit administration, never to normal development sessions.
+   D25 sets a 36 GiB total host-memory ceiling, no host swap and no automatic
+   restart after memory-limit failure. Verify the initial 4 GiB overhead
+   allowance for the 32 GiB guest and all supporting processes under load.
+   D26 sets combined disk limits of 100 MiB/s and 5,000 operations per second,
+   with no extra burst allowance. Qualify read/write enforcement using only
+   disposable guest-owned data, including the provisioning write path.
+   Maintain D40 credential scoping (superseding D19/D29 vault membership) and
+   verify D18 network policy, with D28
+   admitting only DankStation as the initial inbound source. A live tailnet
+   audit found an owner-to-anywhere grant; the prepared draft replaces its
+   destination wildcard with member devices and the existing service tags,
+   then adds only DankStation-to-guest TCP 22. Keep the new guest tagged from
+   enrollment. The operator approved and saved this policy on 2026-10-23 (D32).
+   Its 32 tests passed the save gate; saved JSON semantically matches the approved
+   candidate. Real guest allowed/denied paths remain to be proved before workload
+   admission. Then qualify
+   the accepted CPU/memory/disk controls. D27 keeps startup manual after reboot,
+   requires healthy pre-start checks and authorizes a host-side protective stop
+   of the VM only. Verify graceful shutdown, the 60-second forced-stop deadline,
+   stale/missing telemetry handling and explicit restart with synthetic signals.
+   D33 requires 60 consecutive healthy seconds before startup and 90 seconds
+   of sustained health failure before the stop sequence. Loss of isolation or
+   resource limits fails closed immediately.
+3. Privileged administration was verified and the unintended, unused LXD
+   installation was removed through that route (see the setup checkpoint).
+   After the host upgrade, D22's fresh hardware SSH and sudo checks passed.
+   The workstation's `ssh-tbk-ubuntu` wrapper is installed; `--admin` explicitly
+   forwards its dedicated agent. Do not use Docker or LXD membership to bypass
+   the host's authentication policy.
+4. Measure host and validator baseline, provision the bounded guest, and prove
+   its restrictions plus recovery under a representative development workload.
+5. Qualify tools and actual workflows inside the guest using L2/L3 acceptance
+   and D30's beep-worker baseline: development runtimes, rootless Docker,
+   native agents and local proxy, GitHub/registry access, bounded local reference
+   tooling, clean checkout/package proof, detached jobs and recovery. Requalify
+   noninteractive and user-service PATH/credential resolution. Do not copy the
+   old machine's caches, fleet credentials, resource allowances or desktop
+   dependencies. Keep cloud CLI installation distinct from account admission.
+
+No disk with existing LVM, ZFS or backup use is a disposable target merely
+because it is unmounted or mostly empty. Staking backup work remains excluded.
+
 ## Workstation parity and headless qualification
 
 1. Scan DankStation's CLI/version/manager/wrapper/service surfaces; decide reuse

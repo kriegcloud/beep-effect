@@ -16,14 +16,15 @@ and a real beep-effect package proof. Installed tools alone are not readiness.
 Scope:
 - Preserve original cloud acceptance and decisions D1-D7; expired credit dates
   and old script names are history, not current execution instructions.
-- Add Linux workstreams L0-L4 and decisions D8-D12: inventory this workstation,
+- Add Linux workstreams L0-L4 and managed Linux decisions: inventory this workstation,
   provision beep-worker, assess dankserver, and admit a tbk-ubuntu worker only
   through an isolated guest with measured CPU/RAM/I/O limits.
 - Install/configure Git, build tools, Rust/Cargo, Python/uv, Node 24/nvm,
   repo-pinned Bun, Docker Compose/Buildx, Codex, Claude, Cursor, Grok, Muse and CLIProxyAPI from official
   sources. Prove noninteractive shell operation and representative workflows.
-- Reuse the workstation's 1Password service account on managed Linux, as
-  explicitly authorized. Preserve the canonical PATH shim; transfer credentials
+- Use approved 1Password accounts. TBK and dankserver have independent read-only
+  accounts for BEEP_SECRETS plus their development vaults (D40).
+  Preserve the canonical PATH shim; transfer credentials
   directly over authenticated SSH into mode-0600 storage. Never print, commit,
   or copy resolved secrets into reports. Prove the required op operations with
   output suppressed; follow AGENTS.md failure handling.
@@ -33,7 +34,9 @@ Scope:
 - Development apps run on the tailnet using explicit bindings/rules or Serve.
   No public Funnel by default. Prefer rootless Docker where compatible.
 - Preserve staking services on tbk-ubuntu bare metal. No staking credentials,
-  host Docker socket or admin agent enter the development guest. Staking backup
+  host Docker socket or host/fleet admin agent enter the development guest.
+  D23 permits a separate guest-only key/agent during explicit administration.
+  Staking backup
   work is excluded by the operator and is not an approval gate for this task.
 
 Workflow:
