@@ -20,6 +20,7 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import { printLines } from "../../internal/cli/Printer.ts";
 import {
@@ -2220,10 +2221,9 @@ const sortAndRenameFilesImpl = Effect.fn("FilesCommandService.sortAndRenameFiles
   dryRun: boolean,
   requestedOptions: boolean | SortAndRenameOptions = false
 ): Effect.fn.Return<SortAndRenameSummary, FilesCommandError, FilesCommandServiceRequirements> {
-  const options =
-    typeof requestedOptions === "boolean"
-      ? SortAndRenameOptions.make({ withDimensions: requestedOptions })
-      : requestedOptions;
+  const options = P.isBoolean(requestedOptions)
+    ? SortAndRenameOptions.make({ withDimensions: requestedOptions })
+    : requestedOptions;
   const { withDimensions } = options;
   const mediaOnly = sortUsesMediaOnly(options);
   const safePrefix = yield* validatePrefix(prefix);
