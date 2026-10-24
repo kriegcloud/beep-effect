@@ -313,6 +313,7 @@
     "http-cache-semantics": "4.3.0",
     "body-parser": "2.4.0",
     "fast-uri": "3.1.9",
+    "happy-dom": "21.0.4",
     "launch-editor": "2.14.2",
     "zod": "4.6.6"
   },

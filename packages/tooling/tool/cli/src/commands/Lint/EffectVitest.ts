@@ -78,11 +78,13 @@ export {
  * @since 0.0.0
  */
 export {
+  browserModeIncludeGlobs,
   countEffectVitestSourceLines,
   diffEffectVitestFindings,
   discoverEffectVitestSourcePaths,
   formatEffectVitestIntroducedReport,
   preserveEffectVitestExceptions,
+  retainBrowserSafeFindings,
   runEffectVitestLint,
   verifyEffectVitestPin,
 } from "./internal/EffectVitestScan.ts";
