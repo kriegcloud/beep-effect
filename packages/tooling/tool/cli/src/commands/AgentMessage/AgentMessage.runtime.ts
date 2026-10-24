@@ -105,6 +105,11 @@ const ownsReceivingGrant = (
   grant.ownerId === ownerId &&
   grant.generation === generation &&
   grant.repositoryScope === repositoryScope;
+const MailboxLockTimeout = S.Struct({
+  code: S.tag("storage"),
+  message: S.tag("Agent message SQL operation failed: LockTimeoutError."),
+}).pipe($I.annoteSchema("MailboxLockTimeout", { description: "Sanitized retryable mailbox write contention." }));
+
 /**
  * Recognizes sanitized mailbox lock contention across unknown error channels.
  *
@@ -122,12 +127,7 @@ const ownsReceivingGrant = (
  * @category guards
  * @since 0.0.0
  */
-export const isMailboxLockTimeout = S.is(
-  S.Struct({
-    code: S.tag("storage"),
-    message: S.tag("Agent message SQL operation failed: LockTimeoutError."),
-  }).pipe($I.annoteSchema("MailboxLockTimeout", { description: "Sanitized retryable mailbox write contention." }))
-);
+export const isMailboxLockTimeout = S.is(MailboxLockTimeout);
 const retryMailboxLock = <A, R>(operation: Effect.Effect<A, RouterError, R>) =>
   operation.pipe(
     Effect.tapError((error) =>
