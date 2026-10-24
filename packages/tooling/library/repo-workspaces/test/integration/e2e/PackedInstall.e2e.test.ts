@@ -27,6 +27,7 @@ import { dirname, join } from "node:path";
 import { Run } from "@beep/commands";
 import { Workspaces } from "@beep/repo-workspaces";
 import { PackedInstall } from "@beep/repo-workspaces/testing";
+import { SemVer } from "@beep/semver";
 import { NodeServices } from "@effect/platform-node";
 import { afterAll, assert, describe, layer } from "@effect/vitest";
 import * as Duration from "effect/Duration";
@@ -163,9 +164,13 @@ const writeFixture = (): string => {
   return root;
 };
 
-/** The version a manager reports from outside any project, or undefined when it is absent. */
+/**
+ * The version a manager reports from outside any project, or undefined when it is absent. Bounded
+ * like PackedInstall's own probe (30 seconds): a Yarn shim that tries to fetch itself would
+ * otherwise hang collection.
+ */
 const probe = (pm: string): string | undefined => {
-  const out = spawnSync(pm, ["--version"], { cwd: tmpdir(), env: CHILD_ENV, encoding: "utf8" });
+  const out = spawnSync(pm, ["--version"], { cwd: tmpdir(), env: CHILD_ENV, encoding: "utf8", timeout: 30_000 });
   return out.status === 0 ? out.stdout.trim().replace(/^v/, "") : undefined;
 };
 const VERSIONS: Readonly<Record<PackageManagerName, string | undefined>> = {
@@ -175,6 +180,14 @@ const VERSIONS: Readonly<Record<PackageManagerName, string | undefined>> = {
   bun: probe("bun"),
 };
 const HAS_NPM = VERSIONS.npm !== undefined;
+/** The first bun release observed to link a shared bin name to the consumer's direct dependency. */
+const BUN_CARRIER_SLOT_SINCE = SemVer.of(1, 4, 4);
+const bunGivesTheCarrierTheSlot = (version: string | undefined): boolean =>
+  version !== undefined &&
+  Result.match(SemVer.parseResult(version), {
+    onFailure: () => false,
+    onSuccess: (parsed) => parsed.gte(BUN_CARRIER_SLOT_SINCE),
+  });
 const HAS_PNPM = VERSIONS.pnpm !== undefined;
 const HAS_YARN = VERSIONS.yarn !== undefined;
 
@@ -553,7 +566,9 @@ describe("PackedInstall against a real fixture workspace", () => {
           if (pnpm === undefined) return;
           const out = yield* importFromRoot(pnpm);
           assert.isFalse(out.succeeded);
-          assert.include(out.stderr, "ERR_MODULE_NOT_FOUND");
+          // Node reports ERR_MODULE_NOT_FOUND; under `bunx --bun` the runner and the `node` on PATH are
+          // Bun, which reports "Cannot find module". Either way the unresolved specifier is the peer.
+          assert.match(out.stderr, /ERR_MODULE_NOT_FOUND|Cannot find module/);
           assert.include(out.stderr, LIB);
         }).pipe(Effect.timeout("100 seconds")),
       120_000
@@ -589,11 +604,15 @@ describe("PackedInstall against a real fixture workspace", () => {
           for (const consumer of result.consumers) {
             const slot = yield* consumer.runBin(SHARED_BIN);
             const provenance = yield* consumer.binProvenance(SHARED_BIN);
-            // What .bin ran agrees with who owns the slot.
-            if (provenance !== undefined) {
+            // What .bin ran agrees with who owns the slot. The flat layouts write .bin entries as
+            // symlinks, so their provenance is mandatory; only pnpm's shell shims carry none.
+            if (consumer.manager === "pnpm") {
+              assert.isUndefined(provenance, consumer.manager);
+            } else {
+              assert.isDefined(provenance, consumer.manager);
               assert.strictEqual(
                 slot.stdout.trim(),
-                provenance.package === SHARED_FRONT ? "front" : "carrier",
+                provenance?.package === SHARED_FRONT ? "front" : "carrier",
                 consumer.manager
               );
             }
@@ -605,14 +624,15 @@ describe("PackedInstall against a real fixture workspace", () => {
               `${consumer.manager}: ${own.stderr}`
             );
           }
-          // Observed with npm 11.19 and bun 1.4: the package whose name sorts first takes the slot, so
-          // shared-cli (the front end) beats shared-plugin (the carrier), as @vitest-agent/cli beats
-          // @vitest-agent/plugin; named the other way round, the carrier won both. Yarn 1.22 and 4.18
-          // (node-modules linker) gave the slot to the carrier, the consumer's direct dependency. pnpm
+          // Observed with npm 11.19 and bun 1.4.0-1.4.3: the package whose name sorts first takes the
+          // slot, so shared-cli (the front end) beats shared-plugin (the carrier), as @vitest-agent/cli
+          // beats @vitest-agent/plugin; named the other way round, the carrier won both. Bun 1.4.4 gives
+          // the slot to the carrier, the consumer's direct dependency, so bun's row is keyed by the
+          // probed version. Yarn 1.22 and 4.18 (node-modules linker) gave the slot to the carrier. pnpm
           // links only the direct dependency. Every manager on PATH is asserted, yarn included.
           const winner: Record<PackageManagerName, string> = {
             npm: "front",
-            bun: "front",
+            bun: bunGivesTheCarrierTheSlot(VERSIONS.bun) ? "carrier" : "front",
             yarn: "carrier",
             pnpm: "carrier",
           };
