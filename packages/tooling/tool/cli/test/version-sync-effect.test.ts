@@ -37,8 +37,8 @@ import { FsUtilsLive } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
 import { A, R } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect } from "@effect/vitest";
-import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
+import { describe, expect, vi } from "@effect/vitest";
+import { assertNone, assertSome, assertTrue, deepStrictEqual } from "@effect/vitest/utils";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -47,7 +47,6 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { vi } from "vitest";
 
 const UnknownJson = S.fromJsonString(S.Unknown);
 const decodeJsonEffect = S.decodeEffect(UnknownJson);
@@ -68,6 +67,7 @@ const VersionSyncTestLayer = Layer.mergeAll(
   UpdateApplierServiceLive,
   CategorySelectionServiceLive,
   ReportRendererServiceLive,
+  ResolverServiceLive,
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer))
 );
 
@@ -1074,7 +1074,7 @@ it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync installed
   });
 });
 
-it.layer(VersionSyncTestLayer)("VersionSync shared lockfile", (it) => {
+it.layer(VersionSyncTestLayer, { timeout: "30 seconds" })("VersionSync shared lockfile", (it) => {
   it.effect("parses bun.lock once per resolution run for Biome and Turbo", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -1098,15 +1098,15 @@ it.layer(VersionSyncTestLayer)("VersionSync shared lockfile", (it) => {
         Effect.sync(() => vi.spyOn(Lockfile, "parse")),
         (spy) => Effect.sync(() => spy.mockRestore())
       );
-      const resolver = yield* ResolverService.pipe(Effect.provide(ResolverServiceLive));
+      const resolver = yield* ResolverService;
       const options = VersionSyncOptions.cases.check.make({ biomeOnly: true, turboOnly: true, skipNetwork: true });
       for (const expectedCalls of [1, 2]) {
         const resolution = yield* resolver.resolve(root, options);
         expect(A.map(resolution.report.categories, (category) => category.category)).toEqual(["biome", "turbo"]);
-        expect(A.map(resolution.report.categories, (category) => category.latest)).toEqual([
-          O.some("2.5.6"),
-          O.some("2.10.14"),
-        ]);
+        deepStrictEqual(
+          A.map(resolution.report.categories, (category) => category.latest),
+          [O.some("2.5.6"), O.some("2.10.14")]
+        );
         expect(parse).toHaveBeenCalledTimes(expectedCalls);
       }
     })
