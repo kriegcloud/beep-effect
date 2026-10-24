@@ -12,8 +12,9 @@ Dated, verbatim operator wording, newest first. Paraphrases are not rulings.
 
 | Date | Ruling (verbatim) | Source |
 | --- | --- | --- |
+| 2026-10-24 | "I prefer that issues ... [are fixed] at their root cause as soon as they are identified instead of kicking the bucket down the road" (supersedes the round-2 review-loop stop) | AGENTS.md Autonomy "Fix findings where they are found" |
 | 2026-10-06 | "flip your PR from draft to READY as soon as the content is final and cheap gates pass ... I do not merge until 20 minutes after the later of 'marked ready' and your last push" | memory feedback-review-window-before-merge |
-| 2026-10-06 | "only money escalates ... review loops stop after round 2" | AGENTS.md Autonomy (#1448) |
+| 2026-10-06 | "only money escalates" (its "review loops stop after round 2" clause was superseded 2026-10-24) | AGENTS.md Autonomy (#1448) |
 
 ## Gate snapshot
 

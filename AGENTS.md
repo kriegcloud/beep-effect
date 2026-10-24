@@ -233,9 +233,15 @@ needed only for the escalation list below.
   final; nobody un-drafts and merges in one step. Whoever merges re-reads the
   review threads immediately before merging: a failed or rate-limited thread
   read is unknown, never zero.
-- Review loops stop after round 2: fix every P0/P1 in any round; from round 3,
-  answer P2-and-below threads with a tracked follow-up and resolve them
-  instead of pushing again.
+- Fix findings where they are found (operator 2026-10-24): every actionable
+  review finding, any severity and any round, and every defect observed while
+  working is fixed in the current PR before it merges; a defect outside the
+  PR's files gets a small PR opened the same hour. Never file a "tracked
+  follow-up" issue to defer fixable work. File an issue only for work blocked
+  on the operator, on elapsed time or on money, or for a deferral the
+  operator explicitly authorized (such as an S11 merge over reds with one
+  batch fix PR). A finding judged wrong is answered with the reason and
+  resolved; that is not a deferral. Batch each round's fixes into one push.
 - Inherited reds: attribute first, fix them once on `main` (one small PR) and
   tell dependent lanes to merge `main` once; do not copy the fix into each
   lane. The orchestrator declares one consolidated unblocker per red episode
