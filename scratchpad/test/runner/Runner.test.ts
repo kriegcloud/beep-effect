@@ -21,7 +21,7 @@ import {
   scanUnsafeAssertions,
   tsExtension,
 } from "../../effected/runner/Exports.ts";
-import { CANARY_DIAGNOSTICS, compareVersions, editorTsgoVerdict, gatePlan, missingCanaryDiagnostics } from "../../effected/runner/Gates.ts";
+import { CANARY_DIAGNOSTICS, canaryProblems, compareVersions, editorTsgoVerdict, gatePlan, missingCanaryDiagnostics } from "../../effected/runner/Gates.ts";
 import { assembleKnowledge, moduleTsconfig, okfLinks, readmeSkeleton, scanVendorNotices } from "../../effected/runner/Knowledge.ts";
 import {
   AUDIT_TARGETS,
@@ -265,6 +265,33 @@ describe("gates and processes", () => {
       []
     );
   });
+  it("reads the canary verdict from the report, not tsgo's exit code", () => {
+    // Captured from `tsgo -p effected/.canary/tsconfig.json`, which exits 0 under the
+    // `ignoreEffect*InTscExitCode` options in tsconfig.base.json (#1823).
+    const live = [
+      "effected/.canary/EffectDiagnosticsCanary.ts(12,14): error TS377101: Exported function `canaryPair` has no pipeable overload corresponding to its signature `(left: number, right: number) => number`. effect(missingPipeableSignature)",
+      "effected/.canary/EffectDiagnosticsCanary.ts(15,57): error TS377029: Unexpected `string` type in condition, expected strictly a boolean instead. effect(strictBooleanExpressions)",
+    ].join("\n");
+    assert.deepStrictEqual(canaryProblems({ exitCode: 0, output: live }), []);
+    assert.deepStrictEqual(canaryProblems({ exitCode: 0, output: "" }), [
+      "effect diagnostics are not live: the canary at scratchpad/effected/.canary was not flagged",
+      "canary missing effect(missingPipeableSignature)",
+      "canary missing effect(strictBooleanExpressions)",
+      "canary tsgo exit code: 0",
+    ]);
+  });
+  it("reports a crashed canary tsgo as a failed run with its exit code and output tail", () => {
+    const crash = ["$ tsgo -p effected/.canary/tsconfig.json", "panic: runtime error: invalid memory address", "goroutine 1 [running]:"].join("\n");
+    assert.deepStrictEqual(canaryProblems({ exitCode: 2, output: crash }), [
+      "canary tsgo failed before reporting diagnostics (exit 2)",
+      "canary missing effect(missingPipeableSignature)",
+      "canary missing effect(strictBooleanExpressions)",
+      "canary tsgo exit code: 2",
+      "canary output: $ tsgo -p effected/.canary/tsconfig.json",
+      "canary output: panic: runtime error: invalid memory address",
+      "canary output: goroutine 1 [running]:",
+    ]);
+  });
   it("orders tsgo versions numerically", () => {
     assert.strictEqual(compareVersions("0.50.0", "0.48.1"), 1);
     assert.strictEqual(compareVersions("0.9.0", "0.10.0"), -1);
@@ -283,13 +310,14 @@ describe("gates and processes", () => {
 });
 
 describe("source analysis", () => {
-  it("reads the facets of the jsonc entry from disk", () => {
-    const facets = readExportFacets("scratchpad/effected/jsonc/index.ts", ".");
+  // The jsonc lab module was retired by its promotion; npm stays in the lab (SPEC D-05).
+  it("reads the facets of the npm entry from disk", () => {
+    const facets = readExportFacets("scratchpad/effected/npm/index.ts", ".");
     const byName = (name: string) => A.findFirst(facets, (entry) => entry.name === name);
-    assertSome(O.map(byName("JsoncBoundCodec"), (entry) => entry.kind), "type");
-    assertSome(O.map(byName("Jsonc"), (entry) => entry.entry), ".");
-    assert.isTrue(O.isSome(byName("JsoncParseError")));
-    assert.isTrue(A.every(facets, (entry) => S.is(ModuleName)("jsonc") && entry.entry === "."));
+    assertSome(O.map(byName("NpmRegistryShape"), (entry) => entry.kind), "type");
+    assertSome(O.map(byName("NpmRegistry"), (entry) => entry.entry), ".");
+    assert.isTrue(O.isSome(byName("PublishedVersion")));
+    assert.isTrue(A.every(facets, (entry) => S.is(ModuleName)("npm") && entry.entry === "."));
   });
   it.layer(NodeFileSystem.layer)((it) => {
     it.effect("flags every D15 assertion class and allows as const and satisfies", () =>

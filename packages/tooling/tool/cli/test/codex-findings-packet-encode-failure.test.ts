@@ -1,29 +1,19 @@
-import { CodexFindingRecord, CodexPacketPlan, renderPacketDocuments } from "@beep/repo-cli/test/Codex";
+import {
+  CodexFindingRecord,
+  CodexPacketPlan,
+  CodexTriageLedgerEncoder,
+  renderPacketDocuments,
+} from "@beep/repo-cli/test/Codex";
 import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import { vi } from "vitest";
+import * as S from "effect/Schema";
 
 // The triage ledger is built from an already-validated plan, so its encode can
-// only fail if the codec itself fails. Forcing that is the sole way to reach
-// the ingest-error mapping the renderer wraps the encode in.
-vi.mock("@beep/repo-cli/commands/Codex/Findings.triage.schemas", (importOriginal) =>
-  Promise.all([
-    importOriginal<typeof import("@beep/repo-cli/commands/Codex/Findings.triage.schemas")>(),
-    import("effect/Effect"),
-    import("effect/Schema"),
-  ]).then(([schemas, EffectModule, SchemaModule]) => {
-    class ForcedTriageLedgerEncodeFailure extends SchemaModule.TaggedError<
-      ForcedTriageLedgerEncodeFailure,
-      { readonly brand: unique symbol }
-    >()("ForcedTriageLedgerEncodeFailure", { message: SchemaModule.String }) {}
-    return {
-      ...schemas,
-      encodeCodexTriageLedger: () =>
-        EffectModule.fail(ForcedTriageLedgerEncodeFailure.make({ message: "forced triage-ledger encode failure" })),
-    };
-  })
-);
+// only fail if the codec itself fails. Swapping the renderer's encoder for one
+// whose codec rejects every value is the sole way to reach the ingest-error
+// mapping the renderer wraps the encode in.
+const rejectEveryLedger = S.encodeUnknownEffect(S.Never);
 
 const planWith = (records: ReadonlyArray<CodexFindingRecord>) =>
   CodexPacketPlan.make({
@@ -52,7 +42,10 @@ describe("codex findings packet rendering", () => {
         }),
       ]);
 
-      const error = yield* Effect.flip(renderPacketDocuments({ plan, rawPayloadJson: '{"findings":[]}\n' }));
+      const error = yield* renderPacketDocuments({ plan, rawPayloadJson: '{"findings":[]}\n' }).pipe(
+        Effect.flip,
+        Effect.provideService(CodexTriageLedgerEncoder, rejectEveryLedger)
+      );
 
       expect(error.reason).toBe("payload-invalid");
       expect(error.message).toBe("The generated ops/triage.json ledger could not be encoded.");

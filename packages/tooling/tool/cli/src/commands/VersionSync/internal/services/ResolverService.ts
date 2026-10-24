@@ -23,6 +23,7 @@ import { BunVersionState, buildBunReport, resolveBunVersions } from "../resolver
 import { buildDockerReport, DockerImageState, resolveDockerImages } from "../resolvers/DockerResolver.ts";
 import { buildEffectReport, EffectCatalogState, resolveEffectCatalog } from "../resolvers/EffectResolver.ts";
 import { buildNodeReport, resolveNodeVersions } from "../resolvers/NodeResolver.ts";
+import { readRootLockfile, resolveInstalledToolVersion } from "../resolvers/RootCatalog.ts";
 import { buildTurboReport, resolveTurboSchema, TurboSchemaState } from "../resolvers/TurboResolver.ts";
 import { CategorySelectionService } from "./CategorySelectionService.ts";
 import type { FsUtils } from "@beep/repo-utils";
@@ -122,8 +123,15 @@ const resolveDockerCategory = Effect.fn(function* (repoRoot: string, options: Ve
   return buildDockerReport(dockerState);
 });
 
-const resolveBiomeCategory = Effect.fn(function* (repoRoot: string) {
-  const biomeState = yield* resolveOrEmpty("Biome schema", resolveBiomeSchema(repoRoot), BiomeSchemaState.make({}));
+const resolveBiomeCategory = Effect.fn(function* (
+  repoRoot: string,
+  installedVersion: Effect.Effect<string, VersionSyncError, FileSystem.FileSystem | Path.Path>
+) {
+  const biomeState = yield* resolveOrEmpty(
+    "Biome schema",
+    resolveBiomeSchema(repoRoot, installedVersion),
+    BiomeSchemaState.make({})
+  );
 
   return Str.isNonEmpty(biomeState.installedVersion)
     ? O.some(buildBiomeReport(biomeState))
@@ -140,8 +148,15 @@ const resolveEffectCategory = Effect.fn(function* (repoRoot: string) {
   return buildEffectReport(effectState);
 });
 
-const resolveTurboCategory = Effect.fn(function* (repoRoot: string) {
-  const turboState = yield* resolveOrEmpty("Turbo schema", resolveTurboSchema(repoRoot), TurboSchemaState.make({}));
+const resolveTurboCategory = Effect.fn(function* (
+  repoRoot: string,
+  installedVersion: Effect.Effect<string, VersionSyncError, FileSystem.FileSystem | Path.Path>
+) {
+  const turboState = yield* resolveOrEmpty(
+    "Turbo schema",
+    resolveTurboSchema(repoRoot, installedVersion),
+    TurboSchemaState.make({})
+  );
 
   return Str.isNonEmpty(turboState.installedVersion)
     ? O.some(buildTurboReport(turboState))
@@ -150,6 +165,7 @@ const resolveTurboCategory = Effect.fn(function* (repoRoot: string) {
 
 const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, options) {
   const categorySelection = yield* CategorySelectionService;
+  const lockfileRead = yield* Effect.cached(readRootLockfile(repoRoot));
   let categories = A.empty<VersionCategoryReport>();
   let nodeLocations = A.empty<VersionSyncUpdateLocation>();
 
@@ -168,7 +184,12 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
   }
 
   if (categorySelection.shouldCheck(options, "biome")) {
-    categories = A.appendAll(categories, A.fromOption(yield* resolveBiomeCategory(repoRoot)));
+    categories = A.appendAll(
+      categories,
+      A.fromOption(
+        yield* resolveBiomeCategory(repoRoot, resolveInstalledToolVersion(repoRoot, "@biomejs/biome", lockfileRead))
+      )
+    );
   }
 
   if (categorySelection.shouldCheck(options, "effect")) {
@@ -176,7 +197,10 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
   }
 
   if (categorySelection.shouldCheck(options, "turbo")) {
-    categories = A.appendAll(categories, A.fromOption(yield* resolveTurboCategory(repoRoot)));
+    categories = A.appendAll(
+      categories,
+      A.fromOption(yield* resolveTurboCategory(repoRoot, resolveInstalledToolVersion(repoRoot, "turbo", lockfileRead)))
+    );
   }
 
   const report = VersionSyncReport.make({

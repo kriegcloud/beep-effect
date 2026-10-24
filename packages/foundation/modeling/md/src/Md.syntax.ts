@@ -23,6 +23,7 @@
 
 import { $MdId } from "@beep/identity/packages";
 import { normalizeLabelText } from "@beep/markdown/internal/references";
+import { unescapeString } from "@beep/markdown/internal/unescape";
 import { JsonFrontmatter } from "@beep/markdown/JsonFrontmatter";
 import * as Kit from "@beep/markdown/MarkdownNode";
 import { TomlFrontmatter } from "@beep/markdown/TomlFrontmatter";
@@ -30,6 +31,7 @@ import { YamlFrontmatter } from "@beep/markdown/YamlFrontmatter";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as SchemaUtils from "@beep/schema/SchemaUtils";
 import * as A from "@beep/utils/Array";
+import { replaceWith } from "@beep/utils/Str";
 import * as Effect from "effect/Effect";
 import { dual, pipe } from "effect/Function";
 import * as Hash from "effect/Hash";
@@ -1189,8 +1191,21 @@ const slice = (state: BridgeState, position: Kit.Position): string => sourceSlic
 
 type PhrasingStep = (state: BridgeState, path: SlotPath) => ReadonlyArray<Model.Inline>;
 
-const softBreak = (state: BridgeState, value: string): string =>
-  state.options.softBreak === MdSoftBreak.Enum.space ? Str.replaceAll("\n", " ")(value) : value;
+// Decode only source newlines as soft breaks. A newline from an entity is
+// literal text, including the spelling used to preserve escaped HTML.
+const softBreak = (state: BridgeState, value: string, raw: string): string => {
+  if (state.options.softBreak !== MdSoftBreak.Enum.space || !Str.includes("\n")(value)) {
+    return value;
+  }
+  const newlines = A.flatMap(
+    A.fromIterable(
+      Str.matchAll(/\\[!-/:-@[-`{-~]|&(?:#[0-9]{1,7}|#[xX][0-9A-Fa-f]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});|\n/g)(raw)
+    ),
+    (match) => (unescapeString(match[0]) === "\n" ? [match[0] === "\n"] : [])
+  );
+  let index = 0;
+  return replaceWith(value, /\n/g, () => (newlines[index++] === false ? "\n" : " "));
+};
 
 const textNode = (value: string): Model.Text => ({ _tag: "text", value });
 
@@ -1214,7 +1229,7 @@ const recognizeInlineMath = (
           state,
           subPosition(position, raw, segment.from, segment.to),
           MdSourceOrigin.Enum.recognized,
-          textNode(softBreak(state, unescapeBackslashes(piece)))
+          textNode(softBreak(state, unescapeString(piece), piece))
         );
   });
 
@@ -1240,9 +1255,16 @@ const inlineMathRun = (
   if (!hasMath(segments)) {
     return O.none();
   }
-  // Backslash escapes are the only decoding undone here: a run whose raw
-  // slice also holds entities or container line prefixes keeps its text.
-  if (unescapeBackslashes(raw) === value) {
+  // Decode entities only outside math; TeX stays raw. Container line
+  // prefixes still make the reconstructed run differ from its decoded text.
+  const decoded = A.join(
+    A.map(segments, (segment) => {
+      const piece = Str.slice(segment.from, segment.to)(raw);
+      return segment.math ? `$${unescapeBackslashes(piece)}$` : unescapeString(piece);
+    }),
+    ""
+  );
+  if (decoded === value) {
     return O.some(recognizeInlineMath(state, raw, segments, position));
   }
   recordLoss(state, "recognizerSkipped", first, landed(path), "inline math spans entities or line prefixes");
@@ -1264,7 +1286,7 @@ const mapTextRun = (
   const position = runPosition(run);
   const origin = run.length > 1 ? MdSourceOrigin.Enum.merged : MdSourceOrigin.Enum.parsed;
   return O.getOrElse(inlineMathRun(state, A.headNonEmpty(run), value, position, path), () => [
-    leaf(state, position, origin, textNode(softBreak(state, value))),
+    leaf(state, position, origin, textNode(softBreak(state, value, slice(state, position)))),
   ]);
 };
 

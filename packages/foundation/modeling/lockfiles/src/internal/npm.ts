@@ -292,9 +292,36 @@ type NpmRow =
       readonly _tag: "package";
       readonly key: string;
       readonly name: string;
+      // The install-position name, set only when the entry records a different
+      // real `name` (an `npm:` alias).
+      readonly alias: O.Option<string>;
       readonly version: string;
       readonly entry: NpmPackageEntryType;
     };
+
+// An installed (non-link) entry. npm records `name` on an entry only when it
+// differs from the install position, which is how it spells an
+// `npm:<real>@<range>` alias.
+const packageRow = (key: string, keyName: string, entry: NpmPackageEntryType): O.Option<NpmRow> => {
+  if (keyName === "" || entry.version === undefined) return O.none();
+  const name = entry.name === undefined || entry.name === "" ? keyName : entry.name;
+  const alias = O.liftPredicate(keyName, (installName) => installName !== name);
+  return O.some({ _tag: "package", key, name, alias, version: entry.version, entry });
+};
+
+// A workspace link stub, named from its resolved entry first.
+const linkRow = (
+  raw: NpmLockfileRawType,
+  key: string,
+  keyName: string,
+  entry: NpmPackageEntryType
+): O.Option<NpmRow> => {
+  const workspace = O.getOrUndefined(
+    O.flatMap(O.fromUndefinedOr(entry.resolved), (resolved) => R.get(raw.packages, resolved))
+  );
+  const name = workspace?.name ?? entry.name ?? keyName;
+  return name === "" ? O.none() : O.some({ _tag: "link", key, name, resolved: entry.resolved, workspace });
+};
 
 // Name resolution is the same for every pass (the resolved entry first), so a
 // link stub disagreeing with its resolved entry cannot drop inter-workspace
@@ -307,16 +334,7 @@ const npmRow: {
   (raw: NpmLockfileRawType, key: string, entry: NpmPackageEntryType): O.Option<NpmRow> =>
     O.flatMap(packageNameStart(key), (start): O.Option<NpmRow> => {
       const keyName = Str.slice(start)(key);
-      if (entry.link !== true) {
-        return keyName === "" || entry.version === undefined
-          ? O.none()
-          : O.some({ _tag: "package", key, name: keyName, version: entry.version, entry });
-      }
-      const workspace = O.getOrUndefined(
-        O.flatMap(O.fromUndefinedOr(entry.resolved), (resolved) => R.get(raw.packages, resolved))
-      );
-      const name = workspace?.name ?? entry.name ?? keyName;
-      return name === "" ? O.none() : O.some({ _tag: "link", key, name, resolved: entry.resolved, workspace });
+      return entry.link === true ? linkRow(raw, key, keyName, entry) : packageRow(key, keyName, entry);
     })
 );
 
@@ -363,7 +381,7 @@ const regularPackage: {
         name: row.name,
         version: row.version,
         instanceId: row.key,
-        ...O.getSomesStruct({ integrity }),
+        ...O.getSomesStruct({ integrity, alias: row.alias }),
         isWorkspace: false,
         dependencies: row.entry.dependencies ?? {},
         ...peerDeclarations(row.entry.peerDependencies, row.entry.peerDependenciesMeta, undefined),

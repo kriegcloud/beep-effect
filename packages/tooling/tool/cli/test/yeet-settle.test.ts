@@ -59,7 +59,7 @@ import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, it } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
+import { assertInclude, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
@@ -73,7 +73,6 @@ import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
@@ -649,11 +648,7 @@ describe("B7 settle contracts", () => {
     );
   }
   for (const value of ["0s", "x", "-1 seconds", "Infinity"]) {
-    it.effect(`rejects duration ${value}`, () =>
-      Effect.gen(function* () {
-        expect((yield* Effect.result(yeetMonitorDurationMillis(value)))._tag).toBe("Failure");
-      })
-    );
+    it.effect(`rejects duration ${value}`, () => Effect.flip(yeetMonitorDurationMillis(value)));
   }
   for (const [label, code, output] of [
     ["success", 0, '[{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"Lint"}]}}]'],
@@ -950,11 +945,17 @@ describe("closeout follow-up gate", () => {
 
   it("blocks threads-resolved on a reviewer follow-up and clears once it is answered", () => {
     const blocked = deriveYeetMergeReady(closeoutWith(1), remoteWith(1));
-    expect(O.flatMap(blocked, (value) => value.failing)).toStrictEqual(O.some("threads-resolved"));
+    assertSome(
+      O.flatMap(blocked, (value) => value.failing),
+      "threads-resolved"
+    );
 
     // The closeout artifact's own issue count still blocks on its own.
     const artifactOnly = deriveYeetMergeReady(closeoutWith(1), remoteWith(0));
-    expect(O.flatMap(artifactOnly, (value) => value.failing)).toStrictEqual(O.some("threads-resolved"));
+    assertSome(
+      O.flatMap(artifactOnly, (value) => value.failing),
+      "threads-resolved"
+    );
 
     // Answered: no follow-up left, no closeout issues, and the bot
     // acknowledgement never counted against the merge. The review window is
@@ -1095,82 +1096,96 @@ it.layer(platform, { timeout: "30 seconds" })((it) =>
   )
 );
 
-it.effect("status refuses a review-thread page that names itself as its own successor", () =>
-  temporary((root) =>
-    Effect.gen(function* () {
-      const pageReads = yield* Ref.make(0);
-      const runner = ChildProcessSpawner.make((command) => {
-        if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
-        const [first, second] = command.args;
-        if (command.command === "git") return Effect.succeed(handle(0, ""));
-        if (first === "pr" && second === "view")
-          return Effect.succeed(
-            handle(
-              0,
-              JSON.stringify({
-                id: "PR_loop",
-                number: 1,
-                url: "https://github.com/beep/repo/pull/1",
-                state: "OPEN",
-                mergeable: "MERGEABLE",
-                mergeStateStatus: "CLEAN",
-                isDraft: false,
-                reviewDecision: null,
-                headRefOid: "aaa111",
-                labels: [],
-              })
-            )
-          );
-        if (first === "pr" && second === "checks") return Effect.succeed(handle(0, "[]"));
-        // Every page claims a successor at the cursor that was just requested:
-        // a loop that trusted it would re-read this page forever.
-        if (first === "api")
-          return Ref.update(pageReads, (n) => n + 1).pipe(
-            Effect.as(
-              handle(
-                0,
-                JSON.stringify({
-                  data: {
-                    node: {
-                      author: { login: "octocat" },
-                      reviewThreads: {
-                        nodes: [
-                          {
-                            id: "PRRT_loop",
-                            isResolved: false,
-                            isOutdated: false,
-                            path: "src/a.ts",
-                            line: 1,
-                            resolvedBy: null,
-                            comments: {
-                              nodes: [{ author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 }],
-                            },
-                            latest: {
-                              nodes: [{ author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 }],
-                            },
+for (const restRecoveryAvailable of [false, true]) {
+  it.effect(
+    `status refuses a review-thread page that names itself as its own successor (REST recovery: ${restRecoveryAvailable})`,
+    () =>
+      temporary((root) =>
+        Effect.gen(function* () {
+          const pageReads = yield* Ref.make(0);
+          const restReads = yield* Ref.make(0);
+          const runner = ChildProcessSpawner.make((command) => {
+            if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+            const [first, second] = command.args;
+            if (command.command === "git") return Effect.succeed(handle(0, ""));
+            if (first === "pr" && second === "view")
+              return Effect.succeed(
+                handle(
+                  0,
+                  JSON.stringify({
+                    id: "PR_loop",
+                    number: 1,
+                    url: "https://github.com/beep/repo/pull/1",
+                    state: "OPEN",
+                    mergeable: "MERGEABLE",
+                    mergeStateStatus: "CLEAN",
+                    isDraft: false,
+                    reviewDecision: null,
+                    headRefOid: "aaa111",
+                    labels: [],
+                  })
+                )
+              );
+            if (first === "pr" && second === "checks") return Effect.succeed(handle(0, "[]"));
+            if (first === "api" && second !== "graphql") {
+              return Ref.update(restReads, (n) => n + 1).pipe(
+                Effect.as(handle(restRecoveryAvailable ? 0 : 1, restRecoveryAvailable ? "[]" : "REST unavailable"))
+              );
+            }
+            // Every page claims a successor at the cursor that was just requested:
+            // a loop that trusted it would re-read this page forever.
+            if (first === "api")
+              return Ref.update(pageReads, (n) => n + 1).pipe(
+                Effect.as(
+                  handle(
+                    0,
+                    JSON.stringify({
+                      data: {
+                        node: {
+                          author: { login: "octocat" },
+                          reviewThreads: {
+                            nodes: [
+                              {
+                                id: "PRRT_loop",
+                                isResolved: false,
+                                isOutdated: false,
+                                path: "src/a.ts",
+                                line: 1,
+                                resolvedBy: null,
+                                comments: {
+                                  nodes: [
+                                    { author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 },
+                                  ],
+                                },
+                                latest: {
+                                  nodes: [
+                                    { author: { __typename: "User", login: "reviewer" }, body: "?", databaseId: 1 },
+                                  ],
+                                },
+                              },
+                            ],
+                            pageInfo: { hasNextPage: true, endCursor: "same-cursor" },
                           },
-                        ],
-                        pageInfo: { hasNextPage: true, endCursor: "same-cursor" },
+                        },
                       },
-                    },
-                  },
-                })
-              )
-            )
+                    })
+                  )
+                )
+              );
+            return Effect.succeed(handle(0, "[]"));
+          });
+          const failure = yield* collectYeetStatus(contextFor(root), true).pipe(
+            Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
+            Effect.flip
           );
-        return Effect.succeed(handle(0, "[]"));
-      });
-      const result = yield* collectYeetStatus(contextFor(root), true).pipe(
-        Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
-        Effect.result
-      );
-      expect(Result.isFailure(result)).toBe(true);
-      expect(Result.isFailure(result) ? result.failure.message : "").toContain("repeated the same GraphQL end cursor");
-      // The first page and its claimed successor were read; the third lap never ran.
-      expect(yield* Ref.get(pageReads)).toBe(2);
-    })
-  ).pipe(provideScopedLayer(platform))
-);
+          assertInclude(failure.message, "repeated the same GraphQL end cursor");
+          // The first page and its claimed successor were read; the third lap never ran.
+          expect(yield* Ref.get(pageReads)).toBe(2);
+          expect(yield* Ref.get(restReads)).toBe(0);
+        })
+      ).pipe(provideScopedLayer(platform))
+  );
+}
 
 it.effect("keeps following settled red heads, preserving the one-rerun budget", () =>
   temporary((root) =>

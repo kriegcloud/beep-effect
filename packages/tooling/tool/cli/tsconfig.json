@@ -63,6 +63,9 @@
       "path": "../../../foundation/capability/chalk/tsconfig.json"
     },
     {
+      "path": "../../../foundation/capability/cli-kit/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/capability/colors/tsconfig.json"
     },
     {
@@ -90,10 +93,16 @@
       "path": "../../../foundation/capability/xdg/tsconfig.json"
     },
     {
+      "path": "../../../foundation/modeling/github-reporting/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/modeling/glob/tsconfig.json"
     },
     {
       "path": "../../../foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/modeling/lockfiles/tsconfig.json"
     },
     {
       "path": "../../../foundation/modeling/markdown/tsconfig.json"
@@ -103,6 +112,9 @@
     },
     {
       "path": "../../../foundation/modeling/schema/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/modeling/semver/tsconfig.json"
     },
     {
       "path": "../../../foundation/modeling/skill-contract/tsconfig.json"

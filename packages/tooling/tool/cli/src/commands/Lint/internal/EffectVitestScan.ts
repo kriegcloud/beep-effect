@@ -210,6 +210,8 @@ const enablesBrowserMode = (owner: ObjectLiteralExpression): boolean =>
  * console.log(browserModeIncludeGlobs(config)) // ["test/browser/**\/*.test.ts"]
  * ```
  *
+ * @param config - The parsed vitest config source file to scan.
+ * @returns The include globs of every browser-mode project, in source order; empty when none qualifies.
  * @category parsing
  * @since 0.0.0
  */
