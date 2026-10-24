@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-24T06:37:17.919Z",
+  "generatedAt": "2026-10-24T12:50:03.239Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -470245,8 +470245,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Cache/Cache.protocol.fixture.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Cache/Cache.protocol.fixture.ts",
-          "line": 110,
-          "anchor": "packages-tooling-tool-cli-src-commands-cache-cache-protocol-fixture-ts-110-makecacheprotocolfixture",
+          "line": 153,
+          "anchor": "packages-tooling-tool-cli-src-commands-cache-cache-protocol-fixture-ts-153-makecacheprotocolfixture",
           "currentTags": [
             "@category",
             "@since"
@@ -489586,8 +489586,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.command.ts",
-          "line": 832,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-command-ts-832-filescommand",
+          "line": 875,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-command-ts-875-filescommand",
           "currentTags": [
             "@category",
             "@since"
@@ -490606,8 +490606,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 64,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-64-targetnameforentryoptions",
+          "line": 65,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-65-targetnameforentryoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -490628,8 +490628,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 112,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-112-candidateassessmentthresholds",
+          "line": 118,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-118-candidateassessmentthresholds",
           "currentTags": [
             "@category",
             "@since"
@@ -490650,8 +490650,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 157,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-157-formatindex",
+          "line": 163,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-163-formatindex",
           "currentTags": [
             "@param",
             "@returns",
@@ -490674,8 +490674,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 179,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-179-targetnameforentry",
+          "line": 185,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-185-targetnameforentry",
           "currentTags": [
             "@param",
             "@returns",
@@ -490698,8 +490698,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 211,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-211-hasskippedfiles",
+          "line": 232,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-232-hasskippedfiles",
           "currentTags": [
             "@param",
             "@returns",
@@ -490722,8 +490722,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 229,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-229-selectedcanonicalpathset",
+          "line": 250,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-250-selectedcanonicalpathset",
           "currentTags": [
             "@param",
             "@returns",
@@ -490746,8 +490746,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 256,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-256-uniquenormalizetargetname",
+          "line": 277,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-277-uniquenormalizetargetname",
           "currentTags": [
             "@param",
             "@returns",
@@ -490770,8 +490770,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 291,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-291-uniquearchivetargetname",
+          "line": 312,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-312-uniquearchivetargetname",
           "currentTags": [
             "@param",
             "@returns",
@@ -490794,8 +490794,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 322,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-322-roundcandidatemetric",
+          "line": 343,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-343-roundcandidatemetric",
           "currentTags": [
             "@param",
             "@returns",
@@ -490818,8 +490818,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 341,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-341-assessimagecandidate",
+          "line": 362,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-362-assessimagecandidate",
           "currentTags": [
             "@param",
             "@returns",
@@ -490842,8 +490842,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 403,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-403-cropbordersplanentryfromdetection",
+          "line": 424,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-424-cropbordersplanentryfromdetection",
           "currentTags": [
             "@param",
             "@returns",
@@ -490866,8 +490866,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.plan.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.plan.ts",
-          "line": 451,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-451-makestripmetadatatempentries",
+          "line": 472,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-plan-ts-472-makestripmetadatatempentries",
           "currentTags": [
             "@param",
             "@returns",
@@ -491837,8 +491837,8 @@
           "exportKind": "interface",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 205,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-205-filescommandserviceshape",
+          "line": 215,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-215-filescommandserviceshape",
           "currentTags": [
             "@category",
             "@since"
@@ -491859,8 +491859,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 313,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-313-filescommandservice",
+          "line": 323,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-323-filescommandservice",
           "currentTags": [
             "@category",
             "@since"
@@ -491881,8 +491881,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 1681,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-1681-printfilesindex",
+          "line": 1748,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-1748-printfilesindex",
           "currentTags": [
             "@category",
             "@since"
@@ -491903,8 +491903,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2337,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2337-filescommandservicelive",
+          "line": 2408,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2408-filescommandservicelive",
           "currentTags": [
             "@category",
             "@since"
@@ -491925,8 +491925,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2356,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2356-auditimages",
+          "line": 2430,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2430-auditimages",
           "currentTags": [
             "@param",
             "@returns",
@@ -491949,8 +491949,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2379,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2379-archivepoorcandidates",
+          "line": 2453,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2453-archivepoorcandidates",
           "currentTags": [
             "@param",
             "@returns",
@@ -491973,8 +491973,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2402,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2402-createcaptionfiles",
+          "line": 2476,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2476-createcaptionfiles",
           "currentTags": [
             "@param",
             "@returns",
@@ -491997,8 +491997,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2425,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2425-cropbordersfiles",
+          "line": 2499,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2499-cropbordersfiles",
           "currentTags": [
             "@param",
             "@returns",
@@ -492021,8 +492021,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2448,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2448-curateimages",
+          "line": 2522,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2522-curateimages",
           "currentTags": [
             "@param",
             "@returns",
@@ -492045,8 +492045,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2471,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2471-detectbordersfiles",
+          "line": 2545,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2545-detectbordersfiles",
           "currentTags": [
             "@param",
             "@returns",
@@ -492069,8 +492069,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2498,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2498-flattenmediafiles",
+          "line": 2572,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2572-flattenmediafiles",
           "currentTags": [
             "@effects",
             "@category",
@@ -492092,8 +492092,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2527,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2527-matchperson",
+          "line": 2601,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2601-matchperson",
           "currentTags": [
             "@param",
             "@returns",
@@ -492116,8 +492116,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2550,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2550-normalizefiles",
+          "line": 2624,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2624-normalizefiles",
           "currentTags": [
             "@param",
             "@returns",
@@ -492140,8 +492140,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2574,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2574-processfiles",
+          "line": 2648,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2648-processfiles",
           "currentTags": [
             "@param",
             "@returns",
@@ -492165,8 +492165,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2600,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2600-sortandrenamefiles",
+          "line": 2674,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2674-sortandrenamefiles",
           "currentTags": [
             "@param",
             "@returns",
@@ -492189,8 +492189,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Files/Files.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-          "line": 2629,
-          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2629-stripmetadatafiles",
+          "line": 2703,
+          "anchor": "packages-tooling-tool-cli-src-commands-files-files-service-ts-2703-stripmetadatafiles",
           "currentTags": [
             "@param",
             "@returns",
