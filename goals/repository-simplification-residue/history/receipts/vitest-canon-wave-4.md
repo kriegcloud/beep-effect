@@ -36,7 +36,8 @@ files, all in `@beep/repo-cli`, so it stays under the 40-file budget and needs n
 
 After the migrations the inventory is regenerated with `lint effect-vitest --write`. It
 shrinks from 1,292 to 1,193 rows (open 539 to 454, exceptions 753 to 739), and the next
-scan reports `introduced=0 resolved=0`. The 99 retired rows are 85 open rows and 14
+scan reports `introduced=0 resolved=0`. After the merge of `main` (which brought #2186), the regenerated inventory goes from
+1,213 to 1,114 rows with `introduced=0`, and all 7 #1855 wave-4 register exceptions are intact. The 99 retired rows are 85 open rows and 14
 EV006 exceptions, all in this wave's files. No row was added.
 
 Before that write, the plain scan reported seven "new" rows. They are not new findings.
@@ -151,8 +152,9 @@ rows stay open for their owners and are not detector false positives:
 
 ## Remaining
 
-- In-scope rows still open: 4 EV006 (browser, retired by #1855 wave 4 / #2186), 5 EV008
-  and 2 EV013 (the #1855 hand-offs above), 3 EV012 (no seam).
+- In-scope rows still open after the main merge: 10. These are 5 EV008 and 2 EV013 (the #1855
+  hand-offs above) and 3 EV012 (no seam). The 4 browser EV006 rows were retired by #1855 wave 4
+  (#2186) and no longer appear.
 - Next: wave 5, the resource-lifetime families (EV004 and EV003) plus the
   `ThreadStore.test.ts:301` EV004 row that wave 3 deferred. After that come EV002 and
   EV010, as wave 1 planned. The two step-capture EV013 polls migrate once the EV008
@@ -167,7 +169,7 @@ cross-provider lane. Every heavy command ran alone through `beep-heavy` with std
 
 | Check | Result |
 | --- | --- |
-| `bun run beep lint effect-vitest` | base `introduced=0 resolved=0`; before `--write`, seven re-keyed EV002 rows reported as new (see measurement); after `--write`, `introduced=0 resolved=0`, 1,193 findings (1,292 to 1,193 rows). The final scan lists 2,545 files where the base listed 2,508: the extra 37 are git-ignored build output from the dependency build, and they contribute no finding. |
+| `bun run beep lint effect-vitest` | base `introduced=0 resolved=0`; before `--write`, seven re-keyed EV002 rows reported as new (see measurement); after `--write`, `introduced=0 resolved=0`, 1,193 findings (1,292 to 1,193 rows); after the main merge, 1,114 findings (1,213 to 1,114 rows). The final scan lists 2,545 files where the base listed 2,508: the extra 37 are git-ignored build output from the dependency build, and they contribute no finding. |
 | `check` for `@beep/repo-cli` (`tsconfig.check.json`, `scripts/`, `test/tsconfig.json`) | exit 0, 0 errors. The first run reported 23 `missedPipeableOpportunity` and one `unnecessaryEffectGen` diagnostic in the migrated lines. All were fixed before the rerun, and it was rerun again after Biome formatting. |
 | `package-test-typecheck` (`quality test-tsgo-package`) | exit 0 |
 | Changed suites, Bun / Node | 26 files (the 24 changed files plus two name-matched siblings), 1,030 tests, all passed on both runtimes |
