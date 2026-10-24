@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); wave 2d-2 merged (#2121, `@beep/md` syntax bridge, D-48..D-51); 2d-3 merged (#2141, D-52); D-53 merged (#2143); wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-p): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, W3-b), 3-2 merged (#2129, `@beep/repo-tsconfig`, W3-c, W3-k..W3-n), 3-4 merged (#2126, `@beep/package-json`, W3-f), 3-3 merged (#2134, `@beep/config-file`, W3-e), 3-5 merged (#2159, `@beep/lockfiles`, W3-g), 3-A1..3-A9 queued; wave 4 and the closing roadmap (`research/wave-4-plan-2026-10-23.md`, W4-a..W4-t): 4-X (`@beep/xdg`, W4-c) in review in this PR; R0 merged (#2156, docs: reuse-ledger backfill, SPEC W4 rows), the rest queued in the PR sequence below.
+Status: `active` — P1: wave 1a merged (#1956, eight packages); wave 1b merged (#1981, six packages, D-07 retirement, D-23 shared helpers); wave 2a merged (#1988, `@beep/npm-spec`, `@beep/tsconfig`); wave 2b merged (#1992 `@beep/walker`, #1994 `@beep/github`, #2002 `@beep/runtime-env`); wave 2c merged (#2016, glob adoption, D-37); wave 2d-1 merged (#2102, `@beep/markdown`, D-38..D-46); 2d-A merged (#2114, D-47); wave 2d-2 merged (#2121, `@beep/md` syntax bridge, D-48..D-51); 2d-3 merged (#2141, D-52); D-53 merged (#2143); wave 3 (`research/wave-3-plan-2026-10-23.md`, W3-a..W3-p): 3-Y merged (#2116, W3-d), 3-1 merged (#2122, W3-b), 3-2 merged (#2129, `@beep/repo-tsconfig`, W3-c, W3-k..W3-n), 3-4 merged (#2126, `@beep/package-json`, W3-f), 3-3 merged (#2134, `@beep/config-file`, W3-e), 3-5 merged (#2159, `@beep/lockfiles`, W3-g), 3-A1..3-A9 queued; wave 4 and the closing roadmap (`research/wave-4-plan-2026-10-23.md`, W4-a..W4-t): R0 merged (#2156, docs: reuse-ledger backfill, SPEC W4 rows), 4-CI merged (#2179, W4-e), 4-X merged (#2184, `@beep/xdg`, W4-c), 4-C merged (#2200, `@beep/cli-kit`, W4-d); DEBT (W4-j DEBT part, W4-u: lab github-actions suite green, goal ops-script registration, plan snapshot note) in review in this PR; the rest queued in the PR sequence below.
 
 ## Phases
 
@@ -50,9 +50,10 @@ the sub-wave order, dependencies and parallel lanes, and its decisions are recor
 | 3-A8 (queued, optional) | `GitHubMarkdown.table` adoption | repo-cli `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts`. After 3-1. |
 | 3-A9 (queued, optional) | `ScopedPackageName` | observability `catalog/Catalog.names.ts`. After 3-4. |
 | 4-X (merged, #2184) | `@beep/xdg` | W4-c, W4-h (4-X part). Root `Xdg`, `AppDirs`, `NativeDirs` and the new `XdgBase` leaf; `./XdgConfig` subpath-only (root-closure test). Absolute values only; HOME-optional `XdgBase`; the platform through `HostProcessPlatform`; branded Opaque records. Adopters: m365-mcp `OutboxConfig` roots, repo-cli `WorkstationState` (env-matrix parity committed against the old bodies). Frozen `systemd-path` goldens (900 cases) and `ops/xdg-systemd-differential.ts` (0 undocumented differences); the lab xdg directories are gone; coverage 100/100/100/100. Cut after 3-3 merged. |
-| 4-C (in review, this PR) | `@beep/cli-kit` | W4-d, W4-g (4-C), W4-h (4-C), W4-j (4-C), W4-s (4-C). Root and `./testing` of the lab `cli` (`ui/**` stays in the lab until C, W4-m). Named importers migrated in the PR: `@beep/repo-cli` (`MonitorComments` and `Accounts.view`) and `@beep/repo-ai-metrics` (`agent-effectiveness`), all through `Fmt`. New `Fmt.stripControls` (single-line strict) with `ops/cli-kit-sanitize-differential.ts` at 0 differences against both private copies; `CliMessage.status` predicate dispatch; the #1928 option fields keep `S.optionalKey` under EF-40 (#2145) with the explicit-undefined tests inverted to pin rejection; operation-count bench `ops/cli-kit-bench.ts`; a raw-glob boundary test. Lab `./ui` retargeted to the package. |
-| 4 (queued) | `@beep/sbom` (4-S), `@beep/xdg` (4-X), `@beep/cli-kit` (4-C), `@beep/repo-workspaces` (4-W-a, 4-W-b) | W4-a..W4-g; order and adoptions in "Wave 4 and the closing roadmap" below. `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
-| 5 (queued, W5) | `@beep/github-actions` | Leaf driver; after 4-S, 3-A8 and W4-j. |
+| 4-C (merged, #2200) | `@beep/cli-kit` | W4-d, W4-g (4-C), W4-h (4-C), W4-j (4-C), W4-s (4-C). Root and `./testing` of the lab `cli` (`ui/**` stays in the lab until C, W4-m). Named importers migrated in the PR: `@beep/repo-cli` (`MonitorComments` and `Accounts.view`) and `@beep/repo-ai-metrics` (`agent-effectiveness`), all through `Fmt`. New `Fmt.stripControls` (single-line strict) with `ops/cli-kit-sanitize-differential.ts` at 0 differences against both private copies; `CliMessage.status` predicate dispatch; the #1928 option fields keep `S.optionalKey` under EF-40 (#2145) with the explicit-undefined tests inverted to pin rejection; operation-count bench `ops/cli-kit-bench.ts`; a raw-glob boundary test. Lab `./ui` retargeted to the package. |
+| 4 (queued) | `@beep/sbom` (4-S), `@beep/repo-workspaces` (4-W-a, 4-W-b); 4-X and 4-C merged above | W4-a..W4-g; order and adoptions in "Wave 4 and the closing roadmap" below. `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
+| DEBT (in review, this PR) | no new package | W4-j (DEBT), W4-u. Closes #2185: the lab `github-actions` suite is 957/957 on Node and Bun (was 12 failing) with the explicit-undefined tests inverted to pin rejection, the `DetachedProcess.reap` ESRCH classification fixed with a red-then-green real-process test, and the Bun `process.exitCode` restore in `Action.test.ts`. Closes #2170: `initiative-manifest/v2` `opsScripts` with the `beep goals doctor` registration check, all ten `ops/*.ts` registered. Closes #2160: the wave-4 plan snapshot note. |
+| 5 (queued, W5) | `@beep/github-actions` | Leaf driver; after 4-S, 3-A8 and W4-j (the lab suite is already green after DEBT). |
 | Deferred | npm registry/publish driver, `@beep/sigstore`, `@beep/ink`, `engine` -> `@beep/mcp-kit` | D-05 as amended by W4-m: deleted from the lab at C and pinned by sha; see "Deferred" below. |
 
 ## Wave 4 and the closing roadmap
@@ -72,13 +73,13 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | 3-3 (#2134, merged) | `@beep/config-file`; docgen `readJsoncFile`, repo-cli Models `load`; lab xdg and cli retargets | 3-Y (merged) |
 | 3-5 (#2159, merged) | `@beep/lockfiles`; lab workspaces retargets | main |
 | 2d-3 (#2141, merged) | `@beep/md` `Md.render` `&`/`$` escaping, evidence-gated | 2d-2 (merged) |
-| R0 | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
+| R0 (#2156, merged) | docs only: ~195 reuse-ledger rows; drop the stale frontmatter ledger row; SPEC matrix `check:effected`; W4-a..W4-t rows; SPEC duplicate dedupe (first pass) | main |
 | 3-A2 | package-json field growth (`DevEngine.onFail` gains `download`, verified against npm docs) | 3-4 (merged) |
 | 3-A5 | CheckCensus onto `TsconfigLoader.compilerOptions` | 3-2 (merged) |
 | 3-A7 | `TsconfigSync.schemas` onto `@beep/tsconfig`, byte parity | 3-2 (merged) |
 | 3-A8 | `GitHubMarkdown.table` in `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts` | 3-1 (merged) |
 | 3-A9 | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
-| 4-CI | one CI rule through `@beep/runtime-env` (W4-e) | main |
+| 4-CI (#2179, merged) | one CI rule through `@beep/runtime-env` (W4-e) | main |
 | R1 | delete `@beep/schema/Semver`; BunResolver and DockerResolver onto `@beep/semver`; `Cache.policy.ts:245` pin | main |
 | R2a | `vitest.setup.ts`: `toml` shim out, `GlobShim` matcher on `@beep/glob`; `toml`, `picomatch`, `@types/picomatch` out of the root | main |
 | R2b | repo-cli `internal/GlobPattern.ts` onto `@beep/glob`; `tinyglobby` out of `EffectImports.ts`; closes "Duplicate glob matching" | main (after 4-CI on `Tasks.ts`) |
@@ -86,8 +87,8 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | R9 | exiftool, pdf-tools, obs, tailscale onto `@beep/commands` `Run.collect`; retire the D-03 "Driver-local output folds" row | main (after #2145 if it is close to merging) |
 | R10 | `@beep/git` for `Skills/internal/MergeBase.ts`, `repo-run/GitWorktree.ts`, `Yeet/internal/ProvenanceFooter.ts`, dead `GitExec.ts` collectors | main |
 | 4-S | `@beep/sbom` (W4-b); lab signer, github-actions, PROMOTED maps | main |
-| 4-X | `@beep/xdg` (W4-c); m365-mcp `OutboxConfig`, repo-cli `WorkstationState` | 3-3 |
-| 4-C (in review) | `@beep/cli-kit` (W4-d); repo-cli MonitorComments + Accounts.view, ai-metrics agent-effectiveness; lab ui retargets | 3-3 |
+| 4-X (#2184, merged) | `@beep/xdg` (W4-c); m365-mcp `OutboxConfig`, repo-cli `WorkstationState` | 3-3 |
+| 4-C (#2200, merged) | `@beep/cli-kit` (W4-d); repo-cli MonitorComments + Accounts.view, ai-metrics agent-effectiveness; lab ui retargets | 3-3 |
 | 3-A1 | lockfiles adoption + `ResolvedPackage.installName`; `CatalogUsage.ts`, `RootCatalog.ts` (bun.lock half) | 3-5 |
 | 3-A3 | repo-utils re-base on `@beep/package-json` (`schemas/PackageJson.ts` 2,111 → ~450, HashMap moves) | 3-A2 |
 | 4-W-a | `@beep/repo-workspaces` core + config-deps (W4-f) | 3-5 |
@@ -147,16 +148,18 @@ bridge section that closes map sites #237 and #290 and the placement half of
 
 PR #1928 changed `S.optional` to `S.optionalKey` across the lab, and the
 scratchpad tests are not part of hosted CI, so these failed on `main` before
-wave 1 (attributed on a pristine `426d494b34` checkout, 2026-10-21). Each
-promotion restores the upstream optional semantics its tests assert, as
-`@beep/commands` did in wave 1.
+wave 1 (attributed on a pristine `426d494b34` checkout, 2026-10-21). Until
+EF-40 (#2145) each promotion restored the upstream optional semantics its
+tests asserted, as `@beep/commands` did in wave 1. Since EF-40 is on main
+(W4-j) the rule is inverted: optional fields stay `S.optionalKey` and each
+explicit-undefined test is inverted to pin rejection.
 
 | Module | Failing on main | Wave |
 | --- | --- | --- |
 | `github` | `CodeScanning.test.ts` explicit-undefined keys | fixed in 2b-2: `CodeScanningSetup`'s five optional keys are `S.optional` again; the Bun `blakejs` interop failure in `crypto.test.ts` went with the dependency (D-34) |
 | `engine` | `ProcessGuard.test.ts` explicit-undefined `onRejection` | deferred |
-| `github-actions` | Artifact, BlobStore, DetachedProcess, GitHubToken, twirp, PackageManagerInstaller, sigv4, ToolInstaller option schemas (GitHubMarkdown and ManagedDocument fixed in 3-1, W3-b) | 5 |
-| `cli` | CliLog/CliTest property tests, round-3 config and key-input schemas, CliMessage and Status hostile-glyph suites | 4 |
+| `github-actions` | Artifact, BlobStore, DetachedProcess, GitHubToken, twirp, PackageManagerInstaller, sigv4, ToolInstaller option schemas (GitHubMarkdown and ManagedDocument fixed in 3-1, W3-b) | fixed in DEBT (#2185, W4-j): tests inverted to pin rejection, `DetachedProcess.reap` ESRCH fixed; suite 957/957 on Node and Bun |
+| `cli` | CliLog/CliTest property tests, round-3 config and key-input schemas, CliMessage and Status hostile-glyph suites | fixed in 4-C (#2200, W4-j) |
 
 ## Execution Notes
 
