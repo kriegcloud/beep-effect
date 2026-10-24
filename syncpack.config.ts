@@ -157,10 +157,11 @@ const config = {
       // (goals/effect-string-migration) cleared its 2,992 sites.
       // The import-style rules remain declared off; named helper imports are
       // deliberate and Effect barrel imports contradict the module-path law.
-      // tsc-rs (pingdotgg/ts-rust) 0.8.0 stays independently held. Its port is
-      // effect-tsgo 0.51.1 and its TypeScript pin is 7.1.0-dev.20261008.1.
-      // Re-couple only after tsc-rs ports the newest rules and parity is proved,
-      // then remove the standalone diagnostics lane. See the toolchain runbook.
+      // tsc-rs (pingdotgg/ts-rust) is not held: `deps:update` moves it to the
+      // latest release, and its six @tsc-rs/<platform> binaries follow through
+      // the lockfile. It stays decoupled from @effect/tsgo. Re-couple only after
+      // tsc-rs ports the newest Effect rules and parity is proved, then remove the
+      // standalone diagnostics lane. See the toolchain runbook.
       // @biomejs/biome stays at 2.5.6: 2.5.15 reformats four @beep/html and
       // @beep/provenance sources and adds a noDeprecatedImports error in
       // @beep/repo-cli (hold register, 2026-10-17). Bump it with that
@@ -194,7 +195,6 @@ const config = {
         "detailed-xml-validator",
         "@biomejs/biome",
         "@effect/tsgo",
-        "tsc-rs",
       ],
       isIgnored: true,
     },
