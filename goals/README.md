@@ -46,6 +46,16 @@ goals/<slug>/
 | `ops/handoffs/` | Optional phase-specific handoffs or secondary execution packets. |
 | `ops/prompts/` | Optional reusable prompts or prompt assets. |
 
+### Ops Script Registry
+
+`ops/manifest.json` may declare an optional `opsScripts` list, one
+`{ "path": "ops/<file>.ts", "purpose": "<one line>" }` entry per script. Once a
+packet declares it, `bun run beep goals doctor` blocks on `ops-script-missing`
+(a listed path that does not exist), `ops-script-unregistered` (an `ops/**/*.ts`
+file with no entry) and `ops-script-duplicate` (a path listed twice). Register a
+new ops script in the same PR that adds it. Packets without the key are not
+checked.
+
 ### Launcher Rule
 
 Every future execution-capable packet must include `GOAL.md`.
