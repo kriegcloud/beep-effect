@@ -22,16 +22,19 @@ it.effect("Twirp field readers handle absent, primitive, snake-case, and empty v
   assert.strictEqual(isRetryable({ method: "Read", kind: "status" }), false);
 }));
 
-it.effect("Twirp failure schema preserves optional fields in every structural variant", () => Effect.gen(function* () {
+it.effect("Twirp failure schema preserves optional fields and rejects explicit undefined in every structural variant", () => Effect.gen(function* () {
   for (const kind of ["transport", "status", "malformed"] as const) {
     for (const failure of [
       { method: "", kind },
-      { method: "Read", kind, status: undefined, cause: undefined },
       { method: "Read", kind, status: 503, cause: { message: "failure" } },
     ] satisfies ReadonlyArray<TwirpFailure>) {
       assert.deepStrictEqual(yield* S.decodeEffect(TwirpFailure)(failure), failure);
       assert.deepStrictEqual(yield* S.encodeEffect(TwirpFailure)(failure), failure);
     }
+    // Exact optional keys (EF-40): an optional key is omitted, never undefined.
+    assert.isFalse(S.is(TwirpFailure)({ method: "Read", kind, status: undefined }));
+    // `cause` is `S.Unknown`, whose domain includes the undefined value itself.
+    assert.isTrue(S.is(TwirpFailure)({ method: "Read", kind, cause: undefined }));
     for (const status of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, "503"]) {
       assert.isFalse(S.is(TwirpFailure)({ method: "Read", kind, status }));
     }

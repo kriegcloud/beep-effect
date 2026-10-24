@@ -340,6 +340,19 @@ export const makeKnowledgeGoalPacketReader = (
 ): GoalPacketReader<KnowledgeOperationalError, never> => {
   const paths = trackedPaths(oracle);
   const directories = ancestorDirectories(paths);
+  // One pass over the tree buckets every packet's `ops/` entries, so a lookup per
+  // packet never rescans the whole tracked tree.
+  const opsFilesByPacket = MutableHashMap.empty<string, ReadonlyArray<string>>();
+  for (const entry of oracle.trackedEntries) {
+    for (const slug of O.toArray(packetSlug(entry.path))) {
+      const packetPath = `${GOALS_DIR}/${slug}`;
+      const relative = Str.slice(Str.length(packetPath) + 1)(entry.path);
+      if (Str.startsWith("ops/")(relative)) {
+        const existing = O.getOrElse(MutableHashMap.get(opsFilesByPacket, packetPath), A.empty<string>);
+        MutableHashMap.set(opsFilesByPacket, packetPath, A.append(existing, relative));
+      }
+    }
+  }
   return {
     reflectionFiles: (packetPath) => {
       const prefix = `${packetPath}/${REFLECTIONS_DIR}/`;
@@ -355,6 +368,10 @@ export const makeKnowledgeGoalPacketReader = (
         )
       );
     },
+    opsFiles: (packetPath) =>
+      Effect.succeed(
+        A.sort(O.getOrElse(MutableHashMap.get(opsFilesByPacket, packetPath), A.empty<string>), Order.String)
+      ),
     readReflection: (packetPath, file) => readText(oracle, `${packetPath}/${REFLECTIONS_DIR}/${file}`),
     explorationPath: (exploration) =>
       Effect.succeed(

@@ -84,7 +84,7 @@ export const uriEncode = (value: string): string =>
 export const SigV4Credentials = S.Struct({
 	accessKeyId: S.String.pipe($I.annoteKey("SigV4Credentials.accessKeyId", { description: "The public access key identifier." })),
 	secretAccessKey: S.String.pipe($I.annoteKey("SigV4Credentials.secretAccessKey", { description: "The already declassified signing secret." })),
-	sessionToken: S.optionalKey(S.String).pipe($I.annoteKey("SigV4Credentials.sessionToken", { description: "A temporary session token, absent or explicitly undefined otherwise." })),
+	sessionToken: S.optionalKey(S.String).pipe($I.annoteKey("SigV4Credentials.sessionToken", { description: "A temporary session token, absent otherwise." })),
 	region: S.String.pipe($I.annoteKey("SigV4Credentials.region", { description: "The signing region." })),
 	/** Almost always `"s3"` here, but the algorithm is not S3-specific. */
 	service: S.String.pipe($I.annoteKey("SigV4Credentials.service", { description: "The signing service, usually s3." })),
