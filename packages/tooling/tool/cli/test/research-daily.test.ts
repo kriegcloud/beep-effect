@@ -18,6 +18,7 @@ import {
 } from "@beep/repo-cli/test/Research";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -291,10 +292,16 @@ layer(testLayer, { timeout: "30 seconds" })("research daily cognify gate", (it) 
       expect(insecure.message).toBe(COGNEE_API_URL_INSECURE);
 
       const secure = yield* readCogneeSettings.pipe(withConfig({ COGNEE_API_URL: "https://cognee.example.com" }));
-      expect(O.map(secure, (settings) => settings.apiUrl)).toEqual(O.some("https://cognee.example.com"));
+      assertSome(
+        O.map(secure, (settings) => settings.apiUrl),
+        "https://cognee.example.com"
+      );
 
       const loopback = yield* readCogneeSettings.pipe(withConfig({ COGNEE_API_URL: UNREACHABLE_COGNEE_URL }));
-      expect(O.map(loopback, (settings) => settings.apiUrl)).toEqual(O.some(UNREACHABLE_COGNEE_URL));
+      assertSome(
+        O.map(loopback, (settings) => settings.apiUrl),
+        UNREACHABLE_COGNEE_URL
+      );
       expect(isCogneeApiUrl("http://localhost:8010")).toBe(true);
       expect(isCogneeApiUrl("http://127.0.0.1:8010")).toBe(true);
       expect(isCogneeApiUrl("http://127.255.255.254")).toBe(true);

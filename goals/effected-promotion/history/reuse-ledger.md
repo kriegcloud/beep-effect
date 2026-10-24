@@ -145,12 +145,32 @@ formatter rewrites 185 of the 186 repo manifests, while a same-value `modifyToSt
 | `@beep/md` `Md.ts`: write-side DSL with no parser | #290 | resolved in 2d-2 | Merged into #237: `@beep/md/Md.parse` parses text. `@beep/schema`'s Markdown-to-HTML path stays (excluded with #227 and #258, MQ7 cycle). |
 | `@beep/md` merge design and hand-rolled frontmatter splitting | #259 | partly resolved in 2d-2 | Placement decided (D-02: parser in `@beep/markdown`, bridge in `@beep/md`) and the unsupported-node policy written (D-48). The frontmatter splitters are the 2d-A sites #37, #27, #276 and #231 above. |
 
+
+## `@beep/semver` (roadmap R1, SPEC W4-h)
+
+R1 is the owner switch. Parity is recorded in `research/semver-owner-switch-differential-r1.json`
+(`ops/semver-owner-switch-differential.ts`, run on a clean tree at 41a03502f3 with the deleted module restored
+from 6c0bb54d55 through `--old-module`): 0 unclassified differences in every section. That JSON is the only
+record of the old-module section; a run without `--old-module` reports it `skipped` and proves nothing for it.
+Docker differences are classified causally: the old strategy, re-run without the non-SemVer-core tags, must
+pick what the kit picks.
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| `@beep/schema/Semver` (`Semver`, `SemverFromString`) | #41 | retired (R1) | Zero importers. Deleted with its test, both export entries, the root re-export and the generated aliases, catalog and inventory rows. 2,264 versions parse alike with the same format; 5,125,696 ordered pairs agree except 14 probe pairs where the old `localeCompare` disagrees with ASCII order (§11.4.2). The old loose normalization (`v1.2.3`, `1.2`) had no caller. |
+| repo-cli VersionSync `BunResolver` `BunSemver` pattern and comparator | #42, #308 | adopted (R1) | One `SemVer.parseResult` after an optional leading `v` (no surrounding whitespace, no build metadata), then `SemVer.gte`; a property pins the `SemVer.gte` winner. 600,683 of 604,506 pairs pick the same pin; 3,436 involve a pin the kit rejects (leading zero, unsafe integer) and 387 differ only by the dropped leading `v` (the canonical pin written since c3260f33). `BunSemver` export removed (no importer). |
+| repo-cli VersionSync `DockerResolver` triple parser, comparator and the duplicated latest-tag loops | #43, #308 | adopted (R1) | One exported `selectLatestDockerTag` over `SemVer`: stable, pinnable, first-listed wins among equal versions; a property pins the first tag holding the `SemVer.compare` maximum. 8,842 of 9,000 seeded tag lists agree; each of the other 158 goes away once its non-SemVer-core tags are removed. |
+| `@beep/repo-configs` `CacheClientPin.version` inline regex | #46 | adopted (R1) | `SemVer.PinnableVersionString`. All 5 committed pins pass both; the 6 old-only accepts are leading zeros, an empty identifier and an unsafe integer. |
+| repo-cli VersionSync `RootCatalog` bun.lock versions | #269 | 3-A1 | The lockfile half rides the lockfiles adoption; its Docker semver half is #43 above. |
+| repo-utils `schemas/PackageJson.ts` version fields | #243 | 3-A3 | Re-based on `@beep/package-json`, which already types versions through `@beep/semver`. |
+| repo-cli `EffectResolver` `VERSION_SPECIFIER_PATTERN`, `TurboResolver` `STABLE_VERSION_PATTERN` | - | excluded | Shape checks on a specifier or schema URL; neither parses nor orders versions. |
+
 ## Backfill of the remaining map sites (R0, W4-k)
 
 Every confirmed and partial site of the map that had no row above (the earlier `2d-later` rows now carry their plan PR or exclusion too), so each one is migrated, queued under a
 PR id of the wave-4 plan's PR sequence (`research/wave-4-plan-2026-10-23.md`), or excluded with a reason. Each
 PR flips its own rows. Rows whose status the plan does not name were assigned from the map's prerequisite column.
-200 rows: 25 migrated, 94 queued on a plan PR,
+200 rows: 30 migrated, 89 queued on a plan PR,
 33 handed to the W4-l follow-up goal, 4 deferred with their module (W4-m) and 44 excluded.
 A row naming two PRs is split between them; #143 also appears above for its package.json half.
 
@@ -193,7 +213,7 @@ A row naming two PRs is split between them; #143 also appears above for its pack
 | repo-cli Quality/CatalogUsage.ts | #156 | partial | queued: 3-A1 | `CatalogUsage` onto `@beep/lockfiles` with `ResolvedPackage.installName`. |
 | repo-cli Quality/CatalogUsage.ts | #233 | partial | queued: 3-A1 | `CatalogUsage` onto `@beep/lockfiles` with `ResolvedPackage.installName`. |
 | repo-cli VersionSync/internal/resolvers/RootCatalog.ts | #289 | partial | queued: 3-A1 | `RootCatalog` bun.lock half onto `Lockfile.parse`; no `CatalogSet` for one catalog. |
-| repo-cli VersionSync/internal/resolvers/RootCatalog.ts | #269 | partial | queued: 3-A1; R1 | Lockfile half with 3-A1, Docker semver half with R1 (#43); counted there. |
+| repo-cli VersionSync/internal/resolvers/RootCatalog.ts | #269 | partial | queued: 3-A1 | Lockfile half with 3-A1; the Docker semver half is #43, migrated in R1. |
 
 ### Wave 4 promotions and adoptions (4-X, 4-X-A, 4-C, 4-C-A, 4-A1 to 4-A4)
 
@@ -227,11 +247,11 @@ A row naming two PRs is split between them; #143 also appears above for its pack
 
 | Site | Map id | Verdict | Status | Notes |
 | --- | --- | --- | --- | --- |
-| schema Semver.ts | #41 | confirmed | queued: R1 | Delete `@beep/schema/Semver` (closes the Duplicate semver model row). |
-| repo-cli VersionSync/internal/resolvers/BunResolver.ts | #42 | confirmed | queued: R1 | BunResolver `BunSemver` onto `@beep/semver` (strip a leading `v` first). |
-| repo-cli VersionSync/internal/resolvers/DockerResolver.ts | #43 | partial | queued: R1 | DockerResolver `semverCompare` onto `SemVer.Order`. |
-| repo-configs cache/Cache.policy.ts | #46 | confirmed | queued: R1 | `Cache.policy.ts` version pin onto `SemVer.PinnableVersionString`. |
-| repo-cli VersionSync/internal/resolvers | #308 | partial | queued: R1 | BunResolver `BunSemver` onto `@beep/semver` (strip a leading `v` first). |
+| schema Semver.ts | #41 | confirmed | migrated (R1, W4-h) | `@beep/schema/Semver` deleted; the Duplicate semver model row is closed. Migrated in R1; see the `@beep/semver` section above. |
+| repo-cli VersionSync/internal/resolvers/BunResolver.ts | #42 | confirmed | migrated (R1, W4-h) | BunResolver `BunSemver` onto `@beep/semver` (a leading `v` stripped first). Migrated in R1; see the `@beep/semver` section above. |
+| repo-cli VersionSync/internal/resolvers/DockerResolver.ts | #43 | partial | migrated (R1, W4-h) | DockerResolver `semverCompare` onto `@beep/semver` (`selectLatestDockerTag`). Migrated in R1; see the `@beep/semver` section above. |
+| repo-configs cache/Cache.policy.ts | #46 | confirmed | migrated (R1, W4-h) | `Cache.policy.ts` version pin onto `SemVer.PinnableVersionString`. Migrated in R1; see the `@beep/semver` section above. |
+| repo-cli VersionSync/internal/resolvers | #308 | partial | migrated (R1, W4-h) | BunResolver `BunSemver` onto `@beep/semver` (a leading `v` stripped first). Migrated in R1; see the `@beep/semver` section above. |
 | repo-cli Skills/internal/MergeBase.ts | #103 | partial | queued: R10 | `readAtMergeBase` over `Git.mergeBase` + `Git.show`. |
 | repo-cli internal/repo-run/GitWorktree.ts | #104 | partial | queued: R10 | Worktree list and remove onto `@beep/git`; prune stays a single capture call. |
 | repo-cli Yeet/internal/ProvenanceFooter.ts | #108 | partial | queued: R10 | Config reads onto `Git.configGet`/`Git.remoteUrl`. |

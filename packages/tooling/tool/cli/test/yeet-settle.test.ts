@@ -59,7 +59,7 @@ import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, it } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
+import { assertInclude, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
@@ -73,7 +73,6 @@ import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
@@ -649,11 +648,7 @@ describe("B7 settle contracts", () => {
     );
   }
   for (const value of ["0s", "x", "-1 seconds", "Infinity"]) {
-    it.effect(`rejects duration ${value}`, () =>
-      Effect.gen(function* () {
-        expect((yield* Effect.result(yeetMonitorDurationMillis(value)))._tag).toBe("Failure");
-      })
-    );
+    it.effect(`rejects duration ${value}`, () => Effect.flip(yeetMonitorDurationMillis(value)));
   }
   for (const [label, code, output] of [
     ["success", 0, '[{"type":"required_status_checks","parameters":{"required_status_checks":[{"context":"Lint"}]}}]'],
@@ -950,11 +945,17 @@ describe("closeout follow-up gate", () => {
 
   it("blocks threads-resolved on a reviewer follow-up and clears once it is answered", () => {
     const blocked = deriveYeetMergeReady(closeoutWith(1), remoteWith(1));
-    expect(O.flatMap(blocked, (value) => value.failing)).toStrictEqual(O.some("threads-resolved"));
+    assertSome(
+      O.flatMap(blocked, (value) => value.failing),
+      "threads-resolved"
+    );
 
     // The closeout artifact's own issue count still blocks on its own.
     const artifactOnly = deriveYeetMergeReady(closeoutWith(1), remoteWith(0));
-    expect(O.flatMap(artifactOnly, (value) => value.failing)).toStrictEqual(O.some("threads-resolved"));
+    assertSome(
+      O.flatMap(artifactOnly, (value) => value.failing),
+      "threads-resolved"
+    );
 
     // Answered: no follow-up left, no closeout issues, and the bot
     // acknowledgement never counted against the merge. The review window is
@@ -1160,12 +1161,11 @@ it.effect("status refuses a review-thread page that names itself as its own succ
           );
         return Effect.succeed(handle(0, "[]"));
       });
-      const result = yield* collectYeetStatus(contextFor(root), true).pipe(
+      const failure = yield* collectYeetStatus(contextFor(root), true).pipe(
         Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner),
-        Effect.result
+        Effect.flip
       );
-      expect(Result.isFailure(result)).toBe(true);
-      expect(Result.isFailure(result) ? result.failure.message : "").toContain("repeated the same GraphQL end cursor");
+      assertInclude(failure.message, "repeated the same GraphQL end cursor");
       // The first page and its claimed successor were read; the third lap never ran.
       expect(yield* Ref.get(pageReads)).toBe(2);
     })

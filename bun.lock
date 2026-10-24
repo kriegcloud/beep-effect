@@ -3793,6 +3793,7 @@
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
+        "@beep/semver": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/platform-node": "catalog:",
         "effect": "catalog:",
@@ -3924,6 +3925,7 @@
         "@beep/runpod": "workspace:^",
         "@beep/runtime-env": "workspace:^",
         "@beep/schema": "workspace:^",
+        "@beep/semver": "workspace:^",
         "@beep/skill-contract": "workspace:^",
         "@beep/spdx": "workspace:^",
         "@beep/t3-code": "workspace:^",

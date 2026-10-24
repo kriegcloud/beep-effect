@@ -14,6 +14,7 @@ import {
   sessionOrchestrator,
 } from "@beep/repo-cli/test/Session";
 import { describe, expect, it } from "@effect/vitest";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -67,8 +68,8 @@ describe("session ledger role", () => {
       recordedAt: "2026-10-06T00:00:00.000Z",
     });
     const decoded = SessionLedgerRowJson.decodeOption(legacy);
-    expect(O.isSome(decoded)).toBe(true);
-    if (O.isSome(decoded)) expect(decoded.value.role).toEqual(O.none());
+    decoded.pipe(O.isSome, assertTrue);
+    if (O.isSome(decoded)) assertNone(decoded.value.role);
   });
 
   it.effect("round-trips the role through JSON Lines", () =>
@@ -76,19 +77,25 @@ describe("session ledger role", () => {
       const encoded = yield* SessionLedgerRowJson.encode(ledgerRow({ role: O.some("orchestrator") }));
       expect(encoded).toContain('"role":"orchestrator"');
       const decoded = SessionLedgerRowJson.decodeOption(encoded);
-      expect(O.map(decoded, (row) => row.role)).toEqual(O.some(O.some("orchestrator")));
+      assertSome(
+        O.map(decoded, (row) => row.role),
+        O.some("orchestrator")
+      );
     })
   );
 
   it("names the newest open orchestrator row and ignores done or member rows", () => {
-    expect(sessionOrchestrator([])).toEqual(O.none());
+    assertNone(sessionOrchestrator([]));
     const rows = [
       ledgerRow({ checkout: "/a", role: O.some("orchestrator"), recordedAt: 10, sessionId: O.some("old") }),
       ledgerRow({ checkout: "/a", role: O.some("member"), recordedAt: 20, sessionId: O.some("old") }),
       ledgerRow({ checkout: "/b", role: O.some("orchestrator"), recordedAt: 15, sessionId: O.some("new") }),
       ledgerRow({ checkout: "/c", role: O.some("orchestrator"), recordedAt: 30, state: "done" }),
     ];
-    expect(O.flatMap(sessionOrchestrator(rows), (row) => row.sessionId)).toEqual(O.some("new"));
+    assertSome(
+      O.flatMap(sessionOrchestrator(rows), (row) => row.sessionId),
+      "new"
+    );
     expect(renderSessionOrchestrator(sessionOrchestrator(rows))).toContain("session new since ");
     const anonymous = ledgerRow({ checkout: "/x", role: O.some("orchestrator"), recordedAt: 40 });
     expect(renderSessionOrchestrator(O.some(anonymous))).toContain("session unknown since ");
@@ -163,7 +170,10 @@ describe("orchestrator register", () => {
       const decoded = decodeRegister(`${encoded}\n{not json}\n\n${encoded}\n`);
       expect(decoded.rows).toHaveLength(2);
       expect(decoded.corruptLineCount).toBe(1);
-      expect(decoded.rows[0]?.waitingOnOrchestrator).toEqual(O.some("final sha"));
+      assertSome(
+        O.flatMap(A.get(decoded.rows, 0), (row) => row.waitingOnOrchestrator),
+        "final sha"
+      );
     })
   );
 });
