@@ -555,12 +555,28 @@ const runGates = Effect.fn("Yeet.runFinalCheckGates")(function* (
   return outcome;
 });
 
+const dirtyTree = Effect.fn("Yeet.finalCheckDirtyTree")(function* (repoRoot: string) {
+  return Str.isNonEmpty(Str.trim(yield* runGitOutput(repoRoot, ["status", "--porcelain", "--untracked-files=no"])));
+});
+
 const refuseDirtyTree = Effect.fn("Yeet.refuseDirtyFinalCheckTree")(function* (repoRoot: string) {
-  const dirty = Str.trim(yield* runGitOutput(repoRoot, ["status", "--porcelain", "--untracked-files=no"]));
-  if (Str.isNonEmpty(dirty)) {
+  if (yield* dirtyTree(repoRoot)) {
     return yield* YeetCommandError.make({
       message:
         "yeet final-check refused: the tree has uncommitted changes; commit first, the receipt pins the committed head.",
+      exitCode: 2,
+    });
+  }
+});
+
+// The gates run for tens of minutes against the working tree. A commit or an
+// uncommitted edit landing meanwhile (another session, an editor save) means
+// they checked bytes the pinned head does not hold, so no receipt is written.
+const refuseMovedTree = Effect.fn("Yeet.refuseMovedFinalCheckTree")(function* (repoRoot: string, headSha: string) {
+  const liveHead = Str.trim(yield* runGitOutput(repoRoot, ["rev-parse", "HEAD"]));
+  if (liveHead !== headSha || (yield* dirtyTree(repoRoot))) {
+    return yield* YeetCommandError.make({
+      message: `yeet final-check refused: the checkout changed while the gates ran (head ${Str.slice(0, 12)(headSha)} -> ${Str.slice(0, 12)(liveHead)}, or uncommitted edits); no receipt was written. Commit, then re-run \`${YEET_FINAL_CHECK_COMMAND}\`.`,
       exitCode: 2,
     });
   }
@@ -580,7 +596,9 @@ const failedLabels = (steps: ReadonlyArray<FinalCheckStepResult>): string =>
  *
  * **Details**
  *
- * Refuses a dirty tree, because the receipt pins the committed head. Gates run
+ * Refuses a dirty tree, because the receipt pins the committed head, and
+ * re-reads HEAD and the tree after the gates: a commit or uncommitted edit
+ * that landed during the run means no receipt is written. Gates run
  * in {@link FinalCheckGate} order; every gate runs unless `--fail-fast` stops
  * after the first red. A `--gates` subset still writes a receipt, marked
  * incomplete, so it can never admit `yeet ready`. `--dry-run` prints the plan
@@ -639,6 +657,7 @@ export const runYeetFinalCheck = Effect.fn("Yeet.runYeetFinalCheck")(function* (
   yield* refuseDirtyTree(repoRoot);
   const startedAt = yield* nowIso;
   const { steps, verdicts } = yield* runGates(run, gates, options.failFast);
+  yield* refuseMovedTree(repoRoot, headSha);
   const ranGates = A.dedupe(A.map(steps, (step) => step.gate));
   const receipt = FinalCheckReceipt.make({
     schemaVersion: "yeet-final-check/v1",

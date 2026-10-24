@@ -152,6 +152,13 @@ describe("yeet final-check command", () => {
 
         const red = yield* finalCheck(["--base", "HEAD~1", "--gates", "repo-sanity", "--fail-fast"]).pipe(Effect.flip);
         expect(red.message).toContain("yeet final-check failed: final-check:repo-sanity");
+
+        // A gate that edits a tracked file while it runs: the gates then saw bytes
+        // the pinned head does not hold, so no receipt may be written.
+        yield* commit(root, "package.json", '{"scripts":{"beep":"echo drift >> README.md"}}\n', "drifting gate");
+        const moved = yield* finalCheck(["--base", "HEAD~1", "--gates", "repo-sanity"]).pipe(Effect.flip);
+        expect(moved.message).toContain("the checkout changed while the gates ran");
+        expect(yield* fs.readDirectory(`${root}/.beep/yeet/final-check`)).toHaveLength(1);
       })
     );
   });

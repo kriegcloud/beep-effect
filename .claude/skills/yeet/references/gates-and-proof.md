@@ -105,7 +105,11 @@ If it already fails there, the rewrite turns an inherited red green without a
 source fix (`masks-base-red`, fail): that is what #2215 did to #2212's
 over-escaped `@`. The check is per file, so a file red on the merge base for
 an unrelated test also fails it; fix that red, or skip the gate with the
-reason. Deleted assertions are not flagged.
+reason. A verdict of `unverified` also fails the gate: the test file is
+missing on the merge base, it has no owning `package.json`, or the merge-base
+worktree, its `bun install --frozen-lockfile` or the vitest run could not
+start. Repair the environment, or skip with `--skip expectation-rewrite=<reason>`.
+Deleted assertions are not flagged.
 
 The changed-files Biome step exists because package `lint` tasks never see
 paths outside a workspace package: #2187 put an EF-40 GritQL violation in
@@ -120,7 +124,8 @@ never to step around a red. `--gates <list>` runs a subset for iteration and
 writes an incomplete receipt that never admits the flip. `--dry-run` prints
 the plan for the head without running it. A dirty tree is refused, because
 the receipt pins the committed head; amend or merge `main` and the receipt
-must be produced again.
+must be produced again. HEAD and the tree are re-read after the gates, and a
+checkout that changed during the run gets no receipt.
 
 ## Plan mode
 
