@@ -251,136 +251,6 @@
       "reason": "This layer depends on test-local manifests, fixture directories, and explicit proposer/cache variants. Separate scoped invocations preserve rerun and mixed-proposer behavior; the zero-duration never-completing case retains its exact production timeout subject."
     },
     {
-      "id": "EV002:apps/labs/semantica/test/Gold.test.ts:511:provideScopedLayer@15#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/semantica",
-      "file": "apps/labs/semantica/test/Gold.test.ts",
-      "line": 511,
-      "endLine": 511,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:5428b8c17d3b862cb757063cbc4b9c711ac0c6341d1b07c28904f9c5245eebe3",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(layer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This layer depends on test-local manifests, fixture directories, and explicit proposer/cache variants. Separate scoped invocations preserve rerun and mixed-proposer behavior; the zero-duration never-completing case retains its exact production timeout subject."
-    },
-    {
-      "id": "EV002:apps/labs/semantica/test/Gold.test.ts:522:provideScopedLayer@31#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/semantica",
-      "file": "apps/labs/semantica/test/Gold.test.ts",
-      "line": 522,
-      "endLine": 522,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:fedad2d2b8162e44592d13a11c7792aa415bb5d070ad106ab0bbd17267a5744b",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(layer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This layer depends on test-local manifests, fixture directories, and explicit proposer/cache variants. Separate scoped invocations preserve rerun and mixed-proposer behavior; the zero-duration never-completing case retains its exact production timeout subject."
-    },
-    {
-      "id": "EV002:apps/labs/semantica/test/Gold.test.ts:547:provideScopedLayer@15#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/semantica",
-      "file": "apps/labs/semantica/test/Gold.test.ts",
-      "line": 547,
-      "endLine": 547,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:ac3860c8053aec6b116c5e9c7fb78fdc74c93b9d5a08e4e670c348367a4689b3",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(makeGoldTestLayer(manifest, fixtures))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:apps/labs/semantica/test/Gold.test.ts:560:provideScopedLayer@29#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/semantica",
-      "file": "apps/labs/semantica/test/Gold.test.ts",
-      "line": 560,
-      "endLine": 562,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:a74328d3c6312b1e9ae9e01476d974ae270f9e5e49ef4fbf74157912df71c718",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer( makeGoldTestLayer(manifest, fixtures, Duration.minutes(45), false, true) )",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:apps/labs/semantica/test/Gold.test.ts:590:provideScopedLayer@15#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/semantica",
-      "file": "apps/labs/semantica/test/Gold.test.ts",
-      "line": 590,
-      "endLine": 590,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:21e3ebd9e5e6b0eea056c275377140bf0eab9293b896d76f2fb4d8c2fe38b3cd",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(layer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This layer depends on test-local manifests, fixture directories, and explicit proposer/cache variants. Separate scoped invocations preserve rerun and mixed-proposer behavior; the zero-duration never-completing case retains its exact production timeout subject."
-    },
-    {
-      "id": "EV002:apps/labs/semantica/test/Gold.test.ts:614:provideScopedLayer@29#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/semantica",
-      "file": "apps/labs/semantica/test/Gold.test.ts",
-      "line": 614,
-      "endLine": 614,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:e4d7f190ea8f8f3d02944c703f2526d698adb774429827257afc1e3b6610f946",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(layer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This layer depends on test-local manifests, fixture directories, and explicit proposer/cache variants. Separate scoped invocations preserve rerun and mixed-proposer behavior; the zero-duration never-completing case retains its exact production timeout subject."
-    },
-    {
       "id": "EV002:apps/labs/semantica/test/GoldSource.test.ts:129:provideScopedLayer@10#1",
       "lens": "resource",
       "ruleId": "EV002",
@@ -839,7 +709,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Owner: @beep/practice-kg-mcp. The test drops matters.client_name through a DuckDB connection built over the temp bundle it copied in the body, and must close that connection before runPracticeKgMcpSelfCheck reopens the same practice.duckdb (DuckDB locks the file). it.layer builds before the body and would hold the connection across the self-check. Exit: retire when the self-check accepts an injected DuckDb service, or when EV002 recognises a body-derived provision followed by a subject that reopens the same path (#1855 wave 4 register)."
     },
     {
       "id": "EV002:apps/professional-desktop/test/integration/execution-authority.pglite.test.ts:273:provide@18#1",
@@ -1612,137 +1483,6 @@
       "reason": "Each malformed configuration is intentionally acquired inside Effect.exit so its typed failure and absence of defects can be asserted. Public suite-hook acquisition would fail before those assertions. The canonical scoped helper replaces the private helper for this exceptional failure boundary."
     },
     {
-      "id": "EV002:packages/epistemic/server/test/integration/ContradictionTriage.p0.pglite.test.ts:568:provideScopedLayer@54#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/epistemic-server",
-      "file": "packages/epistemic/server/test/integration/ContradictionTriage.p0.pglite.test.ts",
-      "line": 568,
-      "endLine": 568,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:503b63998d5d19ba5821895ba4af56af170739b7ec82bdf3fa6aff9998e422ee",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(makePersistentLayer(dataDir))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The canonical scoped helper deliberately closes the first persistent PGlite database before rebuilding another over the same dataDir. Outer platform services now use public it.layer; the database lifetime remains shorter than the body."
-    },
-    {
-      "id": "EV002:packages/epistemic/server/test/integration/ContradictionTriage.p0.pglite.test.ts:569:provideScopedLayer@46#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/epistemic-server",
-      "file": "packages/epistemic/server/test/integration/ContradictionTriage.p0.pglite.test.ts",
-      "line": 569,
-      "endLine": 569,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:ae79e40d2c6b74b7580f2d1f142b06f0aa6f020c2e758ab9f3e5160295e9dcac",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(makePersistentLayer(dataDir))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The canonical scoped helper deliberately closes the first persistent PGlite database before rebuilding another over the same dataDir. Outer platform services now use public it.layer; the database lifetime remains shorter than the body."
-    },
-    {
-      "id": "EV002:packages/epistemic/server/test/integration/ContradictionTriage.pglite.test.ts:1582:provideScopedLayer@18#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/epistemic-server",
-      "file": "packages/epistemic/server/test/integration/ContradictionTriage.pglite.test.ts",
-      "line": 1582,
-      "endLine": 1582,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:78809ef99ff5bace45b8a9acc48d240874a488a13d560232086663184deb8d16",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(persistent)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The canonical scoped helper deliberately closes the first persistent PGlite database before rebuilding another over the same dataDir. Outer platform services now use public it.layer; the database lifetime remains shorter than the body."
-    },
-    {
-      "id": "EV002:packages/epistemic/server/test/integration/ContradictionTriage.pglite.test.ts:1606:provideScopedLayer@12#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/epistemic-server",
-      "file": "packages/epistemic/server/test/integration/ContradictionTriage.pglite.test.ts",
-      "line": 1606,
-      "endLine": 1606,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:6653b46f9d60639cb835d3ebc5f5e35ebe020a47880bfa2ac68b584191d570bd",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(persistent)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The canonical scoped helper deliberately closes the first persistent PGlite database before rebuilding another over the same dataDir. Outer platform services now use public it.layer; the database lifetime remains shorter than the body."
-    },
-    {
-      "id": "EV002:packages/epistemic/server/test/integration/EdgeAuthority.restart.pglite.test.ts:226:provideScopedLayer@53#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/epistemic-server",
-      "file": "packages/epistemic/server/test/integration/EdgeAuthority.restart.pglite.test.ts",
-      "line": 226,
-      "endLine": 226,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:01be6fe6d1f60393e1b4b47d859d8ca080cdc208520ac00677c8289e873d6ab3",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(makePersistentLayer(dataDir))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The canonical scoped helper deliberately closes the first persistent PGlite database before rebuilding another over the same dataDir. Outer platform services now use public it.layer; the database lifetime remains shorter than the body."
-    },
-    {
-      "id": "EV002:packages/epistemic/server/test/integration/EdgeAuthority.restart.pglite.test.ts:280:provideScopedLayer@18#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/epistemic-server",
-      "file": "packages/epistemic/server/test/integration/EdgeAuthority.restart.pglite.test.ts",
-      "line": 280,
-      "endLine": 280,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:73d45dc359b807e504bffaf846a2e5f7f93a007ca7106d0f527174ea4344aa03",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(makePersistentLayer(dataDir))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1121:provideScopedLayer@16#1",
       "lens": "resource",
       "ruleId": "EV002",
@@ -1761,7 +1501,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Owner: @beep/law-practice-server. The body builds the bundle into firstOut, closes the build, and then reopens firstOut's kg.pglite to dump its rows; PGlite locks its data directory, so one it.layer connection cannot be open while the build writes it. Exit: retire when the build exposes its store as a provided service the test can read in place, or when EV002 recognises a provision over a store the earlier body subject wrote and closed (#1855 wave 4 register)."
     },
     {
       "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1776:provideScopedLayer@16#1",
@@ -1782,487 +1523,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:1995:provideScopedLayer@15#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 1995,
-      "endLine": 1995,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:4b71edfeb3ebe5e47c6b5521c9760c85ef5f8ba5ff6fdb72cfb3ff8c5c9a46be",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
       "status": "exception",
-      "reason": "The normalized-patent test creates its native PGlite bundle in the test body. Each claims invocation closes that client before validation or independent SQL read-back; the public outer fixture owns temporary directories. This occurrence includes the explicitly supplied source digest and preserves exact claims/evidence assertions."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2011:provideScopedLayer@10#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2011,
-      "endLine": 2016,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:e3e29feecfbd74f5140babc382c6bda1c0a329bf553700c7b00753f02c397729",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer( Layer.mergeAll( Layer.succeed(OfficeActionReview, forbiddenReview), Pglite.makeLayer({ dataDir: path.join(bareBundle, \"kg.pglite\") }) ) )",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2033:provideScopedLayer@10#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2033,
-      "endLine": 2033,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:395cf4ab74b2d00590bc8629fd95429f7bb25da66d04db13c01f103a190432ec",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and each invocation closes its Pglite connection before independent failure injection, restoration, or persistence read-back. The outer NodeServices fixture already uses public it.layer; these shorter scopes preserve real native filesystem and DuckDB behavior."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2043:provideScopedLayer@16#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2043,
-      "endLine": 2043,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:829f7c18810bd65b63f541e63097648d8c8832d0b22913d510f30d775cf29007",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(Pglite.makeLayer({ dataDir: path.join(bundleOut, \"kg.pglite\") }))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This inner read-back connection is opened only after the body constructs its native bundle, then closed before the next connection or host. Keeping the body-derived data directory and shorter scope preserves real on-disk persistence and DDL/provenance assertions; the outer platform fixture already uses public it.layer."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2088:provideScopedLayer@10#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2088,
-      "endLine": 2088,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:32af788ea28dfafc38161d3d2574f7735d808bedf70521956b841e72c5edacbe",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. The new probe, corrupt-catalog, and stat/read-growth cases retain those shorter scopes and assert the exact outcome."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2106:provideScopedLayer@28#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2106,
-      "endLine": 2106,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:dc5a7d552d778ea8cac05e5ff7d38e5ec437c6a64542ed3750e0ab3997852eef",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. The new probe, corrupt-catalog, and stat/read-growth cases retain those shorter scopes and assert the exact outcome."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2127:provideScopedLayer@28#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2127,
-      "endLine": 2127,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:59b8900e2af430f10d0b575b4495a4ad8ca474498cbb425caca313e3684123ba",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. Preserving these explicit shorter scopes retains native persistence and the existing exact error/span/byte assertions inside the public outer fixture."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2147:provideScopedLayer@28#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2147,
-      "endLine": 2147,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:dd254055fbeb5ccf59f9d4ac11fd6655e6aa8dac8d8a5dcd01bc3a14a3ccef54",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. Preserving these explicit shorter scopes retains native persistence and the existing exact error/span/byte assertions inside the public outer fixture."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2191:provideScopedLayer@10#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2191,
-      "endLine": 2191,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:5fb9945070453ec7d778836579394318f3d81dc2dfba2443b3c41a32be3ec159",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. Preserving these explicit shorter scopes retains native persistence and the existing exact error/span/byte assertions inside the public outer fixture."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2202:provideScopedLayer@10#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2202,
-      "endLine": 2202,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:100c57110a4fe32e2a0926bde747abf6a54ef476460a0813126862b64d4e8781",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(Pglite.makeLayer({ dataDir: path.join(bundleOut, \"kg.pglite\") }))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2206:provideScopedLayer@10#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2206,
-      "endLine": 2206,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:17cc31aa503c2c4dbe6fffec46bf65224a7fba62d07f927936095abaae704177",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(Pglite.makeLayer({ dataDir: path.join(carriedOut, \"kg.pglite\") }))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2213:provideScopedLayer@16#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2213,
-      "endLine": 2213,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:1f77673a78b211c2f081917c204bf604d962b4d9c38e69f2debd169b11ea96dd",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(Pglite.makeLayer({ dataDir: path.join(carriedOut, \"kg.pglite\") }))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2226:provideScopedLayer@10#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2226,
-      "endLine": 2226,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:693c7a8be98b152403daadc1287bfc20741a5d5860148b6ffa148313ebfb14f8",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and each invocation closes its Pglite connection before independent failure injection, restoration, or persistence read-back. The outer NodeServices fixture already uses public it.layer; these shorter scopes preserve real native filesystem and DuckDB behavior."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2249:provideScopedLayer@10#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2249,
-      "endLine": 2249,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:2fb5e145accd48d2fe450625e3743c58953b168116bfd0a1c5bc15c8c631216c",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and each invocation closes its Pglite connection before independent failure injection, restoration, or persistence read-back. The outer NodeServices fixture already uses public it.layer; these shorter scopes preserve real native filesystem and DuckDB behavior."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2257:provideScopedLayer@28#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2257,
-      "endLine": 2257,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:541b4c0d2bbd863da0cb11d933844a9bbe4ed593ef7b452806faf348fd8668ea",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. Preserving these explicit shorter scopes retains native persistence and the existing exact error/span/byte assertions inside the public outer fixture."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2265:provideScopedLayer@28#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2265,
-      "endLine": 2265,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:4d0b8bb696495388fb87881b798a46ac34469f91f04f50ac9a2160b421b77a22",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. Preserving these explicit shorter scopes retains native persistence and the existing exact error/span/byte assertions inside the public outer fixture."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2273:provideScopedLayer@28#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2273,
-      "endLine": 2273,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:6133ab523e9233a9cb064683d4b0e754103cca207862be3df8e9628e421e714f",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. Preserving these explicit shorter scopes retains native persistence and the existing exact error/span/byte assertions inside the public outer fixture."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2281:provideScopedLayer@28#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2281,
-      "endLine": 2281,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:47c6aee1e17894d64985de1195c72bb09cbed483f479deb3edc3a7a64e3e5e5d",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. Preserving these explicit shorter scopes retains native persistence and the existing exact error/span/byte assertions inside the public outer fixture."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2296:provideScopedLayer@10#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2296,
-      "endLine": 2296,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:cff37e46bc2fc6208c2e612f5cf620a3e36c2f7561ce4416f26d08d50e6d995f",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. The new probe, corrupt-catalog, and stat/read-growth cases retain those shorter scopes and assert the exact outcome."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2307:provideScopedLayer@28#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2307,
-      "endLine": 2307,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:7c1ace0f3b05666cccd7b09147d987fb51074a9b32afb2cdf6b74b064d80671a",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. Preserving these explicit shorter scopes retains native persistence and the existing exact error/span/byte assertions inside the public outer fixture."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2318:provideScopedLayer@28#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2318,
-      "endLine": 2318,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:5dce18c25b0b2c7bcdd0be69e3578e3e2b4a15f83b4cff1d9fc15c6223a2e316",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. Preserving these explicit shorter scopes retains native persistence and the existing exact error/span/byte assertions inside the public outer fixture."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2323:provideScopedLayer@10#1",
-      "lens": "detector",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2323,
-      "endLine": 2323,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:99335c5b79a8a6f0bad7ce59171c8f4307fd80cfc5f4c4247623bd8e554ae6de",
-      "class": "per-test-layer-provide",
-      "evidence": "provideScopedLayer(claimsLayer)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "exception",
-      "reason": "The claims batch uses a body-created native bundle and scripted or forbidden model service. Each invocation closes its PGlite connection before independent SQL read-back, repeated validation, or MCP hosting. Preserving these explicit shorter scopes retains native persistence and the existing exact error/span/byte assertions inside the public outer fixture."
+      "reason": "Owner: @beep/law-practice-server. The body runs two bundle builds into bundleOut, reads practice.duckdb through the same-file withDuckDb wrapper, and only then provides the MCP host over both stores in bundleOut; each earlier step closes its connection before the host reopens the files (PGlite and DuckDB lock them). it.layer would build the host before the bundle exists. Exit: retire when the builds move into a nested it.layer(Layer.unwrap(...)) without losing the base-run assertions, or when EV002 also counts same-file wrapper provisions as earlier lifecycles (#1855 wave 4 register)."
     },
     {
       "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2344:provideScopedLayer@28#1",
@@ -2287,133 +1549,6 @@
       "reason": "A separate empty-input bundle is constructed within the case. Its body-derived PGlite directory and fixture model must be opened for the zero-claims failure and closed independently of the earlier populated bundle. Retain this scoped invocation inside the public outer fixture."
     },
     {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2369:provideScopedLayer@16#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2369,
-      "endLine": 2369,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:3e723c79fb07329dc90e60e8639c2c984fdb59774bba572b66b5d3b0b89da64b",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(Pglite.makeLayer({ dataDir: path.join(bundleOut, \"kg.pglite\") }))",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2386:provideScopedLayer@10#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2386,
-      "endLine": 2386,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:906b637d9bde8fa44d431740efe98ca4d91fb70dfe7ac1dde46fb910aac4e6f6",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(host)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The MCP host is constructed from the native bundle and manifest produced inside this case. Its shorter scoped database/tool lifetime preserves all calls and the subsequent reopen or destructive-error boundary. The outer platform fixture uses public it.layer."
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2399:provideScopedLayer@16#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2399,
-      "endLine": 2399,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:69b2e453abd7fa6670ca7fc1472b8551f4ae95c99eb2e57ebf001746bb80b532",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(host)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2433:provideScopedLayer@75#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2433,
-      "endLine": 2433,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:d0f3c86fad17603117887b1fcf1e1048510fa0fa0fb783fe8df44caeb8fc37ff",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(target)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2443:provideScopedLayer@15#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2443,
-      "endLine": 2443,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:8877e33155ae8678cbbda185a7d0ba88f0f3ec9597a6d38d66ed93d9f232d1ee",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(target)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2453:provideScopedLayer@12#1",
-      "lens": "resource",
-      "ruleId": "EV002",
-      "package": "@beep/law-practice-server",
-      "file": "packages/law-practice/server/test/PracticeKg.projections.test.ts",
-      "line": 2453,
-      "endLine": 2453,
-      "symbol": "provideScopedLayer",
-      "occurrence": "v2:711fb4f5e77e4b6cbf816c7d101dc542f2b51997b1b6e2f814911719b5d93dd9",
-      "class": "unresolved-layer-provide",
-      "evidence": "provideScopedLayer(target)",
-      "replacement": {
-        "primitive": "it.layer",
-        "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
-      },
-      "severity": "major",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
       "id": "EV002:packages/law-practice/server/test/PracticeKg.projections.test.ts:2468:provideScopedLayer@12#1",
       "lens": "resource",
       "ruleId": "EV002",
@@ -2432,7 +1567,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Owner: @beep/law-practice-server. The failure injection writes a carry into brokenBundle, a directory the body creates with a corrupt practice.duckdb after its carry writes over target, and asserts the typed failure. it.layer cannot take a path the body creates mid-test. Exit: retire when the broken-bundle case splits into its own test over a nested it.layer(Layer.unwrap(...)), or when EV002 recognises this shape (#1855 wave 4 register)."
     },
     {
       "id": "EV002:packages/tooling/test-kit/test-utils/test/SqlTest.offline.test.ts:111:provideScopedLayer@8#1",
@@ -6710,13 +5846,13 @@
       "status": "open"
     },
     {
-      "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:1835:withEnvVarEffect@6#1",
+      "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:1836:withEnvVarEffect@6#1",
       "lens": "detector",
       "ruleId": "EV003",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/ci-lane.test.ts",
-      "line": 1835,
-      "endLine": 1844,
+      "line": 1836,
+      "endLine": 1845,
       "symbol": "withEnvVarEffect",
       "occurrence": "v2:22ab9b8e9a72bdaabc0a13aa41228277902d21a8b3e1eda9a9d6f689b5e23f2c",
       "class": "resource-wrapper",
@@ -6731,13 +5867,13 @@
       "status": "open"
     },
     {
-      "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:194:withEnvVarEffect@25#1",
+      "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:195:withEnvVarEffect@25#1",
       "lens": "detector",
       "ruleId": "EV003",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/ci-lane.test.ts",
-      "line": 194,
-      "endLine": 212,
+      "line": 195,
+      "endLine": 213,
       "symbol": "withEnvVarEffect",
       "occurrence": "v2:5a40ab2cf186e0dfa00bda12419a54fe1c5eebf0a1c5045625b9fa2e1b2ffef1",
       "class": "resource-wrapper",
@@ -6752,13 +5888,13 @@
       "status": "open"
     },
     {
-      "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:220:withPartitionShim@26#1",
+      "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:221:withPartitionShim@26#1",
       "lens": "detector",
       "ruleId": "EV003",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/ci-lane.test.ts",
-      "line": 220,
-      "endLine": 284,
+      "line": 221,
+      "endLine": 285,
       "symbol": "withPartitionShim",
       "occurrence": "v2:b8adb67648de0ca9d5f3f436fe5a4c304f05cceab4d2cf9f7e85bd769adf77cc",
       "class": "resource-wrapper",
@@ -6773,13 +5909,13 @@
       "status": "open"
     },
     {
-      "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:286:withWorkingDirectory@29#1",
+      "id": "EV003:packages/tooling/tool/cli/test/ci-lane.test.ts:287:withWorkingDirectory@29#1",
       "lens": "detector",
       "ruleId": "EV003",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/ci-lane.test.ts",
-      "line": 286,
-      "endLine": 295,
+      "line": 287,
+      "endLine": 296,
       "symbol": "withWorkingDirectory",
       "occurrence": "v2:1aaf61b6a4363d4b459df10a3d09e774f3400d2a519a0ee4da00e369d4da0534",
       "class": "resource-wrapper",
@@ -7030,13 +6166,13 @@
       "reason": "Retain the deliberately SHORT PATH acquireUseRelease bracket: prepend only the disposable systemctl shim during fixture-owner reaping, restore the exact previous/unset PATH before later journal/export assertions. Root ownership is already per-test and outer native services runner-owned. Broadening PATH to the entire layer/test or deleting restoration changes global state/isolation. Sequential fixture scope and synchronous final restoration are required. Source and import provenance: research/cli-continuation-nine-lineage.json; reviewed scope: research/cli-continuation-nine-proof.md."
     },
     {
-      "id": "EV003:packages/tooling/tool/cli/test/quality-tasks.test.ts:358:withEnvVarEffect@25#1",
+      "id": "EV003:packages/tooling/tool/cli/test/quality-tasks.test.ts:359:withEnvVarEffect@25#1",
       "lens": "detector",
       "ruleId": "EV003",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/quality-tasks.test.ts",
-      "line": 358,
-      "endLine": 382,
+      "line": 359,
+      "endLine": 383,
       "symbol": "withEnvVarEffect",
       "occurrence": "v2:7a4f71fe20382ddc1c39e6fb461768ddeb358a00ea78878e97d203874b0453bf",
       "class": "resource-wrapper",
@@ -7809,7 +6945,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Owner: @beep/duckdb. The scope is the subject: after Effect.scoped closes the built layer, the test asserts connectionCloseAttempts and instanceCloseAttempts are exactly 1, which only the scope's finalizers produce. Deleting or widening the scope removes the close it observes. Exit: retire when EV004 recognises assertions after a shorter scope that read state its finalizers wrote (#1855 wave 4 register)."
     },
     {
       "id": "EV004:packages/drivers/ffmpeg/test/integration/FFmpeg.capture.integration.test.ts:43:scoped@2#1",
@@ -8094,7 +7231,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Owner: @beep/observability. runWithLayer scopes the layer so closing it flushes the OTLP exporters before the caller asserts on the captured requests; the helper comment says so. Without the shorter scope the exports arrive only at test teardown, after the assertions. Exit: retire when EV004 recognises a helper scope whose close the caller's later assertions observe (#1855 wave 4 register)."
     },
     {
       "id": "EV004:packages/ontology/client/test/Session.atoms.test.ts:207:scoped@10#1",
@@ -8203,7 +7341,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Owner: @beep/qa-capture. The collector must finish before the test inspects its events file and handle; the shorter scope is the subject of the cleanup assertions after it (the inline comment says so), as in the file's three excepted siblings. Exit: retire when EV004 recognises assertions after a shorter scope that read state its finalizers wrote (#1855 wave 4 register)."
     },
     {
       "id": "EV004:packages/tooling/library/qa-capture/test/Collector.test.ts:293:scoped@29#1",
@@ -11249,156 +10388,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Preserve the whole panelConstraintsChanged event-array equality, including event kind, panel/group identifiers and nested Option constraints. Replacing this collection oracle with an Option payload assertion would discard event coverage."
-    },
-    {
-      "id": "EV006:packages/ontology/client/test/browser/graph-renderer-toggle.test.ts:202:expect@6#1",
-      "lens": "resource",
-      "ruleId": "EV006",
-      "package": "@beep/ontology-client",
-      "file": "packages/ontology/client/test/browser/graph-renderer-toggle.test.ts",
-      "line": 202,
-      "endLine": 202,
-      "symbol": "expect",
-      "occurrence": "v2:4df8a882299332010fd8c5ef0960d547ae36bdf00dd0db7a300bbe1e929212cc",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(registry.get(ontologyGraphContainerAtom)).toStrictEqual(O.none())",
-      "replacement": {
-        "primitive": "utils.assertNone",
-        "sketch": "Review structural equality against the supplied Option.none constructor. Reuse only the existing expected operand; preserve matcher semantics. Exit.fail(error) does not supply the Cause required by assertExitFailure. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Retain the original browser assertion: @effect/vitest/utils imports node:assert and fails in real Chromium with deepStrictEqual is not a function. No Node polyfill or replacement browser subject is introduced. All seven original browser assertions remain."
-    },
-    {
-      "id": "EV006:packages/ontology/client/test/browser/graph-renderer-toggle.test.ts:207:expect@6#1",
-      "lens": "resource",
-      "ruleId": "EV006",
-      "package": "@beep/ontology-client",
-      "file": "packages/ontology/client/test/browser/graph-renderer-toggle.test.ts",
-      "line": 207,
-      "endLine": 207,
-      "symbol": "expect",
-      "occurrence": "v2:95ec4db0138c8c815709cee54759e04ec266db857e8ced44cc4f3f8e2c59c769",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(registry.get(ontologyGraphContainerAtom)).toStrictEqual(O.some(container))",
-      "replacement": {
-        "primitive": "utils.assertSome",
-        "sketch": "Review structural equality against the supplied Option.some constructor. Reuse only the existing expected operand; preserve matcher semantics. Exit.fail(error) does not supply the Cause required by assertExitFailure. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Retain the original browser assertion: @effect/vitest/utils imports node:assert and fails in real Chromium with deepStrictEqual is not a function. No Node polyfill or replacement browser subject is introduced. All seven original browser assertions remain."
-    },
-    {
-      "id": "EV006:packages/ontology/client/test/browser/graph-renderer-toggle.test.ts:280:expect@6#1",
-      "lens": "resource",
-      "ruleId": "EV006",
-      "package": "@beep/ontology-client",
-      "file": "packages/ontology/client/test/browser/graph-renderer-toggle.test.ts",
-      "line": 280,
-      "endLine": 280,
-      "symbol": "expect",
-      "occurrence": "v2:0a90dd560d3a6750eebd2bb6756242976fbcf3fd80863b4ebc1116727ab3df16",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(registry.get(ontologyGraphErrorAtom)).toStrictEqual(O.none())",
-      "replacement": {
-        "primitive": "utils.assertNone",
-        "sketch": "Review structural equality against the supplied Option.none constructor. Reuse only the existing expected operand; preserve matcher semantics. Exit.fail(error) does not supply the Cause required by assertExitFailure. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Retain the original browser assertion: @effect/vitest/utils imports node:assert and fails in real Chromium with deepStrictEqual is not a function. No Node polyfill or replacement browser subject is introduced. All seven original browser assertions remain."
-    },
-    {
-      "id": "EV006:packages/ontology/client/test/browser/graph-renderer-toggle.test.ts:291:expect@6#1",
-      "lens": "detector",
-      "ruleId": "EV006",
-      "package": "@beep/ontology-client",
-      "file": "packages/ontology/client/test/browser/graph-renderer-toggle.test.ts",
-      "line": 291,
-      "endLine": 291,
-      "symbol": "expect",
-      "occurrence": "v2:7ed8afb04f644b579d43425bb8e164f714042b5df5e36e75ab399d625fae3749",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(O.isNone(registry.get(ontologyGraphErrorAtom))).toBe(true)",
-      "replacement": {
-        "primitive": "utils.assertNone",
-        "sketch": "Assert the original Option is None; preserve the existing predicate polarity. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV006:packages/ontology/client/test/browser/graph-renderer-toggle.test.ts:301:expect@6#2",
-      "lens": "detector",
-      "ruleId": "EV006",
-      "package": "@beep/ontology-client",
-      "file": "packages/ontology/client/test/browser/graph-renderer-toggle.test.ts",
-      "line": 301,
-      "endLine": 301,
-      "symbol": "expect",
-      "occurrence": "v2:7ed8afb04f644b579d43425bb8e164f714042b5df5e36e75ab399d625fae3749",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(O.isNone(registry.get(ontologyGraphErrorAtom))).toBe(true)",
-      "replacement": {
-        "primitive": "utils.assertNone",
-        "sketch": "Assert the original Option is None; preserve the existing predicate polarity. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV006:packages/ontology/client/test/browser/graph-renderer-toggle.test.ts:311:expect@6#3",
-      "lens": "detector",
-      "ruleId": "EV006",
-      "package": "@beep/ontology-client",
-      "file": "packages/ontology/client/test/browser/graph-renderer-toggle.test.ts",
-      "line": 311,
-      "endLine": 311,
-      "symbol": "expect",
-      "occurrence": "v2:7ed8afb04f644b579d43425bb8e164f714042b5df5e36e75ab399d625fae3749",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(O.isNone(registry.get(ontologyGraphErrorAtom))).toBe(true)",
-      "replacement": {
-        "primitive": "utils.assertNone",
-        "sketch": "Assert the original Option is None; preserve the existing predicate polarity. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
-    },
-    {
-      "id": "EV006:packages/ontology/client/test/browser/graph-renderer-toggle.test.ts:317:expect@6#4",
-      "lens": "detector",
-      "ruleId": "EV006",
-      "package": "@beep/ontology-client",
-      "file": "packages/ontology/client/test/browser/graph-renderer-toggle.test.ts",
-      "line": 317,
-      "endLine": 317,
-      "symbol": "expect",
-      "occurrence": "v2:7ed8afb04f644b579d43425bb8e164f714042b5df5e36e75ab399d625fae3749",
-      "class": "hand-rolled-data-assertion",
-      "evidence": "expect(O.isNone(registry.get(ontologyGraphErrorAtom))).toBe(true)",
-      "replacement": {
-        "primitive": "utils.assertNone",
-        "sketch": "Assert the original Option is None; preserve the existing predicate polarity. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
-      },
-      "severity": "minor",
-      "confidence": 0.95,
-      "mechanization": "detector",
-      "status": "open"
     },
     {
       "id": "EV006:packages/tooling/library/repo-utils/test/schemas/PackageJson.test.ts:200:expect@6#1",
@@ -15938,13 +14927,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/ci-lane.test.ts:34:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/ci-lane.test.ts:35:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/ci-lane.test.ts",
-      "line": 34,
-      "endLine": 34,
+      "line": 35,
+      "endLine": 35,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -17422,13 +16411,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/quality-tasks.test.ts:166:@effect/platform-node/NodeFileSystem@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/quality-tasks.test.ts:167:@effect/platform-node/NodeFileSystem@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/quality-tasks.test.ts",
-      "line": 166,
-      "endLine": 166,
+      "line": 167,
+      "endLine": 167,
       "symbol": "@effect/platform-node/NodeFileSystem",
       "occurrence": "v2:1e14fe3983e1b10ec8ca10f275771b44fe07b6efae5f900877c3f472b89c0872",
       "class": "platform-filesystem-candidate",
@@ -24375,222 +23364,6 @@
       "reason": "Each of the eighteen fresh native fixture blocks contains one original test. Preserve default hook/body budgets without widening original deadlines. PGlite explicit two/five-minute fixture budgets and integration body deadlines remain unchanged. Whole package proof and independent-state controls pass."
     },
     {
-      "id": "EV015:apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts:197:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/practice-mail-tagging",
-      "file": "apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts",
-      "line": 197,
-      "endLine": 197,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:20caace8cb8ecf85044c16239672bc2d8a0bfa55c1aaf9a6d426f76ce51d63a5",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(0)",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Each watch test (command and lock suites) is the only test in its own it.layer block over a fresh World layer, so it is the sole owner of that block's TestClock, mailbox, and in-memory state directory. The adjustments drive the watch loop's poll interval and its retry backoff deterministically; the forked command fiber is joined or its failure awaited inside the same test. No reset, live-clock substitution, or shortened interval was introduced."
-    },
-    {
-      "id": "EV015:apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts:199:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/practice-mail-tagging",
-      "file": "apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts",
-      "line": 199,
-      "endLine": 199,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:82ca8b98a209c3a017d785ac8827518769dd058790d302e34a206d7c04365f71",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(pollInterval)",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV015:apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts:201:TestClock.adjust@15#2",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/practice-mail-tagging",
-      "file": "apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts",
-      "line": 201,
-      "endLine": 201,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:82ca8b98a209c3a017d785ac8827518769dd058790d302e34a206d7c04365f71",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(pollInterval)",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV015:apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts:219:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/practice-mail-tagging",
-      "file": "apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts",
-      "line": 219,
-      "endLine": 219,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:e5b457dce3375271d32bb951bbc182f8becc93204c100024ba8461ad3bf38b52",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(0)",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Each watch test (command and lock suites) is the only test in its own it.layer block over a fresh World layer, so it is the sole owner of that block's TestClock, mailbox, and in-memory state directory. The adjustments drive the watch loop's poll interval and its retry backoff deterministically; the forked command fiber is joined or its failure awaited inside the same test. No reset, live-clock substitution, or shortened interval was introduced."
-    },
-    {
-      "id": "EV015:apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts:221:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/practice-mail-tagging",
-      "file": "apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts",
-      "line": 221,
-      "endLine": 221,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:4bbd1746807d7cb05f193d0abce32f6b6d029a321ffca33234a5919bef5f73a8",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(pollInterval)",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Each watch test (command and lock suites) is the only test in its own it.layer block over a fresh World layer, so it is the sole owner of that block's TestClock, mailbox, and in-memory state directory. The adjustments drive the watch loop's poll interval and its retry backoff deterministically; the forked command fiber is joined or its failure awaited inside the same test. No reset, live-clock substitution, or shortened interval was introduced."
-    },
-    {
-      "id": "EV015:apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts:238:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/practice-mail-tagging",
-      "file": "apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts",
-      "line": 238,
-      "endLine": 238,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:c46b41344cdb0bf8e43a6959f999e1341ecc3ead69658eb056b5cb5b1d933b1a",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(pollInterval)",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV015:apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts:240:TestClock.adjust@15#2",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/practice-mail-tagging",
-      "file": "apps/practice-mail-tagging/test/PracticeMailTagging.command.test.ts",
-      "line": 240,
-      "endLine": 240,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:c46b41344cdb0bf8e43a6959f999e1341ecc3ead69658eb056b5cb5b1d933b1a",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(pollInterval)",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV015:apps/practice-mail-tagging/test/PracticeMailTagging.lock.test.ts:185:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/practice-mail-tagging",
-      "file": "apps/practice-mail-tagging/test/PracticeMailTagging.lock.test.ts",
-      "line": 185,
-      "endLine": 185,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:e5e78d2351951203590a054e4b01d154ab20be2db61b71cf71c1a45f830816ad",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(0)",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Each watch test (command and lock suites) is the only test in its own it.layer block over a fresh World layer, so it is the sole owner of that block's TestClock, mailbox, and in-memory state directory. The adjustments drive the watch loop's poll interval and its retry backoff deterministically; the forked command fiber is joined or its failure awaited inside the same test. No reset, live-clock substitution, or shortened interval was introduced."
-    },
-    {
-      "id": "EV015:apps/practice-mail-tagging/test/PracticeMailTagging.lock.test.ts:188:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/practice-mail-tagging",
-      "file": "apps/practice-mail-tagging/test/PracticeMailTagging.lock.test.ts",
-      "line": 188,
-      "endLine": 188,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:f11ead82b3f5e09903c0a388daf152b3c3082db4ba00f54d61e7f619935b8a47",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(pollInterval)",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Each watch test (command and lock suites) is the only test in its own it.layer block over a fresh World layer, so it is the sole owner of that block's TestClock, mailbox, and in-memory state directory. The adjustments drive the watch loop's poll interval and its retry backoff deterministically; the forked command fiber is joined or its failure awaited inside the same test. No reset, live-clock substitution, or shortened interval was introduced."
-    },
-    {
-      "id": "EV015:apps/professional-desktop/test/chat-contract.test.ts:699:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/professional-desktop",
-      "file": "apps/professional-desktop/test/chat-contract.test.ts",
-      "line": 699,
-      "endLine": 699,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:45e8ed10218e4f6da837ac31e0ca6155ddc0661239941e6fcfc2873be2e15d53",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(Duration.minutes(5))",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Receipt expiry intentionally advances virtual time by the original five minutes. Each migrated store case has an independent public one-test layer registration and memoization map. A runtime probe verified fifteen distinct TestClock instances, each initially at zero, alongside fifteen distinct stores; the original nineteen cases passed. No reset, live-clock substitution, or deadline change was introduced. See research/desktop-chat-layer-isolation-proof.md in the goal packet."
-    },
-    {
       "id": "EV015:packages/drivers/ai-provider-cli/test/AiProviderCliSession.test.ts:854:TestClock.adjust@44#1",
       "lens": "resource",
       "ruleId": "EV015",
@@ -24635,114 +23408,6 @@
       "reason": "The owning resource layer explicitly sets concurrent:false so each deadline fixture exclusively controls its TestClock. The test waits for the native request checkpoint before advancing time, then verifies timeout and scoped cleanup. Parallel clock adjustment reproduced interference and was removed."
     },
     {
-      "id": "EV015:packages/drivers/m365/test/M365.service.test.ts:843:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/m365",
-      "file": "packages/drivers/m365/test/M365.service.test.ts",
-      "line": 843,
-      "endLine": 843,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:61f3a9faaf76f8c1f505ee5e99811e9f9590ab1d33961115f2910cb1faf73819",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(Duration.seconds(1))",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This block has one effect test and a private TestClock. The case owns the request child fiber, advances the deterministic one-second retry delay and joins that fiber before fixture teardown. No sibling test shares or advances this clock; retain the retry subject without live time or resets."
-    },
-    {
-      "id": "EV015:packages/drivers/pdf-tools/test/PdfTools.service.test.ts:1376:TestClock.adjust@17#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/pdf-tools",
-      "file": "packages/drivers/pdf-tools/test/PdfTools.service.test.ts",
-      "line": 1376,
-      "endLine": 1376,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:be3d8e00e5f6724d35353fc1614267e0d1bfcb4ccc5fe18ab4b7f576a9af37dd",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"4 seconds\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV015:packages/drivers/pdf-tools/test/PdfTools.service.test.ts:1378:TestClock.adjust@17#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/pdf-tools",
-      "file": "packages/drivers/pdf-tools/test/PdfTools.service.test.ts",
-      "line": 1378,
-      "endLine": 1378,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:b6ba6f79959fb4d3a93781abc1fec28975a344511f13ebfc790a66c9477b9854",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"2 seconds\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV015:packages/drivers/tailscale/test/tailscale.test.ts:292:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/tailscale",
-      "file": "packages/drivers/tailscale/test/tailscale.test.ts",
-      "line": 292,
-      "endLine": 292,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:556b0437a489dcbf30f23002633baa27d09a7ad1327de31586e8c85d7e973878",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(TAILSCALE_STATUS_TIMEOUT)",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The timeout layer allocates its own TestClock for this block. Its sole effect case owns the status fiber through forkScoped, advances this clock, then joins the fiber before teardown. No sibling case or external fiber shares or advances this clock; preserve the deterministic timeout subject without a global reset or live-time substitution."
-    },
-    {
-      "id": "EV015:packages/drivers/tika/test/Tika.server.test.ts:554:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/tika",
-      "file": "packages/drivers/tika/test/Tika.server.test.ts",
-      "line": 554,
-      "endLine": 554,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:28113418777c8465a71d138a1e655a7976eb5b432a3984b648ba01fd5e3339a7",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"5 millis\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The request signals Deferred readiness before its500ms Effect delay. TestClock waits for supervised fibers to suspend before the5ms advance, arming response delay and operation deadline. Removing the advance fails by the unchanged test deadline; a zero-delay response fails the timeout oracle. Native HTTP integration retains live clocks."
-    },
-    {
       "id": "EV015:packages/epistemic/use-cases/test/ContradictionDetection.golden.test.ts:133:TestClock.adjust@17#1",
       "lens": "resource",
       "ruleId": "EV015",
@@ -24763,72 +23428,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Owner: epistemic-contradiction-detection. Serial, fork-free TestClock advancement proves detector clock independence; no forked work or other test shares the advancement. Reconsider when the Effect/Vitest canon offers a serial-clock helper."
-    },
-    {
-      "id": "EV015:packages/foundation/capability/langextract/test/Service.test.ts:180:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/langextract",
-      "file": "packages/foundation/capability/langextract/test/Service.test.ts",
-      "line": 180,
-      "endLine": 180,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:68f5c4ad68eb290123f804f404806dc92e408ecd06c5784ede4e0f7c07dc6c3e",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(Duration.seconds(30))",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Each deadline subject owns a separate named fixture and its deterministic TestClock. Keep fork, the exact thirty-second/ten-minute adjustments, the intermediate pending-fiber assertion and join; no shared clock is reset or advanced across deadline fixtures."
-    },
-    {
-      "id": "EV015:packages/foundation/capability/langextract/test/Service.test.ts:214:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/langextract",
-      "file": "packages/foundation/capability/langextract/test/Service.test.ts",
-      "line": 214,
-      "endLine": 214,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:330fb38c6cad87b0831e582fd20fe9765d1ff2c5ae774e63769f66d44dbf7ac1",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(Duration.seconds(30))",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Each deadline subject owns a separate named fixture and its deterministic TestClock. Keep fork, the exact thirty-second/ten-minute adjustments, the intermediate pending-fiber assertion and join; no shared clock is reset or advanced across deadline fixtures."
-    },
-    {
-      "id": "EV015:packages/foundation/capability/langextract/test/Service.test.ts:217:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/langextract",
-      "file": "packages/foundation/capability/langextract/test/Service.test.ts",
-      "line": 217,
-      "endLine": 217,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:5384cb795f25c70fb9e3cb507ae07322a59115e4c714b89614559e760d90ae2f",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(Duration.minutes(10))",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "Each deadline subject owns a separate named fixture and its deterministic TestClock. Keep fork, the exact thirty-second/ten-minute adjustments, the intermediate pending-fiber assertion and join; no shared clock is reset or advanced across deadline fixtures."
     },
     {
       "id": "EV015:packages/tooling/library/ai-metrics/test/ingest.test.ts:2727:TestClock.adjust@19#1",
@@ -24895,48 +23494,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "These are sequential non-concurrent tests in one it.layer block. Each forked loop is interrupted and joined before the next test, so no timer fiber survives a clock adjustment. The deterministic clock tests bounded storage retries; the real SQLite contention case explicitly uses TestClock.withLive and does not adjust it."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/accounts-usage.test.ts:1407:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/accounts-usage.test.ts",
-      "line": 1407,
-      "endLine": 1407,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:fbecb4ac9eeac0b0fc568a24200f5b7adb92e30cea7c7b583829fe879cb03a19",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"3600 seconds\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/accounts-usage.test.ts:1693:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/accounts-usage.test.ts",
-      "line": 1693,
-      "endLine": 1693,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:b17da3db6ee79ad378994e7fe76e9f3d1336b2497426eb4fa8a16a4dd0dfbbec",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"121 seconds\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
     },
     {
       "id": "EV015:packages/tooling/tool/cli/test/cache-acceptance.test.ts:532:TestClock.adjust@15#1",
@@ -25112,247 +23669,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Each clock-mutating scheduler case owns a separate nested TestClock.layer. Actual-suite witnesses passed 135/135 on Node and Bun: all five clocks were distinct and initially zero, and the parent stayed zero. The first witness run caught an unisolated setTime-only case at 1000ms; that case is now isolated too. Preserve the original advances and deadlines. See research/cli-scheduler-runtime-resource-proof.md in the goal packet."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:608:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 608,
-      "endLine": 608,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:f98e35b2dc671feb13495afce29a91c8a6d9066ddd8fbb43486acbc794590630",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"1 minute\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This unchanged finite TestClock adjustment drives a forked fake child through the capture timeout, output-drain grace period, or cleanup deadline. Kill/unref counts, failure tags and output assertions prove the resulting state; real subprocess tests retain live clocks. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:629:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 629,
-      "endLine": 629,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:210f2aef60549d5bcc8cf21e86cec791395bf6d132a0db243ae0b91d34528bc7",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"2 seconds\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This unchanged finite TestClock adjustment drives a forked fake child through the capture timeout, output-drain grace period, or cleanup deadline. Kill/unref counts, failure tags and output assertions prove the resulting state; real subprocess tests retain live clocks. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:651:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 651,
-      "endLine": 651,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:31ba2fe37f2b2223c72b329719cb715bc022352679e91d7002383717601c786b",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"2 seconds\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This unchanged finite TestClock adjustment drives a forked fake child through the capture timeout, output-drain grace period, or cleanup deadline. Kill/unref counts, failure tags and output assertions prove the resulting state; real subprocess tests retain live clocks. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:652:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 652,
-      "endLine": 652,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:be28d534a9a8a1910dcf10d95cd4257b111c9970786833b2e81066951b1ca246",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"3 seconds\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This unchanged finite TestClock adjustment drives a forked fake child through the capture timeout, output-drain grace period, or cleanup deadline. Kill/unref counts, failure tags and output assertions prove the resulting state; real subprocess tests retain live clocks. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:697:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 697,
-      "endLine": 697,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:36265b3dc5d590ecb4d09b386dcd9fd394e6e7336f6214f9f417156c6e68c08d",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"1 minute\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This unchanged finite TestClock adjustment drives a forked fake child through the capture timeout, output-drain grace period, or cleanup deadline. Kill/unref counts, failure tags and output assertions prove the resulting state; real subprocess tests retain live clocks. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:724:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 724,
-      "endLine": 724,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:b4b7e861472714a23fc05b920641124536418d478e773d97c4f69918d5fbccd1",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"1 minute\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This unchanged finite TestClock adjustment drives a forked fake child through the capture timeout, output-drain grace period, or cleanup deadline. Kill/unref counts, failure tags and output assertions prove the resulting state; real subprocess tests retain live clocks. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:746:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 746,
-      "endLine": 746,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:fff89caa89eeb23422fc8f88be28406163626561cac4720ecc4487cd098d2030",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"1 minute\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This unchanged finite TestClock adjustment drives a forked fake child through the capture timeout, output-drain grace period, or cleanup deadline. Kill/unref counts, failure tags and output assertions prove the resulting state; real subprocess tests retain live clocks. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:747:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 747,
-      "endLine": 747,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:f929cd2735e69aa3bb69f498e64dc62eefd67b8af176d8a15276f48d94850ce7",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"2 seconds\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This unchanged finite TestClock adjustment drives a forked fake child through the capture timeout, output-drain grace period, or cleanup deadline. Kill/unref counts, failure tags and output assertions prove the resulting state; real subprocess tests retain live clocks. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts:774:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/step-capture-lifecycle.test.ts",
-      "line": 774,
-      "endLine": 774,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:8ff67d74f9f1a1f1bf7a63c738e91c4df5e9bfa7fdb43f21c2da06b72c4eea59",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"1 minute\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "This unchanged finite TestClock adjustment drives a forked fake child through the capture timeout, output-drain grace period, or cleanup deadline. Kill/unref counts, failure tags and output assertions prove the resulting state; real subprocess tests retain live clocks. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-gh-rest-first.test.ts:312:TestClock.adjust@13#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/yeet-gh-rest-first.test.ts",
-      "line": 312,
-      "endLine": 312,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:3b442ccfb4f15cccd300c61cec4f5659a295f52e039d59ea50df7503eaf6ee09",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(Duration.minutes(11))",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "open"
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-monitor-check-registration.test.ts:486:TestClock.adjust@17#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/yeet-monitor-check-registration.test.ts",
-      "line": 486,
-      "endLine": 486,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:9d5c061d9d7b5f2e8d725a50d17476acef0e1e5c58bd7941ed57fb1f323da1ca",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"10 seconds\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The single-test runner layer owns this controlled retry clock. A per-case delegating Clock registers and joins the real production retry sleep and signals a Deferred only for its 10-second duration. TestClock advances after that handshake; the watch fiber is joined and exact attempt/recorder assertions remain. Serial runner configuration prevents competing clock users; the separate zero/20ms live deadline cases remain unchanged. See research/cli-continuation-nine-proof.md."
     },
     {
       "id": "EV015:packages/tooling/tool/cli/test/yeet-monitor-ready.test.ts:1144:TestClock.adjust@32#1",
@@ -25777,28 +24093,6 @@
       "confidence": 0.55,
       "mechanization": "judgment",
       "status": "open"
-    },
-    {
-      "id": "EV015:packages/workspace/server/test/ThreadStore.test.ts:470:TestClock.adjust@15#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/workspace-server",
-      "file": "packages/workspace/server/test/ThreadStore.test.ts",
-      "line": 470,
-      "endLine": 470,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:44ea6921f443a62efb6d9f32deddd43d9fe2c5cd4a64322d1bd29687badb6afe",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(\"1 minute\")",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "The audit-timestamp regression is the only test in its independent fresh Cuid layer block. It owns its deterministic TestClock and advances one minute between creation and rename. All exact createdAt/updatedAt assertions remain; no other test or forked task shares this block clock."
     }
   ]
 }

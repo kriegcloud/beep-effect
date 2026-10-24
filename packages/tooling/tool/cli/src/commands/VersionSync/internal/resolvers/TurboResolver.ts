@@ -15,6 +15,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { resolveWorkspaceDirs } from "@beep/repo-utils";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -159,10 +160,7 @@ export class TurboSchemaState extends S.Opaque<TurboSchemaState, { readonly bran
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefaultKey(Effect.succeed(""))
     ),
-    files: S.Array(TurboConfigFile).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<TurboConfigFile>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<TurboConfigFile>()))
-    ),
+    files: ArrayKeyDefaultEmpty(TurboConfigFile),
   }).pipe(
     $I.annoteSchema("TurboSchemaState", {
       description: "Resolved Turborepo schema state: installed version plus every turbo.json that pins a $schema.",

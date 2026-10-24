@@ -4,6 +4,20 @@ Reuse sites from `research/promotion-map-2026-10-20.md` ("Reuse sites") and
 the wave plans, with their adoption status. `#n` is the map's site id. A site
 leaves the open list in the PR that migrates it, or carries its reason here.
 
+## `@beep/xdg` (wave 4, PR 4-X, SPEC W4-c)
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| m365-mcp `OutboxConfig.ts` `stateRoot` (staging root and audit directory) | #180 | adopted in 4-X | `XdgBase.dir("data")` / `XdgBase.dir("state")`. Parity: the env matrix in `test/OutboxConfig.xdg.test.ts`, committed against the old body first; its divergent rows are inverted on purpose (relative or space-padded values ignored, a value with only trailing whitespace used verbatim instead of trimmed, HOME normalized, the missing-root message names an absolute path). |
+| repo-cli `internal/state/WorkstationState.ts` `resolveWorkstationStateDir` | #167 | adopted in 4-X | `XdgBase.require("state")`; the override variable and the five callers are unchanged. Parity: `test/workstation-state-xdg.test.ts`, committed against the old body first, with the same inverted rows. |
+| ai-metrics `forwarder.ts` and `data-root.ts` `aiMetricsStateHome` | #176, #288 | queued for 4-X-A | Exception Ledger "Duplicate XDG base-directory resolution". |
+| repo-cli `internal/repo-run/BeepCacheRoot.ts` | #168 | queued for 4-X-A | Keeps its override and TMPDIR rungs; only the XDG rung moves. |
+| repo-cli `Worktree/Fleet.service.ts` cache root | #179 | queued for 4-X-A | |
+| repo-cli `HarnessLedger/HarnessLedger.command.ts` | #177 | queued for 4-X-A | |
+| repo-cli `AIMetrics/internal/Programs.ts` | - | queued for 4-X-A | |
+| repo-cli `Files/internal/MatchPerson.ts` `resolveCacheRoot` | #178 | queued for 4-X-A | |
+| apps `docket-intake` `Config.ts` and `practice-m365-contacts` `Contacts.state.ts` | #181, #182 | queued for 4-X-A | |
+| apps `practice-mail-tagging` `PracticeMailTagging.config.ts` | #183 | excluded | It would start honouring XDG on a deployed practice service (W4-c correction 6). |
 ## `@beep/lockfiles` (wave 3-5, W3-g)
 
 | Site | Map id | Status | Notes |
@@ -19,7 +33,7 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 | --- | --- | --- | --- |
 | docgen `Configuration.ts` `readJsoncFile` (package.json and docgen.json) | #166 | adopted in 3-3 | `ConfigFile.read` + `JsoncCodec`; docgen drops `jsonc-parser`. Parity: the 364 tracked package.json and docgen*.json files decode the same through the old reader (`ops/config-file-codec-differential.ts`, docgen-inputs lane). A malformed `docgen.json` now fails typed (test). |
 | repo-cli `Models/Models.manifest.service.ts` `load` | #165 | adopted in 3-3 | `ConfigFile.read` + `YamlCodec`; the writers keep the npm `yaml` stringifier and the atomic rename. Parity with the old reader for the five manifest fixtures, a writer round trip for them and the seed, and a typed syntax-error case (`test/models-manifest-config-file.test.ts`). |
-| lab `xdg` `XdgConfig` | - | adopted in 3-3 | Imports `@beep/config-file` (`ConfigResolver` type); promoted with xdg in wave 4. |
+| lab `xdg` `XdgConfig` | - | adopted in 3-3; promoted in 4-X | Imports `@beep/config-file` (`ConfigResolver` type); now the `@beep/xdg/XdgConfig` subpath (W4-c). |
 | lab `cli` `ConfigIssueRenderer` | - | adopted in 3-3 | Takes the structural `{ readonly issue }` and no longer imports the package (promotion map row "cli-kit -> config-file"). |
 | `Struct.deepMerge` and jsonl `internal/merge.ts` | - | excluded | Different merge semantics from config-file's `deepMerge`, which stays in the package. |
 | docgen `readTSConfig` and the `@beep/schema/Jsonc` consumers | - | excluded here | `readTSConfig` moves with the `TsconfigValidator` in 3-A6; the `@beep/schema/Jsonc` consumers belong to the jsonc adoption (Exception Ledger "Duplicate JSONC model"). |
@@ -34,6 +48,19 @@ leaves the open list in the PR that migrates it, or carries its reason here.
 | repo-cli Reviewer and CI summary bodies | - | deferred | Named by D-10; adopt with the wave-5 GitHub Actions driver, which composes `CheckDocument` with a real sink. |
 | Marker-splice family (Provenance, GhOps, Quality, Findings.refresh, Atlas, Observability, Models) | - | excluded | File-backed managed sections go to `@beep/managed-section` directly, not through `ManagedDocument`'s comment dialect. |
 | `@beep/markdown` `YamlFrontmatter` and `JsonFrontmatter` key strictness | - | resolved (#2138, D-53) | The codecs reject complex and `!!set` yaml keys and duplicate json keys with `FrontmatterKeyError`. `@beep/jsonc` has no duplicate-key detection to reuse, so the codec walks `Jsonc.parseTreeResult`. |
+
+## `@beep/runtime-env` CI rule (wave 4, 4-CI, SPEC W4-e)
+
+| Site | Map id | Status | Notes |
+| --- | --- | --- | --- |
+| repo-cli `internal/cli/EnvConfig.ts` `isCi`, `isCiSync` | - | 4-CI | `isCi` reads `CurrentRuntimeEnv`; `isCiSync` is `RuntimeEnv.fromRecord` over `Bun.env`. Callers: `KnowledgeDoctor.service.ts`, `Knowledge.command.ts`, `Docgen/internal/Local.ts`. |
+| repo-cli `EnvConfig.ts` `canUseTurboCacheSecretSession` | - | 4-CI | Was exact `CI === "true"`; the verdict cache is keyed by repo root. |
+| repo-cli `Quality/Tasks.ts` (`isCi` alias, 11 uses) | - | 4-CI | Alias removed; calls `isCiSync`. |
+| repo-cli `Lint/Lint.command.ts` deprecated-apis and policy | - | 4-CI | Was `Config.String("CI")` compared to `"true"`. |
+| repo-cli `DeletePackage/DeletePackage.command.ts` `assembleDeletePolicy` | - | 4-CI | Was `Config.Boolean("CI")`. |
+| repo-cli `Ci/CiLane.ts` `directTurboArgs`, `Quality/internal/GithubChecks.ts` `rootTaskLane` | - | 4-CI | Were `Bun.env.CI === "true"`. |
+| repo-cli `Quality/Quality.plan.ts` `detectQualityProfile` | - | 4-CI | Was non-empty `CI`, so `CI=false` and `CI=0` no longer select the CI profile. |
+| repo-cli `Ci/CiLane.ts` `qualityCheckConcurrencyArg` (`GITHUB_ACTIONS === "true"`) | - | excluded | Hosted 16GB runner sizing, not a CI predicate. |
 
 ## `@beep/markdown` (wave 2d, SPEC D-46)
 

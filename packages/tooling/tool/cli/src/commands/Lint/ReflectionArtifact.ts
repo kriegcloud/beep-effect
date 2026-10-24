@@ -18,6 +18,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { FrontmatterSource } from "@beep/markdown/FrontmatterSource";
 import { FrontmatterFormat } from "@beep/markdown/MarkdownNode";
 import { LiteralKit } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import * as Console from "effect/Console";
 import * as Command from "effect/cli/Command";
@@ -91,14 +92,8 @@ class ReflectionFrontmatter extends S.Opaque<ReflectionFrontmatter, { readonly b
     date: S.String,
     trigger: ReflectionTrigger,
     confidence: ReflectionConfidence,
-    findings: S.Array(ReflectionFinding).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<ReflectionFinding>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<ReflectionFinding.Encoded>()))
-    ),
-    todos: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    findings: ArrayKeyDefaultEmpty(ReflectionFinding),
+    todos: ArrayKeyDefaultEmpty(S.String),
   }).pipe(
     $I.annoteSchema("ReflectionFrontmatter", {
       description: "Schema-validated YAML frontmatter for a goal-packet reflection artifact.",

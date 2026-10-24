@@ -19,3 +19,48 @@
   report (`research/codemod-write.jsonc` lists every site).
 - Follow-up: dedupe the empty-array-default idiom behind a named
   `@beep/schema` helper and collapse the `Laws.command.ts` repetition.
+
+## 2026-10-23 — S44 follow-up blocked by inherited scratchpad documentation gate
+
+- Doing: verifying the one-line tar extraction JSDoc correction for issue #2154.
+- Evidence: `bun run beep quality package-verify @beep/scratchpad` skips audit
+  and fails docgen on existing metadata defects, including
+  `effected/xdg/XdgConfig.ts:74 XdgConfig missing @example` and
+  `effected/xdg/index.ts:1 <module fileoverview> missing @since`.
+  Both files match `origin/main`; the lane changes only the archive-command
+  example in this package.
+- Outcome: stopped under the S44 brief's outside-scope gate rule, retained
+  uncommitted implementation and local proof logs, and published nothing.
+- Would have prevented it: repair the scratchpad documentation baseline once
+  in the main-green program before requiring package-wide verification of
+  narrowly scoped scratchpad edits.
+
+## 2026-10-23 — S44 remediation and inherited-gate disposition
+
+- Resolved: `ArrayKeyDefaultEmpty` centralizes constructor and exact missing-key
+  decoding defaults; law command schemas, flags, and diagnostic reporting reuse
+  shared definitions. The stale archive example omits `flags`.
+- Resolved: Fallow audit verifies zero-context diff hunks against tracked
+  `goals/*/research/codemod-write.jsonc` reports. Only identifier tokens at
+  recorded file/line/column sites qualify; mixed edits, additions, absent reports,
+  malformed evidence, and unregistered changes remain introduced.
+- Evidence: `bun run beep quality fallow audit --base origin/main` reports
+  `introduced = 0`; focused attribution tests cover registered renames and
+  conservative rejection. No inventory, exception, or ratchet baseline changed.
+- Disposition: the S44 orchestrator assigns inherited scratchpad metadata defects
+  to the effected-promotion session and authorizes this lane to continue without
+  repairing those files. Package-scoped `docgen:local` verifies the changed
+  archive example and CLI exports; bare planning requires full proof because the
+  migrated array default also touches docgen configuration.
+
+## 2026-10-23 — generated schema build output failed Babel parsing
+
+- Doing: rerunning schema package verification after correcting standalone Effect
+  diagnostics in the new default-helper test.
+- Evidence: Babel rejected `schema/dist/FilePath/FilePath.roots.js:3` with
+  `Unexpected token`; the generated file began with a source-map comment joined
+  to a partial documentation block. Its TypeScript source matches `origin/main`.
+- Recovery: forced TypeScript build emission regenerates the derived output;
+  no source fix, baseline edit, or exception is warranted.
+- Would have prevented it: isolated build outputs or serialized compiler/Babel
+  writers for package verification sharing one checkout.

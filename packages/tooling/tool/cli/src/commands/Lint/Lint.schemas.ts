@@ -7,6 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A, Str } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import { dual, flow, pipe } from "effect/Function";
@@ -467,14 +468,8 @@ export class SchemaFirstInventoryDocument extends S.Opaque<
       S.withConstructorDefault(Effect.succeed(A.fromIterable(INCLUDED_GLOBS))),
       S.withDecodingDefaultKey(Effect.succeed(A.fromIterable(INCLUDED_GLOBS)))
     ),
-    entries: S.Array(SchemaFirstInventoryEntry).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<SchemaFirstInventoryEntry>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<SchemaFirstInventoryEntry.Encoded>()))
-    ),
-    backlog: S.Array(SchemaFirstBacklogRow).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<SchemaFirstBacklogRow>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<typeof SchemaFirstBacklogRow.Encoded>()))
-    ),
+    entries: ArrayKeyDefaultEmpty(SchemaFirstInventoryEntry),
+    backlog: ArrayKeyDefaultEmpty(SchemaFirstBacklogRow),
   }).pipe(
     $I.annoteSchema("SchemaFirstInventoryDocument", {
       description: "Committed schema-first inventory baseline for repo-wide lint enforcement.",
@@ -748,10 +743,7 @@ export class SchemaCrispeningPolicyDocument extends S.Opaque<
 >()(
   S.Struct({
     schemaVersion: S.tag("schema-crispening-policy/v1"),
-    cards: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<string>()))
-    ),
+    cards: ArrayKeyDefaultEmpty(S.String),
     families: S.Record(S.String, SchemaCrispeningFamilyPolicy).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, SchemaCrispeningFamilyPolicy>())),
       S.withDecodingDefaultKey(Effect.succeed(R.empty<string, SchemaCrispeningFamilyPolicy>()))
