@@ -21,7 +21,7 @@
 // WorkspaceDiscovery service's shape, options and failures, the WorkspaceRoot
 // service its layer requires, and WorkspacePackage's field and method types.
 export { LayerPolicy, LayerPolicyError } from "./LayerPolicy.ts";
-export { PackageManagerName } from "./PackageManagerName.ts";
+export { PackageManagerName } from "@beep/repo-workspaces/PackageManagerName";
 export {
 	type BinCommandOptions,
 	type BinProvenance,
@@ -58,12 +58,12 @@ export {
 	WorkspaceInfo,
 	type WorkspaceLookupFailure,
 	WorkspacePatternError,
-} from "./WorkspaceDiscovery.ts";
+} from "@beep/repo-workspaces/WorkspaceDiscovery";
 export { LayerEdge, type LayeringGraph, LayeringReport, WorkspaceLayering } from "./WorkspaceLayering.ts";
-export { type DependencyDiff, PublishConfig, WorkspaceManifestError, WorkspacePackage } from "./WorkspacePackage.ts";
+export { type DependencyDiff, PublishConfig, WorkspaceManifestError, WorkspacePackage } from "@beep/repo-workspaces/WorkspacePackage";
 export {
 	type FindWorkspaceRootOptions,
 	WorkspaceRoot,
 	WorkspaceRootNotFoundError,
 	type WorkspaceRootShape,
-} from "./WorkspaceRoot.ts";
+} from "@beep/repo-workspaces/WorkspaceRoot";

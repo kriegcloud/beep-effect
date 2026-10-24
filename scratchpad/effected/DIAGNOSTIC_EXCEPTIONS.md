@@ -5,7 +5,7 @@ tree on 2026-10-09 after step 2 (zero type, lint and tsgo diagnostics; tests at 
 Each entry is a deliberate choice that the operator can overrule: remove the directive and the
 diagnostic comes back.
 
-Totals: 23 in source, 10 in tests beyond the entry-point headers, 1 service annotation(s).
+Totals: 18 in source, 8 in tests beyond the entry-point headers, 1 service annotation(s).
 
 ## Source
 
@@ -23,11 +23,6 @@ Totals: 23 in source, 10 in tests beyond the entry-point headers, 1 service anno
 | `effected/memfs/NodeSyncFileSystem.ts` | 2 | whole file | nodeBuiltinImport | This adapter preserves synchronous Node filesystem throws and errno metadata; Effect FileSystem is asynchronous. |
 | `effected/memfs/internal/errno.ts` | 109 | next line | missingPipeableSignature | String paths overlap method strings, and the optional description makes the two call forms ambiguous. |
 | `effected/toml/TomlNode.ts` | 90 | next line | schemaNumber | A TOML float may be `inf` or `nan`, so the finite-only schema would reject valid documents. |
-| `effected/workspaces/internal/configDependencyFetch.ts` | 2 | whole file | nodeBuiltinImport | Config-dependency replay reads the real Node module store even when the supplied FileSystem is virtual. |
-| `effected/workspaces/internal/configDependencyResolution.ts` | 2 | whole file | nodeBuiltinImport | Config-dependency replay reads the real Node module store even when the supplied FileSystem is virtual. |
-| `effected/workspaces/internal/configDependencyShared.ts` | 2 | whole file | nodeBuiltinImport | Config-dependency replay reads the real Node module store even when the supplied FileSystem is virtual. |
-| `effected/workspaces/internal/configDependencyShared.ts` | 24 | next line | missingPipeableSignature | A string cause overlaps the path argument, so optional reason makes the two call forms ambiguous. |
-| `effected/workspaces/node-sync.ts` | 2 | whole file | nodeBuiltinImport | This synchronous Node binding preserves native filesystem exceptions and the running platform path semantics. |
 | `effected/yaml/internal/composer/scalars.ts` | 108 | next line | missingPipeableSignature | Scalar styles and raw values are strings, so optional tag and state make the two call forms ambiguous. |
 | `effected/yaml/internal/fold.ts` | 257 | next line | missingPipeableSignature | Content and indentation are both strings, so optional rendering arguments make the two call forms ambiguous. |
 | `effected/yaml/internal/fold.ts` | 322 | next line | missingPipeableSignature | Content and indentation are both strings, so optional rendering arguments make the two call forms ambiguous. |
@@ -52,8 +47,6 @@ Totals: 23 in source, 10 in tests beyond the entry-point headers, 1 service anno
 | `test/templates/fixtures.ts` | 2 | whole file | missingPipeableSignature | This filesystem factory is an internal test helper with a direct-call contract. |
 | `test/toml/oracle.property.test.ts` | 261 | next line | schemaNumber | TOML float round-trip properties must include infinities, as the scalar tests require. |
 | `test/walker/fixtures.ts` | 2 | whole file | missingPipeableSignature | These platform factories are internal test helpers with direct-call contracts. |
-| `test/workspaces/fixtures.ts` | 2 | whole file | missingPipeableSignature | These test fixtures are internal helpers and preserve their direct-call contract. |
-| `test/workspaces/integration/utils/configDependencyFixtures.ts` | 2 | whole file | missingPipeableSignature | These test fixtures are internal helpers and preserve their direct-call contract. |
 | `test/yaml/e2e/support/engine.ts` | 2 | whole file | missingPipeableSignature | This engine adapter is an internal test helper with a direct-call contract. |
 
 ## Tests, entry-point headers (operator ruling, 2026-10-09)

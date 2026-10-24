@@ -93,7 +93,7 @@ export type BoundaryRule = typeof BoundaryRule.Type;
  * import * as S from "effect/Schema";
  * import { ReferenceOptions } from "@beep/scratchpad/effected/workspaces/SourceBoundary";
  *
- * console.log(S.is(ReferenceOptions)({ ignoreTokens: undefined })) // true
+ * console.log(S.is(ReferenceOptions)({ ignoreTokens: [] })) // true
  * ```
  *
  * @public
