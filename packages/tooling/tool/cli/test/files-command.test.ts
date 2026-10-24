@@ -3314,7 +3314,7 @@ exit 74
       const source = path.join(datasetDir, "source.svg");
       yield* writeSvgFile(source, 1920, 1080);
       yield* fs.writeFileString(path.join(datasetDir, "notes.txt"), "leave me alone");
-      const expectedHash = (yield* sha256FileRef(source)).slice(7);
+      const expectedHash = Str.slice(7)(yield* sha256FileRef(source));
       const sourceSize = (yield* fs.stat(source)).size;
       const hundredths = (sourceSize * BigInt(100) + BigInt(500_000)) / BigInt(1_000_000);
       const expectedSize = `${hundredths / BigInt(100)}.${pipe(`${hundredths % BigInt(100)}`, Str.padStart(2, "0"))}MB`;
@@ -3354,7 +3354,7 @@ exit 74
           Effect.provideService(
             Exiftool,
             Exiftool.of({
-              readTags: () =>
+              readTags: Effect.fn("Exiftool.readTags")(() =>
                 Effect.succeed(
                   ReadTagsResult.make({
                     filePath: file.sourcePath,
@@ -3363,10 +3363,11 @@ exit 74
                       raw,
                     }),
                   })
-                ),
+                )
+              ),
               version: Effect.succeed("test"),
-              writeTags: () => Effect.die("unused"),
-              writeXmpPacket: () => Effect.die("unused"),
+              writeTags: Effect.fn("Exiftool.writeTags")(() => Effect.die("unused")),
+              writeXmpPacket: Effect.fn("Exiftool.writeXmpPacket")(() => Effect.die("unused")),
             })
           )
         );
@@ -3407,7 +3408,7 @@ exit 74
       const datasetDir = yield* makeDatasetDir(tmpDir);
       const source = path.join(datasetDir, "source.svg");
       yield* writeSvgFile(source, 1200, 800);
-      const expectedHash = (yield* sha256FileRef(source)).slice(7);
+      const expectedHash = Str.slice(7)(yield* sha256FileRef(source));
       yield* runFilesCommand([
         "sort-and-rename",
         "--prefix",

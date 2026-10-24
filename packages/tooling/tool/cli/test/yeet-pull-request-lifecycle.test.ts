@@ -84,13 +84,13 @@ const encodeView = S.encodeEffect(
     })
   )
 );
+const encodeList = S.encodeEffect(S.fromJsonString(S.Array(S.Unknown)));
 
 describe("Yeet pull request lifecycle boundaries", () => {
   it.layer(Layer.mergeAll(BunCrypto.layer, MemoryFileSystem.layer, Path.layer), { timeout: "10 seconds" })((it) => {
     it.effect("uses REST branch matches and preserves confirmed absence without a GraphQL read", () =>
       Effect.gen(function* () {
         const view = { number: 42, state: "OPEN", headRefName: context.branch };
-        const encodeList = S.encodeEffect(S.fromJsonString(S.Array(S.Unknown)));
         for (const views of [[view], [{ ...view, state: "CLOSED" }, { ...view, headRefName: "other" }, view], []]) {
           const output = yield* encodeList(views);
           const calls = yield* Ref.make<ReadonlyArray<string>>([]);
