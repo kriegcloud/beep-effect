@@ -38,6 +38,8 @@ import {
   runYeetFallowFixtureCheck,
   runYeetPlanContractCheck,
 } from "./internal/FallowFeedback.ts";
+import { YeetFinalCheckOptions } from "./internal/FinalCheck.schemas.ts";
+import { runYeetFinalCheck } from "./internal/FinalCheck.ts";
 import { validateProofJobDetach } from "./internal/Guards.ts";
 import { runYeet } from "./internal/Handler.ts";
 import { YeetInboxSeverity, yeetProofJobRowId } from "./internal/Inbox.ts";
@@ -1204,7 +1206,47 @@ const yeetReadyCommand = Command.make("ready", { ...porcelainFlags, inherited: r
   runYeetReady(YeetReadyOptions.make(options))
 ).pipe(
   Command.withDescription(
-    "Flip this branch's draft pull request to ready once every review thread is answered and no required check is red; under S11, --inherited attributes a required red inherited from main and records it in the PR body first"
+    "Flip this branch's draft pull request to ready once its head has a passing yeet final-check receipt, every review thread is answered, and no required check is red; under S11, --inherited attributes a required red inherited from main and records it in the PR body first"
+  )
+);
+
+const finalCheckGatesFlag = Flag.String("gates").pipe(
+  Flag.atMost(16),
+  Flag.withDescription(
+    "Run only these final-check gates (comma separated or repeated); a subset writes an incomplete receipt that never admits yeet ready"
+  )
+);
+
+const finalCheckSkipFlag = Flag.String("skip").pipe(
+  Flag.atMost(16),
+  Flag.withDescription(
+    'Skip a gate locally with the reason recorded in the receipt: "<gate>=<reason>" (repeatable), e.g. coverage="admission waited 10 minutes"'
+  )
+);
+
+const finalCheckDryRunFlag = Flag.Boolean("dry-run").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Print the final-check plan for the committed head without running it")
+);
+
+const finalCheckFailFastFlag = Flag.Boolean("fail-fast").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Stop after the first red gate (the receipt is then incomplete)")
+);
+
+const yeetFinalCheckCommand = Command.make(
+  "final-check",
+  {
+    base: baseFlag,
+    gates: finalCheckGatesFlag,
+    skip: finalCheckSkipFlag,
+    dryRun: finalCheckDryRunFlag,
+    failFast: finalCheckFailFastFlag,
+  },
+  (options) => runYeetFinalCheck(YeetFinalCheckOptions.make(options)).pipe(Effect.asVoid)
+).pipe(
+  Command.withDescription(
+    "Replay, scoped to the diff, every hosted gate the cheap tier skips (Lint Policy, Lint, Effect Diagnostics, Check, Docgen, Repo Sanity, Fallow, Coverage, rewritten test expectations) and write the head-pinned receipt yeet ready requires"
   )
 );
 
@@ -1403,6 +1445,7 @@ export const yeetCommand = Command.make("yeet", publishFlags, ({ stateRoot, ...o
     yeetMergeGateCommand,
     yeetReplyCommand,
     yeetReadyCommand,
+    yeetFinalCheckCommand,
     yeetInboxCommand,
     yeetJobCommand,
     yeetProofReportCommand,

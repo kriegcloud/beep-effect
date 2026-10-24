@@ -69,6 +69,54 @@ When in doubt, prove with `yeet verify` before trusting "green". Do not run
 it to unblock a publish: push, let hosted CI prove the head, and run the full
 tier only to reproduce a hosted red locally.
 
+## Final check: the content-final gate
+
+`bun run beep yeet final-check` runs on the committed head before a lane calls
+a PR final, and `yeet ready` refuses to flip a draft without a complete,
+passing receipt for that exact head (`.beep/yeet/final-check/<sha>.json`).
+It exists because on 2026-10-23/24 lanes called PRs final after local checks
+that skip gates only hosted CI runs, and each merge redded `main`. Every gate
+below runs the hosted body (`beep ci lane <id>`, through the same
+`ciLaneDispatchStep` argv as `beep ci local`) with the PR `--affected --base
+<merge-base>` shape, or a repo-wide sweep where the sweep is cheap. Steps run
+one at a time and every lane keeps its own Turbo concurrency cap (2-4), so it
+fits a 4-core worker. By default every gate runs and every red is collected;
+`--fail-fast` stops at the first red and leaves the receipt incomplete.
+
+| Gate | Hosted context | Command | Caught on main |
+| --- | --- | --- | --- |
+| `expectation-rewrite` | Test Unit | rewritten assertions in the diff's tests and snapshots, old file replayed on the merge base | #2215 |
+| `cheap-gates` | Repo Sanity, JSDoc Ratchet, catalogs | `beep quality github-checks cheap-gates` | #2207, #2221 span |
+| `lint-policy` | Heavy / Lint Policy | `beep lint policy --base`, root docs `oxlint .`, `beep lint deprecated-apis --full` | #2186, #2189, #2201 |
+| `lint` | Lint (Biome, GritQL) | `beep ci lane lint --affected` | #2187 |
+| `repo-sanity` | Repo Sanity | `beep ci lane repo-sanity --changeset-status` | #2207 |
+| `effect-diagnostics` | Heavy / Effect Diagnostics | `beep ci lane effect-diagnostics --affected` | #2197, #2208, #2221 |
+| `check` | Heavy / Check | `beep ci lane check --affected` | #2208 |
+| `docgen` | Heavy / Docgen | `beep ci lane docgen --mode auto` | #2208 |
+| `fallow` | Fallow Advisory Envelopes | `beep ci lane fallow --validate-envelopes` | #2215 |
+| `coverage` | Coverage Regression, Test Unit | `TURBO_SCM_BASE=<merge-base> beep-cli coverage --affected` | #2215, #2221 |
+
+`expectation-rewrite` flags a hunk in a `*.test.ts`/`*.spec.ts` file that
+removes an assertion line and adds one (or any edited `__snapshots__` entry),
+then runs the unmodified merge-base version of that test file in a detached
+merge-base worktree under `~/.cache/beep/final-check/`. If the old test passes
+there, the diff's own source change moved the output (`follows-diff`, pass).
+If it already fails there, the rewrite turns an inherited red green without a
+source fix (`masks-base-red`, fail): that is what #2215 did to #2212's
+over-escaped `@`. The check is per file, so a file red on the merge base for
+an unrelated test also fails it; fix that red, or skip the gate with the
+reason. Deleted assertions are not flagged.
+
+Skips: `--skip <gate>=<reason>` (repeatable) records the gate as skipped with
+the reason, and the receipt still admits the flip; `yeet ready` prints the
+skipped gates so the PR body names them as hosted-only. Use it for the
+constrained-compute ruling (a gate parked behind admission for 10 minutes),
+never to step around a red. `--gates <list>` runs a subset for iteration and
+writes an incomplete receipt that never admits the flip. `--dry-run` prints
+the plan for the head without running it. A dirty tree is refused, because
+the receipt pins the committed head; amend or merge `main` and the receipt
+must be produced again.
+
 ## Plan mode
 
 Use plan mode before long or risky runs when you need to inspect the shape:

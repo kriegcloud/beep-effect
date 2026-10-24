@@ -8,6 +8,8 @@ import {
   collectYeetStatus,
   decideYeetReadyGate,
   deriveYeetMergeReady,
+  FinalCheckReceipt,
+  FinalCheckStepResult,
   flipPullRequestReady,
   ProofJobRecord,
   ProofJobRequest,
@@ -126,6 +128,21 @@ const squashMessage = SquashCommitMessage.make({ header: "feat(ready): gate (#42
 // The flip pushes a reviewer re-request; tests answer it without running git.
 const stubReviewerRequest = () => Effect.succeed("[yeet] reviewer re-request stubbed");
 
+const passingFinalCheck = (_context: RepoRunContext, head: string) =>
+  Effect.succeedSome(
+    FinalCheckReceipt.make({
+      schemaVersion: "yeet-final-check/v1",
+      headSha: head,
+      mergeBase: "0".repeat(40),
+      base: "origin/main",
+      complete: true,
+      verdict: "pass",
+      startedAt: "2026-10-24T00:00:00.000Z",
+      finishedAt: "2026-10-24T00:01:00.000Z",
+      steps: [],
+      expectationRewrites: [],
+    })
+  );
 const passingSquashCommitlint = () =>
   Effect.succeed(SquashCommitlintReport.make({ message: squashMessage, verdict: SquashCommitlintPass.make({}) }));
 const longBullet = `* ${Str.repeat(100)("a")}`;
@@ -374,6 +391,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const decision = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView()),
@@ -391,6 +409,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const requests = yield* Ref.make<ReadonlyArray<readonly [number, string]>>([]);
       const decision = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView()),
@@ -409,6 +428,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const decision = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView()),
@@ -433,6 +453,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const error = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: yield* readTwice(prView(), prView({ headSha: O.some("fedcba9876") })),
@@ -449,6 +470,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const error = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: yield* readTwice(prView(), prView({ unresolvedReviewThreadCount: 1 })),
@@ -464,6 +486,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const error = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ unresolvedReviewThreadCount: 2 })),
@@ -476,9 +499,74 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     })
   );
 
+  it.effect("refuses on final-check when the head has no passing receipt and never calls gh", () =>
+    Effect.gen(function* () {
+      const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
+      const refuse = (finalCheck: typeof passingFinalCheck) =>
+        runYeetReadyGate(context, {
+          finalCheck,
+          squashCommitlint: passingSquashCommitlint,
+          recordInherited: () => Effect.void,
+          read: () => Effect.succeed(prView()),
+          markReady: recordingMarkReady(calls),
+        }).pipe(Effect.flip);
+      const missing = yield* refuse(() => Effect.succeedNone);
+      expect(missing).toMatchObject({ _tag: "YeetReadyGateRefused", blocker: "final-check" });
+      expect(missing.message).toContain(`no final-check receipt for head ${headSha}`);
+      expect(missing.message).toContain("bun run beep yeet final-check");
+      const failing = yield* refuse((_context, head) =>
+        Effect.map(
+          passingFinalCheck(_context, head),
+          O.map((receipt) => FinalCheckReceipt.make({ ...receipt, verdict: "fail" }))
+        )
+      );
+      expect(failing).toMatchObject({ _tag: "YeetReadyGateRefused", blocker: "final-check" });
+      expect(yield* Ref.get(calls)).toEqual([]);
+    })
+  );
+
+  it.effect("names the gates a passing final-check receipt skipped before the flip", () =>
+    Effect.gen(function* () {
+      const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
+      const decision = yield* runYeetReadyGate(context, {
+        finalCheck: (_context, head) =>
+          Effect.map(
+            passingFinalCheck(_context, head),
+            O.map((receipt) =>
+              FinalCheckReceipt.make({
+                ...receipt,
+                steps: [
+                  FinalCheckStepResult.make({
+                    gate: "coverage",
+                    label: "final-check:coverage",
+                    hostedContext: "Heavy / Coverage Regression",
+                    command: "(skipped)",
+                    status: "skipped",
+                    durationMs: 0,
+                    reason: "admission waited 10 minutes",
+                  }),
+                ],
+              })
+            )
+          ),
+        squashCommitlint: passingSquashCommitlint,
+        recordInherited: () => Effect.void,
+        read: () => Effect.succeed(prView()),
+        markReady: recordingMarkReady(calls),
+        requestReview: stubReviewerRequest,
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      const printed = A.join(A.map(yield* TestConsole.logLines, String), "\n");
+      expect(printed).toContain("pass with 1 skipped gate(s): coverage (admission waited 10 minutes)");
+      expect(yield* Ref.get(calls)).toEqual([["ready", "42"]]);
+    })
+  );
+
   it.effect("names the current head and the red check when a required check is failing", () =>
     Effect.gen(function* () {
       const error = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () =>
@@ -499,6 +587,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const decision = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ pendingOptionalCheckCount: 9, pendingRequiredCheckCount: 1 })),
@@ -519,6 +608,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const decision = yield* runYeetReadyGate(context, {
         recordInherited: () => Effect.void,
+        finalCheck: passingFinalCheck,
         squashCommitlint: failingSquashCommitlint,
         read: () => Effect.succeed(prView()),
         markReady: recordingMarkReady(calls),
@@ -550,6 +640,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
       });
       yield* runYeetReadyGate(context, {
         recordInherited: () => Effect.void,
+        finalCheck: passingFinalCheck,
         squashCommitlint: () => Effect.fail(YeetCommandError.make({ message: "gh api pulls failed", exitCode: 1 })),
         read: () => Effect.succeed(prView()),
         markReady: recordingMarkReady(calls),
@@ -566,6 +657,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
   it.effect("reads a non-draft pull request with an open thread as already ready, never as a pending flip", () =>
     Effect.gen(function* () {
       const decision = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ isDraft: false, unresolvedReviewThreadCount: 1 })),
@@ -579,6 +671,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       for (const state of ["CLOSED", "MERGED"] as const) {
         const error = yield* runYeetReadyGate(context, {
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,
           read: () => Effect.succeed(prView({ isDraft: false, state })),
@@ -593,6 +686,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
   it.effect("does not call gh for a pull request that is already ready", () =>
     Effect.gen(function* () {
       const decision = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ isDraft: false })),
@@ -619,6 +713,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
         context,
         {
           read: () => Ref.update(reads, (n) => n + 1).pipe(Effect.as(redRead([lint]))),
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: recordingRecord(calls),
           markReady: recordingMarkReady(calls),
@@ -649,6 +744,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
         context,
         {
           read: () => Effect.succeed(redRead([lint])),
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: recordingRecord(calls, true),
           markReady: () => Effect.die("the flip must not run"),
@@ -668,6 +764,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
         context,
         {
           read: () => Effect.succeed(prView()),
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: recordingRecord(calls),
           markReady: recordingMarkReady(calls),
@@ -687,6 +784,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const error = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView()),
@@ -961,6 +1059,7 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
       });
       expect(
         (yield* runYeetReadyGate(context, {
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,
           markReady: () => Effect.void,
@@ -1008,6 +1107,7 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
       });
       expect(
         (yield* runYeetReadyGate(context, {
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,
           read: () => Effect.succeed(prView()),
@@ -1024,6 +1124,7 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
       yield* fs.writeFileString("/repo/.beep/yeet/jobs/.guard", "");
       expect(
         (yield* runYeetReadyGate(context, {
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,
           read: () => Effect.succeed(prView()),
@@ -1045,6 +1146,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
           const sha = yield* Ref.get(currentHead);
           return (yield* Ref.get(green)) ? prView({ headSha: O.some(sha) }) : redRead([lint]);
         }),
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: (_pr: number, entries: ReadonlyArray<YeetReadyInheritedRed>, sha: string) =>
           Ref.update(body, (source) => O.getOrThrow(spliceYeetInheritedRedsSection(source, entries, sha))).pipe(
@@ -1082,6 +1184,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
             ? prView({ isDraft, headSha: O.some(current) })
             : prView({ checks: [lint], failingRequiredCheckCount: 1, isDraft, headSha: O.some(current) });
         }),
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: (_pr: number, entries: ReadonlyArray<YeetReadyInheritedRed>, head: string) =>
           Ref.update(body, (source) => O.getOrThrow(spliceYeetInheritedRedsSection(source, entries, head))),
@@ -1112,6 +1215,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
             Ref.getAndUpdate(reads, (n) => n + 1).pipe(
               Effect.map((n) => (n < 2 ? redRead([lint]) : prView({ headSha: O.some(Str.repeat(40)("b")) })))
             ),
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,
           markReady: () => Effect.die("a moved head must not flip"),
@@ -1131,6 +1235,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
             Ref.getAndUpdate(reads, (n) => n + 1).pipe(
               Effect.map((n) => (n < 2 ? redRead([lint]) : redRead([lint, knip])))
             ),
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,
           markReady: () => Effect.die("a new red must not flip"),
@@ -1148,6 +1253,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
         {
           read: () =>
             Ref.getAndUpdate(reads, (n) => n + 1).pipe(Effect.map((n) => (n < 2 ? redRead([lint]) : prView()))),
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,
           markReady: () => Effect.die("stale attributions must not flip"),
@@ -1165,6 +1271,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
           Ref.getAndUpdate(reads, (n) => n + 1).pipe(
             Effect.map((n) => prView({ unresolvedReviewThreadCount: n < 2 ? 0 : 1 }))
           ),
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         markReady: () => Effect.die("a new blocker must still refuse the default flip"),
@@ -1178,6 +1285,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
     Effect.gen(function* () {
       const count = yield* Ref.make(0);
       const error = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Ref.getAndUpdate(count, (n) => n + 1).pipe(Effect.map((n) => prView({ isDraft: n === 0 }))),
@@ -1188,6 +1296,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
   it.effect("refuses a flip without a head identity", () =>
     Effect.gen(function* () {
       const error = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ headSha: O.none() })),
@@ -1200,6 +1309,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       // Every child process (`gh auth token`) fails, so no request reaches GitHub.
       const refusing = ChildProcessSpawner.make(() => Effect.succeed(fakeHandle("", 1)));
       const error = yield* runYeetReadyGate(context, {
+        finalCheck: passingFinalCheck,
         read: () => Effect.succeed(prView()),
       }).pipe(Effect.flip, Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, refusing));
       expect(error).toMatchObject({ _tag: "YeetCommandError", command: "bun run beep yeet gh pr ready 42" });
@@ -1226,6 +1336,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       };
       const decision = yield* runYeetReadyGate(context, {
         read: () => Effect.succeed(prView()),
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: (prNumber, entries, head) =>
           recordInheritedRedsWithRest(rest, prNumber, entries, head).pipe(
@@ -1249,6 +1360,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
       const decision = yield* runYeetReadyGate(context, {
         read: () => Effect.succeed(prView()),
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: (prNumber) =>
           Ref.update(calls, A.append(["record", `${prNumber}`])).pipe(
@@ -1272,6 +1384,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       const error = yield* runYeetReadyGate(
         context,
         {
+          finalCheck: passingFinalCheck,
           read: () => Effect.succeed(redRead([lint])),
           markReady: () => Effect.die("the flip must not run before the record succeeds"),
         },
@@ -1317,6 +1430,7 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       });
       expect(
         (yield* runYeetReadyGate(context, {
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,
           read: () => Effect.succeed(prView()),
@@ -1366,6 +1480,7 @@ describe("ready gate incomplete remote identities", () => {
           remote: YeetStatusRemote.make({ ...read.remote, headSha: O.none() }),
         });
         const error = yield* runYeetReadyGate(context, {
+          finalCheck: passingFinalCheck,
           squashCommitlint: passingSquashCommitlint,
           recordInherited: () => Effect.void,
           read: () => Effect.succeed(withoutHead),
@@ -1459,6 +1574,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("ready head after the Gr
       const flip = yield* waitingFlip(true);
       const fiber = yield* runYeetReadyGate(context, {
         read: () => Effect.succeed(prView()),
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         markReady: flip.markReady,
@@ -1485,6 +1601,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("ready head after the Gr
       const confirmed = yield* Ref.make("");
       const fiber = yield* runYeetReadyGate(context, {
         read: () => Effect.succeed(prView()),
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         markReady: (number, head) => Ref.set(confirmed, head).pipe(Effect.andThen(flip.markReady(number, head))),
@@ -1515,6 +1632,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("ready head after the Gr
               })
             )
           ),
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Ref.update(records, (n) => n + 1),
         markReady: flip.markReady,
@@ -1581,6 +1699,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-
     Effect.gen(function* () {
       const clone = yield* scratchClone();
       const decision = yield* runYeetReadyGate(clone.context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
@@ -1598,6 +1717,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-
     Effect.gen(function* () {
       const clone = yield* scratchClone();
       const decision = yield* runYeetReadyGate(clone.context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ headSha: O.some("0000000000000000000000000000000000000000") })),
@@ -1620,6 +1740,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-
       yield* fs.writeFileString(path.join(clone.work, "staged.txt"), "not proven\n");
       yield* scratchGit(clone.work, ["add", "staged.txt"]);
       const decision = yield* runYeetReadyGate(clone.context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
@@ -1644,6 +1765,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-
       yield* scratchGit(clone.work, ["remote", "add", "decoy", decoy]);
       yield* scratchGit(clone.work, ["config", "remote.pushDefault", "decoy"]);
       const decision = yield* runYeetReadyGate(clone.context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
@@ -1661,6 +1783,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready reviewer re-
       const clone = yield* scratchClone();
       yield* scratchGit(clone.work, ["remote", "remove", "origin"]);
       const decision = yield* runYeetReadyGate(clone.context, {
+        finalCheck: passingFinalCheck,
         squashCommitlint: passingSquashCommitlint,
         recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView({ headSha: O.some(clone.head) })),
