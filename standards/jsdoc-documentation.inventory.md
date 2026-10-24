@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-24T02:20:07.014Z
+Generated: 2026-10-24T02:36:20.261Z
 
 ## Scope
 
@@ -15,7 +15,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 79 |
 | publicModules | 3564 |
-| publicExports | 25222 |
+| publicExports | 25224 |
 | openModules | 492 |
 | openExports | 1382 |
 | missingExportExamples | 7 |
@@ -184,7 +184,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 126 | `@beep/graph-3d` | `packages/drivers/graph-3d` | needs-remediation | 7 | 17 | 2 | 0 |
 | 127 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 15 | 157 | 5 | 54 |
 | 128 | `@beep/github-reporting` | `packages/foundation/modeling/github-reporting` | clean | 5 | 40 | 0 | 0 |
-| 129 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4334 | 47 | 35 |
+| 129 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 465 | 4335 | 47 | 35 |
 | 130 | `@beep/dock-react` | `packages/foundation/ui-system/dock-react` | needs-remediation | 3 | 12 | 0 | 10 |
 | 131 | `@beep/package-json` | `packages/foundation/modeling/package-json` | clean | 18 | 121 | 0 | 0 |
 | 132 | `@beep/drizzle` | `packages/drivers/drizzle` | clean | 3 | 11 | 0 | 0 |
@@ -217,7 +217,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 159 | `@beep/oip-web` | `apps/oip-web` | clean | 31 | 87 | 0 | 0 |
 | 160 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
 | 161 | `@beep/shared-tables` | `packages/shared/tables` | clean | 9 | 12 | 0 | 0 |
-| 162 | `@beep/scratchpad` | `scratchpad` | needs-remediation | 157 | 1028 | 135 | 0 |
+| 162 | `@beep/scratchpad` | `scratchpad` | needs-remediation | 157 | 1029 | 135 | 0 |
 | 163 | `@beep/practice-kg-mcp` | `apps/practice-kg-mcp` | clean | 16 | 73 | 0 | 0 |
 | 164 | `@beep/tailscale` | `packages/drivers/tailscale` | clean | 5 | 29 | 0 | 0 |
 | 165 | `@beep/todox` | `apps/todox` | clean | 16 | 57 | 0 | 0 |
