@@ -4,17 +4,15 @@ import {
   CacheFixtureScenario,
   makeCacheProtocolFixture,
 } from "@beep/repo-cli/commands/Cache";
-import { NodeCrypto, NodeHttpIncomingMessage } from "@effect/platform-node";
+import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect, it, vi } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue, notDeepStrictEqual } from "@effect/vitest/utils";
 import * as A from "effect/Array";
-import * as ByteSize from "effect/ByteSize";
 import * as Effect from "effect/Effect";
 import * as FetchHttpClient from "effect/http/FetchHttpClient";
 import * as Headers from "effect/http/Headers";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
-import * as HttpIncomingMessage from "effect/http/HttpIncomingMessage";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
@@ -23,7 +21,6 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
-import type { HttpServerError } from "effect/http/HttpServerError";
 
 const FixtureEventsJson = CacheFixtureEvent.pipe(S.Array, S.fromJsonString);
 
@@ -158,29 +155,56 @@ it.layer(Layer.mergeAll(NodeCrypto.layer, FetchHttpClient.layer), { timeout: "20
       })
     );
 
-    it.effect("distinguishes capped reads from ordinary body failures without installing partial artifacts", () =>
+    it.effect("retries address-in-use bind failures with fresh server attempts", () =>
       Effect.gen(function* () {
-        const fixture = yield* makeCacheProtocolFixture(credentials);
-        for (const [message, status] of [
-          ["request body read failed", 400],
-          ["maxBytes exceeded", 413],
-        ] satisfies ReadonlyArray<readonly [string, number]>) {
-          const read = vi
-            .spyOn(NodeHttpIncomingMessage.NodeHttpIncomingMessage.prototype, "arrayBuffer", "get")
-            .mockImplementationOnce(function (this: NodeHttpIncomingMessage.NodeHttpIncomingMessage<HttpServerError>) {
-              return Effect.gen({ self: this }, function* () {
-                expect(yield* HttpIncomingMessage.MaxBodySize).toBe(ByteSize.bytes(2 * 1024 * 1024));
-                return yield* Effect.fail(this.onError(new Error(message)));
-              });
-            });
+        const failBind = () => {
+          throw Object.assign(new Error("occupied socket"), { code: "EADDRINUSE" });
+        };
+        const serve = vi.spyOn(Bun, "serve").mockImplementationOnce(failBind).mockImplementationOnce(failBind);
+        yield* Effect.gen(function* () {
+          const fixture = yield* makeCacheProtocolFixture(credentials);
+          expect(serve).toHaveBeenCalledTimes(3);
+          expect(serve).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              hostname: "127.0.0.1",
+              port: 0,
+              maxRequestBodySize: 2 * 1024 * 1024,
+            })
+          );
+          expect((yield* get(`${fixture.url}/v8/artifacts/status?teamId=${credentials.namespace}`)).status).toBe(200);
+        }).pipe(Effect.ensuring(Effect.sync(() => serve.mockRestore())));
+      })
+    );
+
+    it.effect("recovers from a real occupied loopback port", () =>
+      Effect.gen(function* () {
+        const occupied = yield* makeCacheProtocolFixture(credentials);
+        const port = Number(new URL(occupied.url).port);
+        const original = Bun.serve;
+        const serve = vi.spyOn(Bun, "serve").mockImplementationOnce((options) => original({ ...options, port }));
+        yield* Effect.gen(function* () {
+          const fixture = yield* makeCacheProtocolFixture(credentials);
+          expect(serve).toHaveBeenCalledTimes(2);
+          expect(fixture.url).not.toBe(occupied.url);
+          expect((yield* get(`${fixture.url}/v8/artifacts/status?teamId=${credentials.namespace}`)).status).toBe(200);
+        }).pipe(Effect.ensuring(Effect.sync(() => serve.mockRestore())));
+      })
+    );
+
+    it.effect("bounds bind retries and leaves other failures unretried", () =>
+      Effect.gen(function* () {
+        for (const [code, attempts] of [
+          ["EADDRINUSE", 9],
+          ["EACCES", 1],
+        ] as const) {
+          const serve = vi.spyOn(Bun, "serve").mockImplementation(() => {
+            throw Object.assign(new Error("bind failed"), { code });
+          });
           yield* Effect.gen(function* () {
-            const response = yield* put(endpoint(fixture.url));
-            expect(response.status).toBe(status);
-            yield* response.arrayBuffer;
-            (yield* fixture.artifactBytes(artifactHash).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
-          }).pipe(Effect.ensuring(Effect.sync(() => read.mockRestore())));
+            (yield* makeCacheProtocolFixture(credentials).pipe(Effect.result)).pipe(Result.isFailure, assertTrue);
+            expect(serve).toHaveBeenCalledTimes(attempts);
+          }).pipe(Effect.ensuring(Effect.sync(() => serve.mockRestore())));
         }
-        expect(A.map(yield* fixture.events, (event) => event.status)).toEqual([400, 413]);
       })
     );
 

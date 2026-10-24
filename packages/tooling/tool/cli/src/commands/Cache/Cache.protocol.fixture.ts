@@ -5,25 +5,19 @@
  * @since 0.0.0
  */
 
-// @effect-diagnostics nodeBuiltinImport:skip-file -- NodeHttpServer requires a node:http server factory; no host-configurable factory is exported by platform-node. Owner: @beep/repo-cli. Exit: remove when platform-node exports a host-configurable default server layer.
-import * as Http from "node:http";
 import { $RepoCliId } from "@beep/identity/packages";
 import { Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { O } from "@beep/utils";
-import * as NodeHttpServer from "@effect/platform-node/NodeHttpServer";
+import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import * as A from "effect/Array";
-import * as ByteSize from "effect/ByteSize";
-import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as Headers from "effect/http/Headers";
-import * as HttpIncomingMessage from "effect/http/HttpIncomingMessage";
 import * as HttpServer from "effect/http/HttpServer";
+import * as HttpServerError from "effect/http/HttpServerError";
 import * as HttpServerRequest from "effect/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/http/HttpServerResponse";
-import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
-import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
@@ -94,24 +88,34 @@ const readFaultTag = (stored: StoredArtifact, fault: CacheFixtureScenario["fault
 };
 
 const fixtureHost = "127.0.0.1";
-const fixtureBodyCap = Layer.succeed(HttpIncomingMessage.MaxBodySize, ByteSize.bytes(bodyLimit));
-const fixtureServerLayer = () => NodeHttpServer.layer(Http.createServer, { port: 0, host: fixtureHost });
-const fixtureUrl = (server: HttpServer.HttpServer) => HttpServer.formatAddress(server.address);
+const AddressInUse = S.Struct({ code: S.tag("EADDRINUSE") }).pipe(
+  $I.annoteSchema("AddressInUse", { description: "Socket bind failure eligible for a fresh ephemeral-port attempt." })
+);
+const bindFailure = (cause: unknown) => Effect.fail(new HttpServerError.ServeError({ cause }));
 
-const makeFixtureServer = Effect.fn("CacheFixture.makeServer")(function* () {
-  // Build in the caller's scope so concurrent fixtures retain distinct OS-assigned sockets.
-  const services = yield* Layer.build(fixtureServerLayer());
-  return Context.get(services, HttpServer.HttpServer);
+const startFixtureServer = Effect.fn("CacheFixture.startServer")(function* <E>(
+  app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, HttpServerRequest.HttpServerRequest>
+) {
+  const server = yield* BunHttpServer.make({ port: 0, hostname: fixtureHost, maxRequestBodySize: bodyLimit });
+  // Node's Bun.serve test shim reports asynchronous listen errors at reload.
+  yield* Effect.sleep("1 millis");
+  yield* server.serve(app);
+  return server;
 });
+
+const makeFixtureServer = Effect.fn("CacheFixture.makeServer")(
+  <E>(app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, HttpServerRequest.HttpServerRequest>) =>
+    startFixtureServer(app).pipe(
+      Effect.catchDefect(bindFailure),
+      Effect.retry({ times: 8, while: (error) => S.is(AddressInUse)(error.cause) })
+    )
+);
 
 const readFixtureBody = Effect.fn("CacheFixture.readBody")(function* (request: HttpServerRequest.HttpServerRequest) {
   const contentLength = Headers.get(request.headers, "content-length").pipe(O.flatMap(Num.parse));
   if (O.exists(contentLength, Num.isGreaterThan(bodyLimit))) return Result.fail(413);
   const body = yield* request.arrayBuffer.pipe(Effect.result);
-  if (Result.isFailure(body)) {
-    const cause = body.failure.reason.cause;
-    return Result.fail(P.isError(cause) && cause.message === "maxBytes exceeded" ? 413 : 400);
-  }
+  if (Result.isFailure(body)) return Result.fail(400);
   const bytes = new Uint8Array(body.success);
   return bytes.byteLength > bodyLimit ? Result.fail(413) : Result.succeed(bytes);
 });
@@ -251,10 +255,9 @@ export const makeCacheProtocolFixture = Effect.fn("Cache.makeProtocolFixture")(f
     if (role === "unknown") return yield* reply(401, "rejected");
     return yield* routeRequest(request, role, current, reply);
   });
-  const server = yield* makeFixtureServer();
-  yield* server.serve(app.pipe(Effect.provide(fixtureBodyCap)));
+  const server = yield* makeFixtureServer(app);
   return {
-    url: fixtureUrl(server),
+    url: HttpServer.formatAddress(server.address),
     events: Ref.get(events),
     // Supervisor-only observation; HTTP readers cannot access this capability.
     artifactBytes: (key: CacheFixtureArtifactKey) =>
