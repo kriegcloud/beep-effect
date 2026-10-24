@@ -10,7 +10,6 @@ import { FsUtils, findRepoRoot, GlobOptions, jsonStringifyPretty, resolveWorkspa
 import { isExcludedTypeScriptSourcePath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { normalizePath } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
-import * as Config from "effect/Config";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Command from "effect/cli/Command";
@@ -28,6 +27,7 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
+import { isCi } from "../../internal/cli/EnvConfig.ts";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { isLabsWorkspaceDir } from "../../internal/cli/Labs/index.ts";
 import { printLines } from "../../internal/cli/Printer.ts";
@@ -782,9 +782,9 @@ const lintDeprecatedApisCommand = Command.make(
   { package: lintPackageFlag, full: lintFullFlag, base: lintBaseFlag },
   Effect.fn("Lint.deprecatedApis")(function* ({ package: directory, full, base }) {
     if (O.isNone(directory)) {
-      const ci = yield* Config.String("CI").pipe(Config.withDefault(""));
+      const ci = yield* isCi;
       const sweeps = yield* readLintPolicySweeps(yield* findRepoRoot());
-      if (!full && ci !== "true") return yield* runRootDeprecatedApisTask(base);
+      if (!full && !ci) return yield* runRootDeprecatedApisTask(base);
       return yield* sweeps.deprecatedApis === "oxlint"
         ? runDeprecatedApiLint(yield* findRepoRoot(), ["apps", "packages", "infra"])
         : runRootDeprecatedApisTask();
@@ -813,8 +813,7 @@ const lintPolicyCommand = Command.make(
     base: lintBaseFlag,
   },
   Effect.fn("Lint.policy")(function* ({ full, base }) {
-    const ci = yield* Config.String("CI").pipe(Config.withDefault(""));
-    return yield* runRootLintPolicyTask(full || ci === "true", base);
+    return yield* runRootLintPolicyTask(full || (yield* isCi), base);
   })
 ).pipe(
   Command.withDescription(

@@ -3896,6 +3896,7 @@
         "@beep/repo-tsconfig": "workspace:^",
         "@beep/repo-utils": "workspace:^",
         "@beep/runpod": "workspace:^",
+        "@beep/runtime-env": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/semver": "workspace:^",
         "@beep/skill-contract": "workspace:^",
