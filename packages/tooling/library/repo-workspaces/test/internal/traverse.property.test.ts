@@ -1,0 +1,40 @@
+import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
+import { badMaxDepthMessage, joinRelative, Traversal, TraversalFrame } from "@beep/repo-workspaces/internal/traverse";
+import { assert, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
+import * as Effect from "effect/Effect";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+
+const runs = { arbitrary: fcRuns(100) };
+it.effect.prop(
+  "depth diagnostics preserve the exact bound across rendering and repeat deterministically",
+  [Arbitrary.schema(S.Int)],
+  ([depth]) =>
+    Effect.sync(() => {
+      const prefix = "maxDepth must be a positive integer, received ";
+      const formatted = badMaxDepthMessage(depth);
+      const parsed = Number(Str.slice(prefix.length)(formatted));
+      assert.strictEqual(parsed, depth);
+      assert.strictEqual(badMaxDepthMessage(parsed), formatted);
+      assert.strictEqual(badMaxDepthMessage(Number(Str.slice(prefix.length)(badMaxDepthMessage(parsed)))), formatted);
+    }),
+  runs
+);
+it.effect.prop(
+  "joining the root preserves a queued child's path and traversal depth",
+  [Arbitrary.schema(S.String), Arbitrary.schema(S.String)],
+  ([base, entry]) =>
+    Effect.sync(() => {
+      const relative = joinRelative(base, entry);
+      assert.strictEqual(relative, base === "" ? entry : `${base}/${entry}`);
+      assert.strictEqual(joinRelative(entry)(base), relative);
+      const traversal = new Traversal(base, "/repo", 1);
+      const parent = TraversalFrame.make({ relative: base, absolute: "/repo", depth: 0 });
+      assert.deepStrictEqual(traversal.next(), parent);
+      traversal.push(parent, relative, "/repo/child");
+      assert.deepStrictEqual(traversal.next(), TraversalFrame.make({ relative, absolute: "/repo/child", depth: 1 }));
+      assert.isUndefined(traversal.next());
+    }),
+  runs
+);

@@ -14,6 +14,30 @@ import { MediaDimensions, MediaKind } from "./Media.schemas.ts";
 const $I = $RepoCliId.create("commands/Files/internal/SortAndRename.schemas");
 
 /**
+ * Independently selectable media fields for generated filenames.
+ *
+ * **Example** (Request a provenance suffix)
+ *
+ * ```ts
+ * import { SortAndRenameOptions } from "@beep/repo-cli/commands/Files"
+ * const options = SortAndRenameOptions.make({ withHash: true })
+ * console.log(options.withHash) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SortAndRenameOptions extends S.Opaque<SortAndRenameOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
+    withAspectRatio: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    withDateCreated: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    withDimensions: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    withHash: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    withSizeMb: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+  }).pipe($I.annoteSchema("SortAndRenameOptions", { description: "Optional generated media filename fields." }))
+) {}
+
+/**
  * File discovered for deterministic rename planning.
  *
  * **Example** (Construct SortableFile instance)
@@ -36,6 +60,7 @@ const $I = $RepoCliId.create("commands/Files/internal/SortAndRename.schemas");
  */
 export class SortableFile extends S.Opaque<SortableFile, { readonly brand: unique symbol }>()(
   S.Struct({
+    birthtime: S.Option(S.Date).pipe(S.withConstructorDefault(Effect.succeed(O.none<Date>()))),
     canonicalPath: S.String,
     extension: S.String,
     mediaKind: S.Option(MediaKind).pipe(S.withConstructorDefault(Effect.succeed(O.none<MediaKind>()))),

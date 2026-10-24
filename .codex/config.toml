@@ -19,6 +19,10 @@
     enabled = true
 
   [[skills.config]]
+    name = "operator-handoff"
+    enabled = true
+
+  [[skills.config]]
     name = "plasma-sensitive-entry"
     enabled = true
 
