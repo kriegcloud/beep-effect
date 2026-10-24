@@ -477,17 +477,18 @@ export class DocgenPackageIdentity extends S.Opaque<DocgenPackageIdentity, { rea
 export const readPackageJson = Effect.fn("Configuration.readPackageJson")(function* (
   filePath: string
 ): Effect.fn.Return<DocgenPackageIdentity, Domain.DocgenError, FileSystem.FileSystem | Path.Path> {
-  const fail = (step: string, detail: string) =>
+  const fail = (step: string, detail: string, cause?: unknown) =>
     Domain.DocgenError.make({
       message: `[Configuration.readPackageJson] Failed to ${step} '${filePath}'\n${detail}`,
+      ...(P.isUndefined(cause) ? {} : { cause }),
     });
   const files = yield* PackageJsonFile.make;
   const manifest = yield* files.readManifest(filePath).pipe(
     Effect.catchTags({
-      PackageJsonNotFoundError: () => Effect.fail(fail("read", "The file does not exist.")),
-      PackageJsonReadError: (error) => Effect.fail(fail("read", String(error.cause))),
-      PackageJsonParseError: (error) => Effect.fail(fail("parse", String(error.cause))),
-      PackageDecodeError: (error) => Effect.fail(fail("decode", String(error.cause))),
+      PackageJsonNotFoundError: (error) => Effect.fail(fail("read", "The file does not exist.", error)),
+      PackageJsonReadError: (error) => Effect.fail(fail("read", String(error.cause), error)),
+      PackageJsonParseError: (error) => Effect.fail(fail("parse", String(error.cause), error)),
+      PackageDecodeError: (error) => Effect.fail(fail("decode", String(error.cause), error)),
     })
   );
   if (P.isUndefined(manifest.name) || P.isUndefined(manifest.homepage)) {

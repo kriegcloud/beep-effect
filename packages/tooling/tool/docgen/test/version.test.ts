@@ -34,6 +34,7 @@ it.layer(Layer.mergeAll(Path.layer, FileSystem.layerNoop({})), { timeout: "30 se
       Effect.gen(function* () {
         const error = yield* Version.readModuleVersion().pipe(Effect.flip);
         assertTrue(Str.includes("[Version.readModuleVersion] Failed to read")(error.message));
+        expect(error.cause).toBeDefined();
       })
     );
   }

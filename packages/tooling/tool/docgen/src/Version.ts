@@ -48,6 +48,7 @@ export const readManifestVersion = Effect.fn("Version.readManifestVersion")(func
     Effect.mapError((cause) =>
       Domain.DocgenError.make({
         message: `[Version.readModuleVersion] Failed to read '${manifestPath}'\n${String(cause)}`,
+        cause,
       })
     )
   );

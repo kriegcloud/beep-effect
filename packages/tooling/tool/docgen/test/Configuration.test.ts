@@ -267,6 +267,7 @@ describe("Configuration", () => {
         const error = yield* Configuration.load(makeLoadArgs()).pipe(Effect.flip);
         expect(isDomainDocgenError(error)).toBe(true);
         assertTrue(Str.includes("[Configuration.readPackageJson] Failed to parse")(error.message));
+        expect(error.cause).toMatchObject({ _tag: "PackageJsonParseError" });
       })
     )
   );
