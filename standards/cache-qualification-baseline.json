@@ -1122,11 +1122,11 @@
       }
     },
     "@beep/repo-cli": {
-      "reviewer": "Claude Opus 5.5 (effected-promotion 3-A1, refactor/repo-cli-lockfiles-adoption)",
-      "reason": "Record the 3-A1 dependency edge @beep/repo-cli -> @beep/lockfiles with its tsconfig references, and the policy-fingerprint input set that follows repo-cli's new runtime closure (@beep/lockfiles, @beep/npm-spec); no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (effected-promotion wave 3-A8, refactor/repo-cli-github-markdown-table)",
+      "reason": "Record the @beep/repo-cli manifest edit that adds the @beep/github-reporting workspace dependency for the GitHubMarkdown.table adoption; the task graphs gain only github-reporting and managed-section build/transit, and the policy-tool fingerprint closure gains those two packages, as measured in the review; no qualification is granted.",
       "basis": {
-        "path": "goals/effected-promotion/research/cache-baseline-review-w3-a1.md",
-        "sha256": "82a3c00224dc2659be84e1e42ffcca2e5fd9f664a98de0849bc92a7432ff5803"
+        "path": "goals/effected-promotion/research/cache-baseline-review-w3-a8.md",
+        "sha256": "b9efb05f1503978721b64c487095143ae1921b8a72de6ee26649b643b3af13d3"
       }
     },
     "@beep/repo-configs": {
@@ -2985,6 +2985,8 @@
             "packages/foundation/capability/xdg/src/**",
             "packages/foundation/modeling/github-commands/package.json",
             "packages/foundation/modeling/github-commands/src/**",
+            "packages/foundation/modeling/github-reporting/package.json",
+            "packages/foundation/modeling/github-reporting/src/**",
             "packages/foundation/modeling/glob/package.json",
             "packages/foundation/modeling/glob/src/**",
             "packages/foundation/modeling/html/package.json",
@@ -2995,6 +2997,8 @@
             "packages/foundation/modeling/jsonc/src/**",
             "packages/foundation/modeling/lockfiles/package.json",
             "packages/foundation/modeling/lockfiles/src/**",
+            "packages/foundation/modeling/managed-section/package.json",
+            "packages/foundation/modeling/managed-section/src/**",
             "packages/foundation/modeling/markdown/package.json",
             "packages/foundation/modeling/markdown/src/**",
             "packages/foundation/modeling/md/package.json",
@@ -97070,6 +97074,7 @@
           "@beep/ffmpeg#audit",
           "@beep/file-processing#audit",
           "@beep/github#audit",
+          "@beep/github-reporting#audit",
           "@beep/glob#audit",
           "@beep/identity#audit",
           "@beep/libpff#audit",
@@ -97181,6 +97186,7 @@
           "@beep/ffmpeg#build",
           "@beep/file-processing#build",
           "@beep/github#build",
+          "@beep/github-reporting#build",
           "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
@@ -97281,6 +97287,7 @@
           "@beep/ffmpeg#build",
           "@beep/file-processing#build",
           "@beep/github#build",
+          "@beep/github-reporting#build",
           "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
@@ -97368,6 +97375,7 @@
           "@beep/ffmpeg#build",
           "@beep/file-processing#build",
           "@beep/github#build",
+          "@beep/github-reporting#build",
           "@beep/glob#build",
           "@beep/identity#build",
           "@beep/libpff#build",
@@ -97504,6 +97512,7 @@
           "@beep/ffmpeg#transit",
           "@beep/file-processing#transit",
           "@beep/github#transit",
+          "@beep/github-reporting#transit",
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
@@ -97636,6 +97645,7 @@
           "@beep/ffmpeg#transit",
           "@beep/file-processing#transit",
           "@beep/github#transit",
+          "@beep/github-reporting#transit",
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
@@ -97886,6 +97896,7 @@
           "@beep/ffmpeg#transit",
           "@beep/file-processing#transit",
           "@beep/github#transit",
+          "@beep/github-reporting#transit",
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
@@ -97976,6 +97987,7 @@
           "@beep/ffmpeg#transit",
           "@beep/file-processing#transit",
           "@beep/github#transit",
+          "@beep/github-reporting#transit",
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
@@ -98091,6 +98103,7 @@
           "@beep/ffmpeg#transit",
           "@beep/file-processing#transit",
           "@beep/github#transit",
+          "@beep/github-reporting#transit",
           "@beep/glob#transit",
           "@beep/identity#transit",
           "@beep/libpff#transit",
@@ -128301,7 +128314,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "619e069b39a815d92f085389f0d8214122296d29670eaf105baf8bcd479cad05"
+        "sha256": "f8771b32f44d4a66fb82e427f2448ef01d1bd3cdf43ac5c590f70024e872045f"
       }
     ]
   }
