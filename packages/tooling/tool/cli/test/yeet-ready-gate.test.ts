@@ -886,6 +886,48 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
     })
   );
 
+  it.effect("recovers truncated and unstartable primary reads and tolerates unavailable workflow runs", () =>
+    Effect.gen(function* () {
+      for (const scenario of ["truncated-view", "spawn-view", "spawn-runs"]) {
+        const base = fallbackRunner(restFound);
+        const runner = ChildProcessSpawner.make((command) => {
+          if (!ChildProcess.isStandardCommand(command)) return Effect.die("unexpected pipe");
+          const route = A.join(A.take(command.args, 2), " ");
+          if (command.command === "gh" && route === "pr view" && scenario === "truncated-view") {
+            return Effect.succeed(fakeHandle(Str.repeat(512 * 1024 + 1)("x")));
+          }
+          if (
+            command.command === "gh" &&
+            ((route === "pr view" && scenario === "spawn-view") || (route === "run list" && scenario === "spawn-runs"))
+          ) {
+            return Effect.fail(PlatformError.badArgument({ module: "ChildProcess", method: "spawn" }));
+          }
+          return base.spawn(command);
+        });
+        const snapshot = yield* collectYeetStatus(context, true).pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, runner)
+        );
+        expect(snapshot.remote.available).toBe(true);
+        expect(snapshot.remote.reviewDecision).toBe("UNKNOWN");
+        assertNone(snapshot.remote.readFailure);
+      }
+    })
+  );
+
+  it.effect("treats failed artifact existence probes as missing local evidence", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const snapshot = yield* collectYeetStatus(context, false).pipe(
+        Effect.provideService(FileSystem.FileSystem, {
+          ...fs,
+          exists: () => Effect.fail(PlatformError.badArgument({ module: "FileSystem", method: "exists" })),
+        })
+      );
+      expect(snapshot.verdict.state).toBe("missing");
+      expect(snapshot.closeout.state).toBe("missing");
+    })
+  );
+
   it.effect("confirms and flips through the default remote reader", () =>
     Effect.gen(function* () {
       const runner = ChildProcessSpawner.make((command) => {
