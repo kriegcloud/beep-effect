@@ -207,11 +207,12 @@ signer.
 - **numeric-domains** — The lab rejects non-finite `SbomDocument` revisions accepted by upstream `Schema.Number` and gives the indentation and year schemas finite-number domains. (module suite test/**)
 - **type-safety** — The lab replaces upstream digest, cause and parsed-JSON casts with schema-derived guards, property guards and typed inference while retaining the oracle assertions. (test/InTotoStatement.test.ts; test/Sbom.test.ts; test/conformance.test.ts)
 - **tsgo-diagnostics** — The lab uses named `Effect.fn` callbacks, schema `.make` constructors and `S.Finite` in place of upstream diagnostic-triggering forms. (test/IdentityToken.test.ts; test/InTotoStatement.test.ts; module suite test/**)
-- **effect-first** — The lab replaces upstream callbacks, `typeof` checks and native component sorting with `Effect.fn`, Predicate helpers and Array/Order/String helpers while preserving ordering. (test/Sbom.test.ts; test/IdentityToken.test.ts)
+- **effect-first** — The lab replaces upstream callbacks, `typeof` checks and native component sorting with `Effect.fn`, Predicate helpers and Array/Order/String helpers. (test/Sbom.test.ts; test/IdentityToken.test.ts)
 - **effect-imports** — The lab source, tests and examples import dedicated `effect/*` modules instead of the upstream root `effect` barrel. (module suite test/**)
 - **identity-annotations** — The lab adds identity annotations and field descriptions absent upstream, including digest identity metadata and nested provenance descriptions, while retaining the inline digest pattern. (test/InTotoStatement.test.ts; module suite test/**)
 - **reachability** — The package pins its exact runtime closures, its runtime workspace roots and the type-only `@beep/package-json` edge instead of upstream bare-package graph expectations, and reads source through Vite instead of the filesystem. (test/reachability.test.ts)
 - **upstream-bug** — The source walker excludes the phantom `${this.path}` import that the upstream regex walker took from an exported error message, with a regression fixture pinning the correction. (test/reachability.test.ts)
+- **ordering** — Components sort by name with `Str.Order`, in UTF-16 code-unit order instead of upstream's locale collation, so the emitted bytes are the same on every host whatever its locale or ICU data. CycloneDX requires no component order. Code-unit order puts `B` before `a` and `é` after `f`. (test/Sbom.test.ts "sorts by code unit, not by locale collation")
 - **upstream-bug** — `Component.bomRef` rejects `""`, which upstream emitted into a document the CycloneDX `refType` rejects. (test/conformance.ajv.test.ts)
 
 ### Dependency backlog
