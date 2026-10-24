@@ -1,3 +1,19 @@
+/**
+ * Proves a carrier's bins install from its packed tarballs under every available package manager.
+ *
+ * **Details**
+ *
+ * `PackedInstall.run` packs the carrier and its workspace closure, installs
+ * the carrier into a scratch consumer outside the workspace once per manager
+ * that answers `--version`, and checks every expected bin is linked and
+ * executable; the test runs the bins through `InstalledConsumer` inside the
+ * same scope. Each manager's traps are carried here: the parent run's
+ * context is scrubbed, overrides go where that manager reads them, and
+ * lifecycle scripts are skipped. Part of the `./testing` subpath; POSIX only.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Run } from "@beep/commands";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -91,7 +107,7 @@ const DurationInput = S.declare((input: unknown): input is Duration.Input =>
   O.isSome(Duration.fromInput(input as Duration.Input))
 ).pipe($I.annoteSchema("DurationInput", { description: "An Effect duration input, kept as written." }));
 
-/** A ceiling an option bag may set; the operation applies its own default when it is absent. */
+// A ceiling an option bag may set; the operation applies its own default when it is absent.
 const optionalCeiling = (key: string, description: string) =>
   S.optionalKey(DurationInput).pipe($I.annoteKey(key, { description }));
 
@@ -628,12 +644,10 @@ export declare namespace RunBinOptions {
 
 const DEFAULT_BIN_TIMEOUT: Duration.Input = "1 minute";
 
-/**
- * Whether a failed `readLink` means "this entry is not a symlink". Node reports
- * that as `EINVAL`, which its platform layer tags `Unknown` with the errno on
- * the cause, and `@effected/memfs` raises the same shape. Anything else,
- * `PermissionDenied` and `BadResource` included, is a real failure.
- */
+// Whether a failed `readLink` means "this entry is not a symlink". Node reports
+// that as `EINVAL`, which its platform layer tags `Unknown` with the errno on
+// the cause, and `@effected/memfs` raises the same shape. Anything else,
+// `PermissionDenied` and `BadResource` included, is a real failure.
 const isNotALink = (error: PlatformError.PlatformError): boolean =>
   error.reason._tag === "Unknown" &&
   P.isObjectKeyword(error.reason.cause) &&
@@ -771,6 +785,8 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * console.log(consumer.binPath("my-tool")) // /scratch/consumer-npm/node_modules/.bin/my-tool
    * ```
    *
+   * @param name - The bin, as named in `node_modules/.bin`.
+   * @returns The bin's path under the consumer directory.
    * @category utilities
    * @since 0.0.0
    */
@@ -822,6 +838,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * ```
    *
    * @param name - The bin, as named in `node_modules/.bin`.
+   * @returns The owning package and the link target, or `undefined` for a pnpm shim.
    * @category utilities
    * @since 0.0.0
    */
@@ -871,6 +888,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * @param name - The bin, as named in `node_modules/.bin`.
    * @param args - Its arguments.
    * @param options - Extra environment and working directory.
+   * @returns The command, stdin left as the spawner's default pipe.
    * @category utilities
    * @since 0.0.0
    */
@@ -923,6 +941,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * @param name - The bin, as named in `node_modules/.bin`.
    * @param args - Its arguments.
    * @param options - Extra environment, working directory, ceiling and stdin.
+   * @returns What the bin wrote and its exit code.
    * @category utilities
    * @since 0.0.0
    */
@@ -982,6 +1001,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * @param name - The bin, as the carrier's `bin` map names it.
    * @param args - Its arguments.
    * @param options - Extra environment and working directory.
+   * @returns The `node <file>` command for the carrier's own shim.
    * @category utilities
    * @since 0.0.0
    */
@@ -1030,6 +1050,7 @@ export class InstalledConsumer extends S.Class<InstalledConsumer, { readonly bra
    * @param name - The bin, as the carrier's `bin` map names it.
    * @param args - Its arguments.
    * @param options - Extra environment, working directory, ceiling and stdin.
+   * @returns What the carrier's shim wrote and its exit code.
    * @category utilities
    * @since 0.0.0
    */
@@ -1060,7 +1081,7 @@ const layeredEnv: {
   return env;
 });
 
-/** A bin's stdin as `ChildProcess` takes it: absent or `""` is the null device (immediate end of input), anything else is written and closed. */
+// A bin's stdin as `ChildProcess` takes it: absent or `""` is the null device (immediate end of input), anything else is written and closed.
 const stdinOf = (stdin: RunBinOptions.Encoded["stdin"]): ChildProcess.CommandInput => {
   if (stdin === undefined || stdin === "") return "ignore";
   if (P.isString(stdin)) return Stream.make(new TextEncoder().encode(stdin));
@@ -1428,7 +1449,7 @@ const UNTIMED_SLACK: Duration.Input = "30 seconds";
  * child after its ceiling interrupts it.
  */
 const CLEANUP_ALLOWANCE: Duration.Input = "1 minute";
-/** A fired ceiling as a person reads it: `"4m"` for `"4 minutes"`; the timeout already decoded it. */
+// A fired ceiling as a person reads it: `"4m"` for `"4 minutes"`; the timeout already decoded it.
 const describeDuration = (input: Duration.Input): string => Duration.format(Duration.fromInputUnsafe(input));
 
 const failure: {
@@ -1619,7 +1640,7 @@ interface AvailableManager {
 
 const io = (message: string) => (cause: unknown) => failure("Io", message, { cause });
 
-/** A child in `cwd` under the run's scrubbed environment, nothing inherited and stdin the null device. */
+// A child in `cwd` under the run's scrubbed environment, nothing inherited and stdin the null device.
 const runCommand = (
   context: RunContext,
   executable: string,
@@ -1628,11 +1649,11 @@ const runCommand = (
 ): ChildProcess.StandardCommand =>
   ChildProcess.make(executable, args, { cwd, env: context.env, extendEnv: false, stdin: "ignore" });
 
-/** Whether a `Run` failure is the run's own ceiling firing, as opposed to a spawn that failed. */
+// Whether a `Run` failure is the run's own ceiling firing, as opposed to a spawn that failed.
 const timedOut = (cause: CommandFailedError | CommandOutputError): boolean =>
   cause._tag === "CommandFailedError" && cause.kind === "timeout";
 
-/** The version `manager --version` reports from the scratch root, or none when it does not answer. */
+// The version `manager --version` reports from the scratch root, or none when it does not answer.
 const probeManager = (context: RunContext, manager: PackageManagerName) =>
   Run.collect(runCommand(context, manager, ["--version"], context.scratch), { timeout: PROBE_TIMEOUT }).pipe(
     Effect.map((output) => (output.succeeded ? versionOf(output.stdout) : O.none<string>())),
@@ -1686,7 +1707,7 @@ const wrongTarballCount = (name: string, destination: string, count: number): Pa
     package: name,
   });
 
-/** A pack that exited non-zero, naming the missing install when pnpm could not rewrite `workspace:`. */
+// A pack that exited non-zero, naming the missing install when pnpm could not rewrite `workspace:`.
 const packFailed = (
   name: string,
   packer: "npm" | "pnpm",
@@ -1794,7 +1815,7 @@ const packReplacement = Effect.fnUntraced(function* (
   return { name: replacement.name, tarball, manifest } satisfies PackedEntry;
 });
 
-/** Refuse a packed package other than the carrier that declares one of the carrier's bin names. */
+// Refuse a packed package other than the carrier that declares one of the carrier's bin names.
 const refuseSharedBins = (
   carrier: PackedEntry,
   rest: ReadonlyArray<PackedEntry>
@@ -1843,7 +1864,7 @@ const installIn = Effect.fnUntraced(function* (
   }
 });
 
-/** What `node_modules/.bin` holds, which separates a wrong bin name from a link that never happened. */
+// What `node_modules/.bin` holds, which separates a wrong bin name from a link that never happened.
 const binListing = (context: RunContext, directory: string): Effect.Effect<string> =>
   context.fs.readDirectory(context.path.join(directory, "node_modules", ".bin")).pipe(
     Effect.map((names) =>
@@ -2385,7 +2406,7 @@ export class PackedInstall {
   });
 }
 
-/** How a `.bin` entry reads: a symlink, or a present entry that is not one (a pnpm shell shim). */
+// How a `.bin` entry reads: a symlink, or a present entry that is not one (a pnpm shell shim).
 const binEntryKind = (
   fs: FileSystem.FileSystem,
   bin: string,

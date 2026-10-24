@@ -1,3 +1,17 @@
+/**
+ * The committed layering policy a workspace's package graph is held to.
+ *
+ * **Details**
+ *
+ * A strict decoder for `layers.json`: top-down `layers`, `tooling` packages
+ * any layer may reach, `unconstrained` globs whose own edges go unchecked,
+ * the dependency `fields` that count, and `requiredEdges` that must exist so
+ * a discovery that drops edges fails. Any other key fails
+ * `LayerPolicyError` naming it. Part of the `./testing` subpath.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { GlobSet } from "@beep/glob";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { DependencyField } from "@beep/npm-spec/DependencySection";
@@ -81,6 +95,7 @@ export class LayerPolicyError extends S.TaggedError<LayerPolicyError, { readonly
    * console.log(error.message) // The layer policy at /repo/layers.json is not valid JSON
    * ```
    *
+   * @returns The failure kind and the file, as one line.
    * @category formatting
    * @since 0.0.0
    */
@@ -199,6 +214,7 @@ export class LayerPolicy extends S.Class<LayerPolicy, { readonly brand: unique s
    * console.log(policy.effectiveFields.length) // 4
    * ```
    *
+   * @returns The policy's `fields`, or all four dependency maps when it names none.
    * @category getters
    * @since 0.0.0
    */

@@ -1,3 +1,17 @@
+/**
+ * Scans source text for `process` reads, forbidden imports, stdout writes and console use.
+ *
+ * **Details**
+ *
+ * One lexer pass separates code from comments, strings, template text and
+ * regex bodies, so prose and embedded scripts never count. `check` reports
+ * one file's offences, `scan` walks a tree with per-file and per-rule
+ * waivers, and `verifyFixtures` proves the scanner still flags and spares
+ * what its shipped controls say. Part of the `./testing` subpath.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { GlobSet } from "@beep/glob";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -407,6 +421,7 @@ export class Offence extends S.Class<Offence, { readonly brand: unique symbol }>
    * console.log(offence.label) // a.ts:2:3 console console
    * ```
    *
+   * @returns The offence as `file:line:column rule detail`.
    * @category getters
    * @since 0.0.0
    */
@@ -475,6 +490,7 @@ export class SourceScan extends S.Class<SourceScan, { readonly brand: unique sym
    * console.log(scan.violations.join("\n")) // a.ts:1:1 process process
    * ```
    *
+   * @returns One label per offence, in offence order.
    * @category getters
    * @since 0.0.0
    */
@@ -593,10 +609,10 @@ const STDERR_METHODS = MutableHashSet.fromIterable(["error", "warn", "trace", "a
 /** An `end(` call that passes a final chunk, which `Writable.end` writes before closing. */
 const END_WITH_CHUNK = /^\s*(?:\?\.\s*)?\(\s*[^\s)]/u;
 
-/** Whether the reference at `at` is itself a member access (`globalThis.process`), which no ignore token exempts. */
+// Whether the reference at `at` is itself a member access (`globalThis.process`), which no ignore token exempts.
 const isMemberAccess = (code: string, at: number): boolean => unitAt(code, skipSpaceBack(code, at - 1)) === ".";
 
-/** Whether `token` is written whole at `at`: it starts there and no identifier character continues it. */
+// Whether `token` is written whole at `at`: it starts there and no identifier character continues it.
 const tokenAt = (code: string, at: number, token: string): boolean =>
   Str.startsWith(token, at)(code) && identifierAt(code, at + token.length) === undefined;
 
@@ -606,11 +622,11 @@ const processReads = (code: string, ignoreTokens: ReadonlyArray<string>): Readon
     (at) => isMemberAccess(code, at) || !A.some(ignoreTokens, (token) => tokenAt(code, at, token))
   );
 
-/** The cooked member after the identifier reference at `at` and its raw end offset, through `.` or `?.`. */
+// The cooked member after the identifier reference at `at` and its raw end offset, through `.` or `?.`.
 const memberAfter = (code: string, at: number): O.Option<readonly [member: string, end: number]> =>
   O.flatMap(O.fromUndefinedOr(identifierAt(code, at)), (rawName) => memberFrom(code, at + rawName.length));
 
-/** The cooked member a `.` or `?.` at or after `from` opens, with its raw end offset. */
+// The cooked member a `.` or `?.` at or after `from` opens, with its raw end offset.
 const memberFrom = (code: string, from: number): O.Option<readonly [member: string, end: number]> => {
   let j = skipSpaceForward(code, from);
   if (unitAt(code, j) === "?" && unitAt(code, j + 1) === ".") j++;
@@ -621,11 +637,11 @@ const memberFrom = (code: string, from: number): O.Option<readonly [member: stri
   );
 };
 
-/** Whether the member call writes: `write`, or an `end` that passes a chunk. */
+// Whether the member call writes: `write`, or an `end` that passes a chunk.
 const writes = (code: string, [method, end]: readonly [member: string, end: number]): boolean =>
   method === "write" || (method === "end" && END_WITH_CHUNK.test(Str.slice(end)(code)));
 
-/** The stdout write the identifier token starts, if it is a `stdout` reference followed by a writing call. */
+// The stdout write the identifier token starts, if it is a `stdout` reference followed by a writing call.
 const stdoutWriteAt = (
   code: string,
   token: RegExpExecArray
@@ -642,26 +658,24 @@ const stdoutWriteAt = (
 const stdoutWrites = (code: string): ReadonlyArray<{ readonly at: number; readonly method: string }> =>
   A.getSomes(A.map(identifierTokens(code), (token) => stdoutWriteAt(code, token)));
 
-/** The first offset at or after `from` where `token` occurs in `code`, or `-1`. */
+// The first offset at or after `from` where `token` occurs in `code`, or `-1`.
 const indexFrom = (code: string, token: string, from: number): number =>
   O.match(Str.indexOf(token)(Str.slice(from)(code)), { onNone: () => -1, onSome: (offset) => from + offset });
 
-/** Every offset where `token` occurs in `code`, overlapping occurrences included. */
+// Every offset where `token` occurs in `code`, overlapping occurrences included.
 const occurrencesOf = (code: string, token: string): ReadonlyArray<number> => {
   const found: Array<number> = [];
   for (let at = indexFrom(code, token, 0); at >= 0; at = indexFrom(code, token, at + 1)) found.push(at);
   return found;
 };
 
-/** Whether an occurrence at `at` continues an identifier (or follows a private `#`). */
+// Whether an occurrence at `at` continues an identifier (or follows a private `#`).
 const continuesIdentifier = (code: string, at: number): boolean =>
   isIdentifierChar(codePointBefore(code, at)) || unitAt(code, at - 1) === "#";
 
-/**
- * Every offset where `token` appears in `code` as whole text: a token that
- * starts with an identifier character must not continue one (nor follow `#`),
- * and one that ends with an identifier character must not run into another.
- */
+// Every offset where `token` appears in `code` as whole text: a token that
+// starts with an identifier character must not continue one (nor follow `#`),
+// and one that ends with an identifier character must not run into another.
 const tokenOccurrences = (code: string, token: string): ReadonlyArray<number> => {
   if (Str.isEmpty(token)) return [];
   const guardStart = isIdentifierChar(codePointAt(token, 0));
@@ -750,7 +764,7 @@ const ruleFindings = (input: CheckInput, rule: BoundaryRule.Encoded): ReadonlyAr
     : importFindings(input.specifiers, rule.forbidImports);
 };
 
-/** What a directory entry is once links are followed; `"Dangling"` for a link to nothing. */
+// What a directory entry is once links are followed; `"Dangling"` for a link to nothing.
 const entryType = (fs: FileSystem.FileSystem, full: string) =>
   fs.stat(full).pipe(
     Effect.map((info): FileSystem.File.Type | "Dangling" => info.type),
@@ -766,7 +780,7 @@ const entryType = (fs: FileSystem.FileSystem, full: string) =>
     )
   );
 
-/** Whether a regular file named `name` is a scanned source: a listed extension and not a declaration file. */
+// Whether a regular file named `name` is a scanned source: a listed extension and not a declaration file.
 const isSourceFile = (name: string, extensions: ReadonlyArray<string>): boolean =>
   !DECLARATION.test(name) && A.some(extensions, (extension) => Str.endsWith(extension)(name));
 

@@ -11,11 +11,13 @@ Upstream paths map onto this package as follows: `packages/workspaces/` is
 `@effected/commands`, `@effected/glob`, `@effected/walker`, `@effected/yaml`,
 `@effected/semver`, `@effected/memfs` and `@effected/package-json` are the `@beep/*` package of
 the same name, and `@effected/npm` is `@beep/npm-spec`. The `@effected/workspaces/testing`
-subpath (`WorkspaceLayering`, `LayerPolicy`, `SourceBoundary`, `PackedInstall`) did not move:
-it stays in the lab module `scratchpad/effected/workspaces` and imports this package's leaves.
-Where the text names a record's shape or a layer's requirements, read README.md → Provenance:
-the plain records and option bags are branded `S.Opaque` structs, and the config-dependency
-layers read through `FileSystem` and `Path`. The upstream `pnpm` commands below do not apply;
+subpath (`WorkspaceLayering`, `LayerPolicy`, `SourceBoundary`, `PackedInstall`) is
+`@beep/repo-workspaces/testing` since wave 4-W-b; its upstream `__test__/e2e/` suites are
+`test/integration/e2e/` here, and the lab-wide `layering.int` and `peerClosure.int` suites stay
+under `scratchpad/test/workspaces/integration/`. Where the text names a record's shape or a
+layer's requirements, read README.md → Provenance: the plain records and option bags are
+branded `S.Opaque` structs taken as their `Encoded` forms, and the config-dependency layers
+read through `FileSystem` and `Path`. The upstream `pnpm` commands below do not apply;
 run `bun run test`, `bun run test:integration` and `bun run check` in this directory, or
 `bun run beep quality package-verify @beep/repo-workspaces` from the repo root.
 

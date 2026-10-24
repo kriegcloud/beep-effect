@@ -12,6 +12,7 @@
  * orchestration they do not use.
  *
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 // This module is an ENTRY POINT: api-extractor models it as its own surface,
@@ -23,28 +24,32 @@
 export { LayerPolicy, LayerPolicyError } from "./LayerPolicy.ts";
 export { PackageManagerName } from "./PackageManagerName.ts";
 export {
-  type BinCommandOptions,
-  type BinProvenance,
+  BinCommandOptions,
+  BinProvenance,
   InstalledConsumer,
+  PackDirectory,
   PackedInstall,
-  type PackedInstallBudget,
-  type PackedInstallClosureOptions,
+  PackedInstallBudget,
+  PackedInstallClosureOptions,
   PackedInstallError,
-  type PackedInstallGate,
-  type PackedInstallOptions,
-  type PackedInstallPreflight,
-  type PackedInstallPreflightOptions,
+  PackedInstallGate,
+  PackedInstallOptions,
+  PackedInstallPreflight,
+  PackedInstallPreflightOptions,
   PackedInstallResult,
-  type PackSource,
-  type RunBinOptions,
+  PackSource,
+  RunBinOptions,
 } from "./PackedInstall.ts";
 export {
-  type BoundaryFixture,
-  type BoundaryRule,
+  BoundaryFixture,
+  BoundaryRule,
+  ForbidImportsRule,
+  ForbidTokensRule,
+  GlobalRule,
   Offence,
-  type OffenceRule,
-  type ReferenceOptions,
-  type ScanOptions,
+  OffenceRule,
+  ReferenceOptions,
+  ScanOptions,
   SourceBoundary,
   SourceScan,
 } from "./SourceBoundary.ts";
@@ -59,7 +64,7 @@ export {
   type WorkspaceLookupFailure,
   WorkspacePatternError,
 } from "./WorkspaceDiscovery.ts";
-export { LayerEdge, type LayeringGraph, LayeringReport, WorkspaceLayering } from "./WorkspaceLayering.ts";
+export { LayerEdge, LayeringGraph, LayeringReport, WorkspaceLayering } from "./WorkspaceLayering.ts";
 export {
   type DependencyDiff,
   PublishConfig,

@@ -1,3 +1,17 @@
+/**
+ * Holds a workspace's package graph to a committed `LayerPolicy`.
+ *
+ * **Details**
+ *
+ * `check` is pure over package names and per-field edges, so positive
+ * controls need no filesystem; `edgesOf` draws one edge per declaring field
+ * wherever a dependency name is a workspace package; `checkWorkspace` reads
+ * the graph through `WorkspaceDiscovery`. A check that reads no edges is
+ * itself a violation. Part of the `./testing` subpath.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { GlobSet } from "@beep/glob";
 import { $RepoWorkspacesId } from "@beep/identity/packages";
 import { DependencyField } from "@beep/npm-spec/DependencySection";
@@ -59,6 +73,7 @@ export class LayerEdge extends S.Class<LayerEdge, { readonly brand: unique symbo
    * console.log(edge.label) // @app/web -> @app/core (dependencies)
    * ```
    *
+   * @returns The edge as `from -> to (field)`.
    * @category formatting
    * @since 0.0.0
    */
@@ -220,6 +235,7 @@ export class LayeringReport extends S.Class<LayeringReport, { readonly brand: un
    * console.log(report.violations.join("\n")) // no workspace edges in the checked fields: the check is vacuous
    * ```
    *
+   * @returns One line per violation, in report order.
    * @category getters
    * @since 0.0.0
    */
@@ -265,13 +281,13 @@ const offence: {
   return fromLayerOffence(from.index, to);
 });
 
-/** An edge into a package the policy leaves unconstrained or does not classify. */
+// An edge into a package the policy leaves unconstrained or does not classify.
 const intoOffence = (to: Place): OffenceReason | undefined => {
   if (to.kind === "unconstrained") return "intoUnconstrained";
   return to.kind === "unclassified" ? "intoUnclassified" : undefined;
 };
 
-/** An edge from layer `index` into a layer at or above it; one into tooling or a lower layer is allowed. */
+// An edge from layer `index` into a layer at or above it; one into tooling or a lower layer is allowed.
 const fromLayerOffence = (index: number, to: Place): OffenceReason | undefined => {
   if (to.kind !== "layer" || to.index > index) return undefined;
   return to.index === index ? "sameLayer" : "upward";
