@@ -120,13 +120,17 @@ const uploadable = {
 };
 
 describe("Artifact", () => {
-	it.effect("option and result schemas preserve plain objects and explicit undefined fields", () =>
+	it.effect("option and result schemas preserve plain objects and reject explicit undefined fields", () =>
 		Effect.gen(function* () {
-			for (const options of [{}, { retentionDays: undefined, compressionLevel: undefined }, { retentionDays: 7, compressionLevel: 4.9 }, { retentionDays: -1, compressionLevel: 12 }]) {
+			for (const options of [{}, { retentionDays: 7, compressionLevel: 4.9 }, { retentionDays: -1, compressionLevel: 12 }]) {
 				const plain: UploadOptions = options;
 				assert.deepStrictEqual(yield* S.decodeEffect(UploadOptions)(plain), plain);
 			}
-			for (const options of [{}, { path: undefined }, { path: "/out" }]) {
+			// Exact optional keys (EF-40): an optional key is omitted, never undefined.
+			assert.isFalse(S.is(UploadOptions)({ retentionDays: undefined }));
+			assert.isFalse(S.is(UploadOptions)({ compressionLevel: undefined }));
+			assert.isFalse(S.is(DownloadOptions)({ path: undefined }));
+			for (const options of [{}, { path: "/out" }]) {
 				const plain: DownloadOptions = options;
 				assert.deepStrictEqual(yield* S.decodeEffect(DownloadOptions)(plain), plain);
 			}
@@ -204,7 +208,7 @@ describe("Artifact", () => {
 					assert.strictEqual(calls.find((call) => call.method === "FinalizeArtifact")?.body.expiresAt,
 						DateTime.formatIso(DateTime.makeUnsafe(now + 7 * 86_400_000)));
 					for (const compressionLevel of [12, -3, 4.9, Infinity, -Infinity]) {
-						yield* artifacts.upload("default", ["/work/a.txt"], "/work", { retentionDays: undefined, compressionLevel });
+						yield* artifacts.upload("default", ["/work/a.txt"], "/work", { compressionLevel });
 					}
 					for (const call of calls.filter((call) => call.method === "FinalizeArtifact" && call.body.name === "default")) {
 						assert.notProperty(call.body, "expiresAt");

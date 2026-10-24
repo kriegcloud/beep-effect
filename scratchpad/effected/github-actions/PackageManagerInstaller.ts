@@ -280,7 +280,7 @@ export const PackageManagerInstallOptions = S.Struct({
 	 * @since 0.0.0
 	 */
 	allowAmbient: S.optionalKey(S.Boolean).pipe($I.annoteKey("PackageManagerInstallOptions.allowAmbient", { description: "Whether the install operation may use the runner ambient npm." })),
-}).pipe($I.annoteSchema("PackageManagerInstallOptions", { description: "Structural provisioning options, with absent and explicit undefined fields preserved." }));
+}).pipe($I.annoteSchema("PackageManagerInstallOptions", { description: "Structural provisioning options; absent fields stay absent and an explicit undefined is rejected." }));
 
 /**
  * The plain-object input accepted by {@link PackageManagerInstallOptions}.

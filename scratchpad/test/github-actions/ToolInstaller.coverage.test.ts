@@ -89,11 +89,11 @@ describe("ToolInstaller failure boundaries", () => {
       it.effect(name, () =>
         Effect.gen(function* () {
           const tool = yield* ToolInstaller;
-          const destination = name === "requested extraction directory" ? "/extract" : undefined;
+          const requested = name === "requested extraction directory";
           yield* expectError(
-            tool.extractTar("/archive", { destination }),
+            tool.extractTar("/archive", requested ? { destination: "/extract" } : {}),
             "extractFailed",
-            destination ?? "a temporary extraction directory",
+            requested ? "/extract" : "a temporary extraction directory",
           );
         }),
       );
