@@ -237,6 +237,14 @@
       ],
       "installedTreeHash": "bc701d5593991b209978b2b814a230c1335d87915eb252e1937faa8e355e76f6"
     },
+    "operator-handoff": {
+      "_tag": "local",
+      "installedTargets": [
+        ".claude/skills/operator-handoff",
+        ".agents/skills/operator-handoff"
+      ],
+      "installedTreeHash": "376aae5dd0d9b74f1b4fe6c152a5bf973d8c30b90968eb0f81ca6e477474a29b"
+    },
     "oracle": {
       "_tag": "vendored",
       "sourceType": "github",
@@ -320,7 +328,7 @@
         ".claude/skills/orchestrate",
         ".agents/skills/orchestrate"
       ],
-      "installedTreeHash": "f0d4834a8b9b3663349dc8ba602ac80a40458bddd4998776f8ef873713d19998"
+      "installedTreeHash": "3aff17be9207bd99a740d0ecee9d1877a68c3cb3dacbb544bf41ed5c74a86060"
     },
     "plasma-sensitive-entry": {
       "_tag": "local",

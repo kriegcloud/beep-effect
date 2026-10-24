@@ -27,6 +27,7 @@ import {
   PersonMatchDeviceIndexesFromCsv,
   PersonMatchThresholdProfile,
   ProcessFilesOptions,
+  SortAndRenameOptions,
 } from "./Files.schemas.ts";
 import {
   archivePoorCandidates,
@@ -295,6 +296,22 @@ const createCaptionsOverwriteFlag = Flag.Boolean("overwrite").pipe(
 const withDimensionsFlag = Flag.Boolean("with-dimensions").pipe(
   Flag.withDefault(false),
   Flag.withDescription("Include probed image or video dimensions in generated media filenames")
+);
+const withAspectRatioFlag = Flag.Boolean("with-aspect-ratio").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Append reduced display aspect ratio, for example ar16x9")
+);
+const withDateCreatedFlag = Flag.Boolean("with-date-created").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Append UTC creation time; m/b/n marks media, birth time, or now")
+);
+const withHashFlag = Flag.Boolean("with-hash").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Append full SHA-256 hash of original media bytes")
+);
+const withSizeMbFlag = Flag.Boolean("with-size-mb").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Append decimal megabytes rounded to two places")
 );
 const candidateProfileFlag = Flag.ChoiceWithValue("profile", [["character-lora", "character-lora"]]).pipe(
   Flag.withDefault("character-lora"),
@@ -774,10 +791,36 @@ const filesSortAndRenameCommand = Command.make(
     dir: sortDirFlag,
     dryRun: sortDryRunFlag,
     prefix: prefixFlag,
+    withAspectRatio: withAspectRatioFlag,
+    withDateCreated: withDateCreatedFlag,
     withDimensions: withDimensionsFlag,
+    withHash: withHashFlag,
+    withSizeMb: withSizeMbFlag,
   },
-  Effect.fn(function* ({ dir, dryRun, prefix, withDimensions }) {
-    yield* runFilesProgram(sortAndRenameFiles(dir, prefix, dryRun, withDimensions));
+  Effect.fn(function* ({
+    dir,
+    dryRun,
+    prefix,
+    withAspectRatio,
+    withDateCreated,
+    withDimensions,
+    withHash,
+    withSizeMb,
+  }) {
+    yield* runFilesProgram(
+      sortAndRenameFiles(
+        dir,
+        prefix,
+        dryRun,
+        SortAndRenameOptions.make({
+          withAspectRatio,
+          withDateCreated,
+          withDimensions,
+          withHash,
+          withSizeMb,
+        })
+      )
+    );
   })
 ).pipe(
   Command.withDescription("Sort direct files by size and rename them with a generated prefix"),
