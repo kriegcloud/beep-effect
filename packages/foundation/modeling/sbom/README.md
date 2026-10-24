@@ -143,8 +143,8 @@ bun run test
 
 `test/conformance.test.ts` derives its expectations from the vendored CycloneDX 1.6 schema, and
 `test/conformance.ajv.test.ts` validates whole documents against it with `ajv` (exact devDependency pins). See
-[`test/fixtures/VENDORED.md`](./test/fixtures/VENDORED.md) for the vendored files and the two sibling schemas that are
-stand-ins until vendored. `goals/effected-promotion/ops/sbom-corpus.ts` generates an SBOM for every tracked repo
+[`test/fixtures/VENDORED.md`](./test/fixtures/VENDORED.md) for the vendored files, including the SPDX and JSF sibling
+schemas the CycloneDX schema `$ref`s. `goals/effected-promotion/ops/sbom-corpus.ts` generates an SBOM for every tracked repo
 manifest and records the schema, NTIA and byte-stability verdicts
 (`goals/effected-promotion/research/sbom-corpus-w4.json`).
 

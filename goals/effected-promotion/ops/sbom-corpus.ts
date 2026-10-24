@@ -8,8 +8,9 @@
  * records per manifest:
  *
  * - the full-schema verdict against the vendored CycloneDX 1.6 schema, through
- *   an `ajv` validator built here over the package's vendored schema file
- *   (read as data, so this script imports nothing from the package's tests);
+ *   an `ajv` validator built here over the package's vendored schema file and
+ *   its vendored SPDX and JSF siblings (read as data, so this script imports
+ *   nothing from the package's tests);
  * - the `NtiaReport` verdict and its missing elements;
  * - byte stability: two generations from the same manifest serialize to the
  *   same bytes.
@@ -104,30 +105,49 @@ class CorpusGateFailed extends Data.TaggedError("CorpusGateFailed")<{ readonly m
 
 // --- validator ----------------------------------------------------------------
 
-/** The vendored CycloneDX 1.6 schema, read as data; `test/fixtures/VENDORED.md` pins its bytes by sha256. */
-const VENDORED_SCHEMA = "packages/foundation/modeling/sbom/test/fixtures/bom-1.6.SNAPSHOT.schema.json";
+/** The vendored CycloneDX 1.6 schema directory; `test/fixtures/VENDORED.md` pins each file's bytes by sha256. */
+const VENDORED_DIR = "packages/foundation/modeling/sbom/test/fixtures";
+const VENDORED_SCHEMA = `${VENDORED_DIR}/bom-1.6.SNAPSHOT.schema.json`;
+
+/**
+ * The two sibling schemas the CycloneDX document `$ref`s, vendored from the
+ * same release, keyed by the URI each `$ref` resolves to (their own `$id`s name
+ * the released `spdx.schema.json` and `jsf-0.82.schema.json`).
+ */
+const VENDORED_REFERENCES = [
+  { file: `${VENDORED_DIR}/spdx.SNAPSHOT.schema.json`, uri: "http://cyclonedx.org/schema/spdx.SNAPSHOT.schema.json" },
+  {
+    file: `${VENDORED_DIR}/jsf-0.82.SNAPSHOT.schema.json`,
+    uri: "http://cyclonedx.org/schema/jsf-0.82.SNAPSHOT.schema.json",
+  },
+];
 
 const SchemaDocument = S.Record(S.String, S.Unknown);
+type SchemaDocument = typeof SchemaDocument.Type;
 const decodeSchema = S.decodeEffect(S.fromJsonString(SchemaDocument));
 
 /** One emitted document's full-schema violations, as `<instancePath> <keyword>` lines; empty when valid. */
 type Violations = (document: unknown) => ReadonlyArray<string>;
 
 /**
- * The full-schema validator, with the same recorded stand-ins and format
+ * The full-schema validator, with the same vendored sibling schemas and format
  * registrations as the package's `test/support/cyclonedx.ts` (VENDORED.md
- * records why): the SPDX and JSF sibling schemas are not vendored yet, and
- * `ajv-formats` implements neither `idn-email` nor `iri-reference`.
+ * records why): `ajv-formats` implements neither `idn-email` nor
+ * `iri-reference`, so both are accept-all.
  */
-const violationsAgainst = (schema: typeof SchemaDocument.Type): Violations => {
-  const validator = new Ajv({
-    allErrors: true,
-    strict: false,
-    formats: { ...fullFormats, "iri-reference": true, "idn-email": true },
-  })
-    .addSchema({ $id: "http://cyclonedx.org/schema/jsf-0.82.SNAPSHOT.schema.json", definitions: { signature: {} } })
-    .addSchema({ $id: "http://cyclonedx.org/schema/spdx.SNAPSHOT.schema.json", type: "string" })
-    .compile(schema);
+const violationsAgainst = (
+  schema: SchemaDocument,
+  references: ReadonlyArray<readonly [uri: string, schema: SchemaDocument]>
+): Violations => {
+  const validator = A.reduce(
+    references,
+    new Ajv({
+      allErrors: true,
+      strict: false,
+      formats: { ...fullFormats, "iri-reference": true, "idn-email": true },
+    }),
+    (ajv, [uri, reference]) => ajv.addSchema(reference, uri)
+  ).compile(schema);
   return (document) =>
     validator(document)
       ? A.empty()
@@ -213,8 +233,13 @@ const program = Effect.gen(function* () {
     A.filter(Str.split(listing, "\u0000"), (path) => path === "package.json" || Str.endsWith("/package.json")(path)),
     Order.String
   );
+  const readSchema = (file: string) =>
+    fileSystem.readFileString(`${repoRoot}${file}`).pipe(Effect.flatMap(decodeSchema));
   const violations = violationsAgainst(
-    yield* fileSystem.readFileString(`${repoRoot}${VENDORED_SCHEMA}`).pipe(Effect.flatMap(decodeSchema))
+    yield* readSchema(VENDORED_SCHEMA),
+    yield* Effect.forEach(VENDORED_REFERENCES, ({ file, uri }) =>
+      readSchema(file).pipe(Effect.map((schema) => [uri, schema] as const))
+    )
   );
   const rows = yield* Effect.forEach(paths, (path) =>
     fileSystem.readFileString(`${repoRoot}${path}`).pipe(Effect.flatMap((text) => censusOne(violations, path, text)))

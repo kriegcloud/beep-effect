@@ -10,12 +10,14 @@
 
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { Component, Contact, ExternalReference, NtiaReport, Sbom, SbomInput, SbomMetadata, Supplier } from "@beep/sbom";
+import { License } from "@beep/spdx";
 import { assert, describe, it } from "@effect/vitest";
 import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as HashMap from "effect/HashMap";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { cycloneDxViolations } from "./support/cyclonedx.ts";
@@ -94,6 +96,29 @@ describe("CycloneDX 1.6 conformance — the whole vendored schema", () => {
       }),
     { arbitrary: fcRuns(200) }
   );
+
+  it("validates every catalog id @beep/spdx knows against the vendored SPDX enumeration", () => {
+    // The `license.id` branch is `$ref`ed to `spdx.SNAPSHOT.schema.json`, so an
+    // id the kit's catalog knows but that SPDX release does not would emit an
+    // invalid document. One root carrying every catalog id checks the whole set.
+    const licenses = License.catalog.pipe(HashMap.keys, A.fromIterable);
+    assert.isAbove(licenses.length, 0);
+    const document = emitted({ root: Component.make({ type: "library", name: "x", licenses }), components: [] });
+    assert.deepStrictEqual(cycloneDxViolations(document), []);
+  });
+
+  it("the SPDX enumeration is live: an id outside it fails", () => {
+    const document = emitted(full);
+    assertTrue(isComponentsDocument(document));
+    const broken = {
+      ...document,
+      components: A.map(document.components, (component) => ({
+        ...component,
+        licenses: [{ license: { id: "Not-An-Spdx-Id" } }],
+      })),
+    };
+    assert.include(cycloneDxViolations(broken), "/components/0/licenses/0/license/id enum");
+  });
 
   it("the validator is live: a document without a component name fails", () => {
     // The control. A validator that accepts everything would pass the property.

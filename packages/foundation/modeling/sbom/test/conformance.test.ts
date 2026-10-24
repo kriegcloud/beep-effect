@@ -10,9 +10,9 @@
 //
 // This is targeted conformance over the subset we emit. Full JSON Schema
 // validation of the same documents runs in `conformance.ajv.test.ts` with the
-// `ajv` devDependency, which adds no runtime weight; the subset here stays
-// because it names each rule it checks, and it is what covers the SPDX
-// license-id branch while that external schema is not vendored.
+// `ajv` devDependency, which adds no runtime weight, and resolves the SPDX
+// license-id enumeration through the vendored `spdx.SNAPSHOT.schema.json`; the
+// subset here stays because it names each rule it checks.
 
 import { Component, Contact, ExternalReference, Sbom, SbomMetadata, Supplier } from "@beep/sbom";
 import { isValidExpression, License } from "@beep/spdx";

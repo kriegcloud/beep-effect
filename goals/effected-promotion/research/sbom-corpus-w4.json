@@ -2,21 +2,21 @@
   "schemaVersion": 1,
   "tool": "goals/effected-promotion/ops/sbom-corpus.ts",
   "scope": "git ls-files '*package.json' excluding **/test/fixtures/**",
-  "commit": "54dee05504b2617121ba1f71218757eecee33653",
+  "commit": "74bde4e276e3426647626b4aa04584f2b04d60b5",
   "timestamp": "2026-10-23T00:00:00.000Z",
   "totals": {
-    "manifests": 190,
+    "manifests": 191,
     "packageRejected": 1,
-    "generated": 189,
+    "generated": 190,
     "schemaFailures": 0,
     "unstable": 0,
     "ntiaCompliant": 0,
-    "dependencyComponents": 1446
+    "dependencyComponents": 1455
   },
   "ntiaMissing": [
     {
       "element": "supplierName",
-      "manifests": 189
+      "manifests": 190
     },
     {
       "element": "componentName",
@@ -36,7 +36,7 @@
     },
     {
       "element": "sbomAuthor",
-      "manifests": 187
+      "manifests": 188
     },
     {
       "element": "timestamp",
@@ -539,7 +539,7 @@
     {
       "path": "packages/drivers/m365-mcp/package.json",
       "verdict": "valid",
-      "components": 8,
+      "components": 9,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true
@@ -948,6 +948,14 @@
       "path": "packages/foundation/capability/walker/package.json",
       "verdict": "valid",
       "components": 4,
+      "ntiaCompliant": false,
+      "ntiaMissing": ["supplierName", "sbomAuthor"],
+      "stable": true
+    },
+    {
+      "path": "packages/foundation/capability/xdg/package.json",
+      "verdict": "valid",
+      "components": 6,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true
@@ -1483,7 +1491,7 @@
     {
       "path": "packages/tooling/tool/cli/package.json",
       "verdict": "valid",
-      "components": 67,
+      "components": 69,
       "ntiaCompliant": false,
       "ntiaMissing": ["supplierName", "sbomAuthor"],
       "stable": true
