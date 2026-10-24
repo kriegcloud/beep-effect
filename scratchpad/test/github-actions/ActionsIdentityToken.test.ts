@@ -1,5 +1,5 @@
 import { assert, describe, it } from "@effect/vitest";
-import { IdentityToken, IdentityTokenError } from "../../effected/sbom/index.ts";
+import { IdentityToken, IdentityTokenError } from "@beep/sbom/IdentityToken";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
