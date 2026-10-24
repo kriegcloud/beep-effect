@@ -151,6 +151,11 @@ wave 1 (attributed on a pristine `426d494b34` checkout, 2026-10-21). Each
 promotion restores the upstream optional semantics its tests assert, as
 `@beep/commands` did in wave 1.
 
+Amended by W4-j once EF-40 (#2145) reached main (first followed by 4-W-a):
+from then on a promotion keeps `S.optionalKey` and inverts its
+explicit-undefined tests to pin rejection, because restoring `S.optional`
+would red the EF-40 law. The rows below keep their recorded remedies.
+
 | Module | Failing on main | Wave |
 | --- | --- | --- |
 | `github` | `CodeScanning.test.ts` explicit-undefined keys | fixed in 2b-2: `CodeScanningSetup`'s five optional keys are `S.optional` again; the Bun `blakejs` interop failure in `crypto.test.ts` went with the dependency (D-34) |
