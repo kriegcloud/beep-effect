@@ -13,6 +13,7 @@
  */
 
 import * as pulumi from "@pulumi/pulumi";
+import * as Str from "effect/String";
 import {
   CiTurboCache,
   CiTurboCachePulumiConfigValues,
@@ -26,7 +27,7 @@ if (!/^[a-z0-9]{4,16}$/u.test(epoch)) {
   throw new pulumi.RunError("turboCacheLab:epoch must be 4-16 lowercase alphanumerics");
 }
 const config = loadCiTurboCacheConfig();
-if (!config.bucketName.startsWith(`beep-tcl-${epoch}-`)) {
+if (!Str.startsWith(`beep-tcl-${epoch}-`)(config.bucketName)) {
   throw new pulumi.RunError("ciTurboCache:bucketName must carry the lab prefix beep-tcl-<epoch>-");
 }
 
@@ -38,7 +39,7 @@ const incumbent = new CiTurboCache(`beep-tcl-${epoch}`, { config });
 const evolved = new CiTurboCache(`beep-tcl-${epoch}-evo`, {
   config: CiTurboCachePulumiConfigValues.make({
     ...config,
-    bucketName: `beep-tcl-${epoch}-evo-${config.bucketName.slice(`beep-tcl-${epoch}-`.length)}`,
+    bucketName: `beep-tcl-${epoch}-evo-${Str.slice(`beep-tcl-${epoch}-`.length)(config.bucketName)}`,
   }),
   remediation: CiTurboCacheRemediation.make({
     tagPassthrough: true,
