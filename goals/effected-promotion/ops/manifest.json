@@ -95,6 +95,10 @@
       "purpose": "Wave 4-W-a differential: @beep/repo-workspaces member set, edge set and topological order against bun.lock and raw package.json oracles."
     },
     {
+      "path": "ops/sbom-corpus.ts",
+      "purpose": "Wave 4-S oracle: @beep/sbom emits a CycloneDX document for every workspace manifest and validates each against the vendored full schema."
+    },
+    {
       "path": "ops/semver-owner-switch-differential.ts",
       "purpose": "R1 differential: the deleted @beep/schema/Semver and hand-rolled VersionSync and CacheClientPin version code compared with @beep/semver over bun.lock and every tracked package.json."
     },
