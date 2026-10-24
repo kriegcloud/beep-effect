@@ -1396,7 +1396,10 @@ export const GoalOpsScriptPath = S.String.check(
  * `opsScripts` on {@link GoalManifest} lists every script a packet keeps under
  * `ops/` (differentials, oracles, corpora, benches). When a manifest declares
  * the list, `beep goals doctor` checks it both ways: every listed path exists
- * and every `*.ts` file under `ops/` is listed.
+ * and every `*.ts` file under `ops/` is listed. Files under a dot-leading
+ * segment (`ops/.scratch/`) are hidden scratch space and are not checked; a
+ * `*.ts` whose path {@link GoalOpsScriptPath} rejects is reported as
+ * `ops-script-unregistrable`, fixed by renaming it.
  *
  * **Example** (Register an ops script)
  *

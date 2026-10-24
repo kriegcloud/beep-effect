@@ -142,6 +142,7 @@ export const GoalDoctorFindingKind = LiteralKit([
   "capability-stranded",
   "ops-script-missing",
   "ops-script-unregistered",
+  "ops-script-unregistrable",
   "ops-script-duplicate",
 ]).pipe(
   $I.annoteSchema("GoalDoctorFindingKind", {
@@ -415,6 +416,8 @@ const filesystemReflectionFiles = Effect.fn("Goals.filesystemReflectionFiles")(f
 
 const isRegisterableOpsScript = S.is(GoalOpsScriptPath);
 
+const isUnderDotSegment = (file: string): boolean => A.some(Str.split(file, "/"), Str.startsWith("."));
+
 const filesystemOpsFiles = Effect.fn("Goals.filesystemOpsFiles")(function* (packetPath: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -523,18 +526,32 @@ const opsScriptFindings = Effect.fn("Goals.opsScriptFindings")(function* <E, R>(
         script.path
       )
   );
-  // Only a path `GoalOpsScriptPath` admits can be registered (it rejects dot-leading segments such as
-  // `ops/.scratch/probe.ts`), so only those are reported: every finding is fixable by listing the file.
-  const unregistered = A.map(
-    A.filter(files, (file) => Str.endsWith(".ts")(file) && isRegisterableOpsScript(file) && !HashSet.has(listed, file)),
+  // Dot-leading segments (`ops/.scratch/probe.ts`, `ops/.hidden.ts`) are hidden scratch space and are not
+  // checked. Every other unlisted `*.ts` is reported: as unregistered when `GoalOpsScriptPath` admits it
+  // (fixed by listing it), else as unregistrable (fixed by renaming it), so nothing under ops/ goes unchecked.
+  const candidates = A.filter(
+    files,
+    (file) => Str.endsWith(".ts")(file) && !isUnderDotSegment(file) && !HashSet.has(listed, file)
+  );
+  const unregistrable = A.map(
+    A.filter(candidates, (file) => !isRegisterableOpsScript(file)),
     (file) =>
       finding(
         record.slug,
-        "ops-script-unregistered",
+        "ops-script-unregistrable",
         "blocking",
-        `${file} is not listed in ops/manifest.json opsScripts.`,
+        `${file} cannot be listed in opsScripts: rename it to letters, digits, "_", "-" and "." (no leading dot).`,
         file
       )
+  );
+  const unregistered = A.map(A.filter(candidates, isRegisterableOpsScript), (file) =>
+    finding(
+      record.slug,
+      "ops-script-unregistered",
+      "blocking",
+      `${file} is not listed in ops/manifest.json opsScripts.`,
+      file
+    )
   );
   const duplicate = A.map(
     A.filter(
@@ -550,7 +567,7 @@ const opsScriptFindings = Effect.fn("Goals.opsScriptFindings")(function* <E, R>(
         scriptPath
       )
   );
-  return A.flatten([missing, unregistered, duplicate]);
+  return A.flatten([missing, unregistered, unregistrable, duplicate]);
 });
 
 const statusConsistencyFindings = (

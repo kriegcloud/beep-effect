@@ -783,6 +783,7 @@ const VALIDATION_REQUIREMENTS_BY_FINDING_KIND: Readonly<
   "capability-stranded": [],
   "ops-script-missing": ["doctor-clean"],
   "ops-script-unregistered": ["doctor-clean"],
+  "ops-script-unregistrable": ["doctor-clean"],
   "ops-script-duplicate": ["doctor-clean"],
 };
 

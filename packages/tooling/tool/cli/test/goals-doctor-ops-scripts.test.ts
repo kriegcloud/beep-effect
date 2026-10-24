@@ -102,12 +102,30 @@ describe("goal ops script registration", () => {
     })
   );
 
-  it.effect("skips ts files under dot-leading segments, which opsScripts cannot register", () =>
+  it.effect("skips ts files under dot-leading segments, which are hidden scratch space", () =>
     Effect.gen(function* () {
       const { reader } = stubReader(["ops/.scratch/probe.ts", "ops/.hidden.ts", "ops/listed.ts"]);
       const text = manifestText({ opsScripts: [{ path: "ops/listed.ts", purpose: "Listed and present." }] });
       const { findings } = yield* goalPacketFindings(record(text), reader);
       assert.deepStrictEqual(opsKeys(findings), []);
+    })
+  );
+
+  it.effect("reports unlisted ts files the entry pattern rejects as unregistrable, not as unregistered", () =>
+    Effect.gen(function* () {
+      const { reader } = stubReader(["ops/my probe.ts", "ops/a+b.ts", "ops/listed.ts"]);
+      const text = manifestText({ opsScripts: [{ path: "ops/listed.ts", purpose: "Listed and present." }] });
+      const { findings } = yield* goalPacketFindings(record(text), reader);
+      assert.deepStrictEqual(opsKeys(findings), [
+        "demo ops-script-unregistrable ops/my probe.ts",
+        "demo ops-script-unregistrable ops/a+b.ts",
+      ]);
+      assertTrue(
+        A.every(
+          A.filter(findings, (finding) => Str.includes("ops-script-")(finding.kind)),
+          (finding) => finding.severity === "blocking"
+        )
+      );
     })
   );
 
