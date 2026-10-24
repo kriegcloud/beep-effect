@@ -27,7 +27,7 @@ import { constFalse, dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
+import { reportCommandError } from "../../internal/cli/CommandErrorFields.ts";
 import { isWithinRoot } from "../../internal/PathContainment.ts";
 import { ProcessPid, runRepoCommandStreamingCapture } from "../../internal/repo-run/index.ts";
 import { ReferenceWorkspace, referenceWorkspaceLayer } from "../Refs/index.ts";
@@ -1157,14 +1157,8 @@ const worktreeNewCommand = Command.make(
   Effect.fn(function* ({ name, branch, base }) {
     yield* runWorktreeNew({ name, branch, base }).pipe(
       Effect.catchTags({
-        WorktreeCommandError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree new: ${error.message}`);
-          return yield* failWithReportedExit(`worktree new: ${error.message}`);
-        }),
-        WorktreeExistsError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree new: ${error.message}`);
-          return yield* failWithReportedExit(`worktree new: ${error.message}`);
-        }),
+        WorktreeCommandError: reportCommandError("worktree new"),
+        WorktreeExistsError: reportCommandError("worktree new"),
       })
     );
   })
@@ -1190,18 +1184,9 @@ const worktreeRemoveCommand = Command.make(
   Effect.fn(function* ({ name, archive, deleteBranch }) {
     yield* runWorktreeRemove({ name, archive, deleteBranch }).pipe(
       Effect.catchTags({
-        WorktreeCommandError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree remove: ${error.message}`);
-          return yield* failWithReportedExit(`worktree remove: ${error.message}`);
-        }),
-        WorktreeDirtyError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree remove: ${error.message}`);
-          return yield* failWithReportedExit(`worktree remove: ${error.message}`);
-        }),
-        WorktreePreservationError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree remove: ${error.message}`);
-          return yield* failWithReportedExit(`worktree remove: ${error.message}`);
-        }),
+        WorktreeCommandError: reportCommandError("worktree remove"),
+        WorktreeDirtyError: reportCommandError("worktree remove"),
+        WorktreePreservationError: reportCommandError("worktree remove"),
       })
     );
   })
@@ -1250,14 +1235,8 @@ const worktreeRestoreMaterialCommand = Command.make(
     });
     yield* restore.pipe(
       Effect.catchTags({
-        WorktreeCommandError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree restore-material: ${error.message}`);
-          return yield* failWithReportedExit(`worktree restore-material: ${error.message}`);
-        }),
-        WorktreePreservationError: Effect.fn(function* (error) {
-          yield* Console.error(`worktree restore-material: ${error.message}`);
-          return yield* failWithReportedExit(`worktree restore-material: ${error.message}`);
-        }),
+        WorktreeCommandError: reportCommandError("worktree restore-material"),
+        WorktreePreservationError: reportCommandError("worktree restore-material"),
       })
     );
   })
@@ -1267,15 +1246,7 @@ const worktreeDoctorCommand = Command.make(
   "doctor",
   {},
   Effect.fn(function* () {
-    yield* runWorktreeDoctor().pipe(
-      Effect.catchTag(
-        "WorktreeCommandError",
-        Effect.fn(function* (error) {
-          yield* Console.error(`worktree doctor: ${error.message}`);
-          return yield* failWithReportedExit(`worktree doctor: ${error.message}`);
-        })
-      )
-    );
+    yield* runWorktreeDoctor().pipe(Effect.catchTag("WorktreeCommandError", reportCommandError("worktree doctor")));
   })
 ).pipe(
   Command.withDescription(
