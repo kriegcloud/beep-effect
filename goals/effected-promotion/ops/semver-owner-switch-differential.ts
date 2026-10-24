@@ -33,7 +33,9 @@
  *    against the shipped `selectLatestDockerTag`, over seeded tag lists built from the corpus, for `redis`,
  *    `pgvector/pgvector` (current tag `pg17`) and `grafana/otel-lgtm`. A difference is classified only when
  *    it is caused by a non-SemVer core: the old strategy, re-run on the list without the tags whose core the
- *    kit rejects, must pick what the kit picks. Any other difference is unclassified.
+ *    kit rejects, must pick what the kit picks. The kit side writes the winner canonical (no leading
+ *    `v`, since c3260f33), so a `v`-spelled old winner is the intended `canonical-pin` divergence. Any
+ *    other difference is unclassified.
  * 4. `cachePin`: the old `CacheClientPin.version` regex against `SemVer.PinnableVersionString`; the gate also
  *    requires every committed pin to pass both.
  *
@@ -419,8 +421,14 @@ const bunSection = (strings: ReadonlyArray<string>) => {
       const oldB = oldBunParse(b) !== undefined;
       const kitA = O.isSome(kitParse(Str.replace(/^v/, "")(a)));
       const kitB = O.isSome(kitParse(Str.replace(/^v/, "")(b)));
+      // Since c3260f33 `buildBunReport` writes a parsed pin canonical, so the old raw `v1.2.3` winner
+      // becomes `1.2.3`: an intended divergence, not a selection change.
       const key =
-        oldA !== kitA || oldB !== kitB ? "non-semver-pin (old pattern accepted, kit rejects)" : "UNCLASSIFIED";
+        oldA !== kitA || oldB !== kitB
+          ? "non-semver-pin (old pattern accepted, kit rejects)"
+          : Str.replace(/^v/, "")(oldPick) === newPick
+            ? "canonical-pin (leading v dropped, intended since c3260f33)"
+            : "UNCLASSIFIED";
       bump(buckets, key, { bunVersionFile: a, packageManagerField: b, old: oldPick, new: newPick });
     }
   }
