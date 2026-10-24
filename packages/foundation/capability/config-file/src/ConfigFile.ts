@@ -1143,6 +1143,12 @@ const makeImpl: {
   }
 );
 
+// Discovery can execute any of the three resolver effects.
+type ResolverRequirements<R extends ConfigResolver<unknown>> =
+  | Effect.Services<R["resolve"]>
+  | Effect.Services<NonNullable<R["resolveMatch"]>>
+  | Effect.Services<NonNullable<R["resolveProbe"]>>;
+
 // Implementation of ConfigFile.layer; the public contract lives on the static.
 // `tag` is pinned by three intersected parts. `Context.Key<Self, S>` captures the key's real shape;
 // `Context.Key<Self, ConfigFileShape<A>>` keeps `A` inferable from the key, which a bare
@@ -1150,19 +1156,26 @@ const makeImpl: {
 // shape wider than ConfigFileShape<A>. It cannot see through method-syntax parameter bivariance: a member
 // redeclared as a method with a wider parameter still passes.
 const layer: {
-  <Self, A, I, RR = never, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
+  <
+    Self,
+    A,
+    I,
+    RR = never,
+    S extends ConfigFileShape<A> = ConfigFileShape<A>,
+    const Rs extends ReadonlyArray<ConfigResolver<unknown>> = ReadonlyArray<ConfigResolver<RR>>,
+  >(
     tag: Context.Key<Self, S> &
       Context.Key<Self, ConfigFileShape<A>> &
       ([ConfigFileShape<NoInfer<A>>] extends [S] ? unknown : never),
-    options: ConfigFileOptions<A, I, RR>
-  ): Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path | RR>;
-  <A, I, RR = never>(
-    options: ConfigFileOptions<A, I, RR>
+    options: Omit<ConfigFileOptions<A, I, RR>, "resolvers"> & { readonly resolvers: Rs }
+  ): Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path | RR | ResolverRequirements<Rs[number]>>;
+  <A, I, RR = never, const Rs extends ReadonlyArray<ConfigResolver<unknown>> = ReadonlyArray<ConfigResolver<RR>>>(
+    options: Omit<ConfigFileOptions<A, I, RR>, "resolvers"> & { readonly resolvers: Rs }
   ): <Self, S extends ConfigFileShape<A> = ConfigFileShape<A>>(
     tag: Context.Key<Self, S> &
       Context.Key<Self, ConfigFileShape<A>> &
       ([ConfigFileShape<NoInfer<A>>] extends [S] ? unknown : never)
-  ) => Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path | RR>;
+  ) => Layer.Layer<Self, never, FileSystem.FileSystem | Path.Path | RR | ResolverRequirements<Rs[number]>>;
 } = dual(
   2,
   <Self, A, I, RR = never, S extends ConfigFileShape<A> = ConfigFileShape<A>>(

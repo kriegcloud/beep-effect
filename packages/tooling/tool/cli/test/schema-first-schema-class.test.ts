@@ -2,6 +2,7 @@ import { SchemaFirstSchemaClass } from "@beep/repo-cli/test/Lint";
 import { it } from "@beep/test-runner";
 import { A, Str } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import { ts } from "ts-morph";
@@ -156,28 +157,24 @@ describe("SchemaFirstSchemaClass inventory entries", () => {
   const owner = "@beep/example";
 
   it("flags missing and structural brands but not nominal ones", () => {
-    expect(
+    assertSome(
       O.map(SchemaFirstSchemaClass.unbrandedEntry(declaration({ brandState: "missing" }), file, owner), (entry) => [
         entry.kind,
         entry.reason,
-      ])
-    ).toEqual(
-      O.some([
+      ]),
+      [
         "unbranded-schema-class",
         "S.Class declaration has no brand type argument; add { readonly brand: unique symbol } (D4).",
-      ])
+      ]
     );
-    expect(
+    assertSome(
       O.map(
         SchemaFirstSchemaClass.unbrandedEntry(declaration({ brandState: "structural", kind: "Opaque" }), file, owner),
         (entry) => entry.reason
-      )
-    ).toEqual(
-      O.some(
-        "S.Opaque declaration carries the structural {} brand; use { readonly brand: unique symbol } or record a schema-first exception (D4)."
-      )
+      ),
+      "S.Opaque declaration carries the structural {} brand; use { readonly brand: unique symbol } or record a schema-first exception (D4)."
     );
-    expect(SchemaFirstSchemaClass.unbrandedEntry(declaration(), file, owner)).toEqual(O.none());
+    assertNone(SchemaFirstSchemaClass.unbrandedEntry(declaration(), file, owner));
   });
 
   it("flags plain-data classes and keeps classes with a reason to stay classes", () => {
@@ -189,25 +186,21 @@ describe("SchemaFirstSchemaClass inventory entries", () => {
         entry.reason,
       ]);
 
-    expect(reasonOf({})).toEqual(
-      O.some([
-        "plain-data-schema-class",
-        "Point",
-        "Plain-data S.Class should be a branded S.Opaque over S.Struct (D1).",
-      ])
-    );
-    expect(reasonOf({ kind: "TaggedClass" })).toEqual(
-      O.some([
-        "plain-data-schema-class",
-        "Point",
-        "Plain-data S.TaggedClass should be a branded S.Opaque over S.TaggedStruct (D1).",
-      ])
-    );
-    expect(reasonOf({ kind: "TaggedError" })).toEqual(O.none());
-    expect(reasonOf({ kind: "Opaque" })).toEqual(O.none());
-    expect(reasonOf({ hasInstanceMembers: true })).toEqual(O.none());
-    expect(reasonOf({ hasDeclarationHooks: true })).toEqual(O.none());
-    expect(reasonOf({}, HashSet.make("Point"))).toEqual(O.none());
+    assertSome(reasonOf({}), [
+      "plain-data-schema-class",
+      "Point",
+      "Plain-data S.Class should be a branded S.Opaque over S.Struct (D1).",
+    ]);
+    assertSome(reasonOf({ kind: "TaggedClass" }), [
+      "plain-data-schema-class",
+      "Point",
+      "Plain-data S.TaggedClass should be a branded S.Opaque over S.TaggedStruct (D1).",
+    ]);
+    assertNone(reasonOf({ kind: "TaggedError" }));
+    assertNone(reasonOf({ kind: "Opaque" }));
+    assertNone(reasonOf({ hasInstanceMembers: true }));
+    assertNone(reasonOf({ hasDeclarationHooks: true }));
+    assertNone(reasonOf({}, HashSet.make("Point")));
   });
 });
 

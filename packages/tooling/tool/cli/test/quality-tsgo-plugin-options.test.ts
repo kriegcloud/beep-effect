@@ -2,8 +2,8 @@ import {
   collectTsgoPluginOptionParityDiagnosticsForTesting,
   extractEffectTsgoReadmePluginOptionNamesForTesting,
 } from "@beep/repo-cli/commands/Quality/Quality.command";
+import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
-import { describe, expect, it } from "vitest";
 
 const readmeWithExample = (pluginJsonc: string): string =>
   A.join(
