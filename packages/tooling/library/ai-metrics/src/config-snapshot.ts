@@ -7,6 +7,7 @@
 
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import { A, Str } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as Clock from "effect/Clock";
@@ -544,10 +545,7 @@ export class AiMetricsConfigSnapshotResult extends S.Opaque<
       S.withDecodingDefaultKey(Effect.succeed(""))
     ),
     snapshot: ConfigSnapshot,
-    stageTimings: S.Array(AiMetricsConfigSnapshotStageTiming).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<AiMetricsConfigSnapshotStageTiming>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<AiMetricsConfigSnapshotStageTiming>()))
-    ),
+    stageTimings: ArrayKeyDefaultEmpty(AiMetricsConfigSnapshotStageTiming),
   }).pipe(
     $I.annoteSchema("AiMetricsConfigSnapshotResult", {
       description: "Config snapshot manifest used to attribute AI-agent metrics to repo guidance changes.",

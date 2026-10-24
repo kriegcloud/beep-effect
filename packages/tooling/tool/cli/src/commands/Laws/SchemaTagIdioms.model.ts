@@ -13,7 +13,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { A } from "@beep/utils";
+import { ArrayKeyDefaultEmpty } from "@beep/schema/SchemaUtils/withKeyDefaults";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -150,10 +150,7 @@ export class SchemaTagIdiomsSummary extends S.Opaque<SchemaTagIdiomsSummary, { r
     scannedFiles: S.Int,
     scannedFences: S.Int,
     strictFailure: S.Boolean,
-    findings: S.Array(SchemaTagIdiomFinding).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<SchemaTagIdiomFinding>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<SchemaTagIdiomFinding>()))
-    ),
+    findings: ArrayKeyDefaultEmpty(SchemaTagIdiomFinding),
   }).pipe(
     $I.annoteSchema("SchemaTagIdiomsSummary", {
       description:
