@@ -99,8 +99,8 @@ const awaitBindEvents = Effect.callback<void>((resume) => {
   return Effect.sync(() => clearImmediate(handle));
 });
 
-const startFixtureServer = Effect.fn("CacheFixture.startServer")(function* <E>(
-  app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, HttpServerRequest.HttpServerRequest>
+const startFixtureServer = Effect.fn("CacheFixture.startServer")(function* <E, R>(
+  app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>
 ) {
   const server = yield* BunHttpServer.make({ port: 0, hostname: fixtureHost, maxRequestBodySize: bodyLimit });
   // Node's Bun.serve test shim reports asynchronous listen errors at reload.
@@ -110,7 +110,7 @@ const startFixtureServer = Effect.fn("CacheFixture.startServer")(function* <E>(
 });
 
 const makeFixtureServer = Effect.fn("CacheFixture.makeServer")(
-  <E>(app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, HttpServerRequest.HttpServerRequest>) =>
+  <E, R>(app: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>) =>
     startFixtureServer(app).pipe(
       Effect.catchDefect(bindFailure),
       Effect.retry({ times: 8, while: (error) => S.is(AddressInUse)(error.cause) })
