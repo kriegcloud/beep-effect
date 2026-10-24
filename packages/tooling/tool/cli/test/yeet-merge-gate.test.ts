@@ -29,7 +29,7 @@ import {
 } from "@beep/repo-cli/test/Yeet";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { assertSome } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -253,7 +253,7 @@ describe("yeet merge-gate decision", () => {
 
   it("reads the newest run per check name so a superseded red does not hold", () => {
     const lint = A.findFirst(fixtureRuns, (run) => run.name === "Lint");
-    expect(O.isSome(lint)).toBe(true);
+    lint.pipe(O.isSome, assertTrue);
     if (O.isNone(lint)) return;
     const superseded = MergeGateCheckRun.make({ ...lint.value, id: lint.value.id - 1, conclusion: "failure" });
     expect(
@@ -377,13 +377,14 @@ describe("yeet merge-gate decision", () => {
   });
 
   it("parses --tolerate as <check>=<attribution> and rejects the rest", () => {
-    expect(O.isSome(parseMergeGateTolerance("Heavy / Coverage Regression=inherited: main red"))).toBe(true);
-    expect(O.isNone(parseMergeGateTolerance("Heavy / Coverage Regression"))).toBe(true);
-    expect(O.isNone(parseMergeGateTolerance("=no check"))).toBe(true);
-    expect(O.isNone(parseMergeGateTolerance("Lint="))).toBe(true);
+    parseMergeGateTolerance("Heavy / Coverage Regression=inherited: main red").pipe(O.isSome, assertTrue);
+    assertNone(parseMergeGateTolerance("Heavy / Coverage Regression"));
+    assertNone(parseMergeGateTolerance("=no check"));
+    assertNone(parseMergeGateTolerance("Lint="));
     const parsed = parseMergeGateTolerance("Vercel - app=rate limited: 'Deployment rate limited - retry in 2 hours'");
-    expect(O.map(parsed, (tolerance) => tolerance.attribution)).toEqual(
-      O.some("rate limited: 'Deployment rate limited - retry in 2 hours'")
+    assertSome(
+      O.map(parsed, (tolerance) => tolerance.attribution),
+      "rate limited: 'Deployment rate limited - retry in 2 hours'"
     );
   });
 
@@ -747,7 +748,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
           assertSome(O.map(result.requiredContexts, A.length), 15);
           expect(result.window._tag).toBe("elapsed");
           if (result.window._tag === "elapsed") expect(result.window.anchoredAt).toBe(DateTime.formatIso(anchoredAt));
-          expect(result.unresolvedThreads).toEqual(O.some(0));
+          assertSome(result.unresolvedThreads, 0);
           expect(result.squashCommitlint.verdict._tag).toBe("pass");
           expect(result.squashCommitlint.message.header).toBe(`${pullFixture.title} (#${pullFixture.number})`);
           expect(result.squashCommitlint.message.body).toBe("The one commit.");
@@ -795,7 +796,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
       withScriptedGh({ ...defaultScript, threads: openThreadsFixture }, () =>
         Effect.gen(function* () {
           const result = yield* readMergeGate(context, pullFixture.number);
-          expect(result.unresolvedThreads).toEqual(O.some(4));
+          assertSome(result.unresolvedThreads, 4);
         })
       )
     );
@@ -824,9 +825,9 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
           withScriptedGh({ ...defaultScript, threads }, () =>
             readMergeGate(context, pullFixture.number).pipe(Effect.map((read) => read.unresolvedThreads))
           );
-        expect(yield* count(threadsFixture)).toEqual(O.some(0));
-        expect(yield* count(withLastAuthor({ __typename: "User", login: "reviewer" }))).toEqual(O.some(1));
-        expect(yield* count(withLastAuthor({ __typename: "Bot", login: "greptile-apps" }))).toEqual(O.some(0));
+        assertSome(yield* count(threadsFixture), 0);
+        assertSome(yield* count(withLastAuthor({ __typename: "User", login: "reviewer" })), 1);
+        assertSome(yield* count(withLastAuthor({ __typename: "Bot", login: "greptile-apps" })), 0);
       })
     );
 
@@ -839,9 +840,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
           },
         },
         () =>
-          readMergeGate(context, pullFixture.number).pipe(
-            Effect.map((result) => expect(result.unresolvedThreads).toEqual(O.none()))
-          )
+          readMergeGate(context, pullFixture.number).pipe(Effect.map((result) => assertNone(result.unresolvedThreads)))
       )
     );
 
@@ -979,7 +978,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
       withScriptedGh({ ...defaultScript, threadsExit: 1 }, () =>
         Effect.gen(function* () {
           const result = yield* readMergeGate(context, pullFixture.number);
-          expect(result.unresolvedThreads).toEqual(O.none());
+          assertNone(result.unresolvedThreads);
           expect(
             holdReason(decideMergeGate(MergeGateInput.make({ read: result, options: options({ now: result.readAt }) })))
           ).toBe("threads-unknown");
@@ -1007,7 +1006,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
       withScriptedGh({ ...defaultScript, rulesExit: 1 }, () =>
         Effect.gen(function* () {
           const result = yield* readMergeGate(context, pullFixture.number);
-          expect(result.requiredContexts).toEqual(O.none());
+          assertNone(result.requiredContexts);
         })
       )
     );
@@ -1047,7 +1046,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
             })
           );
           const merge = A.findFirst(yield* Ref.get(calls), Str.includes("/merge"));
-          expect(O.isSome(merge)).toBe(true);
+          merge.pipe(O.isSome, assertTrue);
           if (O.isSome(merge)) {
             expect(merge.value).toContain("-X PUT");
             expect(merge.value).toContain("merge_method=squash");

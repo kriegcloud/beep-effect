@@ -58,6 +58,7 @@ import { A } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
+import { describe, expect } from "@effect/vitest";
 import { assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
@@ -70,7 +71,6 @@ import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { describe, expect } from "vitest";
 import type { EvidencePredicateType, GateDeclaration } from "@beep/skill-contract";
 
 const encodeJsonEffect = S.encodeEffect(S.fromJsonString(S.Unknown));
