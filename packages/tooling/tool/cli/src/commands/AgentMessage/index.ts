@@ -12,6 +12,7 @@ export * from "./AgentMessage.models.ts";
 export { agentMessagePeerCommand } from "./AgentMessage.peer.command.ts";
 export {
   agentMessageServeCommand,
+  isMailboxLockTimeout,
   makeAgentMessageCompletion,
   runAgentMessageDispatchLoop,
 } from "./AgentMessage.runtime.ts";

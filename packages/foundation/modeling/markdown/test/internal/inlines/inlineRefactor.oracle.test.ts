@@ -13,8 +13,11 @@
 //   character), link and image brackets, and reference definitions.
 // - The engine itself before the refactors, for GFM, which commonmark.js does
 //   not implement: SHA-256 digests of the materialized phrasing nodes over a
-//   20,000-source seeded corpus, recorded from the pre-refactor engine. The
-//   corpus (`inlineCorpus.ts`) is generated without any engine code, so the
+//   20,000-source seeded corpus, recorded from the pre-refactor engine.
+//   The GFM expectation includes the #2137 corrections to escaped email
+//   recognition and URL destinations; see writer-differential-w2d3.md for
+//   the source-by-source audit. The CommonMark expectation is unchanged.
+//   The corpus (`inlineCorpus.ts`) is generated without any engine code, so the
 //   same sources reach every version.
 
 import { Markdown } from "@beep/markdown/Markdown";
@@ -166,11 +169,11 @@ const corpusDigest = (dialect: MarkdownDialect) =>
   }).pipe(Effect.map((digest) => Hex.encode(new Uint8Array(digest))));
 
 describe("inline refactor differential: the pre-refactor engine", () => {
-  it.effect("reproduces every GFM phrasing tree of the seeded corpus", () =>
+  it.effect("reproduces the audited GFM phrasing trees after the #2137 corrections", () =>
     Effect.gen(function* () {
       assert.strictEqual(
         yield* corpusDigest("gfm"),
-        "69fcb6126a96c5690610c0d68902a73584e425a06259aa38286a2667c1b89019"
+        "6f438e5c32819cc1e10d304588ccc8c6062d1c56c1e355ddca461535f34b174d"
       );
     })
   );
