@@ -2134,11 +2134,6 @@
   "@beep/markdown/internal/*": [
     "./packages/foundation/modeling/markdown/src/internal/*"
   ],
-  "@beep/lockfiles": ["./packages/foundation/modeling/lockfiles/src/index.ts"],
-  "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"],
-  "@beep/lockfiles/internal/*": [
-    "./packages/foundation/modeling/lockfiles/src/internal/*"
-  ],
   "@beep/github-reporting": [
     "./packages/foundation/modeling/github-reporting/src/index.ts"
   ],
@@ -2172,9 +2167,22 @@
   "@beep/config-file/internal/*": [
     "./packages/foundation/capability/config-file/src/internal/*"
   ],
+  "@beep/lockfiles": ["./packages/foundation/modeling/lockfiles/src/index.ts"],
+  "@beep/lockfiles/*": ["./packages/foundation/modeling/lockfiles/src/*"],
+  "@beep/lockfiles/internal/*": [
+    "./packages/foundation/modeling/lockfiles/src/internal/*"
+  ],
   "@beep/xdg": ["./packages/foundation/capability/xdg/src/index.ts"],
   "@beep/xdg/*": ["./packages/foundation/capability/xdg/src/*"],
   "@beep/xdg/internal/*": [
     "./packages/foundation/capability/xdg/src/internal/*"
+  ],
+  "@beep/cli-kit": ["./packages/foundation/capability/cli-kit/src/index.ts"],
+  "@beep/cli-kit/*": ["./packages/foundation/capability/cli-kit/src/*"],
+  "@beep/cli-kit/internal/*": [
+    "./packages/foundation/capability/cli-kit/src/internal/*"
+  ],
+  "@beep/cli-kit/testing": [
+    "./packages/foundation/capability/cli-kit/src/testing.ts"
   ]
 }

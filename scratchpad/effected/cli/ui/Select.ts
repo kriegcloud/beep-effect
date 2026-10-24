@@ -5,7 +5,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import type { ReactElement } from "react";
-import { Fmt } from "../Fmt.ts";
+import { Fmt } from "@beep/cli-kit/Fmt";
 import type { Screen } from "./CliUi.ts";
 import { inkModules } from "./internal/ink.ts";
 import { lineText } from "./internal/lineText.ts";

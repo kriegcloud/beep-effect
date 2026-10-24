@@ -50,9 +50,10 @@ the sub-wave order, dependencies and parallel lanes, and its decisions are recor
 | 3-A8 (queued, optional) | `GitHubMarkdown.table` adoption | repo-cli `Ci/RunnerLossRerun.ts`, `Ci/CiOperational.service.ts`. After 3-1. |
 | 3-A9 (queued, optional) | `ScopedPackageName` | observability `catalog/Catalog.names.ts`. After 3-4. |
 | 4-X (merged, #2184) | `@beep/xdg` | W4-c, W4-h (4-X part). Root `Xdg`, `AppDirs`, `NativeDirs` and the new `XdgBase` leaf; `./XdgConfig` subpath-only (root-closure test). Absolute values only; HOME-optional `XdgBase`; the platform through `HostProcessPlatform`; branded Opaque records. Adopters: m365-mcp `OutboxConfig` roots, repo-cli `WorkstationState` (env-matrix parity committed against the old bodies). Frozen `systemd-path` goldens (900 cases) and `ops/xdg-systemd-differential.ts` (0 undocumented differences); the lab xdg directories are gone; coverage 100/100/100/100. Cut after 3-3 merged. |
-| R1 (in review, this PR) | semver owner switch (no new package) | W4-h, W4-i. Deletes `@beep/schema/Semver` (zero importers, no alias). repo-cli VersionSync `BunResolver` and `DockerResolver` (one exported `selectLatestDockerTag`) and `@beep/repo-configs` `CacheClientPin.version` read through `@beep/semver`. Parity: `ops/semver-owner-switch-differential.ts`, recorded before the deletion in `research/semver-owner-switch-differential-r1.json`, 0 unclassified differences. Removes the "Duplicate semver model" Exception Ledger row; reuse-ledger `@beep/semver` section. |
+| 4-C (in review, this PR) | `@beep/cli-kit` | W4-d, W4-g (4-C), W4-h (4-C), W4-j (4-C), W4-s (4-C). Root and `./testing` of the lab `cli` (`ui/**` stays in the lab until C, W4-m). Named importers migrated in the PR: `@beep/repo-cli` (`MonitorComments` and `Accounts.view`) and `@beep/repo-ai-metrics` (`agent-effectiveness`), all through `Fmt`. New `Fmt.stripControls` (single-line strict) with `ops/cli-kit-sanitize-differential.ts` at 0 differences against both private copies; `CliMessage.status` predicate dispatch; the #1928 option fields keep `S.optionalKey` under EF-40 (#2145) with the explicit-undefined tests inverted to pin rejection; operation-count bench `ops/cli-kit-bench.ts`; a raw-glob boundary test. Lab `./ui` retargeted to the package. |
 | 4 (queued) | `@beep/sbom` (4-S), `@beep/xdg` (4-X), `@beep/cli-kit` (4-C), `@beep/repo-workspaces` (4-W-a, 4-W-b) | W4-a..W4-g; order and adoptions in "Wave 4 and the closing roadmap" below. `repo-workspaces` declares `@beep/commands` and `@beep/git` as operational-adapter driver deps. |
 | 5 (queued, W5) | `@beep/github-actions` | Leaf driver; after 4-S, 3-A8 and W4-j. |
+| R1 (in review, this PR) | semver owner switch (no new package) | W4-h, W4-i. Deletes `@beep/schema/Semver` (zero importers, no alias). repo-cli VersionSync `BunResolver` and `DockerResolver` (one exported `selectLatestDockerTag`) and `@beep/repo-configs` `CacheClientPin.version` read through `@beep/semver`. Parity: `ops/semver-owner-switch-differential.ts`, recorded before the deletion in `research/semver-owner-switch-differential-r1.json`, 0 unclassified differences. Removes the "Duplicate semver model" Exception Ledger row; reuse-ledger `@beep/semver` section. |
 | Deferred | npm registry/publish driver, `@beep/sigstore`, `@beep/ink`, `engine` -> `@beep/mcp-kit` | D-05 as amended by W4-m: deleted from the lab at C and pinned by sha; see "Deferred" below. |
 
 ## Wave 4 and the closing roadmap
@@ -80,6 +81,7 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | 3-A9 | `ScopedPackageName` in observability `Catalog.names.ts` | 3-4 (merged) |
 | 4-CI | one CI rule through `@beep/runtime-env` (W4-e) | main |
 | R1 (this PR, in review) | delete `@beep/schema/Semver`; BunResolver and DockerResolver onto `@beep/semver`; `Cache.policy.ts:245` pin | main |
+| R1 | delete `@beep/schema/Semver`; BunResolver and DockerResolver onto `@beep/semver`; `Cache.policy.ts:245` pin | main |
 | R2a | `vitest.setup.ts`: `toml` shim out, `GlobShim` matcher on `@beep/glob`; `toml`, `picomatch`, `@types/picomatch` out of the root | main |
 | R2b | repo-cli `internal/GlobPattern.ts` onto `@beep/glob`; `tinyglobby` out of `EffectImports.ts`; closes "Duplicate glob matching" | main (after 4-CI on `Tasks.ts`) |
 | R5b | slugger/TOC in `@beep/markdown`; `@effect/markdown-toc` out of docgen, repo-cli and root; effect-drizzle README script | main |
@@ -87,7 +89,7 @@ subpath", because the knowledge doctor reads a dot-slash span as a packet-relati
 | R10 | `@beep/git` for `Skills/internal/MergeBase.ts`, `repo-run/GitWorktree.ts`, `Yeet/internal/ProvenanceFooter.ts`, dead `GitExec.ts` collectors | main |
 | 4-S | `@beep/sbom` (W4-b); lab signer, github-actions, PROMOTED maps | main |
 | 4-X | `@beep/xdg` (W4-c); m365-mcp `OutboxConfig`, repo-cli `WorkstationState` | 3-3 |
-| 4-C | `@beep/cli-kit` (W4-d); repo-cli MonitorComments + Accounts.view, ai-metrics agent-effectiveness; lab ui retargets | 3-3 |
+| 4-C (in review) | `@beep/cli-kit` (W4-d); repo-cli MonitorComments + Accounts.view, ai-metrics agent-effectiveness; lab ui retargets | 3-3 |
 | 3-A1 | lockfiles adoption + `ResolvedPackage.installName`; `CatalogUsage.ts`, `RootCatalog.ts` (bun.lock half) | 3-5 |
 | 3-A3 | repo-utils re-base on `@beep/package-json` (`schemas/PackageJson.ts` 2,111 → ~450, HashMap moves) | 3-A2 |
 | 4-W-a | `@beep/repo-workspaces` core + config-deps (W4-f) | 3-5 |

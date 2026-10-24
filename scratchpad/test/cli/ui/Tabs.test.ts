@@ -6,7 +6,7 @@ import * as Schedule from "effect/Schedule";
 import { Text } from "ink";
 import type { ReactElement } from "react";
 import { createElement, useState } from "react";
-import { CliInteractive, CliTheme, Fmt } from "../../../effected/cli/index.ts";
+import { CliInteractive, CliTheme, Fmt } from "@beep/cli-kit";
 import { makeFakeStreams } from "../../../effected/cli/ui/testing/fakeStreams.ts";
 import type { Screen, TabsProps } from "../../../effected/cli/ui.ts";
 import { CliUi, Tabs, UiStreams } from "../../../effected/cli/ui.ts";

@@ -64,6 +64,7 @@
     "beep:check:tests": "tsc-rs -p tsconfig.test.json --noEmit"
   },
   "dependencies": {
+    "@beep/cli-kit": "workspace:^",
     "@beep/duckdb": "workspace:^",
     "@beep/file-processing": "workspace:^",
     "@beep/identity": "workspace:^",

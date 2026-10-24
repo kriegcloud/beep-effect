@@ -1,4 +1,4 @@
-// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: effected-promotion graduates the module and ports this test to @effect/vitest layer() and Effect platform services.
+// @effect-diagnostics nodeBuiltinImport:skip-file -- nodeBuiltinImport because it scans the lab's own source tree synchronously at test collection. Owner: @beep/scratchpad. Exit: C deletes the lab ./ui half (W4-m).
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,7 +12,10 @@ import * as FileSystem from "effect/FileSystem";
 
 const SRC = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "effected", "cli");
 
-/** The lab keeps authored source at the package root; upstream scans only src, beside dist. */
+/**
+ * The lab keeps the `./ui` half of the port at the module root; the root and `./testing` half is `@beep/cli-kit`,
+ * whose own boundary test holds the root-never-reaches-ui and no-runtime-in-testing rules (wave 4-C).
+ */
 const scanSource = Effect.fn("cli.boundary.scanSource")(function* (options: Parameters<typeof SourceBoundary.scan>[0]) {
 	const fs = yield* FileSystem.FileSystem;
 	return yield* SourceBoundary.scan(options).pipe(Effect.provideService(FileSystem.FileSystem, {
@@ -36,11 +39,8 @@ const isUiModule = (path: string): boolean => /^ui(?:\.ts$|-testing(?:-serialize
 /** A specifier naming a package only `./ui` may load: `ink`, `react`, or a subpath of either. */
 const isUiPackage = (specifier: string): boolean => /^(?:ink|react)(?:$|\/)/.test(specifier);
 
-/** A self-reference into `./ui`: the package's own name resolves through its `exports`, so no relative edge shows it. */
-const isUiSelfReference = (specifier: string): boolean => /^@effected\/cli\/ui(?:$|\/)/.test(specifier);
-
-/** The package's own name, or a subpath of it: what `./ui` uses to name root types without copying them. */
-const isPackageSelfName = (specifier: string): boolean => /^@effected\/cli(?:$|\/)/.test(specifier);
+/** The root entrypoint, `@beep/cli-kit`: what `./ui` uses to name root types without copying them. */
+const isRootEntrypoint = (specifier: string): boolean => specifier === "@beep/cli-kit";
 
 /** An `import type` or `export type` clause and its specifier, in comment-stripped source. */
 // The clause body excludes quotes as well as semicolons, so a match cannot run past an earlier `from "…"` in code
@@ -87,20 +87,6 @@ const reachableFrom = (entry: string, read: Read = readSource): ReadonlySet<stri
 		for (const next of importsOf(file, read)) queue.push(next);
 	}
 	return seen;
-};
-
-/** Every way the modules reachable from `entries` break the root boundary, sorted. */
-const rootOffences = (root: string, entries: ReadonlyArray<string>, read: Read = readSource): ReadonlyArray<string> => {
-	const reached = new Set(entries.flatMap((entry) => [...reachableFrom(resolve(root, entry), read)]));
-	const offences: Array<string> = [];
-	for (const file of reached) {
-		const path = relativeTo(root, file);
-		if (isUiModule(path)) offences.push(`${path} is a ./ui module`);
-		for (const specifier of specifiersOf(file, read)) {
-			if (isUiPackage(specifier) || isUiSelfReference(specifier)) offences.push(`${path} imports ${specifier}`);
-		}
-	}
-	return offences.sort();
 };
 
 /** The files reachable from `entry` that import any `node:` module, sorted. */
@@ -179,7 +165,6 @@ describe("cli boundary", () => {
 							"stdout-write": ["ui/internal/inkConsole.ts"],
 						},
 					});
-					assert.include(scan.files, "CliRuntime.ts", "the scan read the real tree");
 					assert.include(scan.files, "ui.ts", "the scan read the ./ui entry");
 					assert.include(scan.files, "ui-testing.ts", "the scan read the ./ui/testing entry");
 					assert.deepStrictEqual(scan.allowed, []);
@@ -194,42 +179,9 @@ describe("cli boundary", () => {
 				}),
 		);
 
-		// CliLogger binds a LOCAL `console` to core's Console service
-		// (CliLogger.ts:104); the scanner has no scope analysis, so the console
-		// rule is waived for that one file. The waiver is visible in `waived`,
-		// which proves it is both needed and the only one. The process and
-		// stdout rules are held by the scan above.
-		it.effect("only CliLogger.ts names console, and only the console rule is waived there", () =>
-			Effect.gen(function* () {
-				const scan = yield* scanSource({
-					root: SRC,
-					rules: ["console"],
-					allowRules: { console: ["CliLogger.ts"] },
-				});
-				assert.include(scan.files, "CliLogger.ts", "the scan read the real tree");
-				assert.deepStrictEqual(scan.allowed, []);
-				assert.deepStrictEqual(scan.violations, []);
-				assert.isNotEmpty(scan.waived, "the waiver still waives something");
-				assert.deepStrictEqual(
-					[...new Set(scan.waived.map((offence) => `${offence.file} ${offence.rule}`))],
-					["CliLogger.ts console"],
-				);
-			}),
-		);
 	});
 
 	describe("reachability", () => {
-		it("the walker resolves the root's real modules, or it proves nothing", () => {
-			const main = [...reachableFrom(resolve(SRC, "index.ts"))].map((file) => relativeTo(SRC, file));
-			const testing = [...reachableFrom(resolve(SRC, "testing.ts"))].map((file) => relativeTo(SRC, file));
-			assert.include(main, "CliRuntime.ts");
-			assert.include(testing, "CliTest.ts");
-		});
-
-		it("nothing reachable from `.` or `./testing` is a ./ui module or names ink or react", () => {
-			assert.deepStrictEqual(rootOffences(SRC, ["index.ts", "testing.ts"]), []);
-		});
-
 		it("positive control: from ./ui the walker reaches the Ink loader's react import and more than one file", () => {
 			const reached = reachableFrom(resolve(SRC, "ui.ts"));
 			assert.isAbove(reached.size, 1, "the walker follows ./ui's imports");
@@ -275,50 +227,20 @@ describe("cli boundary", () => {
 				.filter((file) => !file.startsWith("dist/"))
 				.filter((file) => file.endsWith(".ts") && isUiModule(file))
 				.sort();
-			const isRootReference = (file: string) => (specifier: string): boolean =>
-				isPackageSelfName(specifier) ||
-				(specifier.startsWith(".") && resolve(dirname(join(SRC, file)), specifier) === join(SRC, "index.ts"));
+			const isRootReference = (_file: string) => isRootEntrypoint;
 			const offenders = uiFiles.flatMap((file) =>
 				valueImportsOf(readSource(join(SRC, file)), isRootReference(file)).map((spec) => `${file} ${spec}`),
 			);
 			assert.deepStrictEqual(offenders, []);
 			assert.include(
 				specifiersOf(join(SRC, "ui", "CliUi.ts"), readSource),
-				"../index.ts",
-				"positive control: CliUi.ts names the lab root types through its entrypoint",
+				"@beep/cli-kit",
+				"positive control: CliUi.ts names the root types through the @beep/cli-kit entrypoint",
 			);
-			assert.deepStrictEqual(valueImportsOf('import { CliTheme } from "@effected/cli";', isPackageSelfName), [
-				"@effected/cli",
+			assert.deepStrictEqual(valueImportsOf('import { CliTheme } from "@beep/cli-kit";', isRootEntrypoint), [
+				"@beep/cli-kit",
 			]);
-			assert.deepStrictEqual(valueImportsOf('import type * as Cli from "@effected/cli";', isPackageSelfName), []);
-			assert.deepStrictEqual(valueImportsOf('import { CliTheme } from "../index.ts";', isRootReference("ui/CliUi.ts")), ["../index.ts"]);
-			assert.deepStrictEqual(valueImportsOf('import type * as Cli from "../index.ts";', isRootReference("ui/CliUi.ts")), []);
-		});
-
-		it("no root module imports the package's own name, which would make the root declarations import themselves", () => {
-			const rootFiles = (readdirSync(SRC, { recursive: true, encoding: "utf8" }))
-				.map((file) => file.split(sep).join("/"))
-				.filter((file) => !file.startsWith("dist/"))
-				.filter((file) => file.endsWith(".ts") && !isUiModule(file));
-			assert.include(rootFiles, "CliRuntime.ts", "the walk read the root tree");
-			const offenders = rootFiles.flatMap((file) =>
-				specifiersOf(join(SRC, file), readSource)
-					.filter(isPackageSelfName)
-					.map((spec) => `${file} ${spec}`),
-			);
-			assert.deepStrictEqual(offenders, []);
-			assert.deepStrictEqual(
-				SourceBoundary.importSpecifiers('import type { CliTheme } from "@effected/cli";').filter(isPackageSelfName),
-				["@effected/cli"],
-				"mutation control: even a type-only self-import is caught",
-			);
-			assert.deepStrictEqual(
-				SourceBoundary.importSpecifiers('/** import { CliLogger } from "@effected/cli" */\nexport {};').filter(
-					isPackageSelfName,
-				),
-				[],
-				"a TSDoc example naming the package is not an import",
-			);
+			assert.deepStrictEqual(valueImportsOf('import type * as Cli from "@beep/cli-kit";', isRootEntrypoint), []);
 		});
 
 		it("mutation control: the type-only detector flags every runtime spelling and spares every type-only one", () => {
@@ -353,78 +275,5 @@ describe("cli boundary", () => {
 			);
 		});
 
-		it("mutation control: a root module reaching ./ui is flagged, however it gets there", () => {
-			const root = "/virtual/src";
-			const graph = (files: Record<string, string>): Read => {
-				const sources = new Map(Object.entries(files).map(([path, text]) => [resolve(root, path), text]));
-				return (file) => {
-					const text = sources.get(file);
-					if (text === undefined) throw new Error(`no module ${file}`);
-					return text;
-				};
-			};
-			const tree = {
-				"index.ts": 'export * from "./Cli.ts";\nexport * from "./commands/run.ts";\n',
-				"commands/run.ts": 'import { helper } from "../uiHelpers.ts";\nexport const run = helper;\n',
-				"uiHelpers.ts": "export const helper = 1;\n",
-				"ui.ts": 'export * from "./ui/Screen.ts";\n',
-				"ui/Screen.ts": 'import type { Box } from "ink";\nexport const load = () => import("react");\n',
-			};
-			// The clean twin: a root that never reaches ./ui, beside a ./ui that names ink and react.
-			assert.deepStrictEqual(
-				rootOffences(root, ["index.ts"], graph({ ...tree, "Cli.ts": "export const cli = 1;\n" })),
-				[],
-				"a clean tree, and a uiHelpers module that merely starts with ui, are not flagged",
-			);
-			assert.deepStrictEqual(
-				rootOffences(root, ["index.ts"], graph({ ...tree, "Cli.ts": 'export { load } from "./ui/Screen.ts";\n' })),
-				["ui/Screen.ts imports ink", "ui/Screen.ts imports react", "ui/Screen.ts is a ./ui module"],
-			);
-			assert.deepStrictEqual(
-				rootOffences(
-					root,
-					["index.ts"],
-					graph({ ...tree, "Cli.ts": 'export const lazy = () => import("./ui.ts");\n' }),
-				),
-				[
-					"ui.ts is a ./ui module",
-					"ui/Screen.ts imports ink",
-					"ui/Screen.ts imports react",
-					"ui/Screen.ts is a ./ui module",
-				],
-				"a lazy import() of ./ui counts as reaching it",
-			);
-			assert.deepStrictEqual(
-				rootOffences(
-					root,
-					["index.ts"],
-					graph({
-						...tree,
-						"Cli.ts": "export const cli = 1;\n",
-						"commands/run.ts": 'export { load as run } from "../ui/Screen.ts";\n',
-					}),
-				),
-				["ui/Screen.ts imports ink", "ui/Screen.ts imports react", "ui/Screen.ts is a ./ui module"],
-				"a nested module reaching up into ./ui is flagged",
-			);
-			assert.deepStrictEqual(
-				rootOffences(root, ["index.ts"], graph({ ...tree, "Cli.ts": 'import type { Ink } from "ink";\n' })),
-				["Cli.ts imports ink"],
-				"even a type-only ink import is off limits to the root",
-			);
-			assert.deepStrictEqual(
-				rootOffences(
-					root,
-					["index.ts"],
-					graph({
-						...tree,
-						"Cli.ts":
-							'export const lazy = () => import("@effected/cli/ui");\nexport * from "@effected/cli/ui/testing";\n',
-					}),
-				),
-				["Cli.ts imports @effected/cli/ui", "Cli.ts imports @effected/cli/ui/testing"],
-				"a self-reference into ./ui through the package's own name is flagged",
-			);
-		});
 	});
 });
