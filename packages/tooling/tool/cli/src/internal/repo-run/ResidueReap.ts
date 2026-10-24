@@ -1713,6 +1713,36 @@ const classifyCheckoutName = (name: string): ResidueReapClass =>
     Match.orElse(() => CheckoutResidueClass.Enum["checkout-material"])
   );
 
+/**
+ * Whether a top-level `.beep` entry must outlive the checkout it sits in.
+ *
+ * **Details**
+ *
+ * True for everything residue-reap classes as `checkout-material` (any entry
+ * outside the disposable qa, qualification, ci, yeet, worktree-ledger and pid
+ * classes) and for its protected bookkeeping (inbox, packets, proof ledgers,
+ * residue-reap and retention journals). An archive retirement preserves these
+ * entries, because git-ignored state is otherwise deleted with the worktree
+ * (#2167).
+ *
+ * **Example** (Classify `.beep` entries)
+ *
+ * ```ts
+ * import { isRetainedCheckoutResidueName } from "@beep/repo-cli/test/RepoRun"
+ *
+ * console.log(isRetainedCheckoutResidueName("fallow")) // true
+ * console.log(isRetainedCheckoutResidueName("yeet")) // false
+ * ```
+ *
+ * @param name - A top-level entry name under a checkout's `.beep`.
+ * @returns Whether the entry is owner material or protected bookkeeping.
+ * @category predicates
+ * @since 0.0.0
+ */
+export const isRetainedCheckoutResidueName = (name: string): boolean =>
+  isProtectedResidueName(name) ||
+  Str.Equivalence(classifyCheckoutName(name), CheckoutResidueClass.Enum["checkout-material"]);
+
 const readRuling = Effect.fnUntraced(function* (entry: ResidueReapCandidate) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;

@@ -9,9 +9,11 @@
  * watcher, is named in the receipt and never refuses, and its walk of the
  * renamed tree is waited out), then captures the fenced copy: the
  * target commit becomes reachable through a create-only ref, tracked and
- * untracked residue is written outside the checkout, and only then is the
- * fenced copy deleted and its branch ref removed by compare-and-swap on the
- * archived head.
+ * untracked residue is written outside the checkout, the git-ignored `.beep`
+ * entries residue-reap treats as owner material or protected bookkeeping are
+ * moved into the residue root (a clean lane that carries them is archived for
+ * them alone), and only then is the fenced copy deleted and its branch ref
+ * removed by compare-and-swap on the archived head.
  * A pruned upstream never fails the retirement: the manifest records the
  * pruned upstream together with the verdict that judged the tip pushed (a tip
  * on the remote default branch, or a merged pull request at exactly that
@@ -24,15 +26,19 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { LiteralKit, Sha256HexFromBytes } from "@beep/schema";
+import { LiteralKit, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { GitObjectId } from "@beep/schema/Conformance";
 import { A, O, Str } from "@beep/utils";
+import { sha256 } from "@noble/hashes/sha2.js";
 import * as Bool from "effect/Boolean";
+import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
@@ -42,8 +48,10 @@ import * as Match from "effect/Match";
 import * as N from "effect/Number";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
+import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 import { ghOutput } from "../../internal/github/index.ts";
 import {
   ancestryPidsOf,
@@ -53,6 +61,7 @@ import {
   desktopTerminalShellState,
   invokerAncestryPids,
   invokerSessionRoot,
+  isRetainedCheckoutResidueName,
   ProcessAttachmentKind,
   ProcessTable,
   processLineage,
@@ -69,6 +78,7 @@ import { WorktreeCommandError, WorktreeDirtyError, WorktreePreservationError } f
 import {
   parseWorktreePorcelain,
   WorktreeArchivePlan,
+  WorktreeBeepMaterialEntry,
   WorktreeFenceSettlePolicy,
   WorktreeInotifyWatcher,
   WorktreeRemovalReceipt,
@@ -407,6 +417,7 @@ export const worktreeArchivePlan: {
       residueRoot,
       patchPath: path.join(residueRoot, "tracked.patch"),
       untrackedRoot: path.join(residueRoot, "untracked"),
+      materialRoot: path.join(residueRoot, "beep-material"),
       manifestPath: path.join(residueRoot, "manifest.json"),
     });
   }
@@ -885,6 +896,340 @@ const copyUntrackedFiles = Effect.fn("WorktreeRemovalService.copyUntrackedFiles"
   }
 });
 
+// Git-ignored `.beep` state is not in the tracked patch or the untracked list, so
+// it would be deleted with the worktree (#2167). The entries residue-reap treats as
+// owner material or protected bookkeeping are listed here and preserved below.
+const listBeepMaterialEntries = Effect.fn("WorktreeRemovalService.listBeepMaterialEntries")(function* (
+  targetPath: string
+): Effect.fn.Return<ReadonlyArray<string>, WorktreePreservationError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const root = path.join(targetPath, ".beep");
+  const present = yield* fs.exists(root).pipe(
+    Effect.mapError((cause) =>
+      WorktreePreservationError.new("inspect-residue", "Could not check the worktree's .beep directory.", {
+        cause,
+        path: root,
+      })
+    )
+  );
+  if (!present) return A.empty<string>();
+  const entries = yield* fs.readDirectory(root).pipe(
+    Effect.mapError((cause) =>
+      WorktreePreservationError.new("inspect-residue", "Could not list the worktree's .beep directory.", {
+        cause,
+        path: root,
+      })
+    )
+  );
+  return A.sort(A.filter(entries, isRetainedCheckoutResidueName), Str.Order);
+});
+
+// Entries larger than this are copied and verified rather than renamed, so the
+// fenced source stays intact until the copy is proven; a rename is used only on
+// the same filesystem as the residue root.
+const MATERIAL_RENAME_CAP_ENV = "BEEP_WORKTREE_MATERIAL_RENAME_CAP_BYTES";
+const DEFAULT_MATERIAL_RENAME_CAP_BYTES = 64 * 1024 * 1024;
+
+type MaterialTree = {
+  readonly files: number;
+  readonly bytes: number;
+  readonly digest: Sha256Hex;
+};
+
+const materialError = (step: "preserve-beep-material" | "restore-beep-material", message: string, path: string) =>
+  Effect.mapError((cause: unknown) => WorktreePreservationError.new(step, message, { cause, path }));
+
+// The tree digest is the SHA-256 of one sorted line per path: its kind, plus a
+// file's size and content SHA-256 or a link's target. `readLink` succeeds only on
+// symbolic links, so they are recorded as links and never followed.
+const describeMaterialTree = Effect.fn("WorktreeRemovalService.describeMaterialTree")(function* (
+  step: "preserve-beep-material" | "restore-beep-material",
+  root: string
+): Effect.fn.Return<MaterialTree, WorktreePreservationError, FileSystem.FileSystem | Path.Path | Crypto.Crypto> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const describe = Effect.fnUntraced(function* (relative: string) {
+    const absolute = Str.isEmpty(relative) ? root : path.join(root, relative);
+    const label = Str.isEmpty(relative) ? "." : relative;
+    const link = yield* fs.readLink(absolute).pipe(Effect.option);
+    if (O.isSome(link)) return { line: `l ${label} ${link.value}`, bytes: 0, isFile: false, isDirectory: false };
+    const info = yield* fs.stat(absolute).pipe(materialError(step, `Could not read ${label}.`, absolute));
+    if (Str.Equivalence(info.type, "Directory"))
+      return { line: `d ${label}`, bytes: 0, isFile: false, isDirectory: true };
+    if (!Str.Equivalence(info.type, "File")) return { line: `o ${label}`, bytes: 0, isFile: false, isDirectory: false };
+    const hasher = sha256.create();
+    let bytes = 0;
+    yield* Stream.runForEach(fs.stream(absolute), (chunk) =>
+      Effect.sync(() => {
+        hasher.update(chunk);
+        bytes += chunk.byteLength;
+      })
+    ).pipe(materialError(step, `Could not read ${label}.`, absolute));
+    const contentDigest = Sha256Hex.make(Hex.encode(hasher.digest()));
+    return { line: `f ${label} ${bytes} ${contentDigest}`, bytes, isFile: true, isDirectory: false };
+  });
+  const top = yield* describe("");
+  const relatives = top.isDirectory
+    ? A.sort(
+        yield* fs.readDirectory(root, { recursive: true }).pipe(materialError(step, "Could not list the entry.", root)),
+        Str.Order
+      )
+    : A.empty<string>();
+  const nodes = A.prepend(yield* Effect.forEach(relatives, describe), top);
+  const digest = yield* decodeSha256HexFromBytes(
+    textEncoder.encode(
+      A.join(
+        A.map(nodes, (node) => node.line),
+        "\n"
+      )
+    )
+  ).pipe(materialError(step, "Could not hash the entry listing.", root));
+  return {
+    files: A.length(A.filter(nodes, (node) => node.isFile)),
+    bytes: A.reduce(nodes, 0, (total, node) => total + node.bytes),
+    digest,
+  };
+});
+
+// A copy that keeps every symbolic link verbatim: the platform's recursive copy
+// rewrites a relative link as an absolute one, which would point a restored lane
+// back into the archive. A special file (socket, FIFO, device) is refused.
+const copyMaterialTree: (
+  step: "preserve-beep-material" | "restore-beep-material",
+  source: string,
+  destination: string
+) => Effect.Effect<void, WorktreePreservationError, FileSystem.FileSystem | Path.Path> = Effect.fn(
+  "WorktreeRemovalService.copyMaterialTree"
+)(function* (step: "preserve-beep-material" | "restore-beep-material", source: string, destination: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const link = yield* fs.readLink(source).pipe(Effect.option);
+  if (O.isSome(link)) {
+    return yield* fs.symlink(link.value, destination).pipe(materialError(step, "Could not copy a link.", destination));
+  }
+  const info = yield* fs.stat(source).pipe(materialError(step, "Could not read the entry.", source));
+  if (Str.Equivalence(info.type, "File")) {
+    return yield* fs.copyFile(source, destination).pipe(materialError(step, "Could not copy a file.", destination));
+  }
+  if (!Str.Equivalence(info.type, "Directory")) {
+    return yield* WorktreePreservationError.new(step, `Refused to copy the special file ${source}.`, { path: source });
+  }
+  yield* fs.makeDirectory(destination).pipe(materialError(step, "Could not create a directory.", destination));
+  const children = yield* fs.readDirectory(source).pipe(materialError(step, "Could not list a directory.", source));
+  yield* Effect.forEach(
+    A.sort(children, Str.Order),
+    (child) => copyMaterialTree(step, path.join(source, child), path.join(destination, child)),
+    { discard: true }
+  );
+});
+
+const sameMaterialTree = (left: MaterialTree, right: MaterialTree): boolean =>
+  left.files === right.files && left.bytes === right.bytes && Str.Equivalence(left.digest, right.digest);
+
+// Move one entry with proof: describe the source, rename it when it is within the
+// cap and on the destination's filesystem, otherwise copy it, then describe the
+// destination and refuse unless the two trees are identical.
+const transferMaterialEntry = Effect.fn("WorktreeRemovalService.transferMaterialEntry")(function* (
+  step: "preserve-beep-material" | "restore-beep-material",
+  source: string,
+  destination: string,
+  destinationParent: string,
+  renameCap: number,
+  afterRename: () => Effect.Effect<void> = () => Effect.void
+): Effect.fn.Return<MaterialTree, WorktreePreservationError, FileSystem.FileSystem | Path.Path | Crypto.Crypto> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const before = yield* describeMaterialTree(step, source);
+  // The entry's own directory, not the entry: `stat` follows a symbolic link, and the
+  // link (which is what a rename moves) lives on its parent's filesystem.
+  const sourceParent = path.dirname(source);
+  const sourceDevice = yield* fs
+    .stat(sourceParent)
+    .pipe(materialError(step, "Could not read the entry's directory.", sourceParent));
+  const parentDevice = yield* fs
+    .stat(destinationParent)
+    .pipe(materialError(step, "Could not read the destination directory.", destinationParent));
+  const rename = before.bytes <= renameCap && sourceDevice.dev === parentDevice.dev;
+  yield* rename
+    ? fs
+        .rename(source, destination)
+        .pipe(
+          materialError(step, "Could not move the entry.", destination),
+          Effect.tap(afterRename),
+          Effect.uninterruptible
+        )
+    : copyMaterialTree(step, source, destination);
+  const after = yield* describeMaterialTree(step, destination);
+  if (!sameMaterialTree(before, after)) {
+    return yield* WorktreePreservationError.new(
+      step,
+      `The entry at ${destination} does not match its source (digest ${after.digest}, expected ${before.digest}).`,
+      { path: destination }
+    );
+  }
+  return before;
+});
+
+const materialRenameCap = Config.Int(MATERIAL_RENAME_CAP_ENV).pipe(
+  Config.withDefault(DEFAULT_MATERIAL_RENAME_CAP_BYTES)
+);
+
+const preserveBeepMaterial = Effect.fn("WorktreeRemovalService.preserveBeepMaterial")(function* (
+  targetPath: string,
+  plan: WorktreeArchivePlan,
+  materialEntries: ReadonlyArray<string>,
+  rollback: Ref.Ref<
+    ReadonlyArray<Effect.Effect<void, WorktreePreservationError, FileSystem.FileSystem | Path.Path | Crypto.Crypto>>
+  >
+): Effect.fn.Return<
+  ReadonlyArray<WorktreeBeepMaterialEntry>,
+  WorktreePreservationError,
+  FileSystem.FileSystem | Path.Path | Crypto.Crypto
+> {
+  if (A.isReadonlyArrayEmpty(materialEntries)) return A.empty<WorktreeBeepMaterialEntry>();
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const renameCap = yield* materialRenameCap.pipe(
+    Effect.mapError((cause) =>
+      WorktreePreservationError.new("preserve-beep-material", `Could not read ${MATERIAL_RENAME_CAP_ENV}.`, { cause })
+    )
+  );
+  yield* fs
+    .makeDirectory(plan.materialRoot, { recursive: true })
+    .pipe(materialError("preserve-beep-material", "Could not create the .beep material directory.", plan.materialRoot));
+  return yield* Effect.forEach(materialEntries, (name) =>
+    transferMaterialEntry(
+      "preserve-beep-material",
+      path.join(targetPath, ".beep", name),
+      path.join(plan.materialRoot, name),
+      plan.materialRoot,
+      renameCap,
+      () =>
+        Ref.update(
+          rollback,
+          A.prepend(
+            Effect.gen(function* () {
+              const source = path.join(plan.materialRoot, name);
+              const destination = path.join(targetPath, ".beep", name);
+              // This is the lane's newest data, even if a writer changed it after
+              // the move. Return it without requiring the pre-move digest.
+              yield* fs
+                .rename(source, destination)
+                .pipe(
+                  materialError(
+                    "preserve-beep-material",
+                    `Could not roll back the moved material at ${source}.`,
+                    source
+                  )
+                );
+            })
+          )
+        )
+    ).pipe(Effect.map((tree) => WorktreeBeepMaterialEntry.make({ name, ...tree })))
+  );
+});
+
+/**
+ * Move an archived lane's `.beep` material back into a restored checkout.
+ *
+ * **Details**
+ *
+ * The exact inverse of the capture: each entry the manifest lists moves from
+ * `<residueRoot>/beep-material/<name>` to `<restorePath>/.beep/<name>` under the
+ * same rename cap and same-filesystem rule, and is refused unless its tree
+ * matches the recorded files, bytes and digest. A destination that already
+ * exists is refused rather than merged.
+ *
+ * **Example** (Build the restore effect)
+ *
+ * ```ts
+ * import { restoreBeepMaterial } from "@beep/repo-cli/commands/Worktree"
+ * import * as Effect from "effect/Effect";
+ * console.log(Effect.isEffect(Effect.succeed(restoreBeepMaterial))) // true
+ * ```
+ *
+ * @param manifest - The residue manifest of the archived lane.
+ * @param restorePath - The checkout restored from the manifest's archive ref.
+ * @returns The entries restored, as the manifest recorded them.
+ * @category commands
+ * @since 0.0.0
+ */
+export const restoreBeepMaterial = Effect.fn("WorktreeRemovalService.restoreBeepMaterial")(function* (
+  manifest: WorktreeResidueManifest,
+  restorePath: string
+): Effect.fn.Return<
+  ReadonlyArray<WorktreeBeepMaterialEntry>,
+  WorktreePreservationError,
+  FileSystem.FileSystem | Path.Path | Crypto.Crypto
+> {
+  if (A.isReadonlyArrayEmpty(manifest.materialEntries)) return manifest.materialEntries;
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const renameCap = yield* materialRenameCap.pipe(
+    Effect.mapError((cause) =>
+      WorktreePreservationError.new("restore-beep-material", `Could not read ${MATERIAL_RENAME_CAP_ENV}.`, { cause })
+    )
+  );
+  const beepRoot = path.join(restorePath, ".beep");
+  yield* fs
+    .makeDirectory(beepRoot, { recursive: true })
+    .pipe(materialError("restore-beep-material", "Could not create the restored .beep directory.", beepRoot));
+  yield* Effect.forEach(
+    manifest.materialEntries,
+    Effect.fnUntraced(function* (entry) {
+      const destination = path.join(beepRoot, entry.name);
+      if (
+        !Str.Equivalence(path.basename(entry.name), entry.name) ||
+        !isContainedRelativePath(path, beepRoot, destination)
+      ) {
+        return yield* WorktreePreservationError.new(
+          "restore-beep-material",
+          `Refused invalid material entry name: ${entry.name}.`,
+          { path: destination }
+        );
+      }
+      const link = yield* fs.readLink(destination).pipe(Effect.option);
+      const occupied =
+        O.isSome(link) ||
+        (yield* fs
+          .exists(destination)
+          .pipe(materialError("restore-beep-material", "Could not check the restore destination.", destination)));
+      if (occupied) {
+        return yield* WorktreePreservationError.new(
+          "restore-beep-material",
+          `Refused to restore .beep/${entry.name}: ${destination} already exists.`,
+          { path: destination }
+        );
+      }
+      const source = path.join(manifest.residueRoot, "beep-material", entry.name);
+      const restored = yield* describeMaterialTree("restore-beep-material", source);
+      if (!sameMaterialTree(restored, entry)) {
+        return yield* WorktreePreservationError.new(
+          "restore-beep-material",
+          `The archived .beep/${entry.name} no longer matches its manifest (digest ${restored.digest}, recorded ${entry.digest}).`,
+          { path: source }
+        );
+      }
+    }),
+    { discard: true }
+  );
+  // Every source and destination passes preflight before the first transfer.
+  yield* Effect.forEach(
+    manifest.materialEntries,
+    (entry) =>
+      transferMaterialEntry(
+        "restore-beep-material",
+        path.join(manifest.residueRoot, "beep-material", entry.name),
+        path.join(beepRoot, entry.name),
+        beepRoot,
+        renameCap
+      ),
+    { discard: true }
+  );
+  return manifest.materialEntries;
+});
+
 const preserveResidue = Effect.fn("WorktreeRemovalService.preserveResidue")(function* (
   request: WorktreeRemovalRequest,
   head: GitObjectId,
@@ -892,6 +1237,7 @@ const preserveResidue = Effect.fn("WorktreeRemovalService.preserveResidue")(func
   upstream: WorktreeUpstreamState,
   trackedPatch: string,
   untrackedFiles: ReadonlyArray<string>,
+  materialEntries: ReadonlyArray<string>,
   baseRoot: string
 ): Effect.fn.Return<WorktreeResidueManifest, WorktreePreservationError, WorktreeRemovalServiceRequirements> {
   const fs = yield* FileSystem.FileSystem;
@@ -964,37 +1310,87 @@ const preserveResidue = Effect.fn("WorktreeRemovalService.preserveResidue")(func
     );
   }
   yield* copyUntrackedFiles(request.targetPath, plan, untrackedFiles);
+  const rollback = yield* Ref.make<
+    ReadonlyArray<Effect.Effect<void, WorktreePreservationError, FileSystem.FileSystem | Path.Path | Crypto.Crypto>>
+  >([]);
+  // The journal is independent of manifest.json: a failed capture or manifest write
+  // restores every renamed entry before restoreFencedCheckout puts the lane back.
+  return yield* Effect.gen(function* () {
+    const preservedMaterial = yield* preserveBeepMaterial(request.targetPath, plan, materialEntries, rollback);
 
-  const manifest = WorktreeResidueManifest.make({
-    name: request.name,
-    branch: request.branch,
-    head,
-    archivedAt,
-    archiveRef: plan.archiveRef,
-    repositoryHash,
-    patchPath,
-    untrackedFiles,
-    residueRoot: plan.residueRoot,
-    reason,
-    upstream,
-  });
-  const manifestJson = yield* encodeResidueManifest(manifest).pipe(
-    Effect.mapError((cause) =>
-      WorktreePreservationError.new("write-manifest", "Could not encode the residue manifest.", {
-        cause,
-        path: plan.manifestPath,
+    const manifest = WorktreeResidueManifest.make({
+      name: request.name,
+      branch: request.branch,
+      head,
+      archivedAt,
+      archiveRef: plan.archiveRef,
+      repositoryHash,
+      patchPath,
+      untrackedFiles,
+      materialEntries: preservedMaterial,
+      residueRoot: plan.residueRoot,
+      reason,
+      upstream,
+    });
+    const manifestJson = yield* encodeResidueManifest(manifest).pipe(
+      Effect.mapError((cause) =>
+        WorktreePreservationError.new("write-manifest", "Could not encode the residue manifest.", {
+          cause,
+          path: plan.manifestPath,
+        })
+      )
+    );
+    yield* fs.writeFileString(plan.manifestPath, `${manifestJson}\n`).pipe(
+      Effect.mapError((cause) =>
+        WorktreePreservationError.new("write-manifest", "Could not write the residue manifest.", {
+          cause,
+          path: plan.manifestPath,
+        })
+      )
+    );
+    return manifest;
+  }).pipe(
+    Effect.catchCause((cause) =>
+      Effect.gen(function* () {
+        const restored = yield* Effect.forEach(yield* Ref.get(rollback), Effect.exit);
+        const cleanup = [
+          fs
+            .remove(plan.manifestPath, { force: true })
+            .pipe(materialError("preserve-beep-material", "Could not remove the failed manifest.", plan.manifestPath)),
+        ];
+        // Failed moves remain recoverable in materialRoot. Only copied entries
+        // remain when every journal step succeeded; their originals never moved.
+        if (A.every(restored, Exit.isSuccess)) {
+          cleanup.push(
+            fs
+              .remove(plan.materialRoot, { recursive: true, force: true })
+              .pipe(
+                materialError(
+                  "preserve-beep-material",
+                  "Could not remove the rolled-back material copy.",
+                  plan.materialRoot
+                )
+              )
+          );
+        }
+        const cleaned = yield* Effect.forEach(cleanup, Effect.exit);
+        const failures = A.filter([...restored, ...cleaned], Exit.isFailure);
+        const combined = A.reduce(failures, cause, (original, result) => Cause.combine(original, result.cause));
+        if (A.isReadonlyArrayNonEmpty(failures)) {
+          const messages = A.flatMap([cause, ...A.map(failures, (failure) => failure.cause)], (reason) =>
+            A.map(Cause.prettyErrors(reason), (error) => error.message)
+          );
+          return yield* WorktreePreservationError.new(
+            "preserve-beep-material",
+            `${A.join(messages, "; ")} Recovery material is retained at ${plan.materialRoot}.`,
+            { cause: combined, path: plan.materialRoot }
+          );
+        }
+        return yield* Effect.failCause(cause);
       })
-    )
+    ),
+    Effect.uninterruptible
   );
-  yield* fs.writeFileString(plan.manifestPath, `${manifestJson}\n`).pipe(
-    Effect.mapError((cause) =>
-      WorktreePreservationError.new("write-manifest", "Could not write the residue manifest.", {
-        cause,
-        path: plan.manifestPath,
-      })
-    )
-  );
-  return manifest;
 });
 
 const validateRemovalRequest = Effect.fn("WorktreeRemovalService.validateRemovalRequest")(function* (
@@ -1135,7 +1531,8 @@ const captureAndPreserveResidue = Effect.fn("WorktreeRemovalService.captureAndPr
   request: WorktreeRemovalRequest,
   head: GitObjectId,
   reason: WorktreeResidueReasonType,
-  upstream: WorktreeUpstreamState
+  upstream: WorktreeUpstreamState,
+  materialEntries: ReadonlyArray<string>
 ): Effect.fn.Return<WorktreeResidueManifest, WorktreePreservationError, WorktreeRemovalServiceRequirements> {
   const baseRoot = yield* residueBaseRoot(request.targetPath);
   const trackedPatch = yield* runGitRawOutput(
@@ -1147,7 +1544,16 @@ const captureAndPreserveResidue = Effect.fn("WorktreeRemovalService.captureAndPr
     request.targetPath,
     preservationErrorAdapter("inspect-residue", "Failed to list untracked worktree residue.", request.targetPath)
   );
-  return yield* preserveResidue(request, head, reason, upstream, trackedPatch, untrackedFiles, baseRoot);
+  return yield* preserveResidue(
+    request,
+    head,
+    reason,
+    upstream,
+    trackedPatch,
+    untrackedFiles,
+    materialEntries,
+    baseRoot
+  );
 });
 
 const preserveArchiveResidue = Effect.fn("WorktreeRemovalService.preserveArchiveResidue")(function* (
@@ -1155,11 +1561,12 @@ const preserveArchiveResidue = Effect.fn("WorktreeRemovalService.preserveArchive
   head: GitObjectId,
   reason: WorktreeResidueReasonType,
   upstream: WorktreeUpstreamState,
-  needsPreservation: boolean
+  needsPreservation: boolean,
+  materialEntries: ReadonlyArray<string>
 ): Effect.fn.Return<O.Option<WorktreeResidueManifest>, WorktreePreservationError, WorktreeRemovalServiceRequirements> {
   return yield* Bool.match(needsPreservation, {
     onFalse: () => Effect.succeed(O.none<WorktreeResidueManifest>()),
-    onTrue: () => captureAndPreserveResidue(request, head, reason, upstream).pipe(Effect.asSome),
+    onTrue: () => captureAndPreserveResidue(request, head, reason, upstream, materialEntries).pipe(Effect.asSome),
   });
 });
 
@@ -1176,12 +1583,16 @@ const planArchiveRemoval = Effect.fn("WorktreeRemovalService.planArchiveRemoval"
 ): Effect.fn.Return<ArchiveRemovalPlan, WorktreePreservationError, WorktreeRemovalServiceRequirements> {
   const unpushedInspection = yield* inspectUnpushed(request.targetPath, request.branch);
   const reason = worktreeResidueReason(dirty, unpushedInspection.unpushed);
+  // Material alone is enough to preserve a residue root: a clean, merged lane
+  // still carries git-ignored `.beep` state its removal would delete.
+  const materialEntries = yield* listBeepMaterialEntries(request.targetPath);
   const manifest = yield* preserveArchiveResidue(
     request,
     head,
     reason,
     unpushedInspection.upstream,
-    dirty || unpushedInspection.unpushed
+    dirty || unpushedInspection.unpushed || A.isReadonlyArrayNonEmpty(materialEntries),
+    materialEntries
   );
   return { reason, manifest, unpushedInspection };
 });
@@ -1733,23 +2144,27 @@ const removeArchivedWorktree = Effect.fn("WorktreeRemovalService.removeArchivedW
       )
     );
   const fenced = WorktreeRemovalRequest.make({ ...request, targetPath: retirePath });
-  const planned = yield* Effect.result(fencedArchivePlan(request, fenced));
-  if (Result.isFailure(planned)) {
+  const planned = yield* Effect.exit(fencedArchivePlan(request, fenced));
+  if (Exit.isFailure(planned)) {
     // A refusal inside the fence restores the checkout exactly where it was; a failed
     // restore must name the fenced path loudly so nothing is presumed lost.
     const lateWrites = yield* restoreFencedCheckout(request.targetPath, retirePath, stamp);
     return yield* O.match(lateWrites, {
-      onNone: () => Effect.fail(planned.failure),
+      onNone: () => Effect.failCause(planned.cause),
       onSome: (lateWritesPath) =>
-        Effect.fail(
+        Cause.fail(
           WorktreeCommandError.make({
-            message: `${planned.failure.message} The checkout is restored at ${request.targetPath}; files written to that path while it was fenced are preserved at ${lateWritesPath}.`,
+            message: `${A.join(
+              A.map(Cause.prettyErrors(planned.cause), (error) => error.message),
+              "; "
+            )} The checkout is restored at ${request.targetPath}; files written to that path while it was fenced are preserved at ${lateWritesPath}.`,
             path: request.targetPath,
+            cause: planned.cause,
           })
-        ),
+        ).pipe(Effect.failCause),
     });
   }
-  const { reason, manifest, head, unpushedInspection, quietShells } = planned.success;
+  const { reason, manifest, head, unpushedInspection, quietShells } = planned.value;
   // Re-verify quiescence after capture and before the destructive remove. A scan is a
   // one-time observation, so a same-uid process could have attached to the fenced copy
   // during the capture phase (git status, patch, file copy) — the longest part of the
